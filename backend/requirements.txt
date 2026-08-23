@@ -5,3 +5,5 @@ python-multipart
 python-dotenv
 pillow
 pytesseract
+pytest
+pytest-asyncio
