@@ -125,7 +125,13 @@ def _local_ocr_fallback(image_bytes: bytes) -> str:
     """Best-effort local OCR using pytesseract + Pillow."""
 
     try:
+        import os
         import pytesseract  # noqa: WPS433 — optional dependency
+
+        # Auto-configure tesseract.exe path on Windows if installed at standard location
+        tesseract_win_path = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
+        if os.path.exists(tesseract_win_path):
+            pytesseract.pytesseract.tesseract_cmd = tesseract_win_path
     except ImportError:
         logger.error("pytesseract is not installed; returning empty text")
         return "[Local OCR unavailable — pytesseract not installed]"
