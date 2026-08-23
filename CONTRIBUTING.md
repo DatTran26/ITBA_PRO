@@ -15,6 +15,7 @@
 | Pull request target | Allowed source branches |
 | --- | --- |
 | `develop` | `develop-<member>`, `feature/<slug>` |
+| `release/<version>` | `develop`, `hotfix/<slug>` |
 | `main` | `release/<version>`, `hotfix/<slug>` |
 
 The policy workflow is a required check once enabled in the GitHub ruleset. A personal or feature branch targeting `main` will fail and receive an explanatory comment.

@@ -8,6 +8,7 @@
 Valid flows:
 
 - `develop-<member>` or `feature/<slug>` → `develop`
+- `develop` or `hotfix/<slug>` → `release/<version>`
 - `release/<version>` or `hotfix/<slug>` → `main`
 
 ## Checks

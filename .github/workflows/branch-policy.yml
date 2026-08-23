@@ -2,7 +2,7 @@ name: branch-policy
 
 on:
   pull_request:
-    branches: [main, develop]
+    branches: [main, develop, 'release/**']
     types: [opened, edited, reopened, synchronize]
 
 permissions:
@@ -30,6 +30,9 @@ jobs:
           elif [[ "$BASE_REF" == "develop" ]]; then
             expected='develop-<member> or feature/<slug>'
             [[ "$HEAD_REF" =~ ^develop-[a-z0-9-]+$ || "$HEAD_REF" =~ ^feature/[^/]+$ ]] && valid=true
+          elif [[ "$BASE_REF" =~ ^release/[^/]+$ ]]; then
+            expected='develop or hotfix/<slug>'
+            [[ "$HEAD_REF" == "develop" || "$HEAD_REF" =~ ^hotfix/[^/]+$ ]] && valid=true
           else
             expected='a supported integration branch'
           fi
@@ -52,6 +55,7 @@ jobs:
             const head = context.payload.pull_request.head.ref;
             const expectedForDevelop = '`develop-<member>` or `feature/<slug>`';
             const expectedForMain = '`release/<version>` or `hotfix/<slug>`';
+            const expectedForRelease = '`develop` or `hotfix/<slug>`';
             const body = `${marker}
             ⚠️ **Pull request flow violation**
 
@@ -59,6 +63,7 @@ jobs:
 
             Expected flow:
             - PRs to \`develop\`: ${expectedForDevelop}
+            - PRs to \`release/*\`: ${expectedForRelease}
             - PRs to \`main\`: ${expectedForMain}
 
             **Stop here:** edit the PR base branch to `develop` or create the correct release branch. This check must pass before merging.`;
