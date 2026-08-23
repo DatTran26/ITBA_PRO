@@ -7,7 +7,8 @@
 
 Valid flows:
 
-- `develop-dat`, `develop-hieu`, `develop-kien`, `develop-thanh` or `feature/<slug>` → `develop`
+- `develop-<member>` or `feature/<slug>` → `develop`
+- `develop` or `hotfix/<slug>` → `release/<version>`
 - `release/<version>` or `hotfix/<slug>` → `main`
 
 ## Checks
