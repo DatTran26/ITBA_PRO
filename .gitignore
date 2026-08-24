@@ -2,6 +2,21 @@
 .env.*
 !.env.example
 node_modules/
+
+# BA-Kit local install — private, do not commit
+.agents/
+.cursor/
+.codex/
+_templates/
+.claude/agents/
+.claude/hooks/
+.claude/rules/
+.claude/scripts/
+.claude/settings.json
+.claude/skills/*
+!.claude/skills/README.md
+!.claude/skills/principled-git-commit/
+!.claude/skills/caveman-commit/
 dist/
 build/
 coverage/
