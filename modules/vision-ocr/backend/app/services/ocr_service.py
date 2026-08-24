@@ -22,6 +22,10 @@ from app.core.config import GEMINI_API_KEY, GEMINI_API_URL
 
 logger = logging.getLogger(__name__)
 
+
+class OCRUnavailableError(RuntimeError):
+    """Raised when neither the primary nor fallback OCR engine can run."""
+
 VISION_PROMPT = (
     "You are an expert OCR engine. Accurately transcribe ALL visible text from "
     "this image, including:\n"
@@ -49,9 +53,22 @@ async def extract_text_from_image(
 
     try:
         text = await _call_gemini_vision(b64_str, mime_type)
-    except Exception as exc:
-        logger.warning("Gemini Vision API failed (%s), falling back to local OCR", exc)
-        text = _local_ocr_fallback(image_bytes)
+    except Exception as gemini_exc:
+        logger.warning(
+            "Gemini Vision API failed (%s), falling back to local OCR",
+            type(gemini_exc).__name__,
+        )
+        try:
+            text = _local_ocr_fallback(image_bytes)
+        except Exception as local_exc:
+            logger.error(
+                "All OCR engines failed (Gemini: %s; local: %s)",
+                type(gemini_exc).__name__,
+                type(local_exc).__name__,
+            )
+            raise OCRUnavailableError(
+                "No OCR engine could process the image"
+            ) from local_exc
 
     return {
         "text": text,
@@ -112,14 +129,14 @@ def _local_ocr_fallback(image_bytes: bytes) -> str:
         tesseract_win_path = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
         if os.path.exists(tesseract_win_path):
             pytesseract.pytesseract.tesseract_cmd = tesseract_win_path
-    except ImportError:
-        logger.error("pytesseract is not installed; returning empty text")
-        return "[Local OCR unavailable — pytesseract not installed]"
+    except ImportError as exc:
+        logger.error("pytesseract is not installed")
+        raise RuntimeError("Local OCR unavailable") from exc
 
     try:
         img = Image.open(io.BytesIO(image_bytes))
         text: str = pytesseract.image_to_string(img, lang="vie+eng")
         return text.strip() if text.strip() else "[No text detected by local OCR]"
     except Exception as exc:
-        logger.error("Local OCR failed: %s", exc)
-        return f"[Local OCR error: {exc}]"
+        logger.error("Local OCR failed (%s)", type(exc).__name__)
+        raise RuntimeError("Local OCR failed") from exc

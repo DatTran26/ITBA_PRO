@@ -31,12 +31,26 @@ modules/vision-ocr/
 
 ### Backend
 
+The local fallback requires the Tesseract executable and Vietnamese language data. On macOS with Homebrew:
+
+```bash
+brew install tesseract tesseract-lang
+tesseract --version
+tesseract --list-langs
+```
+
+Confirm that `eng` and `vie` appear in the language list before starting the backend.
+
 ```bash
 cd modules/vision-ocr/backend
+python -m venv .venv
+source .venv/bin/activate
 pip install -r requirements.txt
 cp .env.example .env
 python -m uvicorn app.main:app --reload --port 8000
 ```
+
+Set `GEMINI_API_KEY` in `.env`. The default primary model is `gemini-3.6-flash`; Tesseract is used only when the Gemini request fails.
 
 ### Frontend
 
