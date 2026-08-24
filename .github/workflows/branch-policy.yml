@@ -2,7 +2,7 @@ name: branch-policy
 
 on:
   pull_request:
-    branches: [main, develop]
+    branches: [main, develop, 'release/**']
     types: [opened, edited, reopened, synchronize]
 
 permissions:
@@ -32,7 +32,12 @@ jobs:
           elif [[ "$BASE_REF" == "develop" ]]; then
             expected='develop-<member> or feature/<slug>'
             case "$HEAD_REF" in
-              develop-dat|develop-hieu|develop-kien|develop-thanh|feature/*) valid=true ;;
+              develop-dat|develop-hieu|develop-kien|develop-thanh|develop-*|feature/*) valid=true ;;
+            esac
+          elif [[ "$BASE_REF" =~ ^release/[^/]+$ ]]; then
+            expected='develop or hotfix/<slug>'
+            case "$HEAD_REF" in
+              develop|hotfix/*) valid=true ;;
             esac
           else
             expected='a supported integration branch'
@@ -55,6 +60,7 @@ jobs:
             const base = context.payload.pull_request.base.ref;
             const head = context.payload.pull_request.head.ref;
             const expectedForDevelop = '`develop-<member>` or `feature/<slug>`';
+            const expectedForRelease = '`develop` or `hotfix/<slug>`';
             const expectedForMain = '`release/<version>` or `hotfix/<slug>`';
             const body = [
               marker,
@@ -64,9 +70,10 @@ jobs:
               '',
               'Expected flow:',
               '- PRs to `develop`: ' + expectedForDevelop,
+              '- PRs to `release/*`: ' + expectedForRelease,
               '- PRs to `main`: ' + expectedForMain,
               '',
-              'Please edit the PR base branch or create the correct release branch. This check must pass before merging.'
+              '**Stop here:** edit the PR base branch to `develop` or create the correct release branch. This check must pass before merging.'
             ].join('\n');
             const comments = await github.paginate(github.rest.issues.listComments, {
               owner: context.repo.owner,
