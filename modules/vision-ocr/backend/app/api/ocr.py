@@ -1,5 +1,3 @@
-"""POST /api/ocr/scan — accept an image and return extracted text."""
-
 from __future__ import annotations
 
 from fastapi import APIRouter, File, HTTPException, UploadFile
@@ -12,31 +10,14 @@ router = APIRouter(prefix="/api/ocr", tags=["ocr"])
 
 @router.post("/scan")
 async def scan_image(file: UploadFile = File(...)):
-    """
-    Accept an image (PNG, JPG, JPEG, WEBP), extract text via
-    Gemini Vision API with local OCR fallback, and return JSON:
-
-    ```json
-    {
-      "text": "...",
-      "image_b64": "data:image/png;base64,...",
-      "status": "success"
-    }
-    ```
-    """
-
-    # --- Validate MIME type ------------------------------------------------- #
+    """Accept an image (PNG, JPG, JPEG, WEBP) and return extracted text JSON."""
     content_type = file.content_type or ""
     if content_type not in ALLOWED_MIME_TYPES:
         raise HTTPException(
             status_code=400,
-            detail=(
-                f"Unsupported file type: {content_type}. "
-                f"Allowed: {', '.join(sorted(ALLOWED_MIME_TYPES))}"
-            ),
+            detail=f"Unsupported file type: {content_type}. Allowed: {', '.join(sorted(ALLOWED_MIME_TYPES))}",
         )
 
-    # --- Read & validate size ----------------------------------------------- #
     image_bytes = await file.read()
     if len(image_bytes) > MAX_UPLOAD_SIZE:
         raise HTTPException(
@@ -47,6 +28,5 @@ async def scan_image(file: UploadFile = File(...)):
     if not image_bytes:
         raise HTTPException(status_code=400, detail="Empty file uploaded")
 
-    # --- Extract text ------------------------------------------------------- #
     result = await extract_text_from_image(image_bytes, content_type)
     return result

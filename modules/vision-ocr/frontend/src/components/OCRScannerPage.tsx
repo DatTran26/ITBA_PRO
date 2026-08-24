@@ -2,16 +2,9 @@ import React, { useState, useRef, useCallback } from "react";
 import { scanImage } from "../services/ocrService";
 import type { OCRScanResponse, OCRScanState } from "../types/ocr";
 
-/* -------------------------------------------------------------------------- */
-/*  Accepted image formats                                                     */
-/* -------------------------------------------------------------------------- */
 const ACCEPTED_TYPES = ["image/png", "image/jpeg", "image/jpg", "image/webp"];
 
-/* -------------------------------------------------------------------------- */
-/*  Component                                                                  */
-/* -------------------------------------------------------------------------- */
 export const OCRScannerPage: React.FC = () => {
-  /* ── State ─────────────────────────────────────────────────────────────── */
   const [scanState, setScanState] = useState<OCRScanState>("idle");
   const [result, setResult] = useState<OCRScanResponse | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
@@ -22,7 +15,6 @@ export const OCRScannerPage: React.FC = () => {
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  /* ── Helpers ───────────────────────────────────────────────────────────── */
   const isValidFile = (file: File): boolean =>
     ACCEPTED_TYPES.includes(file.type);
 
@@ -32,7 +24,6 @@ export const OCRScannerPage: React.FC = () => {
       return;
     }
 
-    // Preview
     const reader = new FileReader();
     reader.onload = (e) => setPreview(e.target?.result as string);
     reader.readAsDataURL(file);
@@ -53,7 +44,6 @@ export const OCRScannerPage: React.FC = () => {
     }
   }, []);
 
-  /* ── Event handlers ────────────────────────────────────────────────────── */
   const handleDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault();
     setIsDragOver(true);
@@ -116,11 +106,9 @@ export const OCRScannerPage: React.FC = () => {
     if (fileInputRef.current) fileInputRef.current.value = "";
   }, []);
 
-  /* ── Render ────────────────────────────────────────────────────────────── */
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 py-8 px-4">
       <div className="max-w-4xl mx-auto">
-        {/* Header */}
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-slate-800 flex items-center justify-center gap-2">
             <span className="text-4xl">🔍</span>
@@ -131,7 +119,6 @@ export const OCRScannerPage: React.FC = () => {
           </p>
         </div>
 
-        {/* ── Drop Zone ─────────────────────────────────────────────────── */}
         <div
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}
@@ -156,7 +143,6 @@ export const OCRScannerPage: React.FC = () => {
             className="hidden"
           />
 
-          {/* Empty state */}
           {!preview && (
             <div className="text-center">
               <div className="text-6xl mb-4">📷</div>
@@ -169,7 +155,6 @@ export const OCRScannerPage: React.FC = () => {
             </div>
           )}
 
-          {/* Image preview */}
           {preview && (
             <div className="flex flex-col items-center gap-3">
               <img
@@ -184,47 +169,26 @@ export const OCRScannerPage: React.FC = () => {
           )}
         </div>
 
-        {/* ── Loading indicator ─────────────────────────────────────────── */}
         {scanState === "loading" && (
           <div className="mt-6 text-center">
             <div className="inline-flex items-center gap-3 bg-amber-50 text-amber-700 px-6 py-3 rounded-xl border border-amber-200">
-              <svg
-                className="animate-spin h-5 w-5"
-                viewBox="0 0 24 24"
-                fill="none"
-              >
-                <circle
-                  className="opacity-25"
-                  cx="12"
-                  cy="12"
-                  r="10"
-                  stroke="currentColor"
-                  strokeWidth="4"
-                />
-                <path
-                  className="opacity-75"
-                  fill="currentColor"
-                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
-                />
+              <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24" fill="none">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
               </svg>
-              <span className="font-medium">
-                ⚡ AI Vision đang trích xuất chữ từ ảnh (~5s)...
-              </span>
+              <span className="font-medium">⚡ AI Vision đang trích xuất chữ từ ảnh (~5s)...</span>
             </div>
           </div>
         )}
 
-        {/* ── Error message ─────────────────────────────────────────────── */}
         {errorMsg && (
           <div className="mt-4 bg-red-50 text-red-700 px-5 py-3 rounded-xl border border-red-200 text-sm">
             ❌ {errorMsg}
           </div>
         )}
 
-        {/* ── Result area ───────────────────────────────────────────────── */}
         {scanState === "done" && result && (
           <div className="mt-6 space-y-4">
-            {/* Toolbar */}
             <div className="flex flex-wrap gap-3">
               <button
                 onClick={handleCopy}
@@ -243,39 +207,29 @@ export const OCRScannerPage: React.FC = () => {
 
               <button
                 onClick={handleDownload}
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium
-                  bg-white text-slate-700 border border-slate-300 hover:bg-slate-50
-                  transition-colors duration-200"
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-white text-slate-700 border border-slate-300 hover:bg-slate-50 transition-colors duration-200"
               >
                 💾 Tải file .TXT
               </button>
 
               <button
                 onClick={handleReset}
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium
-                  bg-blue-600 text-white hover:bg-blue-700
-                  transition-colors duration-200"
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-blue-600 text-white hover:bg-blue-700 transition-colors duration-200"
               >
                 🔄 Quét ảnh khác
               </button>
             </div>
 
-            {/* Extracted text */}
             <div className="bg-white rounded-xl border border-slate-200 shadow-sm">
               <div className="px-5 py-3 border-b border-slate-100 flex items-center justify-between">
-                <h2 className="font-semibold text-slate-700">
-                  📝 Văn bản trích xuất
-                </h2>
-                <span className="text-xs text-slate-400">
-                  {result.text.length.toLocaleString()} ký tự
-                </span>
+                <h2 className="font-semibold text-slate-700">📝 Văn bản trích xuất</h2>
+                <span className="text-xs text-slate-400">{result.text.length.toLocaleString()} ký tự</span>
               </div>
               <textarea
                 readOnly
                 value={result.text}
                 rows={14}
-                className="w-full px-5 py-4 text-sm text-slate-800 leading-relaxed
-                  resize-y font-mono bg-slate-50/50 focus:outline-none rounded-b-xl"
+                className="w-full px-5 py-4 text-sm text-slate-800 leading-relaxed resize-y font-mono bg-slate-50/50 focus:outline-none rounded-b-xl"
               />
             </div>
           </div>

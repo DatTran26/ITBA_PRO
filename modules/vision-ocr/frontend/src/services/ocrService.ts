@@ -2,10 +2,6 @@ import { OCRScanResponse } from "../types/ocr";
 
 const API_BASE_URL = import.meta.env.VITE_API_URL ?? "http://localhost:8000";
 
-/**
- * Upload an image to the OCR endpoint and return extracted text.
- * Throws on network or HTTP errors.
- */
 export async function scanImage(file: File): Promise<OCRScanResponse> {
   const formData = new FormData();
   formData.append("file", file);
