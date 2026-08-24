@@ -5,6 +5,7 @@ node_modules/
 dist/
 build/
 coverage/
+*.tsbuildinfo
 .venv/
 __pycache__/
 *.user
@@ -24,3 +25,5 @@ scratch/
 # Ignore ALL local skills and agent configs from git tracking/push
 .claude/skills/
 .agents/
+.superpowers/
+./docs/superpowers/
