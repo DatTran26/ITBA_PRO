@@ -26,13 +26,19 @@ jobs:
           expected=''
           if [[ "$BASE_REF" == "main" ]]; then
             expected='release/<version> or hotfix/<slug>'
-            [[ "$HEAD_REF" =~ ^release/[0-9]+\.[0-9]+\.[0-9]+$ || "$HEAD_REF" =~ ^hotfix/[^/]+$ ]] && valid=true
+            case "$HEAD_REF" in
+              release/[0-9]*.[0-9]*.[0-9]*|hotfix/*) valid=true ;;
+            esac
           elif [[ "$BASE_REF" == "develop" ]]; then
             expected='develop-<member> or feature/<slug>'
-            [[ "$HEAD_REF" =~ ^develop-[a-z0-9-]+$ || "$HEAD_REF" =~ ^feature/[^/]+$ ]] && valid=true
+            case "$HEAD_REF" in
+              develop-dat|develop-hieu|develop-kien|develop-thanh|develop-*|feature/*) valid=true ;;
+            esac
           elif [[ "$BASE_REF" =~ ^release/[^/]+$ ]]; then
             expected='develop or hotfix/<slug>'
-            [[ "$HEAD_REF" == "develop" || "$HEAD_REF" =~ ^hotfix/[^/]+$ ]] && valid=true
+            case "$HEAD_REF" in
+              develop|hotfix/*) valid=true ;;
+            esac
           else
             expected='a supported integration branch'
           fi
@@ -54,19 +60,21 @@ jobs:
             const base = context.payload.pull_request.base.ref;
             const head = context.payload.pull_request.head.ref;
             const expectedForDevelop = '`develop-<member>` or `feature/<slug>`';
-            const expectedForMain = '`release/<version>` or `hotfix/<slug>`';
             const expectedForRelease = '`develop` or `hotfix/<slug>`';
-            const body = `${marker}
-            ⚠️ **Pull request flow violation**
-
-            This PR targets \`${base}\` from \`${head}\`, which is not allowed.
-
-            Expected flow:
-            - PRs to \`develop\`: ${expectedForDevelop}
-            - PRs to \`release/*\`: ${expectedForRelease}
-            - PRs to \`main\`: ${expectedForMain}
-
-            **Stop here:** edit the PR base branch to `develop` or create the correct release branch. This check must pass before merging.`;
+            const expectedForMain = '`release/<version>` or `hotfix/<slug>`';
+            const body = [
+              marker,
+              '⚠️ **Pull request flow violation**',
+              '',
+              'This PR targets `' + base + '` from `' + head + '`, which is not allowed.',
+              '',
+              'Expected flow:',
+              '- PRs to `develop`: ' + expectedForDevelop,
+              '- PRs to `release/*`: ' + expectedForRelease,
+              '- PRs to `main`: ' + expectedForMain,
+              '',
+              '**Stop here:** edit the PR base branch to `develop` or create the correct release branch. This check must pass before merging.'
+            ].join('\n');
             const comments = await github.paginate(github.rest.issues.listComments, {
               owner: context.repo.owner,
               repo: context.repo.repo,
