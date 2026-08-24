@@ -22,6 +22,9 @@ jobs:
         run: |
           set -euo pipefail
 
+          echo "BASE_REF: '${BASE_REF}'"
+          echo "HEAD_REF: '${HEAD_REF}'"
+
           valid=false
           expected=''
           if [[ "$BASE_REF" == "main" ]]; then
