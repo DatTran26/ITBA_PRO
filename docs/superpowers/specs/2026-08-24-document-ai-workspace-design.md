@@ -1,6 +1,6 @@
 # Document AI Workspace UI/UX Design
 
-**Status:** Approved in conversation on 2026-08-24
+**Status:** Revised visual direction approved in conversation on 2026-08-24
 
 ## Context
 
@@ -74,19 +74,46 @@ The selected layout is **Queue-first Desk**:
 
 ## Visual Direction
 
-The selected art direction is **Operational Editorial — Ink & Signal**.
+The selected art direction is **Evidence Prism**. The product interface itself carries the visual thesis: HR work moves from source evidence, through an AI-generated draft, to human-confirmed content. A slim evidence spine between the source preview and OCR editor makes that boundary visible without claiming field-level traceability that the backend does not provide.
+
+### Reference Transformation
+
+Lattice is used as a quality reference, not a layout template. DOWN TOWN adopts its decisive typographic hierarchy, composed asymmetric grids, disciplined semantic color, product-led imagery, and light physical feedback. It does not copy the marketing hero, rainbow decoration, oversized campaign typography, stock imagery, or landing-page motion patterns.
+
+The operational workspace remains denser and calmer than a marketing site. Color appears only where it explains OCR state or data movement; it does not decorate the entire application or soften the seriousness of employee documents.
+
+### Signature Evidence Spine
+
+The evidence spine is the one signature visual device in the workspace. It never implies that a text passage maps to a specific image region.
+
+- **Queued:** a neutral hairline with one empty status node.
+- **Processing:** a muted spine with one restrained sweep moving from source toward review. It communicates activity without a fabricated percentage.
+- **Needs review:** a limited mint-violet-coral spectrum with two visible nodes marking the source and human-review sides of the boundary.
+- **Confirmed:** a stable teal spine with a completed node. The editor locks, but the layout does not jump or celebrate theatrically.
+- **Error:** a neutral spine interrupted by an error-colored node and paired with explicit error text; color never carries the meaning alone.
+
+The spine adapts without inventing new capability:
+
+- **Desktop:** a 4 px vertical trace occupies the gutter between the source and review panes.
+- **Tablet:** when the panes become tabs, a compact horizontal trace sits below the tab list and indicates the selected job state, not a source-region relationship.
+- **Mobile:** a 3 px top trace appears in the selected job's status header. Mobile remains read/copy/download only and does not expose deep editing or confirmation.
 
 ### Core Tokens
 
-- Ink green `#173F2F`: navigation, primary actions, and strong text accents.
-- Warm paper `#F3F0E7`: application background.
-- Signal citron `#D9FF68`: focus, active indicators, and limited attention cues; it occupies less than 8% of a screen.
-- Off-white `#FFFEFA`: document and editor surfaces.
-- Semantic success, warning, and error colors must meet WCAG AA contrast and always pair color with text or an icon.
+- Deep teal `#092E30`: navigation, primary text, and the darkest interactive state.
+- Canvas `#F8FBFA`: the application background.
+- Source mist `#DFECE8`: source-preview framing and quiet selected surfaces.
+- Trace mint `#65DFD3`, trace violet `#AA8CFF`, and trace coral `#FF9079`: the review-state evidence spine, its nodes, and the empty-state media field only.
+- Confirmed teal `#4AC7AD`: the confirmed spine and confirmation status accent.
+- Action teal `#0D6E62`: primary actions and accessible links.
+- White `#FFFFFF`: document, editor, and elevated utility surfaces.
+- Semantic warning and error colors must meet WCAG AA contrast and always pair color with text or an icon.
 
-Geist is the primary UI typeface with a system sans-serif fallback. Page titles remain between 28 and 32 px. Body text remains between 14 and 16 px. The design avoids oversized marketing headings, blue-purple gradients, glassmorphism, decorative emoji, excessive pills, and card containers around every region.
+Outfit at weights 600–700 gives short workspace and section titles a clear editorial voice. Geist at weights 400–600 handles navigation, body copy, controls, and data-dense UI. Both use system sans-serif fallbacks. Page titles remain between 28 and 32 px; body text remains between 14 and 16 px with at least 1.45 line height. Filenames and technical metadata may use Geist Mono sparingly.
 
-Borders and spacing create most of the hierarchy. Shadows are reserved for the document sheet, popovers, and genuinely elevated layers. Corners are moderately rounded rather than uniformly pill-shaped.
+Borders and spacing create most of the hierarchy. Controls use an 8 px radius, ordinary panels 12 px, and the major workspace boundary 16 px. Pills are reserved for status and compact filters. Shadows are reserved for the document sheet, popovers, and genuinely elevated layers. Selectable queue rows may lift by at most 4 px with a layered shadow; static regions do not float.
+
+The design excludes decorative page gradients, warm cream plus acid-accent defaults, glassmorphism, oversized marketing headings, decorative emoji, excessive pills, and card containers around every region. Prism colors must not leak into ordinary navigation, body copy, or unrelated controls.
 
 Phosphor icons replace emoji and provide consistent stroke weight. Icon-only controls require accessible names and visible tooltips.
 
@@ -130,6 +157,7 @@ interface OCRJob {
   errorMessage: string | null;
   attemptCount: number;
   createdAt: number;
+  startedAt: number | null;
 }
 ```
 
@@ -186,9 +214,10 @@ Motion is restrained and task-oriented:
 - A short application-shell entrance on first mount.
 - A stagger when new jobs enter the queue.
 - A brief opacity and position transition when the selected review pane changes state.
+- The evidence spine changes state without changing layout; processing uses one slow source-to-review sweep as the focal animation.
 - Direct hover and pressed feedback on interactive rows and controls.
 
-GSAP orchestrates the shell entrance, queue-entry stagger, and review-pane transition. ScrollTrigger, scroll pinning, horizontal narrative scrolling, and decorative card stacking are excluded. `prefers-reduced-motion: reduce` disables non-essential movement and leaves immediate state changes.
+GSAP orchestrates the shell entrance, queue-entry stagger, review-pane transition, and evidence-spine state change. ScrollTrigger, scroll pinning, horizontal narrative scrolling, and decorative card stacking are excluded. `prefers-reduced-motion: reduce` removes the processing sweep and non-essential movement, leaving an immediate static state-colored trace.
 
 ## Accessibility
 
@@ -198,7 +227,7 @@ GSAP orchestrates the shell entrance, queue-entry stagger, and review-pane trans
 - Tablet tabs follow ARIA tab patterns and keyboard navigation.
 - Focus never moves merely because a background job finishes.
 - Validation failure moves focus to a concise summary connected to the invalid input.
-- Citron focus treatment includes a dark outline to maintain contrast against light surfaces.
+- Focus treatment combines trace mint with a deep-teal outer edge so it remains visible against light and dark surfaces.
 - Icon-only buttons have accessible names; status never relies on color alone.
 - Long filenames truncate visually while their full names remain available to assistive technology and tooltips.
 
@@ -223,10 +252,11 @@ GSAP orchestrates the shell entrance, queue-entry stagger, and review-pane trans
 - Verify confirmation locks the editor and reopening unlocks it.
 - Verify accessible status announcements and tab semantics.
 - Verify reduced-motion behavior.
+- Verify each queue status produces the defined evidence-spine treatment without implying source-region mapping.
 
 ### Manual Review
 
-Review at 1440 px, 1024 px, and 390 px. Check keyboard order, visible focus, contrast, text overflow, long filenames, slow responses, network failures, retry, dismissal confirmation, and the absence of accidental horizontal scrolling.
+Review at 1440 px, 1024 px, and 390 px. Check keyboard order, visible focus, contrast, text overflow, long filenames, slow responses, network failures, retry, dismissal confirmation, and the absence of accidental horizontal scrolling. Confirm that prism colors remain limited to the evidence path, status nodes, and empty-state media field.
 
 ## Acceptance Criteria
 
@@ -236,6 +266,8 @@ Review at 1440 px, 1024 px, and 390 px. Check keyboard order, visible focus, con
 - The interface contains no emoji and no unsupported backend claims.
 - Five valid images process sequentially and remain independently reviewable.
 - Original, edited, and confirmed text remain distinguishable in state.
+- Queued, processing, needs-review, confirmed, and error states have truthful, accessible evidence-spine treatments.
+- The Evidence Prism signature transforms into a horizontal tablet trace and mobile status trace without implying field-level mapping.
 - Desktop, tablet, and mobile behavior matches the defined capability boundaries.
 - The backend remains unchanged.
 
