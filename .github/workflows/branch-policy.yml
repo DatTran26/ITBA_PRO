@@ -26,10 +26,14 @@ jobs:
           expected=''
           if [[ "$BASE_REF" == "main" ]]; then
             expected='release/<version> or hotfix/<slug>'
-            [[ "$HEAD_REF" =~ ^release/[0-9]+\.[0-9]+\.[0-9]+$ || "$HEAD_REF" =~ ^hotfix/[^/]+$ ]] && valid=true
+            case "$HEAD_REF" in
+              release/[0-9]*.[0-9]*.[0-9]*|hotfix/*) valid=true ;;
+            esac
           elif [[ "$BASE_REF" == "develop" ]]; then
             expected='develop-<member> or feature/<slug>'
-            [[ "$HEAD_REF" =~ ^develop-(dat|hieu|kien|thanh)$ || "$HEAD_REF" =~ ^feature/[^/]+$ ]] && valid=true
+            case "$HEAD_REF" in
+              develop-dat|develop-hieu|develop-kien|develop-thanh|feature/*) valid=true ;;
+            esac
           else
             expected='a supported integration branch'
           fi
