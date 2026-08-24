@@ -55,7 +55,7 @@ jobs:
             const body = `${marker}
             ⚠️ **Pull request flow violation**
 
-            This PR targets `${base}` from `${head}`, which is not allowed.
+            This PR targets \`${base}\` from \`${head}\`, which is not allowed.
 
             Expected flow:
             - PRs to `develop`: ${expectedForDevelop}
