@@ -43,3 +43,17 @@ def test_scan_image_success(mock_extract):
     data = response.json()
     assert data["status"] == "success"
     assert data["text"] == "Sample Extracted Text"
+
+
+@patch("app.services.ocr_service._local_ocr_fallback")
+@patch("app.services.ocr_service._call_gemini_vision", new_callable=AsyncMock)
+def test_scan_returns_503_when_all_ocr_engines_fail(mock_gemini, mock_fallback):
+    mock_gemini.side_effect = RuntimeError("Gemini unavailable")
+    mock_fallback.side_effect = RuntimeError("Tesseract unavailable")
+    error_client = TestClient(app, raise_server_exceptions=False)
+
+    files = {"file": ("sample.png", create_dummy_image_bytes(), "image/png")}
+    response = error_client.post("/api/ocr/scan", files=files)
+
+    assert response.status_code == 503
+    assert response.json() == {"detail": "OCR service temporarily unavailable"}
