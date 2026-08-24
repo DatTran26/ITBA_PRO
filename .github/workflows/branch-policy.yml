@@ -52,16 +52,18 @@ jobs:
             const head = context.payload.pull_request.head.ref;
             const expectedForDevelop = '`develop-<member>` or `feature/<slug>`';
             const expectedForMain = '`release/<version>` or `hotfix/<slug>`';
-            const body = `${marker}
-            ⚠️ **Pull request flow violation**
-
-            This PR targets \`${base}\` from \`${head}\`, which is not allowed.
-
-            Expected flow:
-            - PRs to `develop`: ${expectedForDevelop}
-            - PRs to `main`: ${expectedForMain}
-
-            Please edit the PR base branch or create the correct release branch. This check must pass before merging.`;
+            const body = [
+              marker,
+              '⚠️ **Pull request flow violation**',
+              '',
+              'This PR targets `' + base + '` from `' + head + '`, which is not allowed.',
+              '',
+              'Expected flow:',
+              '- PRs to `develop`: ' + expectedForDevelop,
+              '- PRs to `main`: ' + expectedForMain,
+              '',
+              'Please edit the PR base branch or create the correct release branch. This check must pass before merging.'
+            ].join('\n');
             const comments = await github.paginate(github.rest.issues.listComments, {
               owner: context.repo.owner,
               repo: context.repo.repo,
