@@ -1,6 +1,6 @@
 # Acme Cloud — Commit Dialect (Example)
 
-> Example dialect file showing what a project's `docs/references/COMMIT.md` looks like once filled in. **Acme Cloud** is a fictional but realistic mid-sized SaaS — pnpm monorepo with admin / dashboard / public apps, shared UI and DB packages, Linear ticket integration, squash-merge PR policy, feature flags via LaunchDarkly. Use as a reference when scaffolding your own dialect.
+> Example dialect file showing what a project's `docs/features/references/COMMIT.md` looks like once filled in. **Acme Cloud** is a fictional but realistic mid-sized SaaS — pnpm monorepo with admin / dashboard / public apps, shared UI and DB packages, Linear ticket integration, squash-merge PR policy, feature flags via LaunchDarkly. Use as a reference when scaffolding your own dialect.
 >
 > The other shipped exemplars in this skill cover different operating models — pick whichever resembles your project most:
 > - **Acme Cloud** (this file) — pnpm monorepo + Linear + LaunchDarkly + squash-merge PRs

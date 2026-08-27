@@ -22,4 +22,4 @@ Also triggers on "write a commit", "commit message", "generate commit" — unles
 
 - [`SKILL.md`](./SKILL.md) — agent instructions
 - [`../principled-git-commit`](../principled-git-commit) — atomic split and secret blocklist
-- [`../../docs/references/COMMIT.md`](../../docs/references/COMMIT.md) — project dialect
+- [`../../docs/features/references/COMMIT.md`](../../docs/features/references/COMMIT.md) — project dialect

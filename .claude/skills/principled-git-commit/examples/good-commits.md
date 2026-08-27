@@ -90,7 +90,7 @@ for 24h and replay on duplicate request.
 - 24h window aligns with typical mobile retry policies
 - Storage backed by Redis with EXPIREAT — no schema migration
 
-Refs: stripe.com/docs/api/idempotent_requests
+Refs: stripe.com/docs/features/api/idempotent_requests
 ```
 
 ```

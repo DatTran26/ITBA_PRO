@@ -8,7 +8,7 @@ English-only copies of two commit skills. They apply only when the runtime does 
 | `principled-git-commit` | Atomic commits, secret blocklist, type tree |
 | `caveman-commit` | English subject ≤50, no emoji, no AI trailer |
 
-Do not stack `ak:git` with these two. Dialect: [`docs/references/COMMIT.md`](../../docs/references/COMMIT.md).
+Do not stack `ak:git` with these two. Dialect: [`docs/features/references/COMMIT.md`](../../docs/features/references/COMMIT.md).
 
 Upstream:
 

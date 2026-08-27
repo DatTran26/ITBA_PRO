@@ -10,7 +10,7 @@ description: >
   imperative / searchable), five-step workflow (diff inspection → staging →
   type decision tree → secrets blocklist → pre-commit checklist), explicit
   Breaking-Change / Revert / Amend / Trailer protocols, and a dialect
-  scaffolder that generates per-project `docs/references/COMMIT.md` for
+  scaffolder that generates per-project `docs/features/references/COMMIT.md` for
   project-specific extensions (domain proper nouns, custom trailers like
   `Refs:` / `Flag:` / `Plan SC:`, workflow hooks like PDCA / Linear /
   Jira / squash-merge PRs).
@@ -51,9 +51,9 @@ metadata:
 
 English-only vendor copy (rhino-ty). Skip this skill when `ak:git` is present.
 
-Fallback order without `ak:git`: this skill (atomic commits, secret blocklist) → `caveman-commit` (subject ≤50, no emoji, no AI trailer). Project dialect `docs/references/COMMIT.md` overrides summary length: caveman wins (≤50). Commit subjects and bodies stay English.
+Fallback order without `ak:git`: this skill (atomic commits, secret blocklist) → `caveman-commit` (subject ≤50, no emoji, no AI trailer). Project dialect `docs/features/references/COMMIT.md` overrides summary length: caveman wins (≤50). Commit subjects and bodies stay English.
 
-> Universal commit conventions derived from Conventional Commits 1.0.0 + Tim Pope + `awesome-copilot/git-commit` + a 200-commit empirical study. Project-specific dialect (domain proper nouns, custom trailers, workflow integrations like PDCA) lives in the project's `docs/references/COMMIT.md` — see §13 Dialect Loading.
+> Universal commit conventions derived from Conventional Commits 1.0.0 + Tim Pope + `awesome-copilot/git-commit` + a 200-commit empirical study. Project-specific dialect (domain proper nouns, custom trailers, workflow integrations like PDCA) lives in the project's `docs/features/references/COMMIT.md` — see §13 Dialect Loading.
 >
 > **TL;DR**: `type(scope): summary` (≤50 chars on the no-ak:git path, lowercase, imperative) + 1-2 line context + `- ` bullets when why is not obvious. No `##` headers. English body. Atomic + leaves-repo-green + why-over-what.
 
@@ -450,7 +450,7 @@ Projects often define their own trailers — examples seen in real codebases:
 - `Reported-by: <name>` — kernel-style report attribution
 - `Fixes: <hash>` — kernel-style fix-of-prior-commit pointer
 
-These are not parsed by stock git tooling but are grep-friendly. Define yours in the project's `docs/references/COMMIT.md` and use them consistently.
+These are not parsed by stock git tooling but are grep-friendly. Define yours in the project's `docs/features/references/COMMIT.md` and use them consistently.
 
 ### 8.3 Conventions
 
@@ -608,7 +608,7 @@ Refs: #INC-2031
 
 ## 13. Project Dialect
 
-This skill provides the universal layer. Project-specific extensions live in `<project>/docs/references/COMMIT.md` (the **dialect** file).
+This skill provides the universal layer. Project-specific extensions live in `<project>/docs/features/references/COMMIT.md` (the **dialect** file).
 
 ### 13.1 What goes in the dialect
 
@@ -638,14 +638,14 @@ Interactive prompt:
 4. Workflow integration (PDCA / Linear / Jira / none)
 5. Custom trailers
 
-Drops `docs/references/COMMIT.md` populated from `templates/DIALECT.template.md`.
+Drops `docs/features/references/COMMIT.md` populated from `templates/DIALECT.template.md`.
 
 ### 13.4 Loading order at runtime
 
 When this skill triggers:
 
 1. Load `SKILL.md` (this file) — universal layer
-2. Detect `<project>/docs/references/COMMIT.md` — if present, load and apply on top
+2. Detect `<project>/docs/features/references/COMMIT.md` — if present, load and apply on top
 3. If no dialect exists and the user is about to commit substantial work, offer to scaffold
 
 ### 13.5 Org-level dialects (multi-repo organizations)
@@ -655,13 +655,13 @@ Companies with N repos that share trailers / scopes / workflow conventions can l
 ```
 ~/.claude/skills/principled-git-commit/SKILL.md   ← universal (this skill)
 $ORG_HOME/COMMIT.md                               ← org-level dialect (intranet / template repo)
-<project>/docs/references/COMMIT.md               ← project-level dialect
+<project>/docs/features/references/COMMIT.md               ← project-level dialect
 ```
 
 **How to set up**:
 
 1. Maintain an `acme-eng/commit-dialect` GitHub repo (or similar) with the org-wide `COMMIT.md`.
-2. New repos clone that file into `docs/references/COMMIT.md` as a starting template, then add project-specific extensions on top.
+2. New repos clone that file into `docs/features/references/COMMIT.md` as a starting template, then add project-specific extensions on top.
 3. Org changes (e.g., "we now require `Refs:` for all features") propagate via PRs that copy the updated `COMMIT.md` into each repo.
 
 **What goes in org-level dialect**:
@@ -686,7 +686,7 @@ Even with the structure in §13.1 (whitelist + inverse rule paired), the rules o
 1. **Static check — does the dialect have the inverse rule at all?**
    ```bash
    # From repo root. Exits 0 if pattern found.
-   grep -Ei "(default.*english|english.*default|whitelist.*only|inverse rule)" docs/references/COMMIT.md
+   grep -Ei "(default.*english|english.*default|whitelist.*only|inverse rule)" docs/features/references/COMMIT.md
    ```
    Missing → add the §1 / §1.1 split per `templates/DIALECT.template.md`.
 
@@ -716,9 +716,9 @@ The static check belongs in CI when team size > 1; the runtime check is a period
 
 | Version | Date | Notes |
 |---------|------|-------|
-| 0.1.0 | 2026-05-10 | Initial release. Universal extraction from a private project's `docs/references/COMMIT.md` v0.4 (200-commit empirical study). Project-specific facts (PDCA workflow integration, native-language proper nouns, scope catalog) moved out to project dialect (see §13). |
+| 0.1.0 | 2026-05-10 | Initial release. Universal extraction from a private project's `docs/features/references/COMMIT.md` v0.4 (200-commit empirical study). Project-specific facts (PDCA workflow integration, native-language proper nouns, scope catalog) moved out to project dialect (see §13). |
 | 0.1.1 | 2026-05-11 | Rename `commit-skill` → `principled-git-commit`. Frontmatter `name:`, install paths, scaffold script, DIALECT template, README all updated. Skill content (§0-§14) unchanged. |
-| 0.1.2 | 2026-05-11 | Genericize all examples — replace project-specific commit examples with patterns drawn from real-world open-source operating models (Stripe-style idempotency keys, bcrypt→argon2id migration, idempotent payments revert, kernel-style mm/oom_kill long-form, monorepo `packages/ui` scopes, feature-flag rollout). `examples/good-commits.md` reorganized into 12 categories (A: single-line / B: why-driven / C: features / D: refactors / E: perf with metrics / F: breaking / G: reverts / H: multi-author + AI co-author / I: test/chore/docs/build/ci / J: kernel-style long-form / K: monorepo + feature-flag / L: anti-patterns). `templates/DIALECT.example.md` swapped from a single project to a fictional "Acme Cloud" pnpm monorepo + Linear + LaunchDarkly + squash-merge example. `templates/DIALECT.template.md` placeholder examples diversified (PDCA / squash-merge / trunk-based-with-flags workflows; brand names + native-language regulatory terms + service names). `scaffold-dialect.sh` prompt updated. SKILL.md inline examples (§0.4 / §0.5 / §2 type table / §3.4 feature-scope / §4 length / §8 trailer examples / §10 revert) replaced with generic real-world patterns. References to one specific source repo softened to "private-project 200-commit study" while preserving the empirical attribution. |
+| 0.1.2 | 2026-05-11 | Genericize all examples — replace project-specific commit examples with patterns drawn from real-world open-source operating models (Stripe-style idempotency keys, bcrypt→argon2id migration, idempotent payments revert, kernel-style mm/oom_kill long-form, monorepo `packages/ui` scopes, feature-flag rollout). `examples/good-commits.md` reorganized into 12 categories (A: single-line / B: why-driven / C: features / D: refactors / E: perf with metrics / F: breaking / G: reverts / H: multi-author + AI co-author / I: test/chore/docs/features/build/ci / J: kernel-style long-form / K: monorepo + feature-flag / L: anti-patterns). `templates/DIALECT.example.md` swapped from a single project to a fictional "Acme Cloud" pnpm monorepo + Linear + LaunchDarkly + squash-merge example. `templates/DIALECT.template.md` placeholder examples diversified (PDCA / squash-merge / trunk-based-with-flags workflows; brand names + native-language regulatory terms + service names). `scaffold-dialect.sh` prompt updated. SKILL.md inline examples (§0.4 / §0.5 / §2 type table / §3.4 feature-scope / §4 length / §8 trailer examples / §10 revert) replaced with generic real-world patterns. References to one specific source repo softened to "private-project 200-commit study" while preserving the empirical attribution. |
 | 0.1.3 | 2026-05-11 | Coverage expansion: §1.3 Three commit surfaces (commit / PR title / squash body — different audiences, same principles), §3.5 Non-Conventional formats acknowledgment (kernel-style / bracket-prefix / Mozilla bug-numbered / no-prefix imperative / Jira-id all valid — §0 principles still apply), §8.4 AI co-authoring policy (when to add `Co-authored-by:` for Claude / Copilot / Cursor / Gemini, with substantial-vs-trivial decision matrix), §13.5 Org-level dialects (3-layer model: universal skill + org-level COMMIT.md + project-level COMMIT.md, with override rules). |
 | 0.1.4 | 2026-05-11 | Drop premature CI + CONTRIBUTING.md from v0.1.3 — single-contributor repo with no branch protection got ~10KB of pollution per install for symbolic "eat-our-own-dogfood" value with effectively zero ROI. `scripts/validate-commit-msg.sh` stays (usable as a local commit-msg hook regardless of repo CI presence). |
 | 0.1.5 | 2026-05-26 | Add §11 anti-pattern "Partial native-language drift" + §13.1 "Default language + explicit inverse rule" sub-bullet + §13.6 "Verifying dialect enforcement" (3-layer: static grep / runtime non-ASCII subject scan / project-local UserPromptSubmit hook). `templates/DIALECT.template.md` §1 restructured into §1 (Language Default & Domain Proper Nouns — explicit English-default rule + ko/ja/es drift examples) + §1.1 (Whitelist table). `lang/ko/SKILL.ko.md` v0.1.5 note added for Korean dialect users (highest whitelist surface area among locales). Motivated by a Korean-project real case where 11 whitelisted proper nouns + missing inverse rule produced summaries like `docs(refs,adr): post-hotfix lifecycle 책임 분리 + adapter parity`. Language-agnostic — applies to ko/ja/zh/es/de/pt/etc. projects equally. No script change (scaffold-dialect.sh `{{DOMAIN_NOUNS}}` placeholder carries into new §1.1 location automatically). |

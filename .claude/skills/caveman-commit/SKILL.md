@@ -17,7 +17,7 @@ description: >
 
 English-only vendor copy (JuliusBrussee/caveman). Skip this skill when `ak:git` is present.
 
-Without `ak:git`: `principled-git-commit` decides atomic split and blocks secrets; this skill writes the message (subject ≤50, English, no emoji, no AI trailer). Dialect: `docs/references/COMMIT.md`.
+Without `ak:git`: `principled-git-commit` decides atomic split and blocks secrets; this skill writes the message (subject ≤50, English, no emoji, no AI trailer). Dialect: `docs/features/references/COMMIT.md`.
 
 Write commit messages terse and exact. Conventional Commits format. No fluff. Why over what. English only.
 

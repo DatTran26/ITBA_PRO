@@ -27,7 +27,7 @@ project-dialect tooling (template, scaffold script, analyze-history script).
   Closes the loop on the partial-drift anti-pattern by making the
   inverse rule a dialect requirement, not just a convention.
 - **§13.6 "Verifying dialect enforcement"** — new subsection with
-  three-layer verification: (a) static grep on `docs/references/COMMIT.md`
+  three-layer verification: (a) static grep on `docs/features/references/COMMIT.md`
   for the inverse-rule marker, (b) runtime non-ASCII subject scan on
   `git log` for drift symptoms, (c) optional `.claude/hooks/`
   UserPromptSubmit reminder. Includes ready-to-run shell commands.
@@ -212,7 +212,7 @@ Skill content (SKILL.md §0-§14) is unchanged; only naming moves.
 ### Added
 
 - Universal SKILL.md (~580 lines) extracted from a 612-line private-
-  project `docs/references/COMMIT.md` after a 200-commit empirical
+  project `docs/features/references/COMMIT.md` after a 200-commit empirical
   study (length sweet-spots, `##`-header outlier observation,
   sub/multi-scope conventions).
 - §0 Principles — 4 readers (`git log` scanner / `git blame` tracer /
@@ -248,7 +248,7 @@ Skill content (SKILL.md §0-§14) is unchanged; only naming moves.
   violates.
 - §12 Quick reference card.
 - §13 Project Dialect — defines what belongs in the skill vs in the
-  per-project `docs/references/COMMIT.md`, plus the runtime loading
+  per-project `docs/features/references/COMMIT.md`, plus the runtime loading
   order (skill → dialect → scaffold offer).
 - Korean prose variant under `lang/ko/SKILL.ko.md` for Korean-first
   readers; the convention itself stays English-default regardless of
@@ -266,7 +266,7 @@ Skill content (SKILL.md §0-§14) is unchanged; only naming moves.
   for project name, domain proper nouns, optional history embedding,
   workflow integration (PDCA / Linear / Jira / none), and custom
   trailers, then renders the template into
-  `<cwd>/docs/references/COMMIT.md`.
+  `<cwd>/docs/features/references/COMMIT.md`.
 - `references/REFERENCES.md` — full source attribution beyond SKILL.md
   §14, including a section explaining why "AI agent" is treated as a
   first-class reader (the skill's distinguishing contribution beyond

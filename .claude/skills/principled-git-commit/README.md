@@ -4,7 +4,7 @@ English-only vendor copy of [rhino-ty/principled-git-commit](https://github.com/
 
 Skip this skill when `ak:git` is present. Without `ak:git`, use this skill for atomic commits and secret blocking, then `caveman-commit` for the subject line (≤50).
 
-This copy does **not** include `lang/ko` or non-English trigger lists. Commit subjects and bodies stay English. Project dialect: [`docs/references/COMMIT.md`](../../docs/references/COMMIT.md).
+This copy does **not** include `lang/ko` or non-English trigger lists. Commit subjects and bodies stay English. Project dialect: [`docs/features/references/COMMIT.md`](../../docs/features/references/COMMIT.md).
 
 ## What it adds on top of Conventional Commits
 
