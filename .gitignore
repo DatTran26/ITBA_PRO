@@ -2,24 +2,10 @@
 .env.*
 !.env.example
 node_modules/
-
-# BA-Kit local install — private, do not commit
-.agents/
-.cursor/
-.codex/
-_templates/
-.claude/agents/
-.claude/hooks/
-.claude/rules/
-.claude/scripts/
-.claude/settings.json
-.claude/skills/*
-!.claude/skills/README.md
-!.claude/skills/principled-git-commit/
-!.claude/skills/caveman-commit/
 dist/
 build/
 coverage/
+*.tsbuildinfo
 .venv/
 __pycache__/
 *.user
@@ -32,6 +18,23 @@ Thumbs.db
 *.pem
 *.key
 secrets/
+
+# Scratch & temporary workspace
+scratch/
+
+# Ignore ALL local skills and agent configs from git tracking/push
+.claude/skills/
+.agents/
+.superpowers/
+./docs/superpowers/
+.cursor/
+.codex/
+_templates/
+.claude/agents/
+.claude/hooks/
+.claude/rules/
+.claude/scripts/
+.claude/settings.json
 
 # ITBAAI generated/local state
 /Frontend/.next/
@@ -47,7 +50,6 @@ secrets/
 .gemini/settings.json
 .plans/
 .agent.vscode/
-*.tsbuildinfo
 next-env.d.ts
 npm-debug.log*
 yarn-debug.log*
