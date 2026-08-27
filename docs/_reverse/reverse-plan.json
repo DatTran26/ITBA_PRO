@@ -1,0 +1,15 @@
+{
+  "generatedAt": "2026-08-27",
+  "sourceRoot": ".",
+  "mode": "code-to-srs",
+  "status": "reverse-draft",
+  "features": [
+    { "slug": "assessment-and-grading", "batch": 1 },
+    { "slug": "recruitment-and-interviews", "batch": 1 },
+    { "slug": "talent-and-crm", "batch": 2 },
+    { "slug": "knowledge-and-question-bank", "batch": 2 },
+    { "slug": "platform-communications-and-governance", "batch": 3 }
+  ],
+  "officialBaseline": null,
+  "docDriftEligible": false
+}
