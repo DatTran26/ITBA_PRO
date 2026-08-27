@@ -53,7 +53,7 @@ jobs:
 
       - name: Explain invalid pull request flow
         if: failure()
-        uses: actions/github-script@v7
+        uses: actions/github-script@v9
         with:
           script: |
             const marker = '<!-- branch-policy-warning -->';
