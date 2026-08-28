@@ -27,7 +27,7 @@ jobs:
       - name: unique supabase migration prefixes
         run: |
           set -euo pipefail
-          prefixes=$(ls Backend/supabase/migrations | sed -E 's/^([0-9]+).*/\1/' | sort | uniq -d)
+          prefixes=$(find Backend/supabase/migrations -maxdepth 1 -type f -name '*.sql' -printf '%f\n' | sed -E 's/^([0-9]+).*/\1/' | sort | uniq -d)
           if [ -n "$prefixes" ]; then
             echo "::error::Duplicate Supabase migration version prefixes: $prefixes"
             exit 1
