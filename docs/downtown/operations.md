@@ -13,17 +13,17 @@ links:
 
 ## Trạng thái vận hành
 
-Source có Dockerfile, compose và pipeline GitLab ở repository root:
+Source có Dockerfile và compose ở repository root. Pipeline GitLab đã được gỡ
+khỏi repository; không còn `.gitlab-ci.yml`.
 
-- Dockerfile/compose vẫn là executable artifact owners.
-- `.gitlab-ci.yml` nằm tại root và build image bằng context `Frontend`.
-- Pipeline đã trỏ build context vào `Frontend`, nhưng vẫn dùng branch `release`,
-  chưa khớp GitFlow `release/x.y.z` của repository root.
-- Pipeline legacy có debt về SSH host verification và secret-file handling.
-- Vì vậy chưa có production deployment automation được xác minh.
+- Dockerfile/compose vẫn là executable artifact owners cho build/chạy thủ công.
+- GitHub workflows hiện có là hygiene, branch-policy và workflow lint — không
+  deploy.
+- Production deployment automation chưa được xác minh. Release vẫn theo
+  GitFlow `release/x.y.z` trên GitHub.
 
-Không gọi GitLab/VPS, Vercel hoặc nền tảng khác là production authority cho đến
-khi owner chọn và workflow root được kiểm chứng end-to-end.
+Không gọi Vercel, VPS hoặc nền tảng khác là production authority cho đến khi
+owner chọn và workflow root được kiểm chứng end-to-end.
 
 ## Validation snapshot sau tái cấu trúc
 
@@ -48,7 +48,7 @@ Ngày 2026-08-27:
 | Standalone output | [`Frontend/next.config.ts`](../../Frontend/next.config.ts) |
 | Container image | [`Frontend/Dockerfile`](../../Frontend/Dockerfile) |
 | Runtime service/port | [`docker-compose.yml`](../../docker-compose.yml) |
-| GitLab CI | [`.gitlab-ci.yml`](../../.gitlab-ci.yml) |
+| GitHub CI | [`.github/workflows`](../../.github/workflows) |
 | Database evolution | [`Backend/supabase/migrations`](../../Backend/supabase/migrations) |
 
 ## Local build
@@ -102,9 +102,9 @@ Smoke checklist:
 Rollback schema không đủ nếu data đã bị xoá/chuyển không đảo ngược. Migration có
 data loss risk cần backup/restore drill hoặc staged migration.
 
-## Yêu cầu cho pipeline mới
+## Yêu cầu nếu thêm pipeline deploy sau này
 
-Pipeline root sau này phải:
+Bất kỳ pipeline deploy mới (GitHub Actions, không phải GitLab) phải:
 
 1. Chạy từ repository root; frontend jobs dùng context/working directory `Frontend`.
 2. Tuân GitFlow `release/x.y.z` và môi trường staging/production.

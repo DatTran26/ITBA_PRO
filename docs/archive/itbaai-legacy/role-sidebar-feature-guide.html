@@ -260,26 +260,8 @@
 
     <section class="section" id="test-accounts">
       <h2>Test Accounts</h2>
-      <p style="margin-bottom:16px">Các tài khoản dưới đây dùng cho QA/staging để đăng nhập nhanh và kiểm tra sidebar/feature theo từng role.</p>
-      <table class="matrix">
-        <thead>
-          <tr>
-            <th>Role</th>
-            <th>Email</th>
-            <th>Password</th>
-            <th>Ý nghĩa kiểm thử</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr><td><strong>super_admin</strong></td><td><code>test.superadmin@itba.ai</code></td><td><code>SuperAdmin@Itba2026</code></td><td>Kiểm tra toàn quyền, đặc biệt tạo/sửa/duyệt/archive version.</td></tr>
-          <tr><td><strong>admin</strong></td><td><code>test.admin@itba.ai</code></td><td><code>Admin@Itba2026</code></td><td>Kiểm tra quyền admin đầy đủ nhưng chỉ view version, không edit lifecycle.</td></tr>
-          <tr><td><strong>leader</strong></td><td><code>test.leader@itba.ai</code></td><td><code>Leader@Itba2026</code></td><td>Kiểm tra People & Roles, Question Bank, tạo test từ bank cho team/member.</td></tr>
-          <tr><td><strong>hr</strong></td><td><code>test.hr@itba.ai</code></td><td><code>Hr@Itba2026</code></td><td>Kiểm tra recruitment pipeline, CV, schedule, report, recruitment settings.</td></tr>
-          <tr><td><strong>interviewer</strong></td><td><code>test.interviewer@itba.ai</code></td><td><code>Interviewer@Itba2026</code></td><td>Kiểm tra assigned sessions, Interview Room và các page hỗ trợ phỏng vấn.</td></tr>
-          <tr><td><strong>recruiter</strong></td><td><code>test.recruiter@itba.ai</code></td><td><code>Recruiter@Itba2026</code></td><td>Kiểm tra tạo/quản lý test, people/roles và email cơ bản.</td></tr>
-        </tbody>
-      </table>
-      <div class="note"><strong>Lưu ý bảo mật:</strong> Đây là tài khoản test/staging. Không đưa bảng này vào tài liệu public nếu môi trường đang dùng production thật.</div>
+      <p style="margin-bottom:16px">Tài khoản QA/staging không được lưu trong repository. Lấy email/mật khẩu từ secret manager của đội, xoay vòng khi lộ, và không dùng trên production.</p>
+      <div class="note"><strong>Lưu ý bảo mật:</strong> Mọi credential đã từng nằm trong source phải được rotate. Không commit mật khẩu.</div>
     </section>
 
     <section class="section" id="super-admin">

@@ -46,50 +46,9 @@ export async function PATCH(req: NextRequest) {
   const admin = createAdminClient();
   const { error } = await admin
     .from("system_settings")
-    .upsert({ key: THRESHOLD_KEY, value: { threshold }, category: "recruitment", label: "Auto-reject threshold" }, { onConflict: "key" });
+    .upsert({ key: THRESHOLD_KEY, value: { threshold }, category: "recruitment", label: "Review threshold" }, { onConflict: "key" });
 
   if (error) return NextResponse.json({ error: "Failed to update setting" }, { status: 500 });
 
-  // Retroactively reject SCREENED applications below the new threshold
-  let autoRejected = 0;
-  try {
-    const { data: screenedApps } = await admin
-      .from("job_applications")
-      .select("id, current_screening_id")
-      .eq("pipeline_status", "SCREENED")
-      .not("current_screening_id", "is", null);
-
-    if (screenedApps && screenedApps.length > 0) {
-      const screeningIds = screenedApps.map((a: { id: string; current_screening_id: string }) => a.current_screening_id);
-
-      const { data: belowThreshold } = await admin
-        .from("candidate_screenings")
-        .select("job_application_id")
-        .in("id", screeningIds)
-        .lt("final_score", threshold);
-
-      const appIds = (belowThreshold ?? []).map((s: { job_application_id: string }) => s.job_application_id);
-
-      if (appIds.length > 0) {
-        await admin
-          .from("job_applications")
-          .update({ pipeline_status: "REJECTED", updated_at: new Date().toISOString() })
-          .in("id", appIds);
-
-        await admin.from("candidate_status_history").insert(
-          appIds.map((id: string) => ({
-            job_application_id: id,
-            from_status: "SCREENED",
-            to_status: "REJECTED",
-            note: `Auto-rejected: threshold changed to ${threshold}`,
-          }))
-        );
-        autoRejected = appIds.length;
-      }
-    }
-  } catch (e) {
-    console.warn("[settings PATCH] retroactive reject failed:", e);
-  }
-
-  return NextResponse.json({ success: true, autoRejectThreshold: threshold, autoRejected });
+  return NextResponse.json({ success: true, autoRejectThreshold: threshold });
 }

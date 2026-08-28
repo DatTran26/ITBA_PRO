@@ -36,8 +36,9 @@ npm ci
 npm run dev
 ```
 
-Mở `http://localhost:3000`. Project không version-control `.env.example`; nhận
-secret qua kênh của đội và dùng `.env.local`/`.env` đã được ignore.
+Mở `http://localhost:3000`. Project không version-control secret. Copy `Frontend/.env.example` và
+`Backend/.env.example` sang `.env.local`/`.env` (đã gitignore) rồi điền value
+qua kênh của đội.
 
 Source hiện dùng các tên cấu hình chính:
 

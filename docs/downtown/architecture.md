@@ -190,8 +190,7 @@ Provider là implementation dependency, không phải domain owner:
 - Next.js được cấu hình standalone trong
   [`Frontend/next.config.ts`](../../Frontend/next.config.ts).
 - Dockerfile/compose mô tả artifact có thể build và chạy.
-- `.gitlab-ci.yml` dưới thư mục app là pipeline legacy từ khi app còn repo riêng;
-  root single-repo chưa include/discover đúng working directory và GitFlow.
+- Pipeline GitLab đã được gỡ; không còn CI/CD deploy trong repo.
 - Production deployment authority chưa được xác nhận. Xem
   [Operations](operations.md).
 

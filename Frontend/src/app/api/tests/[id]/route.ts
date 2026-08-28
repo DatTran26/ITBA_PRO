@@ -7,6 +7,8 @@ export async function GET(
 ) {
     const { id } = await params;
     const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
     const { data: test, error } = await supabase
         .from("tests")
@@ -32,6 +34,8 @@ export async function PATCH(
     const body = await request.json();
     const { status, target_type, position_id, group_id } = body;
     const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
     const updatePayload: Record<string, unknown> = {};
     if (status !== undefined) updatePayload.status = status;
@@ -56,6 +60,8 @@ export async function DELETE(
 ) {
     const { id } = await params;
     const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
     const { error } = await supabase
         .from("tests")

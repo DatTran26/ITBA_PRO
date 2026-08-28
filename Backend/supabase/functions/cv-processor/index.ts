@@ -156,8 +156,9 @@ Deno.serve(async (req) => {
 
     if (screenErr || !screening) throw new Error("Failed to insert screening: " + screenErr?.message);
 
-    // Determine new pipeline_status
-    const newStatus = result.ai_score < threshold ? "REJECTED" : "SCREENED";
+    // Always SCREENED — AI score is advisory; humans decide REJECTED.
+    const belowThreshold = result.ai_score < threshold;
+    const newStatus = "SCREENED";
 
     // Update job_applications
     await supabase
@@ -174,7 +175,7 @@ Deno.serve(async (req) => {
       job_application_id: applicationId,
       from_status: "NEW",
       to_status: newStatus,
-      note: `AI screening completed. Score: ${result.ai_score}`,
+      note: `AI screening completed. Score: ${result.ai_score} (review threshold ${threshold}${belowThreshold ? "; below threshold — human review required" : ""}). Not auto-rejected.`,
     });
 
     // Log ai_usage

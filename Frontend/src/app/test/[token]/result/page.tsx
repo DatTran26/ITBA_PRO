@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { redirect } from "next/navigation";
 import ResultClient from "./result-client";
 
@@ -11,34 +11,29 @@ export default async function CandidateResultPage({
 }) {
     const { token } = await params;
     const { id } = await searchParams;
-    const supabase = await createClient();
+    if (!id || typeof id !== "string") redirect(`/test/${token}`);
 
-    if (!id || typeof id !== 'string') redirect(`/test/${token}`);
-
-    // Get result
-    const { data: result, error: resultError } = await supabase
-        .from("results")
-        .select("*")
-        .eq("id", id)
-        .single();
-
-    if (resultError || !result) {
-        console.error("Result fetch error:", resultError);
-        redirect(`/test/${token}`);
-    }
-
-    // Get test associated with result
-    const { data: test, error: testError } = await supabase
+    const admin = createAdminClient();
+    const { data: test } = await admin
         .from("tests")
-        .select("*, questions(*)")
-        .eq("id", result.test_id)
-        .single();
+        .select("id, share_token, title, job_role, level, questions(id, question_text, options, topic, order_num)")
+        .eq("share_token", token)
+        .maybeSingle();
 
-    if (testError || !test || test.token !== token) {
-        redirect(`/test/${token}`);
-    }
+    if (!test) redirect(`/test/${token}`);
 
-    test.questions?.sort((a: { order_num: number }, b: { order_num: number }) => a.order_num - b.order_num);
+    const { data: result } = await admin
+        .from("results")
+        .select("id, candidate_name, candidate_email, score, total_questions, time_taken, submitted_at, answers, ai_analysis, suggested_questions")
+        .eq("id", id)
+        .eq("test_id", test.id)
+        .maybeSingle();
 
-    return <ResultClient result={result} test={test} />;
+    if (!result) redirect(`/test/${token}`);
+
+    const questions = (test.questions ?? [])
+        .slice()
+        .sort((a: { order_num: number }, b: { order_num: number }) => a.order_num - b.order_num);
+
+    return <ResultClient result={result} test={{ ...test, questions }} />;
 }

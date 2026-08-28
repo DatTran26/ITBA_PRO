@@ -209,15 +209,17 @@ Use empty string or empty array if not found. Keep values concise.`,
 
     if (screenErr || !screening) throw new Error("Failed to insert screening: " + screenErr?.message);
 
-    // 10. Determine new pipeline_status
-    const newStatus = result.ai_score < threshold ? "REJECTED" : "SCREENED";
+    // 10. Always SCREENED — AI score is advisory; humans decide REJECTED.
+    const fromStatus = application.pipeline_status;
+    const nextStatus = fromStatus === "NEW" ? "SCREENED" : fromStatus;
+    const belowThreshold = result.ai_score < threshold;
 
     // 11. Update job_applications
     await admin
       .from("job_applications")
       .update({
         current_screening_id: screening.id,
-        pipeline_status: newStatus,
+        pipeline_status: nextStatus,
         updated_at: new Date().toISOString(),
       })
       .eq("id", id);
@@ -225,9 +227,9 @@ Use empty string or empty array if not found. Keep values concise.`,
     // 12. Insert status history
     await admin.from("candidate_status_history").insert({
       job_application_id: id,
-      from_status: application.pipeline_status,
-      to_status: newStatus,
-      note: `AI screening completed. Score: ${result.ai_score}`,
+      from_status: fromStatus,
+      to_status: nextStatus,
+      note: `AI screening completed. Score: ${result.ai_score} (review threshold ${threshold}${belowThreshold ? "; below threshold — human review required" : ""}). Not auto-rejected.`,
     });
 
     // 13. Log ai_usage
@@ -266,8 +268,9 @@ Use empty string or empty array if not found. Keep values concise.`,
       success: true,
       message: "CV Analysis completed",
       screeningId: screening.id,
-      pipelineStatus: newStatus,
+      pipelineStatus: nextStatus,
       aiScore: result.ai_score,
+      belowReviewThreshold: belowThreshold,
       recommendation: result.recommendation,
       cvId: cv.id,
       retryCount: newRetryCount,

@@ -97,7 +97,7 @@
   * Tích hợp tab "Tài Khoản & Vai Trò" vào header chính của Hitek TestHub.
   * Thiết kế thanh điều hướng sidebar bên trái hiển thị trực quan 6 vai trò hệ thống: Super Admin, Admin, Leader, HR, Recruiter, Interviewer.
   * Hiển thị nội dung chi tiết quyền hạn tương ứng của vai trò đang chọn: mô tả tổng quan, badge định danh, các sidebar group, trang hiển thị (`name`, `path`, `desc`, `features`).
-  * Tích hợp bảng tài khoản kiểm thử (Staging/QA Accounts) cung cấp danh sách thông tin tài khoản mẫu (email, mật khẩu) cho các vai trò để test giao diện trên môi trường staging.
+  * Tài khoản kiểm thử staging lấy từ secret manager của đội — không lưu email/mật khẩu trong source.
   * Tích hợp Ma Trận Quyền Truy Cập (Access Matrix) hiển thị đối chiếu chi tiết quyền thao tác trên các phân hệ chức năng.
 * **Tối ưu hóa Điều hướng:**
   * Hoàn thiện cơ chế dọn dẹp container sidebar (`innerHTML = ''`, `display = 'none'`) giúp sửa hoàn toàn lỗi layout sidebar bị hiển thị thừa khi chuyển đổi giữa các tab có/không sử dụng sidebar (Home, Todo, Roles).

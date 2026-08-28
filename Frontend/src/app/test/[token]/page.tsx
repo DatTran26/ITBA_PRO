@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useRouter, useParams } from "next/navigation";
-import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { PremiumBackground } from "@/components/ui/premium-background";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -23,7 +22,6 @@ interface Question {
     id: string;
     question_text: string;
     options: string[];
-    correct_answer: number;
     topic: string;
     difficulty: string;
     order_num: number;
@@ -42,7 +40,7 @@ interface Test {
     start_time: string | null;
     expires_at: string | null;
     max_participants: number | null;
-    results: any[];
+    share_token?: string;
     questions: Question[];
 }
 
@@ -64,83 +62,80 @@ export default function CandidateTestPage() {
     const [resultId, setResultId] = useState<string | null>(null);
     const [isConfirmOpen, setIsConfirmOpen] = useState(false);
     const [isTimeout, setIsTimeout] = useState(false);
+    const [submittedScore, setSubmittedScore] = useState<number | null>(null);
+    const [submittedTotal, setSubmittedTotal] = useState<number | null>(null);
     const startTimeRef = useRef<number>(0);
     const endTimeRef = useRef<number>(0);
     const hasSubmittedRef = useRef(false);
 
-    // Load test
+    // Load test via BFF — never fetch correct_answer or candidate PII through PostgREST.
     useEffect(() => {
         async function loadTest() {
             setLoading(true);
-            const supabase = createClient();
-            const { data: tests } = await supabase
-                .from("tests")
-                .select("*, questions(*), results(id)")
-                .eq("share_token", token);
-
-            if (tests && tests.length > 0) {
-                const t = tests[0];
-                t.questions?.sort((a: Question, b: Question) => a.order_num - b.order_num);
-
-                // Retrieve local data
-                const savedStateStr = localStorage.getItem(`test_state_${token}`);
-                let savedState = null;
-                if (savedStateStr) {
-                    try {
-                        savedState = JSON.parse(savedStateStr);
-                    } catch (e) { } // ignore parse error
-                }
-
-                if (t.status === "completed") {
-                    if (savedState && savedState.phase === 'submitted') {
-                        setPhase("submitted");
-                        if (savedState.candidateName) setCandidateName(savedState.candidateName);
-                        if (savedState.candidateEmail) setCandidateEmail(savedState.candidateEmail);
-                        if (savedState.answers) setAnswers(savedState.answers);
-                        if (savedState.responses) setResponses(savedState.responses);
-                        if (savedState.isTimeout) setIsTimeout(savedState.isTimeout);
-                    } else {
-                        setPhase("expired");
-                    }
-                } else if (t.start_time && new Date() < new Date(t.start_time)) {
-                    setPhase("not_started");
-                } else if (t.expires_at && new Date() > new Date(t.expires_at)) {
-                    setPhase("expired");
-                } else if (t.max_participants && t.results && t.results.length >= t.max_participants) {
-                    setPhase("full");
-                } else {
-                    // Test is available (landing or testing)
-                    // If we were previously 'full' or 'expired', reset to landing
-                    if (savedState && (savedState.phase === 'full' || savedState.phase === 'expired')) {
-                        setPhase("landing");
-                    } else if (savedState && savedState.phase) {
-                        setPhase(savedState.phase);
-                        if (savedState.candidateName) setCandidateName(savedState.candidateName);
-                        if (savedState.candidateEmail) setCandidateEmail(savedState.candidateEmail);
-                        if (savedState.answers) setAnswers(savedState.answers);
-                        if (savedState.responses) setResponses(savedState.responses);
-                        if (savedState.startTime) startTimeRef.current = savedState.startTime;
-                        if (savedState.isTimeout) setIsTimeout(savedState.isTimeout);
-
-                        if (savedState.endTime && savedState.phase === 'testing') {
-                            endTimeRef.current = savedState.endTime;
-                            const remaining = Math.max(0, Math.floor((savedState.endTime - Date.now()) / 1000));
-                            if (remaining === 0) {
-                                setTimeLeft(0);
-                            } else {
-                                setTimeLeft(remaining);
-                            }
-                        } else {
-                            setTimeLeft((t.time_limit_minutes || 15) * 60);
-                        }
-                    } else {
-                        setPhase("landing");
-                        setTimeLeft((t.time_limit_minutes || 15) * 60);
-                    }
-                }
-
-                setTest(t);
+            const res = await fetch(`/api/tests/public/${encodeURIComponent(token)}`);
+            if (!res.ok) {
+                setLoading(false);
+                return;
             }
+            const payload = await res.json() as {
+                test: Test;
+                availability: "ok" | "completed" | "not_started" | "expired" | "full";
+            };
+            const t = payload.test;
+            t.questions?.sort((a: Question, b: Question) => a.order_num - b.order_num);
+
+            const savedStateStr = localStorage.getItem(`test_state_${token}`);
+            let savedState: Record<string, unknown> | null = null;
+            if (savedStateStr) {
+                try {
+                    savedState = JSON.parse(savedStateStr);
+                } catch { /* ignore parse error */ }
+            }
+
+            if (payload.availability === "completed") {
+                if (savedState && savedState.phase === "submitted") {
+                    setPhase("submitted");
+                    if (typeof savedState.candidateName === "string") setCandidateName(savedState.candidateName);
+                    if (typeof savedState.candidateEmail === "string") setCandidateEmail(savedState.candidateEmail);
+                    if (typeof savedState.score === "number") setSubmittedScore(savedState.score);
+                    if (typeof savedState.total === "number") setSubmittedTotal(savedState.total);
+                    if (savedState.isTimeout) setIsTimeout(true);
+                } else {
+                    setPhase("expired");
+                }
+            } else if (payload.availability === "not_started") {
+                setPhase("not_started");
+            } else if (payload.availability === "expired") {
+                setPhase("expired");
+            } else if (payload.availability === "full") {
+                setPhase("full");
+            } else if (savedState && (savedState.phase === "full" || savedState.phase === "expired")) {
+                setPhase("landing");
+                setTimeLeft((t.time_limit_minutes || 15) * 60);
+            } else if (savedState && typeof savedState.phase === "string") {
+                setPhase(savedState.phase as typeof phase);
+                if (typeof savedState.candidateName === "string") setCandidateName(savedState.candidateName);
+                if (typeof savedState.candidateEmail === "string") setCandidateEmail(savedState.candidateEmail);
+                if (savedState.answers && typeof savedState.answers === "object") setAnswers(savedState.answers as Record<string, number>);
+                if (savedState.responses && typeof savedState.responses === "object") setResponses(savedState.responses as Record<string, string>);
+                if (typeof savedState.startTime === "number") startTimeRef.current = savedState.startTime;
+                if (savedState.isTimeout) setIsTimeout(true);
+                if (typeof savedState.score === "number") setSubmittedScore(savedState.score);
+                if (typeof savedState.total === "number") setSubmittedTotal(savedState.total);
+
+                if (typeof savedState.endTime === "number" && savedState.phase === "testing") {
+                    endTimeRef.current = savedState.endTime;
+                    const remaining = Math.max(0, Math.floor((savedState.endTime - Date.now()) / 1000));
+                    setTimeLeft(remaining);
+                } else {
+                    setTimeLeft((t.time_limit_minutes || 15) * 60);
+                }
+            } else {
+                setPhase("landing");
+                setTimeLeft((t.time_limit_minutes || 15) * 60);
+            }
+
+            setTest(t);
             setLoading(false);
         }
         loadTest();
@@ -188,6 +183,7 @@ export default function CandidateTestPage() {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
+                    share_token: token,
                     test_id: test.id,
                     candidate_name: candidateName,
                     candidate_email: candidateEmail,
@@ -199,13 +195,18 @@ export default function CandidateTestPage() {
             if (!res.ok) throw new Error("Submit failed");
             const data = await res.json();
             setResultId(data.result.id);
+            setSubmittedScore(data.result.score ?? null);
+            setSubmittedTotal(data.result.total_questions ?? test.questions.length);
             setPhase("submitted");
             toast.success("Nộp bài thành công!");
 
-            // Persist the resultId so refresh pushes router to result page
             localStorage.setItem(`test_state_${token}`, JSON.stringify({
                 phase: "submitted",
                 resultId: data.result.id,
+                score: data.result.score,
+                total: data.result.total_questions,
+                candidateName,
+                candidateEmail,
                 isTimeout: timeoutFlag === true
             }));
 
@@ -497,12 +498,10 @@ export default function CandidateTestPage() {
 
     // SUBMITTED PHASE
     if (phase === "submitted") {
-        const autoQuestions = test.questions.filter((q) => q.grading_mode !== "manual");
         const hasManual = test.questions.some((q) => q.grading_mode === "manual");
-        const score = autoQuestions.reduce((acc, q) => {
-            return acc + (answers[q.id] === q.correct_answer ? 1 : 0);
-        }, 0);
-        const percentage = autoQuestions.length > 0 ? Math.round((score / autoQuestions.length) * 100) : 0;
+        const score = submittedScore ?? 0;
+        const total = submittedTotal ?? test.questions.length;
+        const percentage = total > 0 ? Math.round((score / total) * 100) : 0;
 
         return (
             <PageTransition className="min-h-screen bg-[#05070A] flex items-center justify-center p-6 relative overflow-hidden">

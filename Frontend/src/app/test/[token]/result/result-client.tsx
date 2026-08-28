@@ -12,9 +12,7 @@ interface Question {
     id: string;
     question_text: string;
     options: string[];
-    correct_answer: number;
     topic: string;
-    explanation: string;
     order_num: number;
 }
 
@@ -56,7 +54,7 @@ interface Test {
     job_role: string;
     level: string;
     questions: Question[];
-    token: string;
+    share_token?: string;
 }
 
 export default function ResultClient({
@@ -282,10 +280,9 @@ export default function ResultClient({
                                                 <div className="space-y-2">
                                                     {q.options.map((opt, oIdx) => {
                                                         const isSelectedOpt = oIdx === selectedAnswer;
-                                                        const isCorrectOpt = oIdx === q.correct_answer;
 
                                                         let optClass = "border-white/5 bg-white/[0.01] text-white/40";
-                                                        if (isCorrectOpt) {
+                                                        if (isSelectedOpt && isCorrect) {
                                                             optClass = "bg-emerald-500/10 border-emerald-500/30 text-emerald-300 shadow-[0_0_20px_-5px_rgba(16,185,129,0.3)] ring-1 ring-emerald-500/20";
                                                         } else if (isSelectedOpt && !isCorrect) {
                                                             optClass = "bg-rose-500/5 border-rose-500/20 text-rose-300";
@@ -293,7 +290,7 @@ export default function ResultClient({
 
                                                         return (
                                                             <div key={oIdx} className={`p-4 rounded-xl border flex items-start gap-4 transition-all duration-300 ${optClass}`}>
-                                                                <div className={`shrink-0 w-6 h-6 rounded-full text-xs font-mono font-medium flex items-center justify-center border mt-0.5 ${isCorrectOpt ? "bg-emerald-500/20 border-emerald-500/50 text-emerald-400" :
+                                                                <div className={`shrink-0 w-6 h-6 rounded-full text-xs font-mono font-medium flex items-center justify-center border mt-0.5 ${isSelectedOpt && isCorrect ? "bg-emerald-500/20 border-emerald-500/50 text-emerald-400" :
                                                                     isSelectedOpt && !isCorrect ? "bg-rose-500/20 border-rose-500/50 text-rose-400" :
                                                                         "bg-white/5 border-white/10 text-white/30"
                                                                     }`}>
@@ -305,22 +302,12 @@ export default function ResultClient({
                                                                 </div>
 
                                                                 {/* Status icons on right */}
-                                                                {isCorrectOpt && <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0 mt-0.5" />}
-                                                                {isSelectedOpt && !isCorrectOpt && <XCircle className="w-5 h-5 text-rose-400 shrink-0 mt-0.5" />}
+                                                                {isSelectedOpt && isCorrect && <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0 mt-0.5" />}
+                                                                {isSelectedOpt && !isCorrect && <XCircle className="w-5 h-5 text-rose-400 shrink-0 mt-0.5" />}
                                                             </div>
                                                         );
                                                     })}
                                                 </div>
-
-                                                {q.explanation && (
-                                                    <div className="mt-6 p-4 rounded-xl bg-indigo-500/5 border border-indigo-500/10 relative overflow-hidden">
-                                                        <div className="absolute top-0 left-0 w-1 h-full bg-indigo-500/50" />
-                                                        <h4 className="text-xs uppercase tracking-widest text-indigo-300 font-semibold mb-2 flex items-center gap-2">
-                                                            <Brain className="w-3.5 h-3.5" /> Resolution Logic
-                                                        </h4>
-                                                        <p className="text-sm text-indigo-100/70 leading-relaxed">{q.explanation}</p>
-                                                    </div>
-                                                )}
                                             </div>
                                         </Card>
                                     </FadeIn>

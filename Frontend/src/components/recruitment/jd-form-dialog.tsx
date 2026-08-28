@@ -87,7 +87,7 @@ export default function JdFormDialog({ mode, jd, trigger, onSuccess }: JdFormDia
 
     const threshold = form.auto_reject_threshold === "" ? null : Number(form.auto_reject_threshold);
     if (threshold !== null && (isNaN(threshold) || threshold < 0 || threshold > 100)) {
-      setError("Ngưỡng auto-reject phải từ 0 đến 100."); return;
+      setError("Ngưỡng gợi ý review phải từ 0 đến 100."); return;
     }
 
     setLoading(true);
@@ -183,7 +183,7 @@ export default function JdFormDialog({ mode, jd, trigger, onSuccess }: JdFormDia
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="flex flex-col gap-1.5">
-                  <label className={labelCls}>Ngưỡng auto-reject (0–100, để trống = dùng global)</label>
+                  <label className={labelCls}>Ngưỡng gợi ý review (0–100, để trống = dùng global)</label>
                   <input type="number" min={0} max={100} value={form.auto_reject_threshold} onChange={(e) => setForm((f) => ({ ...f, auto_reject_threshold: e.target.value }))} disabled={loading} placeholder="VD: 40" className={inputCls} />
                 </div>
                 <div className="flex items-center gap-3 pt-5">

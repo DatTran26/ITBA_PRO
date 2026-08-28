@@ -1239,67 +1239,16 @@
             ${groupsHtml}
           </div>
 
-          <!-- Staging/QA Test Accounts -->
+          <!-- Staging/QA Test Accounts: credentials live in the team secret manager, never in source -->
           <div class="glass-card p-6 rounded-2xl border border-border mb-10 bg-gradient-to-br from-[#161E30] to-[#121927]">
             <h3 class="font-display font-bold text-base text-text-primary mb-1 flex items-center gap-2">
               <i data-lucide="shield-alert" class="size-5 text-warning"></i>
-              Tài Khoản Kiểm Thử (Staging/QA Accounts)
+              Tài Khoản Kiểm Thử (Staging/QA)
             </h3>
-            <p class="text-xs text-text-secondary mb-4">Danh sách tài khoản staging để đăng nhập và kiểm tra trực quan giao diện theo vai trò tương ứng.</p>
-
-            <div class="overflow-x-auto">
-              <table class="w-full border-collapse text-left text-xs">
-                <thead>
-                  <tr class="border-b border-border/80 text-text-muted">
-                    <th class="py-2.5 font-bold uppercase tracking-wider">Role</th>
-                    <th class="py-2.5 font-bold uppercase tracking-wider">Email</th>
-                    <th class="py-2.5 font-bold uppercase tracking-wider">Mật khẩu</th>
-                    <th class="py-2.5 font-bold uppercase tracking-wider">Ý nghĩa kiểm thử</th>
-                  </tr>
-                </thead>
-                <tbody class="divide-y divide-border/40 text-text-secondary">
-                  <tr class="${selectedRoleTab === 'super_admin' ? 'text-text-primary font-medium bg-primary/5' : ''}">
-                    <td class="py-3 pr-4"><code class="text-primary-light font-bold">super_admin</code></td>
-                    <td class="py-3 pr-4"><code>test.superadmin@itba.ai</code></td>
-                    <td class="py-3 pr-4"><code>SuperAdmin@Itba2026</code></td>
-                    <td class="py-3">Toàn quyền hệ thống, sửa đổi & duyệt các phiên bản.</td>
-                  </tr>
-                  <tr class="${selectedRoleTab === 'admin' ? 'text-text-primary font-medium bg-primary/5' : ''}">
-                    <td class="py-3 pr-4"><code class="text-primary-light font-bold">admin</code></td>
-                    <td class="py-3 pr-4"><code>test.admin@itba.ai</code></td>
-                    <td class="py-3 pr-4"><code>Admin@Itba2026</code></td>
-                    <td class="py-3">Vận hành nghiệp vụ, không có quyền sửa đổi lifecycle version.</td>
-                  </tr>
-                  <tr class="${selectedRoleTab === 'leader' ? 'text-text-primary font-medium bg-primary/5' : ''}">
-                    <td class="py-3 pr-4"><code class="text-primary-light font-bold">leader</code></td>
-                    <td class="py-3 pr-4"><code>test.leader@itba.ai</code></td>
-                    <td class="py-3 pr-4"><code>Leader@Itba2026</code></td>
-                    <td class="py-3">Đánh giá nội bộ: quản lý member, team, ngân hàng câu hỏi & test.</td>
-                  </tr>
-                  <tr class="${selectedRoleTab === 'hr' ? 'text-text-primary font-medium bg-primary/5' : ''}">
-                    <td class="py-3 pr-4"><code class="text-primary-light font-bold">hr</code></td>
-                    <td class="py-3 pr-4"><code>test.hr@itba.ai</code></td>
-                    <td class="py-3 pr-4"><code>Hr@Itba2026</code></td>
-                    <td class="py-3">Vận hành tuyển dụng: quản lý CV, schedule, report, settings.</td>
-                  </tr>
-                  <tr class="${selectedRoleTab === 'interviewer' ? 'text-text-primary font-medium bg-primary/5' : ''}">
-                    <td class="py-3 pr-4"><code class="text-primary-light font-bold">interviewer</code></td>
-                    <td class="py-3 pr-4"><code>test.interviewer@itba.ai</code></td>
-                    <td class="py-3 pr-4"><code>Interviewer@Itba2026</code></td>
-                    <td class="py-3">Tham gia phỏng vấn: nhận lịch, dùng Interview Room.</td>
-                  </tr>
-                  <tr class="${selectedRoleTab === 'recruiter' ? 'text-text-primary font-medium bg-primary/5' : ''}">
-                    <td class="py-3 pr-4"><code class="text-primary-light font-bold">recruiter</code></td>
-                    <td class="py-3 pr-4"><code>test.recruiter@itba.ai</code></td>
-                    <td class="py-3 pr-4"><code>Recruiter@Itba2026</code></td>
-                    <td class="py-3">Tạo và quản lý bài test tuyển dụng, xem thông tin email & people.</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-            <div class="mt-4 p-3 bg-warning/10 border border-warning/20 rounded-xl text-[11px] text-warning flex items-start gap-2.5">
+            <p class="text-xs text-text-secondary mb-4">Email/mật khẩu staging không được lưu trong repository. Lấy từ secret manager của đội, xoay vòng khi lộ, và không dùng trên production.</p>
+            <div class="mt-2 p-3 bg-warning/10 border border-warning/20 rounded-xl text-[11px] text-warning flex items-start gap-2.5">
               <i data-lucide="info" class="size-4 flex-shrink-0 mt-0.5"></i>
-              <span><strong>Lưu ý:</strong> Bảng tài khoản kiểm thử này được dành riêng cho các môi trường QA/Staging, không public ra production.</span>
+              <span><strong>Lưu ý:</strong> Không commit credential. Mọi tài khoản kiểm thử đã từng nằm trong source phải được rotate.</span>
             </div>
           </div>
 

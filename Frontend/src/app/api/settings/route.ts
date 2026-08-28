@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { getAuthContext, isAuthError } from "@/lib/api/auth-helpers";
-import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { clearAiConfigCache } from "@/lib/get-ai-config";
 
 // Masked placeholder for write-only fields (password type).
@@ -9,8 +9,11 @@ const MASK_PLACEHOLDER = "••••••••";
 const SENSITIVE_KEYS = new Set(["openai_api_key"]);
 
 export async function GET() {
-    const supabase = await createClient();
-    const { data: settings, error } = await supabase
+    const ctx = await getAuthContext();
+    if (isAuthError(ctx)) return ctx;
+
+    const admin = createAdminClient();
+    const { data: settings, error } = await admin
         .from("system_settings")
         .select("id, key, value, category, label, description, input_type, options")
         .order("category")

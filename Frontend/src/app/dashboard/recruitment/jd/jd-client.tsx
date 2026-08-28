@@ -102,7 +102,7 @@ export default function JdClient({ userRole }: Props) {
                 )}
 
                 {jd.auto_reject_threshold != null && (
-                  <p className="text-xs text-[#F59E0B] ml-5">Auto-reject &lt; {jd.auto_reject_threshold}</p>
+                  <p className="text-xs text-[#F59E0B] ml-5">Gợi ý review &lt; {jd.auto_reject_threshold}</p>
                 )}
               </div>
 

@@ -131,33 +131,21 @@ Không thay audit bằng application log dễ mất/rotate.
 
 ## Rủi ro hiện hành cần ưu tiên
 
-Reverse audit 2026-08-27 ghi nhận các vấn đề cần task bảo mật riêng:
+Reverse audit 2026-08-27 ghi nhận các vấn đề; các mục assessment/RLS/submit
+đã được vá trên nhánh này (migration `20260828000000_lock_public_assessment_access.sql`
+và API `/api/tests/public`, `/api/results`). Còn lại:
 
-- Public assessment loader/policy có thể đưa `correct_answer` vào browser trước
-  submission; xem [assessment gaps](../_reverse/assessment-and-grading/gaps.md).
-- Result submission chưa chứng minh server enforce schedule, capacity và unique
-  attempt trước insert; client-side guard không đủ làm security boundary.
 - Một số recruitment route dùng admin/service access sau broad role gate; cần
   đối chiếu ownership/tenant scope với RLS và role matrix chính thức; xem
   [recruitment gaps](../_reverse/recruitment-and-interviews/gaps.md).
-- Hai DB utilities từng chứa connection string literal đã được đổi sang
-  `DATABASE_URL`. Credential liên quan vẫn phải revoke/rotate ngoài source; việc
+- Credential QA/staging từng nằm trong source phải được rotate ngoài Git; việc
   xoá literal không làm credential cũ mất hiệu lực.
 
-Không tự động sửa các business/security contract này trong task tái cấu trúc;
-cần threat model, tests và owner approval tương ứng.
+## Deployment security
 
-## Deployment security debt
-
-Pipeline GitLab legacy chưa được phép coi là production automation vì:
-
-- không được root single-repo discovery đúng working directory;
-- branch filter không khớp GitFlow;
-- dynamic host-key collection/tắt strict verification làm yếu SSH trust;
-- privileged `.env` được tạo/copy mà chưa có permission/cleanup được chứng minh;
-- registry authentication có nguy cơ lộ credential trong process/log.
-
-Yêu cầu hardening nằm trong [Operations](operations.md).
+Pipeline GitLab (SSH agent, host-keyscan, privileged `.env` copy) đã được gỡ
+khỏi repository. Deploy thủ công qua Docker/compose; secret chỉ thuộc secret
+manager và runtime env, không thuộc Git.
 
 ## Security review gate
 

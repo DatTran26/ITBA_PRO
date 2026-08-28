@@ -8,7 +8,6 @@ export default function RecruitmentSettingsClient({ canEdit = false }: { canEdit
   const [input, setInput] = useState("40");
   const [loading, setLoading] = useState(true);
   const [saveState, setSaveState] = useState<"idle" | "saving" | "saved">("idle");
-  const [autoRejected, setAutoRejected] = useState(0);
 
   useEffect(() => {
     fetch("/api/recruitment/settings")
@@ -33,11 +32,9 @@ export default function RecruitmentSettingsClient({ canEdit = false }: { canEdit
         body: JSON.stringify({ autoRejectThreshold: val }),
       });
       if (!res.ok) throw new Error();
-      const data = await res.json();
       setThreshold(val);
       setSaveState("saved");
-      if (data.autoRejected > 0) setAutoRejected(data.autoRejected);
-      setTimeout(() => { setSaveState("idle"); setAutoRejected(0); }, 4000);
+      setTimeout(() => { setSaveState("idle"); }, 4000);
     } catch {
       setSaveState("idle");
     }
@@ -70,10 +67,10 @@ export default function RecruitmentSettingsClient({ canEdit = false }: { canEdit
               <Loader2 className="w-3 h-3 animate-spin" /> Saving…
             </span>
           )}
-          {saveState === "saved" && (
+              {saveState === "saved" && (
             <span className="flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold bg-[#36DDAB]/10 text-[#36DDAB] border border-[#36DDAB]/20">
               <CheckCircle2 className="w-3 h-3" />
-              {autoRejected > 0 ? `Saved · ${autoRejected} auto-rejected` : "Saved"}
+              Saved
             </span>
           )}
         </div>
@@ -94,7 +91,7 @@ export default function RecruitmentSettingsClient({ canEdit = false }: { canEdit
                 <Filter className="w-4 h-4 text-[#FFB547]" />
               </div>
               <div>
-                <h2 className="text-sm font-bold capitalize tracking-wide text-[#FFB547]">Auto Filtering</h2>
+                <h2 className="text-sm font-bold capitalize tracking-wide text-[#FFB547]">Review Guidance</h2>
                 <p className="text-[11px] text-[#5A6882]">1 setting</p>
               </div>
             </div>
@@ -104,14 +101,14 @@ export default function RecruitmentSettingsClient({ canEdit = false }: { canEdit
           <form onSubmit={handleSave}>
             <div className="flex items-center justify-between gap-8 px-5 py-5 border-b border-white/[0.04] last:border-b-0 hover:bg-white/[0.015] transition-colors">
               <div className="min-w-0 flex-1">
-                <p className="text-sm font-semibold text-[#ECF0F7]">Auto-reject Threshold</p>
+                <p className="text-sm font-semibold text-[#ECF0F7]">Review Threshold</p>
                 <p className="text-xs text-[#5A6882] mt-0.5 leading-relaxed">
-                  Ứng viên có AI score thấp hơn ngưỡng này sẽ tự động bị từ chối sau khi sàng lọc.
-                  Per-JD threshold (nếu có) sẽ ghi đè giá trị này.
+                  Ứng viên có AI score thấp hơn ngưỡng này được đánh dấu để người phụ trách xem xét.
+                  Hệ thống không tự chuyển sang REJECTED. Per-JD threshold (nếu có) sẽ ghi đè giá trị này.
                 </p>
                 <div className="mt-3 flex items-center gap-2">
                   <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-[#FFB547]/10 text-[#FFB547] border border-[#FFB547]/20">
-                    Auto reject nếu score &lt; {threshold}%
+                    Gợi ý review nếu score &lt; {threshold}%
                   </span>
                 </div>
               </div>
