@@ -1,0 +1,9 @@
+# /docker-compose.yml
+services:
+  itba-ai:
+    image: ${DOCKER_IMAGE:-itba-ai:latest}
+    ports:
+      - "3000:3000"
+    restart: always
+    env_file:
+      - .env

@@ -1,0 +1,759 @@
+<!doctype html>
+<html lang="vi" class="dark">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>ITBA.AI · Design System — Deep Intelligence (Premium)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&family=Outfit:wght@500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+  /* ═══════════ PREMIUM DARK TOKENS ═══════════
+     Rendered hex palette (shipped) + premium elevation/accent upgrades.
+     Canvas #121A2E · primary indigo #5B6CF0 · AI violet #A78BFA. */
+  :root {
+    /* surface elevation ramp */
+    --bg:        #121A2E;   /* canvas / app shell */
+    --bg-deep:   #0A0F1E;   /* immersive / test */
+    --s1:        #161E30;   /* card */
+    --s2:        #1B2540;   /* raised / popover */
+    --s3:        #212C4A;   /* overlay / hover */
+    --sidebar:   #101828;
+
+    /* hairlines + highlight */
+    --border:        rgba(255,255,255,0.07);
+    --border-strong: rgba(255,255,255,0.12);
+    --highlight:     rgba(255,255,255,0.06);
+
+    /* text */
+    --text:   #ECF0F7;
+    --text-2: #AEB9CC;
+    --muted:  #8B99B0;
+    --dim:    #5A6882;
+
+    /* brand — Iris indigo */
+    --primary:   #5B6CF0;
+    --primary-h: #4F5FE0;
+    --primary-l: #7C8FFF;
+    --primary-bg: rgba(91,108,240,0.14);
+
+    /* AI — Violet */
+    --violet:    #A78BFA;
+    --violet-l:  #B48EFF;
+    --violet-bg: rgba(167,139,250,0.14);
+
+    /* status (dark-tuned) */
+    --success: #34D399;  --success-bg: rgba(52,211,153,0.14);
+    --warning: #FBBF24;  --warning-bg: rgba(251,191,36,0.14);
+    --danger:  #FB7185;  --danger-bg:  rgba(251,113,133,0.14);
+    --info:    #5B6CF0;  --info-bg:    rgba(91,108,240,0.14);
+
+    /* gradients */
+    --grad-cta:   linear-gradient(135deg, #5B6CF0, #7C8FFF);
+    --grad-brand: linear-gradient(135deg, #7C8FFF 0%, #A78BFA 60%, #B48EFF 100%);
+    --grad-iris:  linear-gradient(135deg, #6E7BFF, #A57BFF);
+
+    /* elevation (dark shadows) */
+    --e1: 0 1px 2px rgba(0,0,0,0.40);
+    --e2: 0 8px 24px rgba(0,0,0,0.45);
+    --e3: 0 24px 60px rgba(0,0,0,0.55);
+    --glow: 0 8px 28px rgba(91,108,240,0.35);
+
+    --radius: 0.625rem;
+
+    --font-display: 'Outfit', system-ui, sans-serif;
+    --font-body: 'Plus Jakarta Sans', system-ui, sans-serif;
+    --font-sans: 'Geist', system-ui, sans-serif;
+    --font-mono: 'Geist Mono', ui-monospace, monospace;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body {
+    background:
+      radial-gradient(55% 50% at 100% 0%, rgba(91,108,240,0.10), transparent 70%),
+      radial-gradient(45% 45% at -5% 95%, rgba(167,139,250,0.06), transparent 70%),
+      radial-gradient(35% 35% at 25% 25%, rgba(52,211,153,0.025), transparent 70%),
+      var(--bg);
+    color: var(--text);
+    font-family: var(--font-body);
+    font-size: 14px; line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: inherit; text-decoration: none; }
+  h1,h2,h3,h4 { font-family: var(--font-display); font-weight: 700; letter-spacing: -0.02em; margin: 0; }
+  code, .mono { font-family: var(--font-mono); font-size: 0.82em; }
+  .tnum { font-variant-numeric: tabular-nums; }
+
+  ::-webkit-scrollbar { width: 8px; height: 8px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: rgba(139,153,176,0.2); border-radius: 999px; }
+  ::-webkit-scrollbar-thumb:hover { background: rgba(139,153,176,0.3); }
+
+  /* ── layout ── */
+  .layout { display: grid; grid-template-columns: 256px 1fr; min-height: 100vh; }
+  .toc {
+    position: sticky; top: 0; align-self: start; height: 100vh; overflow-y: auto;
+    background: rgba(16,24,40,0.82); backdrop-filter: blur(20px);
+    border-right: 1px solid var(--border); padding: 26px 16px;
+  }
+  .brand { display:flex; align-items:center; gap:11px; margin-bottom: 4px; padding: 0 8px; }
+  .brand .logo {
+    width: 38px; height: 38px; border-radius: 12px; background: var(--grad-cta);
+    display:flex; align-items:center; justify-content:center; font-family:var(--font-display);
+    font-weight:800; color:#0b1020; font-size:15px; box-shadow: var(--glow);
+  }
+  .brand .name { font-family: var(--font-display); font-weight: 800; font-size: 15px; }
+  .brand .sub { font-size: 10.5px; color: var(--muted); letter-spacing:.08em; text-transform:uppercase; }
+  .toc nav { margin-top: 16px; display: flex; flex-direction: column; gap: 1px; }
+  .toc a { padding: 7px 12px; font-size: 12.5px; color: var(--muted); border-radius: 8px; border-left: 2px solid transparent; transition: all .18s; }
+  .toc a:hover { color: var(--text); background: rgba(255,255,255,0.04); }
+  .toc .grp { font-family:var(--font-mono); font-size:10px; letter-spacing:.16em; text-transform:uppercase; color:var(--dim); padding:14px 12px 4px; }
+
+  .main { max-width: 1180px; }
+
+  /* ── hero ── */
+  .hero { padding: 60px 56px 44px; border-bottom: 1px solid var(--border); position: relative; overflow: hidden; }
+  .hero .mark { display:flex; align-items:center; gap:16px; margin-bottom: 30px; }
+  .hero .mark .logo { width:54px; height:54px; border-radius:16px; background:var(--grad-cta); display:flex; align-items:center; justify-content:center; font-family:var(--font-display); font-weight:800; font-size:21px; color:#0b1020; box-shadow:var(--glow); }
+  .hero .mark .tt { font-family:var(--font-display); font-weight:800; font-size:24px; letter-spacing:.02em; }
+  .hero .mark .st { font-size:11px; letter-spacing:.18em; text-transform:uppercase; color:var(--violet-l); font-weight:600; }
+  .eyebrow { font-family: var(--font-mono); font-size: 11px; letter-spacing: .22em; text-transform: uppercase; color: var(--muted); margin-bottom: 14px; }
+  .hero h1 { font-size: 48px; line-height: 1.04; }
+  .grad-text { background: var(--grad-brand); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .hero p { color: var(--text-2); max-width: 640px; margin-top: 16px; font-size: 15px; }
+  .pills { display:flex; gap:8px; flex-wrap:wrap; margin-top: 24px; }
+  .pill { font-family: var(--font-mono); font-size: 11px; padding: 5px 11px; border-radius: 999px; border: 1px solid var(--border); background: rgba(255,255,255,0.03); color: var(--muted); }
+
+  /* ── sections ── */
+  section { padding: 46px 56px; border-bottom: 1px solid var(--border); }
+  .sec-head { display:flex; align-items:baseline; gap:16px; margin-bottom: 26px; }
+  .sec-head .num { font-family:var(--font-mono); font-size: 11px; letter-spacing:.14em; color: var(--primary-l); font-weight:500; }
+  .sec-head h2 { font-size: 24px; }
+  .sec-head .desc { font-size: 13px; color: var(--muted); margin-left:auto; max-width: 360px; text-align:right; line-height:1.45; }
+  .subhead { font-family:var(--font-mono); font-size: 10.5px; font-weight:600; color: var(--dim); letter-spacing:.1em; text-transform:uppercase; margin: 22px 0 12px; }
+  .subhead:first-child { margin-top: 0; }
+
+  .grid { display: grid; gap: 12px; }
+  .g2 { grid-template-columns: repeat(2,1fr); }
+  .g3 { grid-template-columns: repeat(3,1fr); }
+  .g4 { grid-template-columns: repeat(4,1fr); }
+  .row { display:flex; flex-wrap:wrap; gap:12px; align-items:center; }
+  @media (max-width: 920px){ .layout{grid-template-columns:1fr} .toc{display:none} .g4,.g3{grid-template-columns:repeat(2,1fr)} section,.hero{padding-left:26px;padding-right:26px} }
+
+  /* ── premium card ── */
+  .card {
+    background: var(--s1); border: 1px solid var(--border); border-radius: 16px;
+    box-shadow: var(--e1), inset 0 1px 0 var(--highlight);
+  }
+  .card-hover { transition: all .25s; }
+  .card-hover:hover { background: var(--s2); border-color: var(--border-strong); box-shadow: var(--e2), inset 0 1px 0 var(--highlight); transform: translateY(-2px); }
+
+  /* ── swatches ── */
+  .swatch { border-radius: 13px; overflow:hidden; border:1px solid var(--border); background: var(--s1); }
+  .swatch .chip { height: 72px; }
+  .swatch .meta { padding: 9px 12px; }
+  .swatch .meta .nm { font-family:var(--font-mono); font-size: 12px; font-weight: 500; }
+  .swatch .meta .val { font-size: 11px; color: var(--muted); margin-top: 3px; line-height:1.4; }
+
+  /* ── type rows ── */
+  .type-row { display:grid; grid-template-columns: 170px 1fr 200px; gap:18px; padding: 15px 0; border-top: 1px solid var(--border); align-items:baseline; }
+  .type-row .nm { font-size:13px; font-weight:600; }
+  .type-row .mt { font-family:var(--font-mono); font-size:11px; color:var(--dim); margin-top:3px; }
+  .type-row .use { font-size:12px; color:var(--muted); }
+
+  /* ── space + radius rows ── */
+  .scale-row { display:grid; grid-template-columns: 110px 1fr 1.2fr; gap:16px; padding: 11px 0; border-top: 1px solid var(--border); align-items:center; }
+  .scale-row .tk { font-family:var(--font-mono); font-size:12px; font-weight:500; }
+  .scale-row .tk span { color:var(--dim); margin-left:8px; }
+  .scale-row .use { font-size:12px; color:var(--muted); }
+  .bar { height: 8px; background: var(--grad-cta); border-radius: 3px; }
+  .radbox { width: 42px; height: 42px; background: var(--grad-cta); }
+
+  /* ── elevation cards ── */
+  .elev { background: var(--s1); border-radius: 14px; padding: 18px; border: 1px solid transparent; }
+  .elev .tk { font-family:var(--font-mono); font-size:12px; font-weight:500; }
+  .elev .use { font-size:12px; color:var(--muted); margin-top:4px; }
+  .elev .css { font-family:var(--font-mono); font-size:10px; color:var(--dim); margin-top:10px; word-break:break-all; }
+
+  /* ── buttons ── */
+  .btn { display:inline-flex; align-items:center; justify-content:center; gap:7px; height: 36px; padding: 0 16px; border-radius: 10px; font-family: var(--font-sans); font-weight: 600; font-size: 13.5px; border: 1px solid transparent; cursor: pointer; transition: all .18s; }
+  .btn:active { transform: translateY(1px); }
+  .btn-primary { background: var(--grad-cta); color: #0b1020; box-shadow: var(--glow), inset 0 1px 0 rgba(255,255,255,0.25); }
+  .btn-primary:hover { filter: brightness(1.05); }
+  .btn-solid { background: var(--primary); color:#fff; box-shadow: var(--glow); }
+  .btn-outline { border-color: var(--border-strong); background: rgba(255,255,255,0.04); color: var(--text); }
+  .btn-outline:hover { background: rgba(255,255,255,0.08); }
+  .btn-ghost { color: var(--text-2); }
+  .btn-ghost:hover { background: rgba(255,255,255,0.05); color: var(--text); }
+  .btn-danger { background: var(--danger-bg); color: var(--danger); }
+  .btn-danger:hover { background: rgba(251,113,133,0.22); }
+  .btn-link { color: var(--primary-l); text-decoration: underline; text-underline-offset: 4px; height:auto; padding:0; box-shadow:none; }
+  .btn:focus-visible { outline: none; box-shadow: 0 0 0 3px rgba(91,108,240,0.5); }
+  .btn-sm { height: 30px; padding: 0 12px; font-size: 12.5px; border-radius: 9px; }
+
+  /* ── badges / chips ── */
+  .badge { display:inline-flex; align-items:center; gap:6px; padding: 4px 10px; border-radius: 8px; font-size: 12px; font-weight: 600; }
+  .b-info { background: var(--info-bg); color: #9DA9FF; }
+  .b-ai { background: var(--violet-bg); color: var(--violet-l); }
+  .b-success { background: var(--success-bg); color: var(--success); }
+  .b-warning { background: var(--warning-bg); color: var(--warning); }
+  .b-danger { background: var(--danger-bg); color: var(--danger); }
+  .b-neutral { background: rgba(255,255,255,0.06); color: var(--muted); }
+  .dot { width:6px; height:6px; border-radius:999px; background: currentColor; }
+  .count { font-size:11px; font-weight:600; padding:1px 8px; border-radius:999px; background:rgba(255,255,255,0.08); color:var(--text-2); }
+  .beta { font-size:11px; font-weight:500; padding:0 7px; border-radius:999px; border:1px dashed var(--muted); color:var(--muted); }
+  /* status dot w/ premium glow ring */
+  .sdot { display:inline-block; width:8px; height:8px; border-radius:50%; }
+  .sdot.ok { background:var(--success); box-shadow:0 0 0 3px rgba(52,211,153,0.18); }
+  .sdot.warn { background:var(--warning); box-shadow:0 0 0 3px rgba(251,191,36,0.18); }
+  .sdot.err { background:var(--danger); box-shadow:0 0 0 3px rgba(251,113,133,0.18); }
+  .sdot.live { background:var(--primary-l); box-shadow:0 0 0 3px rgba(124,143,255,0.22); animation:pulse 2s infinite; }
+  @keyframes pulse { 0%,100%{box-shadow:0 0 0 3px rgba(124,143,255,0.22)} 50%{box-shadow:0 0 0 6px rgba(124,143,255,0.05)} }
+
+  /* ── avatar ── */
+  .av { position:relative; flex-shrink:0; display:inline-block; }
+  .av .face { width:36px; height:36px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:700; letter-spacing:.02em; }
+  .av .grad { background: var(--grad-iris); color:#fff; }
+  .av .tint { background: var(--primary-bg); color: var(--primary-l); }
+  .av .on { position:absolute; right:-1px; bottom:-1px; width:11px; height:11px; border-radius:50%; background:var(--success); border:2px solid var(--s1); }
+
+  /* ── input / search ── */
+  .field { display:flex; flex-direction:column; gap:7px; }
+  .field label { font-size: 12.5px; font-weight: 600; }
+  .input { height: 38px; padding: 0 12px; border-radius: 10px; background: rgba(255,255,255,0.03); border: 1px solid var(--border-strong); color: var(--text); font-family: var(--font-body); font-size: 13.5px; }
+  .input::placeholder { color: var(--muted); }
+  .input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(91,108,240,0.3); }
+  .input.invalid { border-color: var(--danger); box-shadow: 0 0 0 3px rgba(251,113,133,0.2); }
+  .search { display:inline-flex; align-items:center; gap:10px; height:38px; padding:0 14px; border-radius:999px; background:rgba(255,255,255,0.04); border:1px solid var(--border); color:var(--muted); font-size:13px; min-width:240px; }
+  .search .kbd { margin-left:auto; font-family:var(--font-mono); font-size:10.5px; padding:2px 6px; border-radius:6px; background:rgba(255,255,255,0.06); }
+
+  /* ── tabs / segmented ── */
+  .tabs { display:flex; border-bottom:1px solid var(--border); }
+  .tabs .t { padding:10px 14px; font-size:13.5px; color:var(--muted); border-bottom:2px solid transparent; margin-bottom:-1px; cursor:pointer; }
+  .tabs .t.active { color:var(--text); font-weight:600; border-bottom-color:var(--primary); }
+  .seg { display:inline-flex; padding:3px; gap:2px; border-radius:11px; background:rgba(255,255,255,0.04); border:1px solid var(--border); }
+  .seg .s { padding:6px 14px; font-size:12.5px; border-radius:8px; color:var(--muted); cursor:pointer; }
+  .seg .s.active { background:var(--s3); color:var(--text); box-shadow:var(--e1); }
+
+  /* ── alert ── */
+  .alert { display:flex; align-items:center; gap:12px; padding:13px 15px; border-radius:13px; background:var(--s1); border:1px solid var(--border); box-shadow:inset 0 1px 0 var(--highlight); }
+  .alert .ic { width:28px; height:28px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-weight:700; flex-shrink:0; }
+  .alert .tx { flex:1; font-size:13px; }
+  .alert .tx b { font-weight:600; }
+  .alert .tx span { color:var(--muted); }
+
+  /* ── toast ── */
+  .toast { display:flex; align-items:center; gap:11px; padding:13px 18px; border-radius:12px; font-size:13.5px; color:#06210f; box-shadow:var(--e2); }
+  .toast .ic { width:20px; height:20px; border-radius:50%; background:rgba(0,0,0,0.18); display:flex; align-items:center; justify-content:center; font-size:12px; }
+  .toast .x { margin-left:auto; opacity:.7; cursor:pointer; }
+
+  /* ── kpi ── */
+  .kpi { padding:18px; display:flex; gap:12px; align-items:flex-start; }
+  .kpi .lab { display:flex; align-items:center; gap:7px; font-size:12.5px; color:var(--muted); }
+  .kpi .val { font-family:var(--font-display); font-size:30px; font-weight:800; line-height:1; margin-top:12px; }
+  .kpi .delta { font-size:12px; font-weight:700; margin-top:7px; display:inline-flex; align-items:center; gap:3px; }
+  .up { color:var(--success); } .down { color:var(--danger); }
+
+  /* ── score + funnel ── */
+  .score { display:inline-flex; align-items:center; gap:8px; }
+  .score .track { width:60px; height:4px; background:rgba(255,255,255,0.08); border-radius:2px; overflow:hidden; }
+  .score .fill { height:100%; }
+  .funnel { width:100%; }
+  .funnel .lab { display:flex; justify-content:space-between; font-size:12.5px; margin-bottom:5px; }
+  .funnel .track { height:7px; background:rgba(255,255,255,0.06); border-radius:4px; overflow:hidden; }
+  .funnel .fill { height:100%; background:var(--grad-cta); }
+
+  /* ── table ── */
+  table { width:100%; border-collapse: collapse; }
+  thead th { text-align:left; font-family:var(--font-mono); font-size:10.5px; text-transform:uppercase; letter-spacing:.08em; color:var(--muted); padding:11px 16px; background:rgba(255,255,255,0.02); border-bottom:1px solid var(--border); font-weight:600; }
+  tbody td { padding:13px 16px; border-bottom:1px solid var(--border); font-size:13px; }
+  tbody tr:last-child td { border-bottom:none; }
+  tbody tr:hover { background:rgba(255,255,255,0.02); }
+
+  /* ── sidebar / header mini ── */
+  .nav-mini { background:var(--sidebar); border-radius:14px; padding:12px 8px; width:240px; border:1px solid var(--border); }
+  .nav-i { display:flex; align-items:center; gap:11px; padding:8px 12px; border-radius:9px; font-size:13.5px; color:var(--text-2); margin:1px 0; }
+  .nav-i.active { background:rgba(91,108,240,0.16); color:#fff; font-weight:600; }
+  .nav-i.active .gl { color:var(--primary-l); }
+  .nav-i .gl { width:18px; text-align:center; color:var(--muted); }
+  .nav-sec { font-family:var(--font-mono); font-size:10px; letter-spacing:.14em; text-transform:uppercase; color:var(--dim); padding:14px 12px 4px; }
+  .chrome { display:grid; grid-template-columns:230px 1fr; border:1px solid var(--border); border-radius:14px; overflow:hidden; box-shadow:inset 0 1px 0 var(--highlight); }
+  .chrome .l { background:var(--sidebar); height:58px; display:flex; align-items:center; gap:11px; padding:0 18px; }
+  .chrome .r { background:var(--s1); height:58px; display:flex; align-items:center; gap:16px; padding:0 20px; }
+
+  /* ── icon grid ── */
+  .icons { display:grid; grid-template-columns:repeat(8,1fr); gap:8px; }
+  .icons .it { border:1px solid var(--border); border-radius:11px; background:var(--s1); padding:14px 6px; text-align:center; }
+  .icons .it .g { font-size:18px; }
+  .icons .it .n { font-family:var(--font-mono); font-size:9.5px; color:var(--dim); margin-top:8px; }
+  .pro-icon { width:40px; height:40px; border-radius:12px; display:flex; align-items:center; justify-content:center; background:var(--grad-cta); color:#0b1020; box-shadow:inset 0 0 0 1px rgba(255,255,255,0.1); }
+
+  .note { border-radius: 13px; padding: 16px 18px; font-size: 13px; line-height:1.6; }
+  .foot { padding: 30px 56px; color: var(--muted); font-size: 12px; }
+</style>
+</head>
+<body>
+<div class="layout">
+
+  <aside class="toc">
+    <div class="brand">
+      <div class="logo">IT</div>
+      <div><div class="name">ITBA.AI</div><div class="sub">Design System</div></div>
+    </div>
+    <nav>
+      <a href="#overview">Overview</a>
+      <div class="grp">Foundations</div>
+      <a href="#surfaces">01 · Surfaces & Elevation</a>
+      <a href="#brand">02 · Brand & Accents</a>
+      <a href="#status">03 · Semantic Status</a>
+      <a href="#type">04 · Typography</a>
+      <a href="#space">05 · Spacing</a>
+      <a href="#radius">06 · Radius</a>
+      <a href="#shadow">07 · Elevation</a>
+      <div class="grp">Components</div>
+      <a href="#buttons">08 · Buttons</a>
+      <a href="#badges">09 · Badges & Status</a>
+      <a href="#avatars">10 · Avatars</a>
+      <a href="#inputs">11 · Inputs & Search</a>
+      <a href="#tabs">12 · Tabs & Segmented</a>
+      <a href="#alerts">13 · Alerts & Toast</a>
+      <a href="#kpi">14 · KPI & Charts</a>
+      <a href="#table">15 · Table</a>
+      <a href="#chrome">16 · Shell & Sidebar</a>
+      <a href="#icons">17 · Iconography</a>
+      <div class="grp">Patterns</div>
+      <a href="#states">18 · Interaction States</a>
+      <a href="#legacy">19 · Legacy & Migration</a>
+    </nav>
+  </aside>
+
+  <main class="main">
+
+    <!-- HERO -->
+    <header class="hero" id="overview">
+      <div class="mark">
+        <div class="logo">IT</div>
+        <div><div class="tt grad-text">ITBA.AI</div><div class="st">Deep Intelligence System</div></div>
+      </div>
+      <div class="eyebrow">Canonical · Dark-first · Premium</div>
+      <h1>Deep Intelligence<br><span class="grad-text">Arctic Minimalist</span> System</h1>
+      <p>Hệ thiết kế chuẩn của ITBA.AI — dark-only, nền navy <code>#121A2E</code>, accent indigo <code>#5B6CF0</code> + AI violet <code>#A78BFA</code>. Nâng cấp premium: elevation ramp rõ tầng, glass card có top-highlight, primary glow, tabular numerals.</p>
+      <div class="pills">
+        <span class="pill">Next.js · Tailwind v4 · Base UI</span>
+        <span class="pill">Canvas #121A2E</span>
+        <span class="pill">Indigo #5B6CF0</span>
+        <span class="pill">AI Violet #A78BFA</span>
+        <span class="pill">Geist · Outfit · Plus Jakarta</span>
+      </div>
+    </header>
+
+    <!-- 01 SURFACES -->
+    <section id="surfaces">
+      <div class="sec-head"><span class="num">01</span><h2>Surfaces & Elevation Ramp</h2><div class="desc">Tầng bề mặt theo độ sáng tăng dần để thể hiện chiều sâu — không dùng 1 màu card duy nhất.</div></div>
+      <div class="subhead">Elevation ramp</div>
+      <div class="grid g4">
+        <div class="swatch"><div class="chip" style="background:var(--bg-deep)"></div><div class="meta"><div class="nm">bg-deep</div><div class="val">#0A0F1E · immersive/test</div></div></div>
+        <div class="swatch"><div class="chip" style="background:var(--bg)"></div><div class="meta"><div class="nm">canvas</div><div class="val">#121A2E · app shell</div></div></div>
+        <div class="swatch"><div class="chip" style="background:var(--s1)"></div><div class="meta"><div class="nm">surface-1</div><div class="val">#161E30 · card</div></div></div>
+        <div class="swatch"><div class="chip" style="background:var(--s2)"></div><div class="meta"><div class="nm">surface-2</div><div class="val">#1B2540 · raised/popover</div></div></div>
+        <div class="swatch"><div class="chip" style="background:var(--s3)"></div><div class="meta"><div class="nm">surface-3</div><div class="val">#212C4A · overlay/hover</div></div></div>
+        <div class="swatch"><div class="chip" style="background:var(--sidebar)"></div><div class="meta"><div class="nm">sidebar</div><div class="val">#101828</div></div></div>
+        <div class="swatch"><div class="chip" style="background:linear-gradient(90deg,rgba(255,255,255,0.07),rgba(255,255,255,0.12))"></div><div class="meta"><div class="nm">border / strong</div><div class="val">white 7% → 12%</div></div></div>
+        <div class="swatch"><div class="chip" style="background:linear-gradient(90deg,#ECF0F7,#AEB9CC)"></div><div class="meta"><div class="nm">text / text-2</div><div class="val">#ECF0F7 · #AEB9CC</div></div></div>
+      </div>
+      <div class="subhead">Premium glass card (top-highlight + tonal lift on hover)</div>
+      <div class="grid g3">
+        <div class="card card-hover" style="padding:20px"><div class="pro-icon" style="margin-bottom:12px">◆</div><h3 style="font-size:15px">surface-1 + highlight</h3><p style="color:var(--muted);font-size:12.5px;margin:8px 0 0">Card mặc định: nền #161E30, hairline white/7, inset top-highlight white/6, shadow tối.</p></div>
+        <div class="card card-hover" style="padding:20px"><div class="pro-icon" style="margin-bottom:12px;background:var(--violet-bg);color:var(--violet-l)">✦</div><h3 style="font-size:15px">hover → surface-2</h3><p style="color:var(--muted);font-size:12.5px;margin:8px 0 0">Hover nâng nền + viền sáng hơn + translateY(-2px). Di chuột để xem.</p></div>
+        <div class="card" style="padding:20px;background:var(--bg-deep)"><div class="pro-icon" style="margin-bottom:12px">★</div><h3 style="font-size:15px" class="grad-text">immersive</h3><p style="color:var(--muted);font-size:12.5px;margin:8px 0 0">Trang làm test/profile dùng nền sâu #0A0F1E + PremiumBackground mesh.</p></div>
+      </div>
+    </section>
+
+    <!-- 02 BRAND -->
+    <section id="brand">
+      <div class="sec-head"><span class="num">02</span><h2>Brand & Accents</h2><div class="desc">Một accent chủ đạo (indigo) + violet cho AI. Dùng tiết chế, gradient cho điểm nhấn.</div></div>
+      <div class="subhead">Accent</div>
+      <div class="grid g4">
+        <div class="swatch"><div class="chip" style="background:var(--primary)"></div><div class="meta"><div class="nm">primary · Indigo</div><div class="val">#5B6CF0 · CTA/active/focus</div></div></div>
+        <div class="swatch"><div class="chip" style="background:var(--primary-l)"></div><div class="meta"><div class="nm">primary-l</div><div class="val">#7C8FFF · icon/border</div></div></div>
+        <div class="swatch"><div class="chip" style="background:var(--violet)"></div><div class="meta"><div class="nm">violet · AI</div><div class="val">#A78BFA · AI insight</div></div></div>
+        <div class="swatch"><div class="chip" style="background:var(--violet-l)"></div><div class="meta"><div class="nm">violet-l</div><div class="val">#B48EFF · gradient tail</div></div></div>
+      </div>
+      <div class="subhead">Gradients & glow</div>
+      <div class="grid g3">
+        <div class="swatch"><div class="chip" style="background:var(--grad-cta)"></div><div class="meta"><div class="nm">CTA gradient</div><div class="val">135° #5B6CF0→#7C8FFF</div></div></div>
+        <div class="swatch"><div class="chip" style="background:var(--grad-brand)"></div><div class="meta"><div class="nm">brand heading</div><div class="val">#7C8FFF→#A78BFA→#B48EFF</div></div></div>
+        <div class="swatch"><div class="chip" style="background:var(--s1);box-shadow:var(--glow) inset"></div><div class="meta"><div class="nm">primary glow</div><div class="val">0 8px 28px rgba(91,108,240,.35)</div></div></div>
+      </div>
+    </section>
+
+    <!-- 03 STATUS -->
+    <section id="status">
+      <div class="sec-head"><span class="num">03</span><h2>Semantic Status</h2><div class="desc">Màu dark-tuned (giảm bão hòa hợp nền tối). Luôn kèm text/icon, không chỉ dựa vào màu.</div></div>
+      <div class="grid g4">
+        <div class="swatch"><div class="chip" style="background:var(--success)"></div><div class="meta"><div class="nm">success · Emerald</div><div class="val">#34D399 · đạt/live</div></div></div>
+        <div class="swatch"><div class="chip" style="background:var(--warning)"></div><div class="meta"><div class="nm">warning · Amber</div><div class="val">#FBBF24 · chờ duyệt</div></div></div>
+        <div class="swatch"><div class="chip" style="background:var(--danger)"></div><div class="meta"><div class="nm">danger · Rose</div><div class="val">#FB7185 · lỗi/từ chối</div></div></div>
+        <div class="swatch"><div class="chip" style="background:var(--info)"></div><div class="meta"><div class="nm">info · Indigo</div><div class="val">#5B6CF0 · thông tin</div></div></div>
+      </div>
+    </section>
+
+    <!-- 04 TYPE -->
+    <section id="type">
+      <div class="sec-head"><span class="num">04</span><h2>Typography</h2><div class="desc">Display Outfit · Body Plus Jakarta · UI Geist · Mono Geist Mono.</div></div>
+      <div class="type-row"><div><div class="nm">Display</div><div class="mt">28–36px · 800 · -0.02em</div></div><div style="font-family:var(--font-display);font-size:34px;font-weight:800" class="tnum">1,284</div><div class="use">KPI value, hero number</div></div>
+      <div class="type-row"><div><div class="nm">Page title</div><div class="mt">28px · 700</div></div><div style="font-family:var(--font-display);font-size:28px;font-weight:700">Tổng quan đánh giá</div><div class="use">Page title (h1)</div></div>
+      <div class="type-row"><div><div class="nm">Section title</div><div class="mt">22px · 600</div></div><div style="font-family:var(--font-display);font-size:22px;font-weight:600">Hiệu suất ứng viên</div><div class="use">Section (h2)</div></div>
+      <div class="type-row"><div><div class="nm">Card title</div><div class="mt">16–18px · 600</div></div><div style="font-size:17px;font-weight:600">Bài test gần đây</div><div class="use">Card header</div></div>
+      <div class="type-row"><div><div class="nm">Body</div><div class="mt">13.5px · 400</div></div><div style="font-size:13.5px">Trung tâm điều hành tuyển dụng AI.</div><div class="use">Default body, cell</div></div>
+      <div class="type-row"><div><div class="nm">Body strong</div><div class="mt">13.5px · 500</div></div><div style="font-size:13.5px;font-weight:500">Nguyễn Minh Anh</div><div class="use">Name, label emphasis</div></div>
+      <div class="type-row"><div><div class="nm">Caption</div><div class="mt">12px · 400</div></div><div style="font-size:12px;color:var(--muted)">Cập nhật 2 phút trước</div><div class="use">Metadata, timestamp</div></div>
+      <div class="type-row"><div><div class="nm">Micro</div><div class="mt">10.5px · 600 · 0.1em</div></div><div style="font-size:10.5px;font-weight:600;letter-spacing:.1em;text-transform:uppercase">RECRUITER</div><div class="use">Role tag, eyebrow</div></div>
+      <div class="type-row"><div><div class="nm">Mono</div><div class="mt">Geist Mono · 12px</div></div><div class="mono" style="font-size:13px">candidate_id = 0x9F2A</div><div class="use">Token, ID, code</div></div>
+    </section>
+
+    <!-- 05 SPACE -->
+    <section id="space">
+      <div class="sec-head"><span class="num">05</span><h2>Spacing</h2><div class="desc">Thang 4px. Card padding 20–24, section gap 16–24, micro 6–10.</div></div>
+      <div class="scale-row"><div class="tk">s-1<span>4px</span></div><div><div class="bar" style="width:8px"></div></div><div class="use">Tight icon gap</div></div>
+      <div class="scale-row"><div class="tk">s-2<span>8px</span></div><div><div class="bar" style="width:16px"></div></div><div class="use">Inline gap (button row)</div></div>
+      <div class="scale-row"><div class="tk">s-3<span>12px</span></div><div><div class="bar" style="width:24px"></div></div><div class="use">Default gap</div></div>
+      <div class="scale-row"><div class="tk">s-4<span>16px</span></div><div><div class="bar" style="width:32px"></div></div><div class="use">Card body padding</div></div>
+      <div class="scale-row"><div class="tk">s-5<span>20px</span></div><div><div class="bar" style="width:40px"></div></div><div class="use">Card padding (comfortable)</div></div>
+      <div class="scale-row"><div class="tk">s-6<span>24px</span></div><div><div class="bar" style="width:48px"></div></div><div class="use">Section gap</div></div>
+      <div class="scale-row"><div class="tk">s-8<span>32px</span></div><div><div class="bar" style="width:64px"></div></div><div class="use">Section break</div></div>
+    </section>
+
+    <!-- 06 RADIUS -->
+    <section id="radius">
+      <div class="sec-head"><span class="num">06</span><h2>Radius</h2><div class="desc">Base 10px. Control = lg · Card = 2xl · Bento = 2.5rem.</div></div>
+      <div class="scale-row"><div class="tk">sm<span>6px</span></div><div class="radbox" style="border-radius:6px"></div><div class="use">inline tag, chip nhỏ</div></div>
+      <div class="scale-row"><div class="tk">md<span>8px</span></div><div class="radbox" style="border-radius:8px"></div><div class="use">badge, segmented</div></div>
+      <div class="scale-row"><div class="tk">lg<span>10px</span></div><div class="radbox" style="border-radius:10px"></div><div class="use">button, input</div></div>
+      <div class="scale-row"><div class="tk">2xl<span>18px</span></div><div class="radbox" style="border-radius:18px"></div><div class="use">card, panel</div></div>
+      <div class="scale-row"><div class="tk">full<span>999</span></div><div class="radbox" style="border-radius:999px"></div><div class="use">avatar, search, pill</div></div>
+    </section>
+
+    <!-- 07 SHADOW -->
+    <section id="shadow">
+      <div class="sec-head"><span class="num">07</span><h2>Elevation</h2><div class="desc">Shadow tối + accent glow cho phần tử primary. Dùng thang nhất quán.</div></div>
+      <div class="grid g4">
+        <div class="elev" style="border-color:var(--border)"><div class="tk">e-1</div><div class="use">card mặc định</div><div class="css">0 1px 2px rgba(0,0,0,.4)</div></div>
+        <div class="elev" style="box-shadow:var(--e2)"><div class="tk">e-2</div><div class="use">popover, card hover</div><div class="css">0 8px 24px rgba(0,0,0,.45)</div></div>
+        <div class="elev" style="box-shadow:var(--e3)"><div class="tk">e-3</div><div class="use">modal, sheet</div><div class="css">0 24px 60px rgba(0,0,0,.55)</div></div>
+        <div class="elev" style="box-shadow:var(--glow)"><div class="tk">glow</div><div class="use">primary CTA</div><div class="css">0 8px 28px rgba(91,108,240,.35)</div></div>
+      </div>
+    </section>
+
+    <!-- 08 BUTTONS -->
+    <section id="buttons">
+      <div class="sec-head"><span class="num">08</span><h2>Buttons</h2><div class="desc">1 primary CTA mỗi màn. Primary có gradient + glow + top-highlight.</div></div>
+      <div class="subhead">Variants</div>
+      <div class="row">
+        <button class="btn btn-primary">Tạo bài test</button>
+        <button class="btn btn-solid">Solid</button>
+        <button class="btn btn-outline">Outline</button>
+        <button class="btn btn-ghost">Ghost</button>
+        <button class="btn btn-danger">Xóa</button>
+        <a class="btn btn-link">Link action</a>
+      </div>
+      <div class="subhead">Sizes & with icon</div>
+      <div class="row">
+        <button class="btn btn-primary btn-sm">＋ Small</button>
+        <button class="btn btn-primary">＋ Medium</button>
+        <button class="btn btn-outline">⌕ Tìm kiếm</button>
+      </div>
+    </section>
+
+    <!-- 09 BADGES -->
+    <section id="badges">
+      <div class="sec-head"><span class="num">09</span><h2>Badges & Status</h2><div class="desc">Status dot có glow ring. Stage pill, count badge, beta tag.</div></div>
+      <div class="subhead">Chips (semantic)</div>
+      <div class="row">
+        <span class="badge b-info"><span class="dot"></span>Info</span>
+        <span class="badge b-ai"><span class="dot"></span>AI insight</span>
+        <span class="badge b-success"><span class="dot"></span>Đạt</span>
+        <span class="badge b-warning"><span class="dot"></span>Chờ duyệt</span>
+        <span class="badge b-danger"><span class="dot"></span>Từ chối</span>
+        <span class="badge b-neutral"><span class="dot"></span>Nháp</span>
+      </div>
+      <div class="subhead">Status dot (glow ring) · count · beta</div>
+      <div class="row" style="gap:18px">
+        <span class="row" style="gap:8px"><span class="sdot ok"></span>Healthy</span>
+        <span class="row" style="gap:8px"><span class="sdot warn"></span>Cảnh báo</span>
+        <span class="row" style="gap:8px"><span class="sdot err"></span>Lỗi</span>
+        <span class="row" style="gap:8px"><span class="sdot live"></span>Live</span>
+        <span class="count">12</span>
+        <span class="beta">Beta</span>
+      </div>
+    </section>
+
+    <!-- 10 AVATARS -->
+    <section id="avatars">
+      <div class="sec-head"><span class="num">10</span><h2>Avatars</h2><div class="desc">Gradient iris cho user chính, tint cho ứng viên. Online dot viền theo nền.</div></div>
+      <div class="row" style="gap:18px">
+        <span class="av"><span class="face grad">HA</span><span class="on"></span></span>
+        <span class="av"><span class="face tint">NA</span></span>
+        <span class="av"><span class="face grad" style="width:28px;height:28px;font-size:11px">LP</span><span class="on" style="width:9px;height:9px"></span></span>
+        <span class="av"><span class="face tint" style="width:48px;height:48px;font-size:16px">TH</span><span class="on" style="width:13px;height:13px"></span></span>
+      </div>
+    </section>
+
+    <!-- 11 INPUTS -->
+    <section id="inputs">
+      <div class="sec-head"><span class="num">11</span><h2>Inputs & Search</h2><div class="desc">Border white/12 · focus ring indigo · invalid rose. Search pill có Ctrl K.</div></div>
+      <div class="grid g3">
+        <div class="field"><label>Email</label><input class="input" placeholder="ban@itba.ai" /></div>
+        <div class="field"><label>Focus</label><input class="input" value="đang nhập…" /></div>
+        <div class="field"><label>Invalid</label><input class="input invalid" value="sai định dạng" /></div>
+      </div>
+      <div style="margin-top:14px"><span class="search">⌕ <span style="flex:1">Quick search…</span><span class="kbd">Ctrl K</span></span></div>
+    </section>
+
+    <!-- 12 TABS -->
+    <section id="tabs">
+      <div class="sec-head"><span class="num">12</span><h2>Tabs & Segmented</h2><div class="desc">Tab active gạch chân indigo. Segmented cho chuyển chế độ.</div></div>
+      <div class="card" style="overflow:hidden;margin-bottom:16px">
+        <div class="tabs"><div class="t active">Overview</div><div class="t">Activity</div><div class="t">Analytics</div><div class="t">Quotas</div><div class="t">Audit logs</div></div>
+      </div>
+      <div class="seg"><span class="s active">HR</span><span class="s">Interviewer</span><span class="s">Recruitment</span><span class="s">Admin</span></div>
+    </section>
+
+    <!-- 13 ALERTS — reference layout, system colors -->
+    <section id="alerts">
+      <div class="sec-head"><span class="num">13</span><h2>Alerts & Toast</h2><div class="desc">Bố cục theo reference, màu hệ thống dark — alert card surface-1 + icon tile, toast solid.</div></div>
+      <div style="display:flex;flex-direction:column;gap:12px;max-width:700px">
+        <!-- alert: warn -->
+        <div class="alert">
+          <div class="ic" style="background:var(--warning-bg);color:var(--warning)">!</div>
+          <div class="tx"><b>3 bài test sắp hết hạn.</b> <span>Gia hạn trước 18:00 hôm nay.</span></div>
+          <button class="btn btn-outline btn-sm">Review</button>
+          <span style="color:var(--dim);cursor:pointer">✕</span>
+        </div>
+        <!-- alert: info -->
+        <div class="alert">
+          <div class="ic" style="background:var(--info-bg);color:var(--primary-l)">i</div>
+          <div class="tx"><b>Bản cập nhật mới.</b> <span>Tải lại để áp dụng thay đổi giao diện.</span></div>
+          <span style="color:var(--dim);cursor:pointer">✕</span>
+        </div>
+        <!-- alert: error -->
+        <div class="alert">
+          <div class="ic" style="background:var(--danger-bg);color:var(--danger)">✕</div>
+          <div class="tx"><b>Không thể gửi email mời.</b> <span>Kiểm tra cấu hình SMTP và thử lại.</span></div>
+          <button class="btn btn-danger btn-sm">Thử lại</button>
+        </div>
+        <!-- toast: success -->
+        <div class="toast" style="background:var(--success);margin-top:6px"><span class="ic">✓</span><span>Đã lưu đánh giá ứng viên thành công.</span><span class="x">✕</span></div>
+        <!-- toast: info -->
+        <div class="toast" style="background:var(--primary);color:#fff"><span class="ic" style="background:rgba(255,255,255,0.2)">i</span><span>Đang đồng bộ dữ liệu ứng viên…</span><span class="x">✕</span></div>
+      </div>
+    </section>
+
+    <!-- 14 KPI -->
+    <section id="kpi">
+      <div class="sec-head"><span class="num">14</span><h2>KPI & Charts</h2><div class="desc">Metric value lớn nhất, tabular-nums, delta arrow. Sparkline gradient, score bar, funnel.</div></div>
+      <div class="subhead">KPI tiles (sparkline)</div>
+      <div class="grid g3">
+        <div class="card kpi">
+          <div style="flex:1">
+            <div class="lab"><span class="sdot live"></span>Active tests</div>
+            <div class="val tnum">26</div>
+            <div class="delta up">↗ 12.5% <span style="color:var(--dim);font-weight:400">running</span></div>
+          </div>
+          <svg width="86" height="46" style="margin-top:14px"><defs><linearGradient id="sp1" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#5B6CF0" stop-opacity=".35"/><stop offset="1" stop-color="#5B6CF0" stop-opacity="0"/></linearGradient></defs><path d="M0,38 L14,30 L28,33 L43,12 L57,20 L72,8 L86,16 L86,46 L0,46 Z" fill="url(#sp1)"/><path d="M0,38 L14,30 L28,33 L43,12 L57,20 L72,8 L86,16" stroke="#7C8FFF" stroke-width="1.6" fill="none" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="card kpi">
+          <div style="flex:1">
+            <div class="lab"><span class="sdot ok"></span>Tỉ lệ đạt</div>
+            <div class="val tnum">68%</div>
+            <div class="delta up">↗ 4.0% <span style="color:var(--dim);font-weight:400">tháng này</span></div>
+          </div>
+          <svg width="86" height="46" style="margin-top:14px"><defs><linearGradient id="sp2" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#34D399" stop-opacity=".35"/><stop offset="1" stop-color="#34D399" stop-opacity="0"/></linearGradient></defs><path d="M0,30 L14,32 L28,22 L43,26 L57,14 L72,18 L86,10 L86,46 L0,46 Z" fill="url(#sp2)"/><path d="M0,30 L14,32 L28,22 L43,26 L57,14 L72,18 L86,10" stroke="#34D399" stroke-width="1.6" fill="none" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="card kpi">
+          <div style="flex:1">
+            <div class="lab"><span class="sdot warn"></span>Chờ chấm</div>
+            <div class="val tnum">8</div>
+            <div class="delta down">↘ 3.2% <span style="color:var(--dim);font-weight:400">awaiting</span></div>
+          </div>
+          <svg width="86" height="46" style="margin-top:14px"><defs><linearGradient id="sp3" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#FBBF24" stop-opacity=".3"/><stop offset="1" stop-color="#FBBF24" stop-opacity="0"/></linearGradient></defs><path d="M0,12 L14,18 L28,16 L43,24 L57,22 L72,30 L86,34 L86,46 L0,46 Z" fill="url(#sp3)"/><path d="M0,12 L14,18 L28,16 L43,24 L57,22 L72,30 L86,34" stroke="#FBBF24" stroke-width="1.6" fill="none" stroke-linejoin="round"/></svg>
+        </div>
+      </div>
+      <div class="subhead">Score bar · funnel</div>
+      <div class="grid g2">
+        <div class="card" style="padding:18px;display:flex;flex-direction:column;gap:14px">
+          <span class="score"><b class="tnum" style="font-size:14px">92</b><span class="track"><span class="fill" style="width:92%;background:var(--success)"></span></span><span style="color:var(--muted);font-size:12px">Senior FE</span></span>
+          <span class="score"><b class="tnum" style="font-size:14px">71</b><span class="track"><span class="fill" style="width:71%;background:var(--warning)"></span></span><span style="color:var(--muted);font-size:12px">Business Analyst</span></span>
+          <span class="score"><b class="tnum" style="font-size:14px">48</b><span class="track"><span class="fill" style="width:48%;background:var(--danger)"></span></span><span style="color:var(--muted);font-size:12px">Junior BE</span></span>
+        </div>
+        <div class="card" style="padding:18px;display:flex;flex-direction:column;gap:14px">
+          <div class="funnel"><div class="lab"><span>Applied</span><span class="tnum" style="color:var(--muted)">186</span></div><div class="track"><div class="fill" style="width:100%"></div></div></div>
+          <div class="funnel"><div class="lab"><span>Screened</span><span class="tnum" style="color:var(--muted)">124</span></div><div class="track"><div class="fill" style="width:67%;opacity:.8"></div></div></div>
+          <div class="funnel"><div class="lab"><span>Interview</span><span class="tnum" style="color:var(--muted)">58</span></div><div class="track"><div class="fill" style="width:31%;opacity:.6"></div></div></div>
+          <div class="funnel"><div class="lab"><span>Offer</span><span class="tnum" style="color:var(--muted)">12</span></div><div class="track"><div class="fill" style="width:7%;opacity:.45"></div></div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 15 TABLE -->
+    <section id="table">
+      <div class="sec-head"><span class="num">15</span><h2>Table</h2><div class="desc">Header mono uppercase. Status dot + avatar + stage chip + score inline.</div></div>
+      <div class="card" style="overflow:hidden">
+        <div style="padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px">
+          <div style="font-size:15px;font-weight:600">Ứng viên cần chú ý</div><span class="count">3</span>
+          <a class="btn btn-link" style="margin-left:auto;font-size:13px">Xem tất cả →</a>
+        </div>
+        <table>
+          <thead><tr><th style="width:24px"></th><th>Ứng viên</th><th>Vị trí</th><th>Giai đoạn</th><th>Điểm</th><th style="text-align:right">Hoạt động</th></tr></thead>
+          <tbody>
+            <tr><td><span class="sdot ok"></span></td><td><span class="row" style="gap:10px"><span class="av"><span class="face tint" style="width:26px;height:26px;font-size:10px">NA</span></span><b style="font-weight:500">Nguyễn Minh Anh</b></span></td><td style="color:var(--muted)">Senior FE</td><td><span class="badge b-info"><span class="dot"></span>Interview</span></td><td><span class="score"><b class="tnum">87</b><span class="track"><span class="fill" style="width:87%;background:var(--success)"></span></span></span></td><td style="text-align:right;color:var(--muted)">2 giờ trước</td></tr>
+            <tr><td><span class="sdot warn"></span></td><td><span class="row" style="gap:10px"><span class="av"><span class="face tint" style="width:26px;height:26px;font-size:10px">TL</span></span><b style="font-weight:500">Trần Hoàng Long</b></span></td><td style="color:var(--muted)">Business Analyst</td><td><span class="badge b-neutral"><span class="dot"></span>Screening</span></td><td><span class="score"><b class="tnum">71</b><span class="track"><span class="fill" style="width:71%;background:var(--warning)"></span></span></span></td><td style="text-align:right;color:var(--muted)">5 giờ trước</td></tr>
+            <tr><td><span class="sdot ok"></span></td><td><span class="row" style="gap:10px"><span class="av"><span class="face tint" style="width:26px;height:26px;font-size:10px">LP</span></span><b style="font-weight:500">Lê Thị Phương</b></span></td><td style="color:var(--muted)">Backend · Node</td><td><span class="badge b-success"><span class="dot"></span>Offer</span></td><td><span class="score"><b class="tnum">92</b><span class="track"><span class="fill" style="width:92%;background:var(--success)"></span></span></span></td><td style="text-align:right;color:var(--muted)">1 ngày trước</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 16 SHELL & SIDEBAR — premium dark tokens (sidebar #101828 · accent indigo #5B6CF0) -->
+    <section id="chrome">
+      <div class="sec-head"><span class="num">16</span><h2>Shell & Sidebar</h2><div class="desc">Chrome dark navy đồng bộ palette premium — sidebar #101828, accent indigo #5B6CF0, sidebar 256px & rail 56px.</div></div>
+
+      <!-- Header chrome (HeaderChrome) -->
+      <div class="subhead">Header chrome</div>
+      <div style="display:grid;grid-template-columns:240px 1fr;border:1px solid var(--border);border-radius:10px;overflow:hidden;font-family:var(--font-body);margin-bottom:8px;box-shadow:inset 0 1px 0 var(--highlight)">
+        <div style="background:var(--sidebar);padding:0 18px;height:56px;display:flex;align-items:center;gap:12px">
+          <div style="width:28px;height:28px;border-radius:8px;background:var(--grad-cta);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:11px;color:#0b1020;box-shadow:var(--glow)">IT</div>
+          <div style="display:flex;flex-direction:column;line-height:1.2">
+            <div class="grad-text" style="font-family:var(--font-display);font-weight:800;font-size:14px;letter-spacing:.04em">ITBA.AI</div>
+            <div style="color:var(--violet-l);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;font-weight:600">Recruitment Platform</div>
+          </div>
+        </div>
+        <div style="background:var(--s1);padding:0 22px;height:56px;display:flex;align-items:center;gap:16px">
+          <nav style="font-size:14px;display:flex;align-items:center;gap:8px"><span style="color:var(--muted)">itba.ai</span><span style="color:var(--dim)">›</span><span style="color:var(--text);font-weight:600">Overview</span></nav>
+          <div style="margin-left:auto;display:flex;align-items:center;gap:16px;font-size:13.5px;color:var(--text-2)">
+            <span style="display:inline-flex;align-items:center;gap:6px"><span style="color:var(--violet-l)">✦</span> Ask AI</span>
+            <span style="display:inline-flex;align-items:center;gap:6px">⊕ Support</span>
+            <div style="position:relative"><div style="width:32px;height:32px;border-radius:50%;background:var(--grad-iris);color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700">HA</div><span style="position:absolute;right:-1px;bottom:-1px;width:9px;height:9px;border-radius:50%;background:var(--success);border:2px solid var(--s1)"></span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="subhead">Expanded (256px) · Collapsed rail (56px) · Tooltip · Flyout</div>
+      <div style="display:flex;gap:18px;flex-wrap:wrap;align-items:flex-start;font-family:var(--font-body)">
+
+        <!-- Expanded sidebar (SidebarSample) -->
+        <div style="background:var(--sidebar);border:1px solid var(--border);border-radius:10px;padding:12px 8px;width:256px;color:var(--text-2);flex-shrink:0">
+          <div style="padding:0 4px 12px">
+            <div style="background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:999px;padding:7px 14px;display:flex;align-items:center;gap:10px;color:var(--muted);font-size:14px"><span>⌕</span><span style="flex:1">Quick search...</span><span class="mono" style="font-size:11px">Ctrl K</span></div>
+          </div>
+          <div style="display:flex;align-items:center;gap:12px;padding:7px 12px;margin:1px 0;border-radius:9px;background:var(--primary-bg);color:#fff;font-size:14px;font-weight:600"><span style="width:18px;text-align:center;color:var(--primary-l)">⌂</span><span style="flex:1">Overview</span></div>
+          <div style="display:flex;align-items:center;gap:12px;padding:7px 12px;margin:1px 0;border-radius:9px;color:var(--text-2);font-size:14px"><span style="width:18px;text-align:center;color:var(--muted)">◷</span><span style="flex:1">Recents</span><span style="color:var(--muted);font-size:11px">˅</span></div>
+          <div style="margin-left:25px;padding-left:8px;border-left:1px solid var(--border);margin-top:2px;margin-bottom:4px">
+            <div style="padding:7px 10px;line-height:1.35"><div style="font-size:14px;color:var(--text)">Nguyễn Minh Anh</div><div style="font-size:12px;color:var(--muted);margin-top:1px">Senior FE / Interview</div></div>
+            <div style="padding:7px 10px;line-height:1.35"><div style="font-size:14px;color:var(--text)">Frontend · Sprint 12</div><div style="font-size:12px;color:var(--muted);margin-top:1px">Position / Active</div></div>
+          </div>
+          <div style="display:flex;align-items:center;gap:12px;padding:7px 12px;margin:1px 0;border-radius:9px;color:var(--text-2);font-size:14px"><span style="width:18px;text-align:center;color:var(--muted)">◐</span><span style="flex:1">Persons</span><span style="color:var(--muted);font-size:11px">›</span></div>
+          <div class="nav-sec">Observe</div>
+          <div style="display:flex;align-items:center;gap:12px;padding:7px 12px;margin:1px 0;border-radius:9px;color:var(--text-2);font-size:14px"><span style="width:18px;text-align:center;color:var(--muted)">✦</span><span style="flex:1">AI insights</span><span style="color:var(--muted);font-size:11px">˅</span></div>
+          <div style="margin-left:41px;padding-left:8px;border-left:1px solid var(--border);margin-top:2px;margin-bottom:4px">
+            <div style="display:flex;align-items:center;gap:12px;padding:7px 12px;font-size:14px;color:var(--text-2)"><span style="flex:1">Skill matrix</span><span class="beta">Beta</span></div>
+            <div style="display:flex;align-items:center;gap:12px;padding:7px 12px;font-size:14px;color:var(--text-2)"><span style="flex:1">Trends</span></div>
+          </div>
+          <div class="nav-sec">Recruitment</div>
+          <div style="display:flex;align-items:center;gap:12px;padding:7px 12px;margin:1px 0;border-radius:9px;color:var(--text-2);font-size:14px"><span style="width:18px;text-align:center;color:var(--muted)">▤</span><span style="flex:1">Candidate CV</span><span class="count">12</span></div>
+          <div style="display:flex;align-items:center;gap:12px;padding:7px 12px;margin:1px 0;border-radius:9px;color:var(--text-2);font-size:14px"><span style="width:18px;text-align:center;color:var(--muted)">◷</span><span style="flex:1">Schedule</span><span class="count">4</span></div>
+        </div>
+
+        <!-- Collapsed rail (56px) with tooltip -->
+        <div style="position:relative;background:var(--sidebar);border:1px solid var(--border);border-radius:10px;width:56px;display:flex;flex-direction:column;flex-shrink:0;color:var(--text-2);padding-bottom:8px">
+          <div style="padding:12px 0 10px;display:flex;justify-content:center;border-bottom:1px solid var(--border)"><div style="width:36px;height:32px;border-radius:8px;background:rgba(255,255,255,0.04);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;color:var(--muted)">⌕</div></div>
+          <div style="padding-top:8px">
+            <div style="position:relative;width:40px;height:36px;margin:2px 8px;border-radius:8px;display:flex;align-items:center;justify-content:center"><span style="font-size:15px;color:var(--muted)">⌂</span></div>
+            <div style="position:relative;width:40px;height:36px;margin:2px 8px;border-radius:8px;display:flex;align-items:center;justify-content:center"><span style="font-size:15px;color:var(--muted)">◷</span></div>
+            <div style="position:relative;width:40px;height:36px;margin:2px 8px;border-radius:8px;display:flex;align-items:center;justify-content:center"><span style="font-size:15px;color:var(--muted)">◐</span></div>
+            <div style="height:1px;background:var(--border);margin:10px 14px"></div>
+            <!-- active: Analytics -->
+            <div style="position:relative;width:40px;height:36px;margin:2px 8px;border-radius:8px;background:var(--primary-bg);display:flex;align-items:center;justify-content:center">
+              <span style="position:absolute;left:-8px;top:8px;bottom:8px;width:3px;background:var(--primary);border-radius:0 2px 2px 0"></span>
+              <span style="font-size:15px;color:var(--primary-l)">○</span>
+              <!-- tooltip pill -->
+              <div style="position:absolute;left:100%;top:50%;transform:translate(12px,-50%);background:var(--s3);color:var(--text);border:1px solid var(--border-strong);border-radius:8px;padding:7px 12px;font-size:12.5px;font-weight:500;display:flex;align-items:center;gap:8px;white-space:nowrap;box-shadow:var(--e2);z-index:5"><span style="position:absolute;left:-5px;top:50%;transform:translateY(-50%);width:0;height:0;border-top:5px solid transparent;border-bottom:5px solid transparent;border-right:5px solid var(--s3)"></span>Analytics<span class="mono" style="font-size:10.5px;background:rgba(255,255,255,0.10);padding:2px 6px;border-radius:4px">G A</span></div>
+            </div>
+            <div style="height:1px;background:var(--border);margin:10px 14px"></div>
+            <div style="position:relative;width:40px;height:36px;margin:2px 8px;border-radius:8px;display:flex;align-items:center;justify-content:center"><span style="font-size:15px;color:var(--muted)">▤</span><span style="position:absolute;top:2px;right:2px;min-width:14px;height:14px;padding:0 4px;border-radius:7px;background:var(--primary);color:#fff;font-size:9px;font-weight:700;display:flex;align-items:center;justify-content:center;border:2px solid var(--sidebar)">12</span></div>
+            <div style="position:relative;width:40px;height:36px;margin:2px 8px;border-radius:8px;display:flex;align-items:center;justify-content:center"><span style="font-size:15px;color:var(--muted)">◷</span><span style="position:absolute;top:2px;right:2px;min-width:14px;height:14px;padding:0 4px;border-radius:7px;background:var(--primary);color:#fff;font-size:9px;font-weight:700;display:flex;align-items:center;justify-content:center;border:2px solid var(--sidebar)">4</span></div>
+          </div>
+          <div style="border-top:1px solid var(--border);padding:10px 0;display:flex;justify-content:center;margin-top:8px"><div style="width:28px;height:28px;border-radius:8px;background:rgba(255,255,255,0.04);border:1px solid var(--border);color:var(--muted);display:flex;align-items:center;justify-content:center;font-size:14px">»</div></div>
+        </div>
+
+        <!-- Flyout panel (from a rail item) -->
+        <div style="position:relative;background:var(--s2);border:1px solid var(--border);border-radius:10px;width:220px;padding:10px 0 6px;color:var(--text-2);flex-shrink:0;box-shadow:var(--e3);align-self:flex-start">
+          <div style="padding:0 14px 8px;font-size:11px;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;font-weight:600;border-bottom:1px solid var(--border);margin-bottom:6px">AI insights</div>
+          <div style="padding:7px 14px;font-size:13.5px;color:var(--text);background:var(--primary-bg);margin:0 6px;border-radius:6px;display:flex;justify-content:space-between;align-items:center">Skill matrix <span class="beta">Beta</span></div>
+          <div style="padding:7px 14px;font-size:13.5px;color:var(--text-2);margin:0 6px;border-radius:6px">Trends</div>
+          <div style="padding:7px 14px;font-size:13.5px;color:var(--text-2);margin:0 6px;border-radius:6px">Benchmark</div>
+        </div>
+      </div>
+      <p style="color:var(--muted);font-size:12px;margin-top:14px">Rail 56px hover → mở 256px; item icon-only hiện tooltip (label + phím tắt); item có submenu mở flyout. Active = nền <code>primary-bg rgba(91,108,240,.14)</code> + rail indigo <code>#5B6CF0</code> 3px + icon <code>#7C8FFF</code>.</p>
+    </section>
+
+    <!-- 17 ICONS -->
+    <section id="icons">
+      <div class="sec-head"><span class="num">17</span><h2>Iconography</h2><div class="desc">Line icon (Lucide), stroke đồng nhất, size-4 (16px). Không dùng emoji làm icon hệ thống.</div></div>
+      <div class="icons">
+        <div class="it"><div class="g">⌂</div><div class="n">home</div></div>
+        <div class="it"><div class="g">◷</div><div class="n">recent</div></div>
+        <div class="it"><div class="g">◐</div><div class="n">persons</div></div>
+        <div class="it"><div class="g">✦</div><div class="n">ai</div></div>
+        <div class="it"><div class="g">▤</div><div class="n">cv</div></div>
+        <div class="it"><div class="g">◉</div><div class="n">interview</div></div>
+        <div class="it"><div class="g">✉</div><div class="n">email</div></div>
+        <div class="it"><div class="g">⚙</div><div class="n">settings</div></div>
+      </div>
+    </section>
+
+    <!-- 18 STATES -->
+    <section id="states">
+      <div class="sec-head"><span class="num">18</span><h2>Interaction States</h2><div class="desc">Hover 200–300ms · focus ring luôn hiển thị · active translateY · disabled 0.5.</div></div>
+      <div class="row">
+        <button class="btn btn-primary">Default</button>
+        <button class="btn btn-primary" style="filter:brightness(1.05)">Hover</button>
+        <button class="btn btn-primary" style="box-shadow:0 0 0 3px rgba(91,108,240,0.5)">Focus</button>
+        <button class="btn btn-primary" style="transform:translateY(1px)">Active</button>
+        <button class="btn btn-primary" style="opacity:.5;cursor:not-allowed;box-shadow:none">Disabled</button>
+      </div>
+    </section>
+
+    <!-- 19 LEGACY -->
+    <section id="legacy">
+      <div class="sec-head"><span class="num">19</span><h2>Legacy & Migration</h2></div>
+      <div class="note" style="border:1px solid var(--warning-bg);background:var(--warning-bg)">
+        <b style="color:var(--warning)">⚠ Deprecated:</b> bộ <code>src/components/shares/*</code> dùng palette sáng <code>#FFFFFF · #E5E8EE · #1D1F31 · #056DFF</code> — lệch theme tối. Map sang: <code>bg-white→surface-1</code>, <code>#E5E8EE→border</code>, <code>#1D1F31→text</code>, <code>#056DFF→primary #5B6CF0</code>.
+      </div>
+      <div class="note" style="margin-top:12px;border:1px solid var(--info-bg);background:var(--info-bg)">
+        <b style="color:var(--primary-l)">⚠ Token vs. thực thi:</b> <code>globals.css</code> khai báo OKLCH token (<code>--primary</code> = cyan) nhưng UI hardcode hex indigo. Nên đồng bộ token theo palette premium này.
+      </div>
+    </section>
+
+    <footer class="foot">
+      Nguồn: <code>src/app/globals.css</code> + <code>dashboard/layout.tsx</code> · Tài liệu: <code>docs/design-guidelines.md</code> · ITBA.AI — Deep Intelligence (Premium).
+    </footer>
+
+  </main>
+</div>
+
+<script>
+  const links = [...document.querySelectorAll('.toc a')];
+  const map = new Map(links.map(a => [a.getAttribute('href').slice(1), a]));
+  const obs = new IntersectionObserver((es) => {
+    es.forEach(e => { if (e.isIntersecting) {
+      links.forEach(l => l.style.cssText = '');
+      const a = map.get(e.target.id);
+      if (a) { a.style.color = 'var(--primary-l)'; a.style.background = 'rgba(91,108,240,0.1)'; a.style.borderLeftColor = 'var(--primary)'; }
+    }});
+  }, { rootMargin: '-15% 0px -75% 0px' });
+  document.querySelectorAll('section, header.hero').forEach(s => obs.observe(s));
+</script>
+</body>
+</html>

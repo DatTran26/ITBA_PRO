@@ -1,0 +1,426 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ITBA AI - Role Sidebar & Feature Guide</title>
+    <style>
+    :root {
+      --bg-app: #F5F6F8;
+      --bg-sidebar: #1D1F31;
+      --bg-sidebar-surface: #23263A;
+      --bg-card: #FFFFFF;
+      --text-primary: #1D1F31;
+      --text-secondary: #56586E;
+      --text-muted: #83899A;
+      --border: #E5E8EE;
+      --border-strong: #D8DDE7;
+      --brand: #056DFF;
+      --brand-2: #1F7BFF;
+      --success: #00A95C;
+      --warning: #D96E10;
+      --error: #BD2031;
+      --radius-sm: 8px;
+      --radius-md: 10px;
+      --radius-lg: 12px;
+      --shadow-soft: 0 10px 24px rgba(29, 31, 49, .06);
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--bg-app);
+      color: var(--text-primary);
+      line-height: 1.5;
+      font-size: 13.5px;
+    }
+    a { color: inherit; }
+    code { color: var(--brand); font-weight: 600; }
+    .page {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 32px 24px 56px;
+    }
+    .hero {
+      position: relative;
+      border: 1px solid var(--border);
+      background: var(--bg-card);
+      border-radius: var(--radius-lg);
+      padding: 28px 32px;
+      box-shadow: var(--shadow-soft);
+      overflow: hidden;
+    }
+    .hero::before {
+      content: "";
+      position: absolute;
+      inset: 0 auto 0 0;
+      width: 8px;
+      background: linear-gradient(180deg, var(--brand), var(--brand-2));
+    }
+    .eyebrow {
+      color: var(--brand);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+    }
+    h1 {
+      margin: 8px 0 10px;
+      font-size: clamp(30px, 4vw, 42px);
+      line-height: 1.1;
+      font-weight: 700;
+      letter-spacing: -.035em;
+    }
+    h2 {
+      margin: 0 0 16px;
+      font-size: 22px;
+      line-height: 28px;
+      font-weight: 700;
+      letter-spacing: -.02em;
+    }
+    h3 { margin: 0 0 8px; font-size: 17px; line-height: 23px; font-weight: 700; }
+    p { margin: 0; color: var(--text-secondary); }
+    .meta { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 20px; }
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      min-height: 28px;
+      border: 1px solid #DCE6F8;
+      background: #F2F7FF;
+      color: var(--brand);
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .toc {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+      gap: 12px;
+      margin: 24px 0 32px;
+    }
+    .toc a {
+      text-decoration: none;
+      border: 1px solid var(--border);
+      background: var(--bg-card);
+      border-radius: var(--radius-lg);
+      padding: 14px 16px;
+      color: var(--text-primary);
+      font-weight: 600;
+      box-shadow: 0 1px 0 rgba(29,31,49,.03);
+      transition: border-color .16s ease, color .16s ease, box-shadow .16s ease;
+    }
+    .toc a:hover {
+      border-color: rgba(5,109,255,.35);
+      color: var(--brand);
+      box-shadow: var(--shadow-soft);
+    }
+    .section { margin-top: 28px; }
+    .role-card {
+      border: 1px solid var(--border);
+      background: var(--bg-card);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      margin-top: 16px;
+      box-shadow: var(--shadow-soft);
+    }
+    .role-head {
+      padding: 20px 24px;
+      background: linear-gradient(90deg, #FFFFFF, #F7FAFF);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      align-items: flex-start;
+    }
+    .role-name { font-size: 28px; line-height: 34px; font-weight: 700; letter-spacing: -.03em; }
+    .role-desc { margin-top: 4px; max-width: 790px; font-size: 14px; line-height: 20px; }
+    .role-badge { white-space: nowrap; }
+    .groups { padding: 20px; display: grid; gap: 16px; background: #FAFBFD; }
+    .group {
+      border: 1px solid var(--border);
+      background: var(--bg-card);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+    }
+    .group-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--border);
+      font-weight: 700;
+      color: var(--text-primary);
+      background: #FBFCFE;
+    }
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--brand);
+      box-shadow: 0 0 0 4px rgba(5,109,255,.10);
+    }
+    .pages {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 12px;
+      padding: 14px;
+    }
+    .page-card {
+      border: 1px solid var(--border);
+      background: var(--bg-card);
+      border-radius: var(--radius-lg);
+      padding: 16px;
+      min-height: 146px;
+      transition: border-color .16s ease, background .16s ease;
+    }
+    .page-card:hover { border-color: var(--border-strong); background: #FCFDFF; }
+    .page-title { display: flex; align-items: center; gap: 8px; font-size: 16px; line-height: 22px; font-weight: 700; margin-bottom: 6px; }
+    .path {
+      display: inline-flex;
+      color: var(--text-muted);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 11px;
+      margin-bottom: 10px;
+      background: #F4F6FA;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 4px 8px;
+    }
+    ul { margin: 10px 0 0; padding-left: 18px; color: var(--text-secondary); }
+    li { margin: 5px 0; }
+    .matrix {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      overflow: hidden;
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border);
+      background: var(--bg-card);
+      box-shadow: var(--shadow-soft);
+    }
+    .matrix th, .matrix td {
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+    }
+    .matrix tr:last-child td { border-bottom: 0; }
+    .matrix th {
+      text-align: left;
+      color: var(--text-secondary);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      background: #F4F6FA;
+      font-weight: 700;
+    }
+    .matrix td { color: var(--text-secondary); }
+    .check { color: var(--success) !important; font-weight: 700; }
+    .dash { color: var(--text-muted) !important; }
+    .note {
+      margin-top: 20px;
+      border: 1px solid #F4D5B8;
+      background: #FFF7ED;
+      border-radius: var(--radius-lg);
+      padding: 16px;
+      color: #8A470B;
+    }
+    .footer { margin-top: 32px; color: var(--text-muted); font-size: 12px; text-align: center; }
+    @media print {
+      .toc { display: none; }
+      .page { padding: 20px; }
+      .hero, .role-card, .group, .page-card, .matrix { box-shadow: none; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <section class="hero">
+      <div class="eyebrow">ITBA AI Recruitment Platform</div>
+      <h1>Role Sidebar & Feature Guide</h1>
+      <p>Tài liệu này mô tả từng role trong hệ thống sẽ nhìn thấy những nhóm menu/page nào ở sidebar, mỗi page dùng để làm gì, feature chính là gì và ý nghĩa nghiệp vụ của từng khu vực.</p>
+      <div class="meta">
+        <span class="chip">Source: src/components/ui/nav-config.ts</span>
+        <span class="chip">Scope: Dashboard Sidebar</span>
+        <span class="chip">Updated: 2026-05-18</span>
+      </div>
+    </section>
+
+    <nav class="toc" aria-label="Role table of contents">
+      <a href="#super-admin">Super Admin</a>
+      <a href="#admin">Admin</a>
+      <a href="#leader">Leader</a>
+      <a href="#recruiter">Recruiter</a>
+      <a href="#hr">HR</a>
+      <a href="#interviewer">Interviewer</a>
+      <a href="#test-accounts">Test Accounts</a>
+      <a href="#matrix">Access Matrix</a>
+    </nav>
+
+    <section class="section" id="test-accounts">
+      <h2>Test Accounts</h2>
+      <p style="margin-bottom:16px">Tài khoản QA/staging không được lưu trong repository. Lấy email/mật khẩu từ secret manager của đội, xoay vòng khi lộ, và không dùng trên production.</p>
+      <div class="note"><strong>Lưu ý bảo mật:</strong> Mọi credential đã từng nằm trong source phải được rotate. Không commit mật khẩu.</div>
+    </section>
+
+    <section class="section" id="super-admin">
+      <article class="role-card">
+        <div class="role-head">
+          <div>
+            <div class="role-name">Super Admin</div>
+            <p class="role-desc">Toàn quyền vận hành hệ thống giống Admin, đồng thời là role duy nhất được tạo/sửa/duyệt/archive version.</p>
+          </div>
+          <span class="chip role-badge">Full Access + Version Edit</span>
+        </div>
+        <div class="groups">
+          <div class="group"><div class="group-title"><span class="dot"></span>People & Roles</div><div class="pages">
+            <div class="page-card"><div class="page-title">Persons</div><div class="path">/dashboard/persons</div><p>Quản lý hồ sơ người trong tổ chức và talent pool.</p><ul><li>Xem danh sách persons.</li><li>Theo dõi thông tin, trạng thái, liên kết với roles/groups.</li><li>Làm nguồn dữ liệu cho employee assessment.</li></ul></div>
+            <div class="page-card"><div class="page-title">Positions</div><div class="path">/dashboard/positions</div><p>Quản lý vị trí công việc và tiêu chuẩn năng lực.</p><ul><li>Tạo/cập nhật position.</li><li>Gắn skill benchmark cho từng role.</li><li>Làm nền cho test và đánh giá nhân sự.</li></ul></div>
+            <div class="page-card"><div class="page-title">Skills</div><div class="path">/dashboard/skills</div><p>Quản lý skill catalog.</p><ul><li>Chuẩn hoá kỹ năng.</li><li>Phục vụ phân tích gap và benchmark.</li><li>Kết nối positions, tests và reports.</li></ul></div>
+            <div class="page-card"><div class="page-title">Groups</div><div class="path">/dashboard/groups</div><p>Quản lý team/phòng ban/nhóm đánh giá.</p><ul><li>Tổ chức members theo group.</li><li>Gửi test theo team.</li><li>Theo dõi năng lực nhóm.</li></ul></div>
+          </div></div>
+          <div class="group"><div class="group-title"><span class="dot"></span>Recruitment</div><div class="pages">
+            <div class="page-card"><div class="page-title">Candidate CV</div><div class="path">/dashboard/recruitment</div><p>Pipeline xử lý ứng viên và CV.</p><ul><li>Upload/xem CV.</li><li>AI screening và chấm match.</li><li>Theo dõi trạng thái ứng viên.</li></ul></div>
+            <div class="page-card"><div class="page-title">Schedule</div><div class="path">/dashboard/recruitment/sessions</div><p>Quản lý lịch/session phỏng vấn.</p><ul><li>Tạo session.</li><li>Phân công interviewer.</li><li>Gắn bài test/session test.</li></ul></div>
+            <div class="page-card"><div class="page-title">Report</div><div class="path">/dashboard/recruitment/report</div><p>Báo cáo tuyển dụng.</p><ul><li>Theo dõi funnel.</li><li>Đánh giá hiệu suất phỏng vấn.</li><li>Tổng hợp dữ liệu ra quyết định.</li></ul></div>
+            <div class="page-card"><div class="page-title">Recruitment Settings</div><div class="path">/dashboard/recruitment/settings</div><p>Cấu hình pipeline tuyển dụng.</p><ul><li>Thiết lập tiêu chí.</li><li>Quản lý trạng thái/luồng xử lý.</li><li>Chuẩn hoá vận hành HR.</li></ul></div>
+            <div class="page-card"><div class="page-title">Question Bank</div><div class="path">/dashboard/question-bank</div><p>Ngân hàng câu hỏi dùng để tạo test.</p><ul><li>AI Pipeline nạp câu hỏi từ tài liệu.</li><li>Quản lý câu hỏi theo topic, level, type.</li><li>Bulk import, review, chỉnh sửa và tạo test từ bank.</li></ul></div>
+          </div></div>
+          <div class="group"><div class="group-title"><span class="dot"></span>Interviews</div><div class="pages"><div class="page-card"><div class="page-title">Interview Room</div><div class="path">/dashboard/interview-room</div><p>Không gian phỏng vấn cho session đã accepted.</p><ul><li>Chọn session đã được nhận.</li><li>Xem candidate/test liên quan.</li><li>Hỗ trợ phỏng vấn và ghi nhận kết quả.</li></ul></div></div></div>
+          <div class="group"><div class="group-title"><span class="dot"></span>System</div><div class="pages">
+            <div class="page-card"><div class="page-title">Manage Users</div><div class="path">/dashboard/users</div><p>Quản trị tài khoản và role.</p><ul><li>Xem users.</li><li>Cập nhật role/quyền.</li><li>Kiểm soát truy cập hệ thống.</li></ul></div>
+            <div class="page-card"><div class="page-title">Templates</div><div class="path">/dashboard/templates</div><p>Mẫu cấu hình bài test.</p><ul><li>Tạo template.</li><li>Tái sử dụng cấu hình test.</li><li>Chuẩn hoá bài đánh giá.</li></ul></div>
+            <div class="page-card"><div class="page-title">Versions</div><div class="path">/dashboard/versions</div><p>Quản lý version/release note.</p><ul><li>Xem toàn bộ draft/pending/approved/rejected/archived.</li><li>Tạo, sửa, duyệt, từ chối và archive version.</li><li>Quản trị lifecycle release.</li></ul></div>
+            <div class="page-card"><div class="page-title">System Settings</div><div class="path">/dashboard/settings</div><p>Cấu hình toàn hệ thống.</p><ul><li>AI model/API settings.</li><li>UI layout.</li><li>Các thiết lập vận hành nền tảng.</li></ul></div>
+          </div></div>
+          <div class="group"><div class="group-title"><span class="dot"></span>Emails</div><div class="pages">
+            <div class="page-card"><div class="page-title">Compose</div><div class="path">/dashboard/emails</div><p>Soạn và gửi email theo template.</p><ul><li>Chọn recipient.</li><li>Autofill biến ứng viên/session.</li><li>Gửi email vận hành tuyển dụng.</li></ul></div>
+            <div class="page-card"><div class="page-title">Logs</div><div class="path">/dashboard/emails/logs</div><p>Lịch sử gửi email.</p><ul><li>Theo dõi trạng thái gửi.</li><li>Audit nội dung/recipient.</li><li>Tra cứu lỗi gửi email.</li></ul></div>
+            <div class="page-card"><div class="page-title">Email Settings</div><div class="path">/dashboard/emails/settings</div><p>Cấu hình template và SMTP.</p><ul><li>Quản lý email templates.</li><li>Thiết lập SMTP provider.</li><li>Kiểm tra gửi thử.</li></ul></div>
+          </div></div>
+        </div>
+      </article>
+    </section>
+
+    <section class="section" id="admin">
+      <article class="role-card">
+        <div class="role-head"><div><div class="role-name">Admin</div><p class="role-desc">Có cùng sidebar/page với Super Admin để vận hành nghiệp vụ, users, settings, question bank, recruitment và email; điểm khác duy nhất là không được edit version.</p></div><span class="chip role-badge">Same as Super Admin, no Version Edit</span></div>
+        <div class="groups">
+          <div class="group"><div class="group-title"><span class="dot"></span>Sidebar pages</div><div class="pages">
+            <div class="page-card"><div class="page-title">People & Roles</div><div class="path">Persons · Positions · Skills · Groups</div><p>Quản trị cấu trúc nhân sự, vị trí, kỹ năng và nhóm.</p><ul><li>Thiết lập nền dữ liệu cho recruitment và employee assessment.</li><li>Quản lý benchmark skill/position.</li></ul></div>
+            <div class="page-card"><div class="page-title">Recruitment</div><div class="path">Candidate CV · Schedule · Report · Settings · Question Bank</div><p>Quản lý toàn bộ pipeline tuyển dụng và ngân hàng câu hỏi.</p><ul><li>Upload/screen CV.</li><li>Lên lịch phỏng vấn.</li><li>Nạp và quản trị Question Bank.</li></ul></div>
+            <div class="page-card"><div class="page-title">Interviews</div><div class="path">Interview Room</div><p>Vào không gian phỏng vấn/session để giám sát hoặc hỗ trợ vận hành.</p></div>
+            <div class="page-card"><div class="page-title">System</div><div class="path">Users · Templates · Versions · Settings</div><p>Quản trị nền tảng.</p><ul><li>Role/user management.</li><li>Template/settings.</li><li>Xem toàn bộ versions nhưng không tạo/sửa/duyệt/archive.</li></ul></div>
+            <div class="page-card"><div class="page-title">Emails</div><div class="path">Compose · Logs · Settings</div><p>Gửi email, xem lịch sử và cấu hình SMTP/template.</p></div>
+          </div></div>
+        </div>
+      </article>
+    </section>
+
+    <section class="section" id="leader">
+      <article class="role-card">
+        <div class="role-head"><div><div class="role-name">Leader</div><p class="role-desc">Tập trung vào quản lý người/nhóm, ngân hàng câu hỏi và tạo bài test cho member theo nhu cầu đánh giá nội bộ.</p></div><span class="chip role-badge">Assessment Owner</span></div>
+        <div class="groups">
+          <div class="group"><div class="group-title"><span class="dot"></span>People & Roles</div><div class="pages">
+            <div class="page-card"><div class="page-title">Persons</div><div class="path">/dashboard/persons</div><p>Theo dõi hồ sơ nhân sự/member trong phạm vi quản lý.</p></div>
+            <div class="page-card"><div class="page-title">Positions</div><div class="path">/dashboard/positions</div><p>Xem/quản lý vị trí làm cơ sở đánh giá năng lực.</p></div>
+            <div class="page-card"><div class="page-title">Skills</div><div class="path">/dashboard/skills</div><p>Xem skill catalog để hiểu tiêu chuẩn đánh giá.</p></div>
+            <div class="page-card"><div class="page-title">Groups</div><div class="path">/dashboard/groups</div><p>Quản lý nhóm/team để gửi test theo team.</p></div>
+          </div></div>
+          <div class="group"><div class="group-title"><span class="dot"></span>Recruitment / Assessment</div><div class="pages">
+            <div class="page-card"><div class="page-title">Question Bank</div><div class="path">/dashboard/question-bank</div><p>Kho câu hỏi để tạo bài test nội bộ.</p><ul><li>Chọn level Junior/Middle/Senior hoặc mixed ratio.</li><li>Chọn topic và question type.</li><li>Tạo test từ bank, đổi câu trước khi gửi.</li></ul></div>
+          </div></div>
+          <div class="group"><div class="group-title"><span class="dot"></span>Emails</div><div class="pages">
+            <div class="page-card"><div class="page-title">Compose</div><div class="path">/dashboard/emails</div><p>Gửi email/thông báo bài test cho member hoặc team.</p></div>
+            <div class="page-card"><div class="page-title">Logs</div><div class="path">/dashboard/emails/logs</div><p>Theo dõi lịch sử gửi email.</p></div>
+          </div></div>
+          <div class="group"><div class="group-title"><span class="dot"></span>Standalone</div><div class="pages"><div class="page-card"><div class="page-title">Versions</div><div class="path">/dashboard/versions</div><p>Xem thông tin phiên bản/tính năng mới của hệ thống.</p></div></div></div>
+        </div>
+      </article>
+    </section>
+
+    <section class="section" id="recruiter">
+      <article class="role-card">
+        <div class="role-head"><div><div class="role-name">Recruiter</div><p class="role-desc">Tập trung tạo và quản lý bài test tuyển dụng/đánh giá, đồng thời xem cấu trúc people/role phục vụ tuyển dụng.</p></div><span class="chip role-badge">Test Creator</span></div>
+        <div class="groups">
+          <div class="group"><div class="group-title"><span class="dot"></span>People & Roles</div><div class="pages">
+            <div class="page-card"><div class="page-title">Persons</div><div class="path">/dashboard/persons</div><p>Xem/quản lý nguồn nhân sự liên quan tuyển dụng và đánh giá.</p></div>
+            <div class="page-card"><div class="page-title">Positions</div><div class="path">/dashboard/positions</div><p>Xem position để tạo test đúng role.</p></div>
+            <div class="page-card"><div class="page-title">Skills</div><div class="path">/dashboard/skills</div><p>Tham chiếu skill khi tạo hoặc phân tích bài test.</p></div>
+            <div class="page-card"><div class="page-title">Groups</div><div class="path">/dashboard/groups</div><p>Xem nhóm/team phục vụ điều phối đánh giá.</p></div>
+          </div></div>
+          <div class="group"><div class="group-title"><span class="dot"></span>Emails</div><div class="pages">
+            <div class="page-card"><div class="page-title">Compose</div><div class="path">/dashboard/emails</div><p>Gửi thư mời test hoặc thông báo cho candidate/member.</p></div>
+            <div class="page-card"><div class="page-title">Logs</div><div class="path">/dashboard/emails/logs</div><p>Xem lịch sử email đã gửi.</p></div>
+          </div></div>
+          <div class="group"><div class="group-title"><span class="dot"></span>Standalone</div><div class="pages"><div class="page-card"><div class="page-title">Versions</div><div class="path">/dashboard/versions</div><p>Xem release notes và thay đổi sản phẩm.</p></div></div></div>
+        </div>
+      </article>
+    </section>
+
+    <section class="section" id="hr">
+      <article class="role-card">
+        <div class="role-head"><div><div class="role-name">HR</div><p class="role-desc">Tập trung vào tuyển dụng: xử lý CV, lên lịch phỏng vấn, báo cáo, cấu hình pipeline và giao tiếp email.</p></div><span class="chip role-badge">Recruitment Operator</span></div>
+        <div class="groups">
+          <div class="group"><div class="group-title"><span class="dot"></span>Recruitment</div><div class="pages">
+            <div class="page-card"><div class="page-title">Candidate CV</div><div class="path">/dashboard/recruitment</div><p>Quản lý ứng viên và CV.</p><ul><li>Upload CV.</li><li>Xem AI screening/match score.</li><li>Điều phối ứng viên qua pipeline.</li></ul></div>
+            <div class="page-card"><div class="page-title">Schedule</div><div class="path">/dashboard/recruitment/sessions</div><p>Lên lịch và quản lý session phỏng vấn.</p><ul><li>Tạo lịch.</li><li>Phân công interviewer.</li><li>Theo dõi trạng thái accept.</li></ul></div>
+            <div class="page-card"><div class="page-title">Report</div><div class="path">/dashboard/recruitment/report</div><p>Báo cáo hiệu quả tuyển dụng.</p></div>
+            <div class="page-card"><div class="page-title">Settings</div><div class="path">/dashboard/recruitment/settings</div><p>Cấu hình các thiết lập pipeline tuyển dụng.</p></div>
+          </div></div>
+          <div class="group"><div class="group-title"><span class="dot"></span>Emails</div><div class="pages">
+            <div class="page-card"><div class="page-title">Compose</div><div class="path">/dashboard/emails</div><p>Gửi email mời phỏng vấn, thông báo, follow-up.</p></div>
+            <div class="page-card"><div class="page-title">Logs</div><div class="path">/dashboard/emails/logs</div><p>Kiểm tra lịch sử gửi email.</p></div>
+          </div></div>
+          <div class="group"><div class="group-title"><span class="dot"></span>Standalone</div><div class="pages"><div class="page-card"><div class="page-title">Versions</div><div class="path">/dashboard/versions</div><p>Xem thông tin thay đổi hệ thống.</p></div></div></div>
+        </div>
+      </article>
+    </section>
+
+    <section class="section" id="interviewer">
+      <article class="role-card">
+        <div class="role-head"><div><div class="role-name">Interviewer</div><p class="role-desc">Tập trung vào các phiên phỏng vấn được phân công, xem CV/candidate, nhận lịch và sử dụng Interview Room.</p></div><span class="chip role-badge">Interview Operator</span></div>
+        <div class="groups">
+          <div class="group"><div class="group-title"><span class="dot"></span>Recruitment</div><div class="pages">
+            <div class="page-card"><div class="page-title">Candidate CV</div><div class="path">/dashboard/recruitment</div><p>Xem candidate/CV phục vụ đánh giá trước phỏng vấn.</p></div>
+            <div class="page-card"><div class="page-title">Schedule</div><div class="path">/dashboard/recruitment/sessions</div><p>Xem session được phân công và accept lịch.</p></div>
+            <div class="page-card"><div class="page-title">Report</div><div class="path">/dashboard/recruitment/report</div><p>Xem báo cáo liên quan tuyển dụng/phỏng vấn.</p></div>
+            <div class="page-card"><div class="page-title">Settings</div><div class="path">/dashboard/recruitment/settings</div><p>Xem/cấu hình giới hạn theo quyền trong recruitment flow.</p></div>
+          </div></div>
+          <div class="group"><div class="group-title"><span class="dot"></span>Interviews</div><div class="pages"><div class="page-card"><div class="page-title">Interview Room</div><div class="path">/dashboard/interview-room</div><p>Vào phòng phỏng vấn cho session đã accepted.</p><ul><li>Xem candidate/test liên quan.</li><li>Thực hiện phỏng vấn.</li><li>Ghi nhận đánh giá/kết quả theo flow.</li></ul></div></div></div>
+          <div class="group"><div class="group-title"><span class="dot"></span>Emails</div><div class="pages">
+            <div class="page-card"><div class="page-title">Compose</div><div class="path">/dashboard/emails</div><p>Gửi email trao đổi liên quan phỏng vấn.</p></div>
+            <div class="page-card"><div class="page-title">Logs</div><div class="path">/dashboard/emails/logs</div><p>Xem lịch sử email.</p></div>
+          </div></div>
+          <div class="group"><div class="group-title"><span class="dot"></span>Standalone</div><div class="pages"><div class="page-card"><div class="page-title">Versions</div><div class="path">/dashboard/versions</div><p>Xem thay đổi hệ thống.</p></div></div></div>
+        </div>
+      </article>
+    </section>
+
+    <section class="section" id="matrix">
+      <h2>Access Matrix</h2>
+      <table class="matrix">
+        <thead><tr><th>Sidebar group / page</th><th>Super Admin</th><th>Admin</th><th>Leader</th><th>Recruiter</th><th>HR</th><th>Interviewer</th></tr></thead>
+        <tbody>
+          <tr><td>People & Roles: Persons, Positions, Skills, Groups</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="dash">—</td><td class="dash">—</td></tr>
+          <tr><td>Recruitment: Candidate CV</td><td class="check">✓</td><td class="check">✓</td><td class="dash">—</td><td class="dash">—</td><td class="check">✓</td><td class="check">✓</td></tr>
+          <tr><td>Recruitment: Schedule</td><td class="check">✓</td><td class="check">✓</td><td class="dash">—</td><td class="dash">—</td><td class="check">✓</td><td class="check">✓</td></tr>
+          <tr><td>Recruitment: Report</td><td class="check">✓</td><td class="check">✓</td><td class="dash">—</td><td class="dash">—</td><td class="check">✓</td><td class="check">✓</td></tr>
+          <tr><td>Recruitment: Settings</td><td class="check">✓</td><td class="check">✓</td><td class="dash">—</td><td class="dash">—</td><td class="check">✓</td><td class="check">✓</td></tr>
+          <tr><td>Recruitment: Question Bank</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="dash">—</td><td class="dash">—</td><td class="dash">—</td></tr>
+          <tr><td>Interviews: Interview Room</td><td class="check">✓</td><td class="check">✓</td><td class="dash">—</td><td class="dash">—</td><td class="dash">—</td><td class="check">✓</td></tr>
+          <tr><td>System: Users, Templates, Versions, Settings</td><td class="check">✓</td><td class="check">✓</td><td class="dash">—</td><td class="dash">—</td><td class="dash">—</td><td class="dash">—</td></tr>
+          <tr><td>Versions: create/edit/approve/archive</td><td class="check">✓</td><td class="dash">View only</td><td class="dash">—</td><td class="dash">—</td><td class="dash">—</td><td class="dash">—</td></tr>
+          <tr><td>Emails: Compose, Logs</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td></tr>
+          <tr><td>Emails: Settings</td><td class="check">✓</td><td class="check">✓</td><td class="dash">—</td><td class="dash">—</td><td class="dash">—</td><td class="dash">—</td></tr>
+          <tr><td>Standalone Versions link</td><td class="dash">System</td><td class="dash">System</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td></tr>
+        </tbody>
+      </table>
+      <div class="note"><strong>Ghi chú:</strong> Admin và Super Admin có cùng sidebar/page. Khác biệt duy nhất: Super Admin được edit lifecycle version; Admin chỉ xem. “Standalone Versions” nghĩa là role không có nhóm System nhưng vẫn thấy link Versions riêng.</div>
+    </section>
+
+    <div class="footer">Generated for ITBA AI dashboard role/sidebar documentation. Keep this file in sync when updating <code>src/components/ui/nav-config.ts</code>.</div>
+  </main>
+</body>
+</html>
