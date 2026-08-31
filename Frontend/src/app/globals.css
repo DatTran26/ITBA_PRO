@@ -1,0 +1,342 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+  --font-display: var(--font-outfit);
+  --font-body: var(--font-plus-jakarta-sans);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-accent-orange: var(--accent-orange);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+}
+
+:root {
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.145 0 0);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.145 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.145 0 0);
+  --primary: oklch(0.205 0 0);
+  --primary-foreground: oklch(0.985 0 0);
+  --secondary: oklch(0.97 0 0);
+  --secondary-foreground: oklch(0.205 0 0);
+  --muted: oklch(0.97 0 0);
+  --muted-foreground: oklch(0.556 0 0);
+  --accent: oklch(0.97 0 0);
+  --accent-foreground: oklch(0.205 0 0);
+  --destructive: oklch(0.58 0.22 27);
+  --border: oklch(0.922 0 0);
+  --input: oklch(0.922 0 0);
+  --ring: oklch(0.708 0 0);
+  --chart-1: oklch(0.809 0.105 251.813);
+  --chart-2: oklch(0.623 0.214 259.815);
+  --chart-3: oklch(0.546 0.245 262.881);
+  --chart-4: oklch(0.488 0.243 264.376);
+  --chart-5: oklch(0.424 0.199 265.638);
+  --radius: 0.625rem;
+  --sidebar: oklch(0.985 0 0);
+  --sidebar-foreground: oklch(0.145 0 0);
+  --sidebar-primary: oklch(0.205 0 0);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.97 0 0);
+  --sidebar-accent-foreground: oklch(0.205 0 0);
+  --sidebar-border: oklch(0.922 0 0);
+  --sidebar-ring: oklch(0.708 0 0);
+}
+
+.dark {
+  /* Deep Intelligence palette — canonical premium hex (source of truth:
+   * docs/design-system-overview.html). Token NAMES kept (shadcn) so all
+   * bg-card / bg-primary / text-muted-foreground utilities resolve to the
+   * shipped indigo/navy palette. */
+  --background: #121A2E;                       /* canvas / app shell */
+  --foreground: #ECF0F7;
+  --card: #161E30;                             /* surface-1 */
+  --card-foreground: #ECF0F7;
+  --popover: #1B2540;                          /* surface-2 / raised */
+  --popover-foreground: #ECF0F7;
+  --primary: #5B6CF0;                          /* Iris indigo — CTA/active/focus */
+  --primary-foreground: #FFFFFF;               /* light text on indigo fill */
+  --secondary: #1B2540;                        /* raised fill */
+  --secondary-foreground: #ECF0F7;
+  --muted: #1B2540;
+  --muted-foreground: #8B99B0;                 /* secondary/label text */
+  --accent: #212C4A;                           /* surface-3 / overlay/hover */
+  --accent-foreground: #ECF0F7;
+  --deep-slate: oklch(0.15 0.02 240);
+  --soft-silver: oklch(0.88 0.01 200);
+  --arctic-cyan: oklch(0.78 0.18 195);
+  --destructive: #FB7185;                      /* rose — error/danger */
+  --accent-orange: #FFB86C;                     /* secondary accent (peach) — sanctioned, widely used */
+  --border: oklch(1 0 0 / 8%);                 /* white/8% hairline */
+  --input: oklch(1 0 0 / 12%);                 /* white/12% control border */
+  --ring: #5B6CF0;                             /* indigo focus ring */
+  --chart-1: oklch(0.809 0.105 251.813);
+  --chart-2: oklch(0.623 0.214 259.815);
+  --chart-3: oklch(0.546 0.245 262.881);
+  --chart-4: oklch(0.488 0.243 264.376);
+  --chart-5: oklch(0.424 0.199 265.638);
+  --sidebar: #101828;                          /* nav shell */
+  --sidebar-foreground: #AEB9CC;
+  --sidebar-primary: #5B6CF0;                  /* indigo active accent */
+  --sidebar-primary-foreground: #FFFFFF;
+  --sidebar-accent: #212C4A;                   /* active pill surface */
+  --sidebar-accent-foreground: #ECF0F7;
+  --sidebar-border: oklch(1 0 0 / 8%);
+  --sidebar-ring: #5B6CF0;
+
+  /* Page top-padding cascades. Topnav: 5rem (room for the floating navbar).
+   * Sidebar: overridden via [data-ui-layout="sidebar"] selector below to
+   * 1.5rem since content-header is already a sticky 48px strip. Pages use
+   * pt-[var(--page-top)] to stay layout-aware without context wiring. */
+  --page-top: 5rem;
+}
+
+[data-ui-layout="sidebar"] {
+  --page-top: 1.5rem;
+}
+
+@layer utilities {
+  .glass-card {
+    @apply bg-card/90 backdrop-blur-md border border-white/[0.07] rounded-2xl shadow-xl shadow-black/20;
+  }
+
+  .glass-card-hover {
+    @apply hover:border-white/[0.12] hover:bg-popover/90 transition-all duration-300;
+  }
+
+  /* Sidebar surface variant: stronger fill since it spans full viewport height. */
+  .glass-card-sidebar {
+    @apply bg-sidebar/85 backdrop-blur-xl border-r border-white/[0.07] shadow-2xl shadow-black/30;
+  }
+
+  .pro-icon-box {
+    @apply w-10 h-10 rounded-xl flex items-center justify-center ring-1 ring-white/5 shadow-inner;
+  }
+
+  .gradient-text {
+    @apply bg-clip-text text-transparent bg-gradient-to-br from-[#7C8FFF] to-[#B48EFF];
+  }
+
+  .gradient-border {
+    @apply relative before:absolute before:inset-0 before:p-[1px] before:bg-gradient-to-br before:from-[#7C8FFF]/40 before:to-[#B48EFF]/20 before:rounded-[inherit] before:-z-10;
+  }
+
+  .bg-radial-vignette {
+    background: radial-gradient(circle at center, transparent 0%, rgba(10, 15, 30, 0.4) 70%, rgba(10, 15, 30, 0.8) 100%);
+  }
+
+  .bento-card {
+    @apply relative overflow-hidden rounded-[2.5rem] bg-[#111629]/50 border border-white/[0.04] transition-all duration-700 hover:border-white/[0.12] hover:bg-[#111629]/80 shadow-2xl shadow-black/40;
+  }
+
+  /* Premium Utilities: "Arctic Minimalist" Aesthetics */
+  .liquid-glass {
+    @apply bg-white/[0.03] backdrop-blur-[16px] border border-white/[0.08] shadow-[0_20px_50px_rgba(0,0,0,0.3)];
+  }
+
+  .inner-glow-card {
+    @apply bg-white/70 backdrop-blur-md border border-slate-200 relative overflow-hidden;
+    box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.05), inset 0 0 20px rgba(0, 242, 255, 0.03);
+  }
+
+  .silver-silk-text {
+    @apply bg-clip-text text-transparent bg-gradient-to-b from-slate-950 via-slate-800 to-slate-600;
+  }
+
+  .ebony-void {
+    background-color: var(--background);
+  }
+
+  .cyan-pulse {
+    box-shadow: 0 0 20px rgba(0, 242, 255, 0.2);
+  }
+
+  .logo-cloud-mask {
+    mask-image: linear-gradient(to right, transparent, black 15%, black 85%, transparent);
+  }
+}
+
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  html {
+    @apply font-sans;
+  }
+  /* Smooth Scroll Bar */
+  ::-webkit-scrollbar {
+    width: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    @apply bg-transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    @apply bg-[#8B99B0]/20 rounded-full hover:bg-[#8B99B0]/30 transition-colors;
+  }
+}
+
+/* ─── react-big-calendar dark theme ──────────────────────────────────────── */
+.rbc-calendar {
+  background: transparent;
+  color: #ECF0F7;
+  font-family: var(--font-body, sans-serif);
+  font-size: 0.8125rem;
+}
+
+.rbc-month-view,
+.rbc-time-view {
+  border-color: rgba(255, 255, 255, 0.06);
+  border-radius: 0.75rem;
+  overflow: hidden;
+}
+
+.rbc-header {
+  background: rgba(255, 255, 255, 0.03);
+  border-bottom-color: rgba(255, 255, 255, 0.06);
+  padding: 0.5rem 0;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #5A6882;
+}
+
+.rbc-month-row,
+.rbc-day-bg {
+  border-color: rgba(255, 255, 255, 0.04);
+}
+
+.rbc-off-range-bg {
+  background: rgba(0, 0, 0, 0.15);
+}
+
+.rbc-today {
+  background: rgba(124, 143, 255, 0.06);
+}
+
+.rbc-date-cell {
+  padding: 0.375rem 0.5rem 0;
+  text-align: right;
+  font-size: 0.75rem;
+  color: #8B99B0;
+}
+
+.rbc-date-cell.rbc-now > a {
+  background: #7C8FFF;
+  color: #fff;
+  border-radius: 50%;
+  width: 1.5rem;
+  height: 1.5rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+}
+
+.rbc-event {
+  border: none !important;
+  border-radius: 0.375rem;
+  padding: 0.125rem 0.375rem;
+  font-size: 0.6875rem;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.rbc-event:focus,
+.rbc-event.rbc-selected {
+  outline: 2px solid rgba(124, 143, 255, 0.5);
+  outline-offset: 1px;
+}
+
+.rbc-event-label {
+  font-size: 0.625rem;
+  opacity: 0.75;
+}
+
+.rbc-time-header-content,
+.rbc-time-content {
+  border-color: rgba(255, 255, 255, 0.06);
+}
+
+.rbc-timeslot-group {
+  border-bottom-color: rgba(255, 255, 255, 0.04);
+  min-height: 3rem;
+}
+
+.rbc-time-slot {
+  font-size: 0.6875rem;
+  color: #5A6882;
+}
+
+.rbc-current-time-indicator {
+  background: #7C8FFF;
+  height: 1.5px;
+}
+
+.rbc-current-time-indicator::before {
+  background: #7C8FFF;
+  border-radius: 50%;
+  content: '';
+  display: block;
+  width: 0.5rem;
+  height: 0.5rem;
+  margin-top: -0.3125rem;
+  margin-left: -0.25rem;
+}
+
+.rbc-show-more {
+  color: #7C8FFF;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  background: transparent;
+}
+
+.rbc-toolbar {
+  display: none;
+}

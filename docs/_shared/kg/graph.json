@@ -1,0 +1,130 @@
+{
+  "meta": {
+    "schema_version": 1,
+    "extractor_version": "1.0.0",
+    "generated_at": "1970-01-01T00:00:00.000Z",
+    "root": "docs",
+    "node_count": 3,
+    "edge_count": 5,
+    "coverage": {
+      "docs_total": 2,
+      "docs_parsed": 0,
+      "unparsed_docs": [
+        {
+          "path": "docs/README.md",
+          "reason": "no-frontmatter-and-no-known-shape"
+        },
+        {
+          "path": "docs/references/COMMIT.md",
+          "reason": "no-frontmatter-and-no-known-shape"
+        }
+      ],
+      "unresolved_refs": [],
+      "uncataloged_content": [],
+      "partial_parse_docs": [],
+      "notes": [
+        "atlassian sync-state.yaml vắng — bỏ qua nguồn Jira/Confluence canonical"
+      ]
+    }
+  },
+  "nodes": [
+    {
+      "key": "docs/README.md",
+      "type": "doc",
+      "subtype": null,
+      "feature": null,
+      "title": "down-town docs",
+      "status": null,
+      "updated": null,
+      "source": {
+        "file": "docs/README.md",
+        "line": 1
+      },
+      "props": {
+        "doc_type": "unknown"
+      }
+    },
+    {
+      "key": "docs/references/COMMIT.md",
+      "type": "doc",
+      "subtype": null,
+      "feature": "references",
+      "title": "Commit dialect",
+      "status": null,
+      "updated": null,
+      "source": {
+        "file": "docs/references/COMMIT.md",
+        "line": 1
+      },
+      "props": {
+        "doc_type": "unknown"
+      }
+    },
+    {
+      "key": "feature:references",
+      "type": "feature",
+      "subtype": null,
+      "feature": "references",
+      "title": "references",
+      "status": null,
+      "updated": null,
+      "source": {
+        "file": "docs/references/COMMIT.md",
+        "line": 1
+      },
+      "props": {}
+    }
+  ],
+  "edges": [
+    {
+      "from": "docs/README.md",
+      "to": "AGENTS.md",
+      "type": "REFERENCES",
+      "provenance": "heuristic",
+      "source": {
+        "file": "docs/README.md",
+        "line": 7
+      }
+    },
+    {
+      "from": "docs/README.md",
+      "to": "CONTRIBUTING.md",
+      "type": "REFERENCES",
+      "provenance": "heuristic",
+      "source": {
+        "file": "docs/README.md",
+        "line": 6
+      }
+    },
+    {
+      "from": "docs/README.md",
+      "to": "SECURITY.md",
+      "type": "REFERENCES",
+      "provenance": "heuristic",
+      "source": {
+        "file": "docs/README.md",
+        "line": 8
+      }
+    },
+    {
+      "from": "docs/README.md",
+      "to": "docs/references/COMMIT.md",
+      "type": "REFERENCES",
+      "provenance": "heuristic",
+      "source": {
+        "file": "docs/README.md",
+        "line": 5
+      }
+    },
+    {
+      "from": "feature:references",
+      "to": "docs/references/COMMIT.md",
+      "type": "CONTAINS",
+      "provenance": "heuristic",
+      "source": {
+        "file": "docs/references/COMMIT.md",
+        "line": 1
+      }
+    }
+  ]
+}

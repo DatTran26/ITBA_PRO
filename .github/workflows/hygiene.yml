@@ -20,3 +20,22 @@ jobs:
           if [ -d .github/ISSUE_TEMPLATE ]; then
             test -f .github/pull_request_template.md
           fi
+          if [ -f .gitlab-ci.yml ]; then
+            echo "::error::GitLab CI was removed from this repository; do not re-add .gitlab-ci.yml"
+            exit 1
+          fi
+      - name: unique supabase migration prefixes
+        run: |
+          set -euo pipefail
+          prefixes=$(find Backend/supabase/migrations -maxdepth 1 -type f -name '*.sql' -printf '%f\n' | sed -E 's/^([0-9]+).*/\1/' | sort | uniq -d)
+          if [ -n "$prefixes" ]; then
+            echo "::error::Duplicate Supabase migration version prefixes: $prefixes"
+            exit 1
+          fi
+      - name: no committed qa passwords
+        run: |
+          set -euo pipefail
+          if grep -R --exclude-dir=.git --exclude-dir=node_modules --exclude-dir=.github -E '@Itba2026' .; then
+            echo "::error::QA/staging credentials must not be committed"
+            exit 1
+          fi

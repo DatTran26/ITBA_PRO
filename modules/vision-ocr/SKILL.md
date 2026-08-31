@@ -15,8 +15,8 @@ Ultra-fast (~5s) Multimodal Vision OCR module using Google Gemini Vision VLM wit
 
 ## Architecture
 
-1. **Primary VLM Path**: Base64 encoded image $\rightarrow$ Gemini REST API (`gemini-2.5-flash` / `gemini-3.5-flash-lite`).
-2. **Offline Fallback**: `pytesseract` + `Pillow` on Windows (`C:\Program Files\Tesseract-OCR\tesseract.exe`).
+1. **Primary VLM Path**: Base64 encoded image $\rightarrow$ Gemini REST API (`gemini-3.6-flash`).
+2. **Offline Fallback**: `pytesseract` + `Pillow`; the Tesseract executable and `vie`/`eng` language data must be installed. macOS/Linux resolve it from `PATH`, while Windows also checks `C:\Program Files\Tesseract-OCR\tesseract.exe`.
 3. **Response Schema**:
    ```json
    {
