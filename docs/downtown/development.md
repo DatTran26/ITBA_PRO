@@ -1,7 +1,7 @@
 ---
 type: development-guide
 status: active
-updated: 2026-08-27
+updated: 2026-09-02
 links:
   - README.md
   - architecture.md
@@ -36,9 +36,15 @@ npm ci
 npm run dev
 ```
 
-Mở `http://localhost:3000`. Project không version-control secret. Copy `Frontend/.env.example` và
-`Backend/.env.example` sang `.env.local`/`.env` (đã gitignore) rồi điền value
-qua kênh của đội.
+Mở `http://localhost:3000`. Project không version-control secret.
+
+- `npm run dev`: copy [`Frontend/.env.example`](../../Frontend/.env.example)
+  sang `Frontend/.env.local`.
+- `docker compose`: copy [`.env.example`](../../.env.example) ở repo root sang
+  `.env`. Không xoá template Frontend.
+
+Điền value qua kênh của đội. Backend utilities dùng
+[`Backend/.env.example`](../../Backend/.env.example).
 
 Source hiện dùng các tên cấu hình chính:
 

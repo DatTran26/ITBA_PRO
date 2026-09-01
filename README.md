@@ -40,6 +40,8 @@ Chi tiết và fallback tooling nằm trong [`AGENTS.md`](AGENTS.md).
 2. Đọc [`docs/README.md`](docs/README.md) để chọn đúng nguồn tài liệu.
 3. Khi phát triển web app, chuyển vào `Frontend`; khi làm schema/RLS/Edge
    Functions hoặc DB utilities, dùng `Backend`.
-4. Kiểm tra `git status` ở repo gốc trước khi thay đổi.
+4. Để chạy container: copy `.env.example` (repo root) sang `.env`, rồi xem
+   [`docs/downtown/operations.md`](docs/downtown/operations.md).
+5. Kiểm tra `git status` ở repo gốc trước khi thay đổi.
 
 Repository gốc phát hành theo giấy phép [`MIT`](LICENSE).

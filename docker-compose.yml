@@ -1,9 +1,29 @@
-# /docker-compose.yml
 services:
-  itba-ai:
-    image: ${DOCKER_IMAGE:-itba-ai:latest}
+  web:
+    image: ${DOCKER_IMAGE:-ghcr.io/dattran26/down-town:local}
+    build:
+      context: ./Frontend
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_SUPABASE_URL: ${NEXT_PUBLIC_SUPABASE_URL:-}
+        NEXT_PUBLIC_SUPABASE_ANON_KEY: ${NEXT_PUBLIC_SUPABASE_ANON_KEY:-}
+        NEXT_PUBLIC_APP_URL: ${NEXT_PUBLIC_APP_URL:-}
+        NEXT_PUBLIC_ENABLE_TURNSTILE: ${NEXT_PUBLIC_ENABLE_TURNSTILE:-}
     ports:
-      - "3000:3000"
-    restart: always
+      - "${APP_PORT:-3000}:3000"
     env_file:
-      - .env
+      - path: .env
+        required: false
+    restart: unless-stopped
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://127.0.0.1:3000/api/health').then((r)=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))",
+        ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 25s
