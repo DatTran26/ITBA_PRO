@@ -53,7 +53,9 @@ Source hiện dùng các tên cấu hình chính:
 - `SUPABASE_SERVICE_ROLE_KEY`
 - `OPENAI_API_KEY`
 - `OPENAI_MODEL` khi cần override
-- `NEXT_PUBLIC_APP_URL` khi cần URL tuyệt đối
+- `NEXT_PUBLIC_APP_URL` khi cần URL tuyệt đối (`https://staging.wpcteam.shop` /
+  `https://production.wpcteam.shop` trên image GHCR; local dùng
+  `http://localhost:3000`)
 
 Không ghi value vào docs/log. Prefix `NEXT_PUBLIC_*` đồng nghĩa value có thể xuất
 hiện ở client bundle, nên không đặt secret vào đó.

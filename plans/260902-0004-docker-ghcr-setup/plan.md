@@ -206,11 +206,13 @@ server secrets) so a VPS can `docker compose pull` without a PAT in v1.
 
 ## Open questions
 
-- [ ] Confirm GitHub Environments `staging` and `production` will be created on
+- [x] Confirm GitHub Environments `staging` and `production` will be created on
       `DatTran26/down-town` (manual org/repo setting; cannot be done from a
       workflow file alone).
-- [ ] Confirm production canonical URL for `NEXT_PUBLIC_APP_URL` (needed as
+- [x] Confirm production canonical URL for `NEXT_PUBLIC_APP_URL` (needed as
       production environment variable, not as a committed value).
+      Staging `https://staging.wpcteam.shop`; production
+      `https://production.wpcteam.shop`.
 - [ ] Confirm GHCR package visibility: public (recommended for v1, no pull
       credential) vs private (requires a VPS pull token).
 

@@ -34,6 +34,16 @@ automation cho đến khi owner bổ sung pipeline đó.
 Workflow đọc `vars.NEXT_PUBLIC_*` từ Environment. File YAML không tạo được
 Environment. Trên `DatTran26/down-town` → Settings → Environments:
 
+Canonical origins (baked into each image as `NEXT_PUBLIC_APP_URL`):
+
+| Environment | Origin |
+| --- | --- |
+| `staging` | `https://staging.wpcteam.shop` |
+| `production` | `https://production.wpcteam.shop` |
+
+Không dùng một image cho cả hai origin. Staging build từ `develop`; production
+build từ tag `v*`.
+
 1. Tạo `staging` và `production`.
 2. Mỗi environment: `NEXT_PUBLIC_SUPABASE_URL`,
    `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `NEXT_PUBLIC_APP_URL`,

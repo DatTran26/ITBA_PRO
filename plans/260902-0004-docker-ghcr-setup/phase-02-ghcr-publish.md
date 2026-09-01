@@ -59,7 +59,7 @@ Required GitHub Environment variables (names only; values stay in the GitHub UI)
 | --- | --- | --- |
 | `NEXT_PUBLIC_SUPABASE_URL` | staging Supabase URL | production Supabase URL |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | staging anon key | production anon key |
-| `NEXT_PUBLIC_APP_URL` | staging origin | production origin |
+| `NEXT_PUBLIC_APP_URL` | `https://staging.wpcteam.shop` | `https://production.wpcteam.shop` |
 | `NEXT_PUBLIC_ENABLE_TURNSTILE` | `true`/`false` as needed | `true`/`false` as needed |
 
 These are public-by-design client values. Still do not print them in `run:`
