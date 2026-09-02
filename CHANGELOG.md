@@ -2,6 +2,18 @@
 
 All notable changes to this project are documented in this file.
 
+## [0.2.1] - 2026-09-02
+
+### Added
+
+- Open Graph and Twitter share image for ITBA.CORE (`/og-image.jpg`, 1200x630).
+
+### Fixed
+
+- Traefik terminates Cloudflare Full SSL on origin `:443` so `https://` is served and `http://` redirects to HTTPS.
+
+[0.2.1]: https://github.com/DatTran26/down-town/releases/tag/v0.2.1
+
 ## [0.2.0] - 2026-09-02
 
 ### Added
