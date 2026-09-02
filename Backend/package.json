@@ -1,0 +1,16 @@
+{
+  "name": "itba-ai-backend-utilities",
+  "version": "1.6.4",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "db:check-tests": "node scripts/db/check-tests-columns.mjs",
+    "db:check-users": "node scripts/db/check-users.mjs",
+    "db:check-users-schema": "node scripts/db/check-users-schema.mjs"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.101.1",
+    "dotenv": "^17.2.2",
+    "pg": "^8.20.0"
+  }
+}

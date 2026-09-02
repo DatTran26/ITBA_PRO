@@ -1,0 +1,1841 @@
+<!DOCTYPE html>
+<html lang="vi" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hitek TestHub - Recruitment AI Roadmap & Guides</title>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Custom Tailwind Config matching ITBA.AI Design Guidelines -->
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            background: '#121A2E', // Canvas — app shell
+            immersive: '#0A0F1E',  // Canvas — immersive
+            sidebar: '#101828',    // Sidebar
+            card: {
+              DEFAULT: '#161E30',  // Surface-1
+              foreground: '#ECF0F7'
+            },
+            popover: '#1B2540',    // Surface-2
+            accent: {
+              DEFAULT: '#212C4A',  // Surface-3
+              orange: '#FFB86C'    // Sanctioned secondary orange
+            },
+            primary: {
+              DEFAULT: '#5B6CF0',  // Indigo Primary
+              light: '#7C8FFF'     // Primary light
+            },
+            ai: {
+              violet: '#A78BFA',
+              violetLight: '#B48EFF'
+            },
+            success: '#34D399',    // Emerald
+            warning: '#FBBF24',    // Amber
+            danger: '#FB7185',     // Rose
+            text: {
+              primary: '#ECF0F7',
+              secondary: '#AEB9CC',
+              muted: '#8B99B0',
+              dim: '#5A6882'
+            },
+            border: {
+              DEFAULT: 'rgba(255,255,255,0.07)',
+              strong: 'rgba(255,255,255,0.12)'
+            }
+          },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            display: ['Outfit', 'sans-serif'],
+            body: ['Plus Jakarta Sans', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace']
+          },
+          borderRadius: {
+            'base': '10px',
+            'sm': '6px',
+            'md': '8px',
+            'lg': '10px',
+            'xl': '14px',
+            '2xl': '18px',
+            '3xl': '22px',
+            '4xl': '26px'
+          },
+          boxShadow: {
+            'e-1': '0 1px 2px rgba(0,0,0,0.4)',
+            'e-2': '0 8px 24px rgba(0,0,0,0.45)',
+            'e-3': '0 24px 60px rgba(0,0,0,0.55)',
+            'glow': '0 8px 28px rgba(91,108,240,0.35)'
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <style type="text/css">
+    /* Custom Scrollbars */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(139, 153, 176, 0.2);
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(139, 153, 176, 0.35);
+    }
+
+    /* Core styles matching deep intelligence */
+    body {
+      background-color: #121A2E;
+      color: #ECF0F7;
+      font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
+    }
+
+    .glass-card {
+      background: #161E30;
+      border: 1px solid rgba(255, 255, 255, 0.07);
+      backdrop-filter: blur(12px);
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .glass-card-hover:hover {
+      transform: translateY(-2px);
+      background: #1B2540;
+      border-color: rgba(255, 255, 255, 0.12);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+    }
+
+    .gradient-text {
+      background: linear-gradient(135deg, #7C8FFF 0%, #A78BFA 50%, #B48EFF 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .active-pill {
+      background-color: #212C4A;
+      color: #ECF0F7;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+    }
+
+    /* Blur orbs */
+    .orb {
+      position: absolute;
+      border-radius: 9999px;
+      filter: blur(140px);
+      opacity: 0.06;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    /* Active states */
+    .nav-link.active {
+      background-color: #212C4A;
+      color: #ECF0F7;
+      font-weight: 500;
+    }
+
+    .sidebar-link.active {
+      background-color: rgba(91, 108, 240, 0.15);
+      border-left: 2px solid #5B6CF0;
+      color: #ECF0F7;
+    }
+  </style>
+</head>
+<body class="min-h-screen relative overflow-x-hidden pt-[5rem] flex flex-col font-sans select-none antialiased">
+
+  <!-- Ambient Orbs -->
+  <div class="orb w-[500px] h-[500px] bg-[#5B6CF0] top-[-100px] left-[-100px]"></div>
+  <div class="orb w-[400px] h-[400px] bg-[#A78BFA] bottom-[100px] right-[-100px]"></div>
+  <div class="orb w-[300px] h-[300px] bg-[#34D399] top-[40%] left-[60%]"></div>
+
+  <!-- Header / Top Navbar -->
+  <header class="fixed top-0 left-0 right-0 z-40 bg-[#121A2E]/80 backdrop-blur-md border-b border-border flex items-center justify-between px-6 md:px-12 py-3 h-[4.5rem]">
+    <!-- Logo -->
+    <a href="#" onclick="switchTab('home')" class="flex items-center gap-3 group focus:outline-none">
+      <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-[#5B6CF0] to-[#7C8FFF] flex items-center justify-center shadow-glow group-hover:scale-105 transition-all duration-200">
+        <span class="font-display font-bold text-lg text-white">HT</span>
+      </div>
+      <div class="flex flex-col">
+        <span class="font-display font-bold text-[1.1rem] tracking-tight leading-tight group-hover:text-primary-light transition-colors">Hitek TestHub</span>
+        <span class="text-[10px] text-text-muted font-mono tracking-widest uppercase">Recruitment AI</span>
+      </div>
+    </a>
+
+    <!-- Navigation Menu (Center) -->
+    <nav class="hidden md:flex items-center bg-sidebar/95 border border-border p-1 rounded-full">
+      <button onclick="switchTab('home')" id="nav-home" class="nav-link px-5 py-1.5 rounded-full text-text-muted hover:text-text-primary text-[13px] font-medium transition-all duration-200">Trang chủ</button>
+      <button onclick="switchTab('features')" id="nav-features" class="nav-link px-5 py-1.5 rounded-full text-text-muted hover:text-text-primary text-[13px] font-medium transition-all duration-200">Tính năng</button>
+      <button onclick="switchTab('guides')" id="nav-guides" class="nav-link px-5 py-1.5 rounded-full text-text-muted hover:text-text-primary text-[13px] font-medium transition-all duration-200">Hướng dẫn</button>
+      <button onclick="switchTab('roles')" id="nav-roles" class="nav-link px-5 py-1.5 rounded-full text-text-muted hover:text-text-primary text-[13px] font-medium transition-all duration-200">Tài khoản & Vai trò</button>
+      <button onclick="switchTab('todo')" id="nav-todo" class="nav-link active px-5 py-1.5 rounded-full text-text-muted hover:text-text-primary text-[13px] font-medium transition-all duration-200">Todolist</button>
+    </nav>
+
+    <!-- Utility Actions (Right) -->
+    <div class="flex items-center gap-4">
+      <!-- Language Button -->
+      <button class="text-text-muted hover:text-text-primary text-[13px] font-semibold px-2.5 py-1 border border-border rounded-md hover:bg-accent transition-colors">EN</button>
+      <!-- Theme Switcher -->
+      <button onclick="showThemeNotice()" class="w-8 h-8 rounded-lg border border-border flex items-center justify-center hover:bg-accent text-text-muted hover:text-text-primary transition-colors" title="Chế độ Tối">
+        <i data-lucide="sun" class="size-4"></i>
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="flex-grow w-full max-w-[1440px] mx-auto px-4 md:px-8 py-6 relative z-10 flex gap-6">
+
+    <!-- LEFT SIDEBAR (Dynamic based on Tab) -->
+    <aside id="layout-sidebar" class="w-64 flex-shrink-0 hidden lg:block bg-sidebar/40 border border-border rounded-2xl p-4 h-[fit-content] sticky top-24">
+      <!-- Sidebar Content will be loaded dynamically by JS -->
+    </aside>
+
+    <!-- CONTENT AREA -->
+    <section id="main-content" class="flex-grow">
+      <!-- Tab Contents will render here dynamically -->
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="border-t border-border bg-sidebar/20 py-6 mt-12 relative z-10">
+    <div class="max-w-[1440px] mx-auto px-6 md:px-12 flex flex-col md:flex-row justify-between items-center gap-4">
+      <div class="flex items-center gap-2 text-text-muted text-[13px]">
+        <span>© 2026 Hitek TestHub.</span>
+        <span>•</span>
+        <span>Deep Intelligence & Arctic Minimalist design.</span>
+      </div>
+      <div class="flex items-center gap-6 text-[13px] text-text-muted">
+        <a href="#" onclick="switchTab('guides')" class="hover:text-text-primary transition-colors">Tài liệu</a>
+        <a href="#" onclick="switchTab('todo')" class="hover:text-text-primary transition-colors">Roadmap</a>
+        <a href="#" onclick="showToast('Liên hệ hỗ trợ qua email: support@hitek.com', 'info')" class="hover:text-text-primary transition-colors">Hỗ trợ</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Notification Toast -->
+  <div id="toast" class="fixed bottom-6 right-6 z-50 transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none">
+    <div class="glass-card bg-[#1B2540] border-border py-3 px-5 rounded-xl shadow-e-3 flex items-center gap-3">
+      <div id="toast-icon-bg" class="w-6 h-6 rounded-full flex items-center justify-center">
+        <i id="toast-icon" data-lucide="info" class="size-3.5"></i>
+      </div>
+      <p id="toast-message" class="text-[13.5px] font-medium text-text-primary"></p>
+    </div>
+  </div>
+
+  <!-- JavaScript logic simulating SPA & Checklist functionality -->
+  <script>
+    // System Data
+    const recruitmentTasks = [
+      // Module 1
+      { id: 't1_1', module: 'm1', text: 'Giao diện Drag & Drop tải lên CV (PDF/DOCX)', desc: 'Xây dựng vùng nhận diện drop file và validate định dạng tài liệu', completed: true },
+      { id: 't1_2', module: 'm1', text: 'Tích hợp OCR & NLP trích xuất thông tin', desc: 'Đọc thông tin liên hệ, danh mục kỹ năng, kinh nghiệm (Tiếng Anh/Việt)', completed: true },
+      { id: 't1_3', module: 'm1', text: 'AI matching tính điểm phù hợp (Match Score)', desc: 'Phân tích độ tương thích chi tiết theo Skill, Experience và Domain', completed: true },
+      { id: 't1_4', module: 'm1', text: 'Thiết lập ngưỡng từ chối tự động (Auto-reject Threshold)', desc: 'Ngăn chặn hồ sơ không đạt chuẩn đi tiếp vào vòng trong', completed: true },
+      { id: 't1_5', module: 'm1', text: 'Cho phép HR ghi đè (Override) điểm AI', desc: 'Nhập lý do override để lưu vết báo cáo phục vụ kiểm toán', completed: true },
+
+      // Module 2
+      { id: 't2_1', module: 'm2', text: 'Bảng Kanban và Table với 10 trạng thái', desc: 'NEW -> SCREENED -> REJECTED -> SHORTLISTED -> INTERVIEW_SCHEDULED -> INTERVIEWED -> PASSED -> FAILED -> OFFERED -> ONBOARDED', completed: true },
+      { id: 't2_2', module: 'm2', text: 'Tính năng lọc nâng cao', desc: 'Hỗ trợ sort theo Match Score, filter theo kỹ năng, vị trí công việc, trạng thái', completed: true },
+      { id: 't2_3', module: 'm2', text: 'Chức năng từ chối hàng loạt (Bulk reject)', desc: 'Tiết kiệm thời gian xử lý hồ sơ không phù hợp hàng loạt', completed: true },
+      { id: 't2_4', module: 'm2', text: 'Khôi phục ứng viên từ trạng thái REJECTED', desc: 'Cho phép chuyển ứng viên từ Rejected trở lại Shortlisted dễ dàng', completed: true },
+
+      // Module 3
+      { id: 't3_1', module: 'm3', text: 'Popup đặt lịch phỏng vấn', desc: 'Form nhập Interviewer, thời gian phỏng vấn, ghi chú ban đầu', completed: true },
+      { id: 't3_2', module: 'm3', text: 'Gửi email tự động thông báo tới Interviewer', desc: 'Email đính kèm thông tin ứng viên, link CV và JD mẫu', completed: true },
+      { id: 't3_3', module: 'm3', text: 'Tự động chuyển trạng thái ứng viên', desc: 'Đồng bộ chuyển sang trạng thái INTERVIEW_SCHEDULED sau khi xếp lịch', completed: true },
+
+      // Module 4
+      { id: 't4_1', module: 'm4', text: 'Thu âm trực tiếp buổi phỏng vấn', desc: 'Chạy trực tiếp trên trình duyệt, không thông qua phần mềm thứ ba', completed: false, isGap: true },
+      { id: 't4_2', module: 'm4', text: 'Tích hợp API chuyển âm thanh Whisper Transcription', desc: 'Tự động convert file ghi âm phỏng vấn sang văn bản hội thoại', completed: false, isGap: true },
+      { id: 't4_3', module: 'm4', text: 'AI summarize buổi phỏng vấn & fit score', desc: 'GPT-4o Overall Fit Evaluation đánh giá chi tiết độ phù hợp', completed: false, isGap: true },
+      { id: 't4_4', module: 'm4', text: 'Cho phép sửa đổi bản tóm tắt AI Summary', desc: 'Giao diện tương tác chỉnh sửa cho nhà tuyển dụng trước khi lưu', completed: false, isGap: true },
+      { id: 't4_5', module: 'm4', text: 'Thêm/sửa/xóa Interviewer Notes', desc: 'Ghi chú trực quan của người phỏng vấn lưu trữ theo session', completed: false, isGap: true },
+      { id: 't4_6', module: 'm4', text: 'Đánh dấu Pass / Fail trực tiếp trong session', desc: 'Cập nhật trạng thái ứng viên tức thì ngay tại phòng phỏng vấn', completed: false, isGap: true },
+      { id: 't4_7', module: 'm4', text: 'Xuất báo cáo kết quả PDF tổng hợp', desc: 'Xuất file PDF trực tiếp chứa CV detail, Test result, Interview summary', completed: false, isGap: true },
+
+      // Module 5
+      { id: 't5_1', module: 'm5', text: 'AI sinh câu hỏi từ tài liệu nguồn', desc: 'Hỗ trợ upload PDF/DOCX/TXT/MD hoặc kết nối qua Google Drive', completed: true },
+      { id: 't5_2', module: 'm5', text: 'Form nhập câu hỏi thủ công & Template bulk import', desc: 'Nhập thủ công hoặc tải file Excel mẫu để cập nhật số lượng lớn', completed: true },
+      { id: 't5_3', module: 'm5', text: 'Phân loại câu hỏi theo trình độ và chủ đề', desc: 'Junior (cơ bản), Middle (tình huống), Senior (thiết kế)', completed: true },
+      { id: 't5_4', module: 'm5', text: 'Chế độ chấm điểm thủ công (Manual Grading)', desc: 'Cho phép leader chấm tay phần Essay/Subjective, tự động chấm MCQ', completed: true },
+      { id: 't5_5', module: 'm5', text: 'Cơ chế re-generate bộ câu hỏi', desc: 'Sinh lại toàn bộ hoặc một câu đơn lẻ theo prompt tùy biến', completed: true },
+
+      // Module 6
+      { id: 't6_1', module: 'm6', text: 'Nút Save to Favourite tại màn duyệt đề', desc: 'Lưu nhanh câu hỏi tốt sau khi generate từ ngân hàng AI', completed: false, isGap: true },
+      { id: 't6_2', module: 'm6', text: 'Thiết kế bảng database lưu trữ bộ câu hỏi', desc: 'Xây dựng bảng db lưu câu hỏi và quan hệ sở hữu của user', completed: false, isGap: true },
+      { id: 't6_3', module: 'm6', text: 'Lưu kèm metadata phân loại Level & Department', desc: 'Hỗ trợ filter nhanh câu hỏi theo phòng ban và trình độ mong muốn', completed: false, isGap: true },
+      { id: 't6_4', module: 'm6', text: 'Giao diện thư viện Favourite Questions Library', desc: 'Duyệt, tìm kiếm, sửa đổi và kéo tái sử dụng khi tạo bài test mới', completed: false, isGap: true },
+
+      // Module 7: AI Optimization
+      { id: 't7_1', module: 'm7', text: 'Tích hợp PDF Parser nội bộ (Local extraction)', desc: 'Sử dụng pdf-parse trích xuất text từ buffer trực tiếp trên server (<0.5s)', completed: false, isGap: true },
+      { id: 't7_2', module: 'm7', text: 'Sử dụng DOCX Parser chuẩn (Local extraction)', desc: 'Dùng mammoth để giải nén chính xác, loại bỏ regex nhị phân lỗi', completed: false, isGap: true },
+      { id: 't7_3', module: 'm7', text: 'Nén & Lọc dữ liệu thô trước khi gửi OpenAI', desc: 'Loại bỏ khoảng trắng thừa, dùng gpt-4o-mini để giảm chi phí & tăng tốc', completed: false, isGap: true },
+      { id: 't7_4', module: 'm7', text: 'Thực hiện song song tải file & giải nén text', desc: 'Sử dụng stream processing để tối ưu hóa thời gian phản hồi tối đa', completed: false, isGap: true }
+    ];
+
+    const modules = {
+      'm1': { name: 'Module 1: Sàng lọc CV', icon: 'file-text', desc: 'Phân tích dữ liệu CV ứng viên bằng AI Matching' },
+      'm2': { name: 'Module 2: Quản lý Pipeline', icon: 'columns', desc: 'Bảng Kanban & quản trị quy trình ứng tuyển' },
+      'm3': { name: 'Module 3: Đặt lịch Phỏng vấn', icon: 'calendar', desc: 'Lên lịch hẹn và tự động thông báo email' },
+      'm4': { name: 'Module 4: Phòng Phỏng vấn AI', icon: 'mic', desc: 'Ghi âm trực tiếp, Whisper transcript & Tóm tắt AI' },
+      'm5': { name: 'Module 5: Ngân hàng Câu hỏi', icon: 'database', desc: 'Tự sinh đề thi, bulk import và chấm tay essay' },
+      'm6': { name: 'Module 6: Thư viện Câu hỏi Yêu thích', icon: 'heart', desc: 'Kho lưu trữ và phân loại các câu hỏi mẫu tốt nhất' },
+      'm7': { name: 'Tối ưu hiệu năng AI', icon: 'zap', desc: 'Chuyển sang local text parser tăng tốc độ trích xuất CV' }
+    };
+
+    // Roles Specification Data
+    const systemRoles = {
+      super_admin: {
+        name: 'Super Admin',
+        desc: 'Toàn quyền vận hành hệ thống giống Admin, đồng thời là role duy nhất được tạo/sửa/duyệt/archive version.',
+        badge: 'Full Access + Version Edit',
+        groups: [
+          {
+            title: 'People & Roles',
+            pages: [
+              { name: 'Persons', path: '/dashboard/persons', desc: 'Quản lý hồ sơ người trong tổ chức và talent pool.', features: ['Xem danh sách persons.', 'Theo dõi thông tin, trạng thái, liên kết với roles/groups.', 'Làm nguồn dữ liệu cho employee assessment.'] },
+              { name: 'Positions', path: '/dashboard/positions', desc: 'Quản lý vị trí công việc và tiêu chuẩn năng lực.', features: ['Tạo/cập nhật position.', 'Gắn skill benchmark cho từng role.', 'Làm nền cho test và đánh giá nhân sự.'] },
+              { name: 'Skills', path: '/dashboard/skills', desc: 'Quản lý skill catalog.', features: ['Chuẩn hoá kỹ năng.', 'Phục vụ phân tích gap và benchmark.', 'Kết nối positions, tests và reports.'] },
+              { name: 'Groups', path: '/dashboard/groups', desc: 'Quản lý team/phòng ban/nhóm đánh giá.', features: ['Tổ chức members theo group.', 'Gửi test theo team.', 'Theo dõi năng lực nhóm.'] }
+            ]
+          },
+          {
+            title: 'Recruitment',
+            pages: [
+              { name: 'Candidate CV', path: '/dashboard/recruitment', desc: 'Pipeline xử lý ứng viên và CV.', features: ['Upload/xem CV.', 'AI screening và chấm match.', 'Theo dõi trạng thái ứng viên.'] },
+              { name: 'Schedule', path: '/dashboard/recruitment/sessions', desc: 'Quản lý lịch/session phỏng vấn.', features: ['Tạo session.', 'Phân công interviewer.', 'Gắn bài test/session test.'] },
+              { name: 'Report', path: '/dashboard/recruitment/report', desc: 'Báo cáo tuyển dụng.', features: ['Theo dõi funnel.', 'Đánh giá hiệu suất phỏng vấn.', 'Tổng hợp dữ liệu ra quyết định.'] },
+              { name: 'Recruitment Settings', path: '/dashboard/recruitment/settings', desc: 'Cấu hình pipeline tuyển dụng.', features: ['Thiết lập tiêu chí.', 'Quản lý trạng thái/luồng xử lý.', 'Chuẩn hoá vận hành HR.'] },
+              { name: 'Question Bank', path: '/dashboard/question-bank', desc: 'Ngân hàng câu hỏi dùng để tạo test.', features: ['AI Pipeline nạp câu hỏi từ tài liệu.', 'Quản lý câu hỏi theo topic, level, type.', 'Bulk import, review, chỉnh sửa và tạo test từ bank.'] }
+            ]
+          },
+          {
+            title: 'Interviews',
+            pages: [
+              { name: 'Interview Room', path: '/dashboard/interview-room', desc: 'Không gian phỏng vấn cho session đã accepted.', features: ['Chọn session đã được nhận.', 'Xem candidate/test liên quan.', 'Hỗ trợ phỏng vấn và ghi nhận kết quả.'] }
+            ]
+          },
+          {
+            title: 'System',
+            pages: [
+              { name: 'Manage Users', path: '/dashboard/users', desc: 'Quản trị tài khoản và role.', features: ['Xem users.', 'Cập nhật role/quyền.', 'Kiểm soát truy cập hệ thống.'] },
+              { name: 'Templates', path: '/dashboard/templates', desc: 'Mẫu cấu hình bài test.', features: ['Tạo template.', 'Tái sử dụng cấu hình test.', 'Chuẩn hoá bài đánh giá.'] },
+              { name: 'Versions', path: '/dashboard/versions', desc: 'Quản lý version/release note.', features: ['Xem draft/pending/approved/rejected/archived.', 'Tạo, sửa, duyệt, từ chối và archive version.', 'Quản trị lifecycle release.'] },
+              { name: 'System Settings', path: '/dashboard/settings', desc: 'Cấu hình toàn hệ thống.', features: ['AI model/API settings.', 'UI layout.', 'Các thiết lập vận hành nền tảng.'] }
+            ]
+          },
+          {
+            title: 'Emails',
+            pages: [
+              { name: 'Compose', path: '/dashboard/emails', desc: 'Soạn và gửi email theo template.', features: ['Chọn recipient.', 'Autofill biến ứng viên/session.', 'Gửi email vận hành tuyển dụng.'] },
+              { name: 'Logs', path: '/dashboard/emails/logs', desc: 'Lịch sử gửi email.', features: ['Theo dõi trạng thái gửi.', 'Audit nội dung/recipient.', 'Tra cứu lỗi gửi email.'] },
+              { name: 'Email Settings', path: '/dashboard/emails/settings', desc: 'Cấu hình template và SMTP.', features: ['Quản lý email templates.', 'Thiết lập SMTP provider.', 'Kiểm tra gửi thử.'] }
+            ]
+          }
+        ]
+      },
+      admin: {
+        name: 'Admin',
+        desc: 'Có cùng quyền với Super Admin để vận hành nghiệp vụ, users, settings, question bank, recruitment và email; điểm khác duy nhất là không được sửa/duyệt/archive phiên bản hệ thống.',
+        badge: 'Same as Super Admin, no Version Edit',
+        groups: [
+          {
+            title: 'Sidebar pages',
+            pages: [
+              { name: 'People & Roles', path: 'Persons · Positions · Skills · Groups', desc: 'Quản trị cấu trúc nhân sự, vị trí, kỹ năng và nhóm.', features: ['Thiết lập nền dữ liệu cho recruitment và employee assessment.', 'Quản lý benchmark skill/position.'] },
+              { name: 'Recruitment', path: 'Candidate CV · Schedule · Report · Settings · Question Bank', desc: 'Quản lý toàn bộ pipeline tuyển dụng và ngân hàng câu hỏi.', features: ['Upload/screen CV.', 'Lên lịch phỏng vấn.', 'Nạp và quản trị Question Bank.'] },
+              { name: 'Interviews', path: 'Interview Room', desc: 'Vào không gian phỏng vấn/session để giám sát hoặc hỗ trợ vận hành.', features: [] },
+              { name: 'System', path: 'Users · Templates · Versions · Settings', desc: 'Quản trị nền tảng.', features: ['Role/user management.', 'Template/settings.', 'Xem toàn bộ versions nhưng không tạo/sửa/duyệt/archive.'] },
+              { name: 'Emails', path: 'Compose · Logs · Settings', desc: 'Gửi email, xem lịch sử và cấu hình SMTP/template.', features: [] }
+            ]
+          }
+        ]
+      },
+      leader: {
+        name: 'Leader',
+        desc: 'Tập trung vào quản lý người/nhóm, ngân hàng câu hỏi và tạo bài test cho member theo nhu cầu đánh giá nội bộ.',
+        badge: 'Assessment Owner',
+        groups: [
+          {
+            title: 'People & Roles',
+            pages: [
+              { name: 'Persons', path: '/dashboard/persons', desc: 'Theo dõi hồ sơ nhân sự/member trong phạm vi quản lý.', features: [] },
+              { name: 'Positions', path: '/dashboard/positions', desc: 'Xem/quản lý vị trí làm cơ sở đánh giá năng lực.', features: [] },
+              { name: 'Skills', path: '/dashboard/skills', desc: 'Xem skill catalog để hiểu tiêu chuẩn đánh giá.', features: [] },
+              { name: 'Groups', path: '/dashboard/groups', desc: 'Quản lý nhóm/team để gửi test theo team.', features: [] }
+            ]
+          },
+          {
+            title: 'Recruitment / Assessment',
+            pages: [
+              { name: 'Question Bank', path: '/dashboard/question-bank', desc: 'Kho câu hỏi để tạo bài test nội bộ.', features: ['Chọn level Junior/Middle/Senior hoặc mixed ratio.', 'Chọn topic và question type.', 'Tạo test từ bank, đổi câu trước khi gửi.'] }
+            ]
+          },
+          {
+            title: 'Emails',
+            pages: [
+              { name: 'Compose', path: '/dashboard/emails', desc: 'Gửi email/thông báo bài test cho member hoặc team.', features: [] },
+              { name: 'Logs', path: '/dashboard/emails/logs', desc: 'Theo dõi lịch sử gửi email.', features: [] }
+            ]
+          },
+          {
+            title: 'Standalone',
+            pages: [
+              { name: 'Versions', path: '/dashboard/versions', desc: 'Xem thông tin phiên bản/tính năng mới của hệ thống.', features: [] }
+            ]
+          }
+        ]
+      },
+      recruiter: {
+        name: 'Recruiter',
+        desc: 'Tập trung tạo và quản lý bài test tuyển dụng/đánh giá, đồng thời xem cấu trúc people/role phục vụ tuyển dụng.',
+        badge: 'Test Creator',
+        groups: [
+          {
+            title: 'People & Roles',
+            pages: [
+              { name: 'Persons', path: '/dashboard/persons', desc: 'Xem/quản lý nguồn nhân sự liên quan tuyển dụng và đánh giá.', features: [] },
+              { name: 'Positions', path: '/dashboard/positions', desc: 'Xem position để tạo test đúng role.', features: [] },
+              { name: 'Skills', path: '/dashboard/skills', desc: 'Tham chiếu skill khi tạo hoặc phân tích bài test.', features: [] },
+              { name: 'Groups', path: '/dashboard/groups', desc: 'Xem nhóm/team phục vụ điều phối đánh giá.', features: [] }
+            ]
+          },
+          {
+            title: 'Emails',
+            pages: [
+              { name: 'Compose', path: '/dashboard/emails', desc: 'Gửi thư mời test hoặc thông báo cho candidate/member.', features: [] },
+              { name: 'Logs', path: '/dashboard/emails/logs', desc: 'Xem lịch sử email đã gửi.', features: [] }
+            ]
+          },
+          {
+            title: 'Standalone',
+            pages: [
+              { name: 'Versions', path: '/dashboard/versions', desc: 'Xem release notes và thay đổi sản phẩm.', features: [] }
+            ]
+          }
+        ]
+      },
+      hr: {
+        name: 'HR',
+        desc: 'Tập trung vào tuyển dụng: xử lý CV, lên lịch phỏng vấn, báo cáo, cấu hình pipeline và giao tiếp email.',
+        badge: 'Recruitment Operator',
+        groups: [
+          {
+            title: 'Recruitment',
+            pages: [
+              { name: 'Candidate CV', path: '/dashboard/recruitment', desc: 'Quản lý ứng viên và CV.', features: ['Upload CV.', 'Xem AI screening/match score.', 'Điều phối ứng viên qua pipeline.'] },
+              { name: 'Schedule', path: '/dashboard/recruitment/sessions', desc: 'Lên lịch và quản lý session phỏng vấn.', features: ['Tạo lịch.', 'Phân công interviewer.', 'Theo dõi trạng thái accept.'] },
+              { name: 'Report', path: '/dashboard/recruitment/report', desc: 'Báo cáo hiệu quả tuyển dụng.', features: [] },
+              { name: 'Settings', path: '/dashboard/recruitment/settings', desc: 'Cấu hình các thiết lập pipeline tuyển dụng.', features: [] }
+            ]
+          },
+          {
+            title: 'Emails',
+            pages: [
+              { name: 'Compose', path: '/dashboard/emails', desc: 'Gửi email mời phỏng vấn, thông báo, follow-up.', features: [] },
+              { name: 'Logs', path: '/dashboard/emails/logs', desc: 'Kiểm tra lịch sử gửi email.', features: [] }
+            ]
+          },
+          {
+            title: 'Standalone',
+            pages: [
+              { name: 'Versions', path: '/dashboard/versions', desc: 'Xem thông tin thay đổi hệ thống.', features: [] }
+            ]
+          }
+        ]
+      },
+      interviewer: {
+        name: 'Interviewer',
+        desc: 'Tập trung vào các phiên phỏng vấn được phân công, xem CV/candidate, nhận lịch và sử dụng Interview Room.',
+        badge: 'Interview Operator',
+        groups: [
+          {
+            title: 'Recruitment',
+            pages: [
+              { name: 'Candidate CV', path: '/dashboard/recruitment', desc: 'Xem candidate/CV phục vụ đánh giá trước phỏng vấn.', features: [] },
+              { name: 'Schedule', path: '/dashboard/recruitment/sessions', desc: 'Xem session được phân công và accept lịch.', features: [] },
+              { name: 'Report', path: '/dashboard/recruitment/report', desc: 'Xem báo cáo liên quan tuyển dụng/phỏng vấn.', features: [] },
+              { name: 'Settings', path: '/dashboard/recruitment/settings', desc: 'Xem/cấu hình giới hạn theo quyền trong recruitment flow.', features: [] }
+            ]
+          },
+          {
+            title: 'Interviews',
+            pages: [
+              { name: 'Interview Room', path: '/dashboard/interview-room', desc: 'Vào phòng phỏng vấn cho session đã accepted.', features: ['Xem candidate/test liên quan.', 'Thực hiện phỏng vấn.', 'Ghi nhận đánh giá/kết quả theo flow.'] }
+            ]
+          },
+          {
+            title: 'Emails',
+            pages: [
+              { name: 'Compose', path: '/dashboard/emails', desc: 'Gửi email trao đổi liên quan phỏng vấn.', features: [] },
+              { name: 'Logs', path: '/dashboard/emails/logs', desc: 'Xem lịch sử email.', features: [] }
+            ]
+          },
+          {
+            title: 'Standalone',
+            pages: [
+              { name: 'Versions', path: '/dashboard/versions', desc: 'Xem thay đổi hệ thống.', features: [] }
+            ]
+          }
+        ]
+      }
+    };
+
+    // State
+    let currentTab = 'todo';
+    let tasks = [...recruitmentTasks];
+    let selectedModuleFilter = 'all';
+    let searchQuery = '';
+    let statusFilter = 'all';
+    let selectedRoleTab = 'super_admin';
+
+    // Initialize LocalStorage State
+    function initLocalStorage() {
+      const savedTasks = localStorage.getItem('hitek_todo_tasks');
+      if (savedTasks) {
+        const parsed = JSON.parse(savedTasks);
+        tasks.forEach(t => {
+          const match = parsed.find(pt => pt.id === t.id);
+          if (match) t.completed = match.completed;
+        });
+      } else {
+        localStorage.setItem('hitek_todo_tasks', JSON.stringify(tasks));
+      }
+    }
+
+    // Toggle Task status
+    function toggleTask(id) {
+      const task = tasks.find(t => t.id === id);
+      if (task) {
+        task.completed = !task.completed;
+        localStorage.setItem('hitek_todo_tasks', JSON.stringify(tasks));
+
+        // Dynamic Toast
+        const message = task.completed ? `Đã hoàn thành: ${task.text}` : `Đã chuyển sang hàng chờ: ${task.text}`;
+        showToast(message, task.completed ? 'success' : 'info');
+
+        // Rerender layout
+        renderActiveTab();
+      }
+    }
+
+    // Toast Utility
+    function showToast(message, type = 'info') {
+      const toast = document.getElementById('toast');
+      const toastMsg = document.getElementById('toast-message');
+      const toastIconBg = document.getElementById('toast-icon-bg');
+      const toastIcon = document.getElementById('toast-icon');
+
+      toastMsg.innerText = message;
+
+      // Update styling based on type
+      if (type === 'success') {
+        toastIconBg.className = 'w-6 h-6 rounded-full bg-success/15 flex items-center justify-center text-success';
+        toastIcon.setAttribute('data-lucide', 'check-circle');
+      } else if (type === 'warn') {
+        toastIconBg.className = 'w-6 h-6 rounded-full bg-warning/15 flex items-center justify-center text-warning';
+        toastIcon.setAttribute('data-lucide', 'alert-triangle');
+      } else {
+        toastIconBg.className = 'w-6 h-6 rounded-full bg-primary/15 flex items-center justify-center text-primary-light';
+        toastIcon.setAttribute('data-lucide', 'info');
+      }
+
+      lucide.createIcons();
+
+      toast.className = "fixed bottom-6 right-6 z-50 transform translate-y-0 opacity-100 transition-all duration-300";
+      setTimeout(() => {
+        toast.className = "fixed bottom-6 right-6 z-50 transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none";
+      }, 3500);
+    }
+
+    // Modal Waitlist Utilities
+    function showThemeNotice() {
+      showToast("Chế độ Tối (Dark Mode) là bắt buộc cho giao diện Deep Intelligence.", "warn");
+    }
+
+    // Switch active navigation tab
+    function switchTab(tabId) {
+      currentTab = tabId;
+
+      // Update Navbar styling
+      document.querySelectorAll('.nav-link').forEach(link => link.classList.remove('active'));
+      const activeNav = document.getElementById(`nav-${tabId}`);
+      if (activeNav) activeNav.classList.add('active');
+
+      // Update URL-like simulation (hash)
+      window.location.hash = tabId;
+
+      renderActiveTab();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // Render Side Navigation
+    function renderSidebar() {
+      const aside = document.getElementById('layout-sidebar');
+
+      if (currentTab === 'todo') {
+        aside.style.display = '';
+        aside.classList.remove('hidden');
+        aside.classList.add('lg:block');
+        let html = `
+          <div class="mb-4">
+            <span class="text-[10px] text-text-dim font-mono tracking-widest uppercase block mb-3">Phân loại Module</span>
+            <button onclick="setModuleFilter('all')" class="sidebar-link w-full text-left px-3 py-2 rounded-lg text-[13px] transition-all flex items-center justify-between ${selectedModuleFilter === 'all' ? 'active-pill text-text-primary' : 'text-text-muted hover:text-text-primary'}">
+              <span class="flex items-center gap-2.5">
+                <i data-lucide="layers" class="size-4"></i>
+                Tất cả Module
+              </span>
+              <span class="text-[10px] font-mono bg-background px-2 py-0.5 rounded border border-border">${tasks.length}</span>
+            </button>
+          </div>
+          <div class="space-y-1">
+        `;
+
+        Object.keys(modules).forEach(key => {
+          const modTasks = tasks.filter(t => t.module === key);
+          const completedCount = modTasks.filter(t => t.completed).length;
+          const isActive = selectedModuleFilter === key;
+
+          html += `
+            <button onclick="setModuleFilter('${key}')" class="sidebar-link w-full text-left px-3 py-2 rounded-lg text-[13px] transition-all flex items-start justify-between ${isActive ? 'active-pill text-text-primary font-medium' : 'text-text-muted hover:text-text-primary'}">
+              <span class="flex items-start gap-2.5">
+                <i data-lucide="${modules[key].icon}" class="size-4 flex-shrink-0 mt-0.5"></i>
+                <span class="leading-tight block pr-1">${modules[key].name}</span>
+              </span>
+              <span class="text-[10px] font-mono bg-background px-1.5 py-0.5 rounded border border-border flex-shrink-0 ml-2 self-start">
+                ${completedCount}/${modTasks.length}
+              </span>
+            </button>
+          `;
+        });
+
+        html += `</div>`;
+        aside.innerHTML = html;
+        lucide.createIcons();
+      }
+      else if (currentTab === 'guides') {
+        aside.style.display = '';
+        aside.classList.remove('hidden');
+        aside.classList.add('lg:block');
+        aside.innerHTML = `
+          <div class="space-y-6">
+            <div>
+              <span class="text-[10px] text-text-dim font-mono tracking-widest uppercase block mb-3">Hướng dẫn & Mẹo</span>
+
+              <div class="space-y-4">
+                <div>
+                  <span class="text-[11px] text-text-muted font-bold block px-3 mb-1.5">BẮT ĐẦU</span>
+                  <div class="space-y-1">
+                    <a href="#intro" class="flex items-center gap-2.5 px-3 py-1.5 rounded-lg text-[13px] text-text-primary bg-accent/40 font-medium">
+                      <i data-lucide="help-circle" class="size-4 text-primary-light"></i>
+                      Giới Thiệu TestHub AI
+                    </a>
+                    <a href="#quickstart" class="flex items-center gap-2.5 px-3 py-1.5 rounded-lg text-[13px] text-text-muted hover:text-text-primary transition-colors">
+                      <i data-lucide="terminal" class="size-4"></i>
+                      Hướng Dẫn Thiết Lập
+                    </a>
+                    <a href="#rules" class="flex items-center gap-2.5 px-3 py-1.5 rounded-lg text-[13px] text-text-muted hover:text-text-primary transition-colors">
+                      <i data-lucide="info" class="size-4"></i>
+                      Nguyên Lý Chấm Điểm
+                    </a>
+                    <a href="#mechanics" class="flex items-center gap-2.5 px-3 py-1.5 rounded-lg text-[13px] text-text-muted hover:text-text-primary transition-colors">
+                      <i data-lucide="settings" class="size-4"></i>
+                      Cơ Chế Phân Tích
+                    </a>
+                  </div>
+                </div>
+
+                <div>
+                  <span class="text-[11px] text-text-muted font-bold block px-3 mb-1.5">ĐÀO SÂU</span>
+                  <div class="space-y-1">
+                    <a href="#match" class="flex items-center gap-2.5 px-3 py-1.5 rounded-lg text-[13px] text-text-muted hover:text-text-primary transition-colors">
+                      <i data-lucide="check-square" class="size-4"></i>
+                      Cấu Hình Match Score
+                    </a>
+                    <a href="#schedule" class="flex items-center gap-2.5 px-3 py-1.5 rounded-lg text-[13px] text-text-muted hover:text-text-primary transition-colors">
+                      <i data-lucide="calendar" class="size-4"></i>
+                      Tích Hợp API Lịch Hẹn
+                    </a>
+                    <a href="#security" class="flex items-center gap-2.5 px-3 py-1.5 rounded-lg text-[13px] text-text-muted hover:text-text-primary transition-colors">
+                      <i data-lucide="shield" class="size-4"></i>
+                      Bảo Mật Ứng Viên
+                    </a>
+                    <a href="#database" class="flex items-center gap-2.5 px-3 py-1.5 rounded-lg text-[13px] text-text-muted hover:text-text-primary transition-colors">
+                      <i data-lucide="database" class="size-4"></i>
+                      Liên Kết Supabase
+                    </a>
+                  </div>
+                </div>
+
+                <div>
+                  <span class="text-[11px] text-text-muted font-bold block px-3 mb-1.5">TÍNH NĂNG</span>
+                  <div class="space-y-1">
+                    <a href="#questions" class="flex items-center gap-2.5 px-3 py-1.5 rounded-lg text-[13px] text-text-muted hover:text-text-primary transition-colors">
+                      <i data-lucide="sparkles" class="size-4"></i>
+                      Cách Generate Câu Hỏi
+                    </a>
+                    <a href="#essay" class="flex items-center gap-2.5 px-3 py-1.5 rounded-lg text-[13px] text-text-muted hover:text-text-primary transition-colors">
+                      <i data-lucide="edit-3" class="size-4"></i>
+                      Chấm Điểm Manual Essay
+                    </a>
+                    <a href="#pdf" class="flex items-center gap-2.5 px-3 py-1.5 rounded-lg text-[13px] text-text-muted hover:text-text-primary transition-colors">
+                      <i data-lucide="file-text" class="size-4"></i>
+                      Xuất PDF Báo Cáo
+                    </a>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        `;
+        lucide.createIcons();
+      }
+      else if (currentTab === 'roles') {
+        aside.style.display = '';
+        aside.classList.remove('hidden');
+        aside.classList.add('lg:block');
+
+        let html = `
+          <div class="mb-4">
+            <span class="text-[10px] text-text-dim font-mono tracking-widest uppercase block mb-3">Danh sách vai trò</span>
+          </div>
+          <div class="space-y-1">
+        `;
+
+        Object.keys(systemRoles).forEach(key => {
+          const role = systemRoles[key];
+          const isActive = selectedRoleTab === key;
+
+          html += `
+            <button onclick="changeRoleTab('${key}')" class="sidebar-link w-full text-left px-3 py-2.5 rounded-lg text-[13px] transition-all flex flex-col gap-0.5 ${isActive ? 'active-pill text-text-primary font-medium bg-[#1D263B]' : 'text-text-muted hover:text-text-primary hover:bg-[#151D30]'}" style="border: 1px solid ${isActive ? 'rgba(59, 130, 246, 0.2)' : 'transparent'}">
+              <span class="flex items-center gap-2">
+                <i data-lucide="shield" class="size-4 text-primary-light"></i>
+                <span class="font-semibold text-text-primary">${role.name}</span>
+              </span>
+              <span class="text-[10.5px] text-text-muted pl-6 block truncate">${role.badge}</span>
+            </button>
+          `;
+        });
+
+        html += `</div>`;
+        aside.innerHTML = html;
+        lucide.createIcons();
+      }
+      else {
+        aside.style.display = 'none';
+        aside.classList.add('hidden');
+        aside.classList.remove('lg:block');
+        aside.innerHTML = '';
+      }
+    }
+
+    // Set module filter (Sidebar)
+    function setModuleFilter(modKey) {
+      selectedModuleFilter = modKey;
+      renderSidebar();
+      renderActiveTab();
+    }
+
+    // Set role active tab (Sidebar for roles)
+    function changeRoleTab(roleKey) {
+      selectedRoleTab = roleKey;
+      renderSidebar();
+      renderActiveTab();
+    }
+
+    // Render Tab Content
+    function renderActiveTab() {
+      const container = document.getElementById('main-content');
+
+      if (currentTab === 'todo') {
+        renderSidebar();
+
+        // Filter tasks
+        let filteredTasks = tasks;
+        if (selectedModuleFilter !== 'all') {
+          filteredTasks = filteredTasks.filter(t => t.module === selectedModuleFilter);
+        }
+        if (searchQuery.trim() !== '') {
+          const q = searchQuery.toLowerCase();
+          filteredTasks = filteredTasks.filter(t => t.text.toLowerCase().includes(q) || t.desc.toLowerCase().includes(q));
+        }
+        if (statusFilter === 'completed') {
+          filteredTasks = filteredTasks.filter(t => t.completed);
+        } else if (statusFilter === 'pending') {
+          filteredTasks = filteredTasks.filter(t => !t.completed);
+        }
+
+        // Calculate progress metrics
+        const totalCount = tasks.length;
+        const completedCount = tasks.filter(t => t.completed).length;
+        const progressPercent = Math.round((completedCount / totalCount) * 100);
+
+        // Build HTML
+        let html = `
+          <!-- Page Header -->
+          <div class="mb-8">
+            <h1 class="font-display font-bold text-3xl mb-2 text-text-primary flex items-center gap-3">
+              <span>Lộ Trình Hoàn Thiện Tính Năng Tuyển Dụng</span>
+              <span class="text-xs font-mono font-normal bg-primary/20 text-primary-light border border-primary/30 px-2.5 py-0.5 rounded-full">Phase 2-3 Focus</span>
+            </h1>
+            <p class="text-[13.5px] text-text-secondary">
+              Đối chiếu chi tiết tiến độ codebase hiện tại với tài liệu yêu cầu nghiệp vụ <code class="bg-[#1B2540] px-1.5 py-0.5 rounded text-[12px] text-primary-light font-mono">Hitek_TestHub_requirements.md</code>.
+            </p>
+          </div>
+
+          <!-- KPI Cards -->
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+            <!-- Overall Progress -->
+            <div class="glass-card p-5 rounded-2xl flex flex-col justify-between">
+              <div class="flex justify-between items-start mb-2">
+                <span class="text-[12px] text-text-muted font-bold tracking-wider uppercase">Tiến Độ Tổng Thể</span>
+                <span class="text-[10px] text-success font-semibold bg-success/15 px-2 py-0.5 rounded-full flex items-center gap-1">
+                  <i data-lucide="trending-up" class="size-3"></i>
+                  Live Status
+                </span>
+              </div>
+              <div class="flex items-baseline gap-2 mb-3">
+                <span class="font-display font-bold text-3xl text-text-primary tabular-nums">${progressPercent}%</span>
+                <span class="text-xs text-text-muted">Hoàn tất</span>
+              </div>
+              <!-- Custom progress bar -->
+              <div class="w-full h-1.5 bg-white/5 rounded-full overflow-hidden">
+                <div class="h-full bg-gradient-to-r from-[#5B6CF0] to-[#7C8FFF] rounded-full transition-all duration-500" style="width: ${progressPercent}%"></div>
+              </div>
+            </div>
+
+            <!-- Total Completed -->
+            <div class="glass-card p-5 rounded-2xl flex flex-col justify-between">
+              <div class="flex justify-between items-start mb-2">
+                <span class="text-[12px] text-text-muted font-bold tracking-wider uppercase">Đầu Mục Đã Xong</span>
+                <i data-lucide="check-circle" class="size-4 text-success"></i>
+              </div>
+              <div class="flex items-baseline gap-2">
+                <span class="font-display font-bold text-3xl text-text-primary tabular-nums">${completedCount}</span>
+                <span class="text-text-muted text-[13px]">/ ${totalCount} Yêu cầu</span>
+              </div>
+              <p class="text-[11px] text-text-muted mt-2">Tất cả Phase 1, 3, 4 đã khớp codebase</p>
+            </div>
+
+            <!-- Under Development -->
+            <div class="glass-card p-5 rounded-2xl flex flex-col justify-between">
+              <div class="flex justify-between items-start mb-2">
+                <span class="text-[12px] text-text-muted font-bold tracking-wider uppercase">Đang Thực Hiện</span>
+                <div class="w-2.5 h-2.5 rounded-full bg-warning animate-pulse shadow-[0_0_8px_rgba(251,191,36,0.5)]"></div>
+              </div>
+              <div class="flex items-baseline gap-2">
+                <span class="font-display font-bold text-3xl text-text-primary tabular-nums">${totalCount - completedCount}</span>
+                <span class="text-text-muted text-[13px]">Tính năng</span>
+              </div>
+              <p class="text-[11px] text-text-muted mt-2">Interview Room & Thư viện yêu thích</p>
+            </div>
+
+            <!-- Optimization Need -->
+            <div class="glass-card p-5 rounded-2xl flex flex-col justify-between">
+              <div class="flex justify-between items-start mb-2">
+                <span class="text-[12px] text-text-muted font-bold tracking-wider uppercase">Tối Ưu Hiệu Năng AI</span>
+                <i data-lucide="zap" class="size-4 text-accent-orange"></i>
+              </div>
+              <div class="flex items-baseline gap-2">
+                <span class="font-display font-bold text-lg text-accent-orange">Cần Cải Thiện</span>
+              </div>
+              <p class="text-[11px] text-text-muted mt-2">CV parsing (Vision OCR -> Local Parser)</p>
+            </div>
+          </div>
+
+          <!-- Filters Section -->
+          <div class="glass-card p-4 rounded-xl mb-6 flex flex-col md:flex-row gap-4 items-center justify-between">
+            <!-- Search -->
+            <div class="relative w-full md:w-80">
+              <i data-lucide="search" class="absolute left-3.5 top-1/2 -translate-y-1/2 text-text-muted size-4"></i>
+              <input type="text" id="todo-search-input" value="${searchQuery}" oninput="updateSearch(this.value)" placeholder="Tìm kiếm yêu cầu..." class="w-full bg-[#1B2540] border border-border rounded-lg pl-10 pr-4 py-1.5 text-[13px] text-text-primary placeholder:text-text-dim focus:outline-none focus:ring-1 focus:ring-primary">
+            </div>
+
+            <!-- Status filter pills -->
+            <div class="flex gap-2">
+              <button onclick="setStatusFilter('all')" class="px-3.5 py-1.5 rounded-lg text-[12.5px] transition-all ${statusFilter === 'all' ? 'bg-[#212C4A] text-text-primary border border-[#5B6CF0]/30' : 'text-text-muted hover:text-text-primary border border-transparent'}">Tất cả</button>
+              <button onclick="setStatusFilter('completed')" class="px-3.5 py-1.5 rounded-lg text-[12.5px] transition-all ${statusFilter === 'completed' ? 'bg-[#212C4A] text-text-primary border border-[#5B6CF0]/30' : 'text-text-muted hover:text-text-primary border border-transparent'}">Đã hoàn thành</button>
+              <button onclick="setStatusFilter('pending')" class="px-3.5 py-1.5 rounded-lg text-[12.5px] transition-all ${statusFilter === 'pending' ? 'bg-[#212C4A] text-text-primary border border-[#5B6CF0]/30' : 'text-text-muted hover:text-text-primary border border-transparent'}">Chưa hoàn thành</button>
+            </div>
+          </div>
+
+          <!-- Todo List -->
+          <div class="space-y-6 mb-8">
+        `;
+
+        // Group tasks by module
+        const grouped = {};
+        filteredTasks.forEach(task => {
+          if (!grouped[task.module]) grouped[task.module] = [];
+          grouped[task.module].push(task);
+        });
+
+        if (Object.keys(grouped).length === 0) {
+          html += `
+            <div class="glass-card py-16 px-4 text-center rounded-2xl border border-dashed border-border flex flex-col items-center justify-center">
+              <i data-lucide="inbox" class="size-10 text-text-dim mb-3"></i>
+              <p class="text-text-secondary text-[14px]">Không tìm thấy đầu mục phù hợp với tiêu chí lọc.</p>
+              <button onclick="resetFilters()" class="text-primary-light hover:underline text-[13px] mt-2">Đặt lại các bộ lọc</button>
+            </div>
+          `;
+        }
+
+        Object.keys(grouped).forEach(modKey => {
+          const modInfo = modules[modKey];
+          const modTasks = grouped[modKey];
+          const completedCount = modTasks.filter(t => t.completed).length;
+          const totalCount = modTasks.length;
+          const modPercent = Math.round((completedCount / totalCount) * 100);
+
+          html += `
+            <div class="glass-card rounded-2xl overflow-hidden shadow-e-1 border border-border">
+              <!-- Module Header -->
+              <div class="bg-sidebar/30 px-5 py-4 border-b border-border flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div class="flex items-center gap-3">
+                  <div class="w-8 h-8 rounded-lg bg-[#212C4A] flex items-center justify-center border border-border">
+                    <i data-lucide="${modInfo.icon}" class="size-4 text-primary-light"></i>
+                  </div>
+                  <div>
+                    <h3 class="font-display font-semibold text-[14.5px] text-text-primary">${modInfo.name}</h3>
+                    <span class="text-[11.5px] text-text-muted">${modInfo.desc}</span>
+                  </div>
+                </div>
+
+                <!-- Progress Indicator -->
+                <div class="flex items-center gap-4">
+                  <span class="text-xs text-text-muted tabular-nums">${completedCount}/${totalCount} Hoàn tất</span>
+                  <div class="flex items-center gap-2">
+                    <div class="w-20 h-1.5 bg-white/5 rounded-full overflow-hidden">
+                      <div class="h-full bg-primary rounded-full transition-all duration-300" style="width: ${modPercent}%"></div>
+                    </div>
+                    <span class="text-[11px] font-mono text-text-secondary w-8 text-right">${modPercent}%</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Module Checklist -->
+              <div class="divide-y divide-border/60">
+          `;
+
+          modTasks.forEach(task => {
+            html += `
+              <div class="px-5 py-4 hover:bg-accent/15 transition-all duration-150 flex items-start justify-between gap-4 group">
+                <div class="flex items-start gap-3.5">
+                  <!-- Custom Checkbox -->
+                  <div class="pt-0.5">
+                    <button onclick="toggleTask('${task.id}')" class="w-[18px] h-[18px] rounded border transition-all flex items-center justify-center focus:outline-none ${task.completed ? 'bg-primary border-primary text-white shadow-glow' : 'border-white/20 hover:border-primary-light bg-transparent'}">
+                      ${task.completed ? '<i data-lucide="check" class="size-3 stroke-[3px]"></i>' : ''}
+                    </button>
+                  </div>
+
+                  <div>
+                    <span class="text-[13.5px] font-medium leading-normal block ${task.completed ? 'text-text-muted line-through' : 'text-text-primary'}">${task.text}</span>
+                    <span class="text-[11.5px] text-text-muted leading-relaxed block mt-0.5">${task.desc}</span>
+                  </div>
+                </div>
+
+                <!-- Badges -->
+                <div class="flex items-center gap-2 flex-shrink-0">
+                  ${task.isGap && !task.completed ? `
+                    <span class="text-[10px] font-bold text-danger bg-danger/10 px-2 py-0.5 rounded border border-danger/25">MISSING GAP</span>
+                  ` : ''}
+                  <span class="text-[10px] px-2 py-0.5 rounded border ${task.completed ? 'text-success bg-success/10 border-success/20' : 'text-warning bg-warning/10 border-warning/20'}">
+                    ${task.completed ? 'Đã khớp codebase' : 'Cần triển khai'}
+                  </span>
+                </div>
+              </div>
+            `;
+          });
+
+          html += `
+              </div>
+            </div>
+          `;
+        });
+
+        // AI Gap Analysis & Action Plan
+        html += `
+          <!-- AI Gap Analysis Panel -->
+          <div class="glass-card rounded-2xl border border-border p-6 shadow-e-2 relative overflow-hidden bg-gradient-to-br from-[#161E30] to-[#101828]">
+            <div class="absolute top-0 right-0 w-64 h-64 bg-ai-violet/5 rounded-full filter blur-3xl pointer-events-none"></div>
+
+            <div class="flex items-start gap-4">
+              <div class="w-10 h-10 rounded-xl bg-ai-violet/10 flex items-center justify-center border border-ai-violet/20 flex-shrink-0">
+                <i data-lucide="sparkles" class="size-5 text-ai-violet"></i>
+              </div>
+              <div class="flex-grow">
+                <h3 class="font-display font-semibold text-base text-text-primary mb-1">AI Advisor Insight: Phân tích Khoảng cách (Gap Analysis)</h3>
+                <p class="text-[12.5px] text-text-muted mb-4">Nhận diện các lỗ hổng kỹ thuật so với tài liệu đặc tả nghiệp vụ.</p>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-5 mb-6">
+                  <!-- Gap 1 -->
+                  <div class="bg-[#1B2540]/60 p-4 rounded-xl border border-border">
+                    <span class="text-[11px] font-mono text-danger font-semibold uppercase tracking-wider block mb-1">Khoảng cách 1: Interview Room</span>
+                    <h4 class="text-[13px] font-semibold text-text-primary mb-1.5">Tính năng Media & Recording</h4>
+                    <p class="text-[11.5px] text-text-muted leading-relaxed">Khung giao diện trên <code class="text-primary-light">dev</code> chỉ là tĩnh. Thiếu MediaRecorder thu âm, Whisper transcription BE route, và AI Overall Fit Summary.</p>
+                  </div>
+                  <!-- Gap 2 -->
+                  <div class="bg-[#1B2540]/60 p-4 rounded-xl border border-border">
+                    <span class="text-[11px] font-mono text-danger font-semibold uppercase tracking-wider block mb-1">Khoảng cách 2: Favourite Library</span>
+                    <h4 class="text-[13px] font-semibold text-text-primary mb-1.5">Lưu trữ & Phân loại Câu hỏi</h4>
+                    <p class="text-[11.5px] text-text-muted leading-relaxed">Thiếu bảng trung gian lưu trữ câu hỏi yêu thích (Favourite Questions) kết nối với Department/Level để tái sử dụng trong Test Workbench.</p>
+                  </div>
+                  <!-- Gap 3 -->
+                  <div class="bg-[#1B2540]/60 p-4 rounded-xl border border-border">
+                    <span class="text-[11px] font-mono text-warning font-semibold uppercase tracking-wider block mb-1">Cải thiện: Local Parser</span>
+                    <h4 class="text-[13px] font-semibold text-text-primary mb-1.5">Tối ưu tốc độ trích xuất CV</h4>
+                    <p class="text-[11.5px] text-text-muted leading-relaxed">Chuyển đổi từ trích xuất ảnh Base64 bằng GPT-4o Vision (30 giây) sang local <code class="text-primary-light">pdf-parse</code>/<code class="text-primary-light">mammoth</code> (<0.5 giây).</p>
+                  </div>
+                </div>
+
+                <div class="border-t border-border pt-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                  <div class="text-[11.5px] text-text-muted">
+                    <span class="font-bold text-text-secondary">Khuyến nghị:</span> Ưu tiên triển khai Local Parser trước để giảm tối đa chi phí OpenAI và tăng trải nghiệm người dùng khi tải CV.
+                  </div>
+                  <button onclick="switchTab('guides')" class="text-xs font-semibold text-primary-light hover:text-white flex items-center gap-1">
+                    <span>Xem Hướng dẫn Cấu hình</span>
+                    <i data-lucide="chevron-right" class="size-3.5"></i>
+                  </button>
+                </div>
+
+              </div>
+            </div>
+          </div>
+        `;
+        container.innerHTML = html;
+        lucide.createIcons();
+      }
+      else if (currentTab === 'guides') {
+        renderSidebar();
+
+        // Render VividKit Guides Screen exactly matching screenshots
+        container.innerHTML = `
+          <!-- Page Header inside Guides -->
+          <div class="text-center max-w-2xl mx-auto mt-6 mb-12">
+            <h1 class="font-display font-bold text-[36px] tracking-tight leading-tight mb-3 text-text-primary">
+              Chào Mừng Đến Hitek TestHub Guides
+            </h1>
+            <p class="text-[15px] text-text-secondary leading-relaxed font-body">
+              Hành trình tối ưu hóa quy trình tuyển dụng bằng AI của bạn bắt đầu từ đây. Chọn đường đi phù hợp với bạn.
+            </p>
+          </div>
+
+          <!-- 3-Column Bento Grid matching the screenshot -->
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+
+            <!-- Card 1: Green Rocket theme -->
+            <div class="glass-card rounded-2xl border border-border p-6 shadow-e-1 flex flex-col justify-between hover:border-success/30 transition-all duration-200">
+              <div>
+                <!-- Icon Circle -->
+                <div class="w-10 h-10 rounded-xl bg-success/10 border border-success/20 flex items-center justify-center mb-4">
+                  <i data-lucide="rocket" class="size-5 text-success"></i>
+                </div>
+                <h3 class="font-display font-bold text-lg text-text-primary mb-2">Mới Dùng Hitek TestHub?</h3>
+                <p class="text-[13px] text-text-muted leading-relaxed mb-6 font-body">
+                  Bắt đầu thiết lập dự án, tạo bài kiểm tra năng lực cho các vị trí IT/BA chỉ với 3 click đơn giản.
+                </p>
+              </div>
+              <div class="border-t border-border/60 pt-4 space-y-3">
+                <a href="#intro" class="flex items-center justify-between text-[13px] text-text-secondary hover:text-success transition-all group">
+                  <span>Hitek TestHub là gì?</span>
+                  <i data-lucide="arrow-right" class="size-3.5 opacity-50 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all"></i>
+                </a>
+                <a href="#quickstart" class="flex items-center justify-between text-[13px] text-text-secondary hover:text-success transition-all group">
+                  <span>Thiết Lập Quy Trình Nhanh</span>
+                  <i data-lucide="arrow-right" class="size-3.5 opacity-50 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all"></i>
+                </a>
+                <a href="#rules" class="flex items-center justify-between text-[13px] text-text-secondary hover:text-success transition-all group">
+                  <span>Nguyên Lý Chấm Điểm AI</span>
+                  <i data-lucide="arrow-right" class="size-3.5 opacity-50 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all"></i>
+                </a>
+              </div>
+            </div>
+
+            <!-- Card 2: Blue Nodes theme -->
+            <div class="glass-card rounded-2xl border border-border p-6 shadow-e-1 flex flex-col justify-between hover:border-primary/30 transition-all duration-200">
+              <div>
+                <!-- Icon Circle -->
+                <div class="w-10 h-10 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center mb-4">
+                  <i data-lucide="git-branch" class="size-5 text-primary-light"></i>
+                </div>
+                <h3 class="font-display font-bold text-lg text-text-primary mb-2">Đang Setup Pipeline?</h3>
+                <p class="text-[13px] text-text-muted leading-relaxed mb-6 font-body">
+                  Khám phá các cách đồng bộ hóa trạng thái tuyển dụng, tự động gửi thư mời và quản lý bảng Kanban.
+                </p>
+              </div>
+              <div class="border-t border-border/60 pt-4 space-y-3">
+                <a href="#kanban" class="flex items-center justify-between text-[13px] text-text-secondary hover:text-primary-light transition-all group">
+                  <span>Cấu Hình Match Score Threshold</span>
+                  <i data-lucide="arrow-right" class="size-3.5 opacity-50 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all"></i>
+                </a>
+                <a href="#scheduler" class="flex items-center justify-between text-[13px] text-text-secondary hover:text-primary-light transition-all group">
+                  <span>Sử Dụng API Đặt Lịch Hẹn</span>
+                  <i data-lucide="arrow-right" class="size-3.5 opacity-50 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all"></i>
+                </a>
+                <a href="#email-flow" class="flex items-center justify-between text-[13px] text-text-secondary hover:text-primary-light transition-all group">
+                  <span>Tự Động Hóa Thông Báo Thư Mời</span>
+                  <i data-lucide="arrow-right" class="size-3.5 opacity-50 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all"></i>
+                </a>
+              </div>
+            </div>
+
+            <!-- Card 3: Orange Question theme -->
+            <div class="glass-card rounded-2xl border border-border p-6 shadow-e-1 flex flex-col justify-between hover:border-accent-orange/30 transition-all duration-200">
+              <div>
+                <!-- Icon Circle -->
+                <div class="w-10 h-10 rounded-xl bg-accent-orange/10 border border-accent-orange/20 flex items-center justify-center mb-4">
+                  <i data-lucide="help-circle" class="size-5 text-accent-orange"></i>
+                </div>
+                <h3 class="font-display font-bold text-lg text-text-primary mb-2">Bối Rối Về Interview Room?</h3>
+                <p class="text-[13px] text-text-muted leading-relaxed mb-6 font-body">
+                  Tìm hiểu cách hoạt động của ghi âm phòng phỏng vấn trực tiếp, cấu trúc dịch Whisper và xuất PDF kết quả.
+                </p>
+              </div>
+              <div class="border-t border-border/60 pt-4 space-y-3">
+                <a href="#room-setup" class="flex items-center justify-between text-[13px] text-text-secondary hover:text-accent-orange transition-all group">
+                  <span>Thiết Lập Microphone Trình Duyệt</span>
+                  <i data-lucide="arrow-right" class="size-3.5 opacity-50 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all"></i>
+                </a>
+                <a href="#whisper-flow" class="flex items-center justify-between text-[13px] text-text-secondary hover:text-accent-orange transition-all group">
+                  <span>Quy Trình Chuyển Text Whisper</span>
+                  <i data-lucide="arrow-right" class="size-3.5 opacity-50 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all"></i>
+                </a>
+                <a href="#edit-summary" class="flex items-center justify-between text-[13px] text-text-secondary hover:text-accent-orange transition-all group">
+                  <span>Sửa AI Summary & Ghi Chú</span>
+                  <i data-lucide="arrow-right" class="size-3.5 opacity-50 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all"></i>
+                </a>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Documentation Segment Detail -->
+          <div class="glass-card rounded-2xl border border-border p-6 font-body">
+            <h2 class="font-display font-semibold text-lg text-text-primary mb-4 flex items-center gap-2">
+              <i data-lucide="book-open" class="size-5 text-primary-light"></i>
+              Tài Liệu Chi Tiết Về Tối Ưu Hóa AI CV Parsing
+            </h2>
+            <div class="space-y-4 text-[13.5px] text-text-secondary leading-relaxed">
+              <p>
+                Để loại bỏ độ trễ lớn (~30 giây) khi sử dụng GPT-4o Vision làm OCR, Hitek TestHub hỗ trợ cơ chế phân tách kép:
+              </p>
+              <ol class="list-decimal pl-5 space-y-2">
+                <li>
+                  <strong class="text-text-primary">Bước 1: Quét Text Kỹ Thuật Số (Digital Text Extract):</strong> Sử dụng thư viện local <code class="bg-[#1B2540] text-primary-light px-1.5 py-0.5 rounded font-mono">pdf-parse</code>. Đối với các file PDF xuất từ Word/Canva có sẵn layer text, thư viện này mất dưới 0.2 giây để hoàn thành và trả về 100% nội dung gốc miễn phí.
+                </li>
+                <li>
+                  <strong class="text-text-primary">Bước 2: Xử Lý File Nén DOCX (Local Word Parser):</strong> Sử dụng <code class="bg-[#1B2540] text-primary-light px-1.5 py-0.5 rounded font-mono">mammoth</code> để chuyển đổi tài liệu Word trực tiếp thành HTML/Text thô, loại bỏ hoàn toàn các lỗi decode nhị phân nén của file ZIP.
+                </li>
+                <li>
+                  <strong class="text-text-primary">Bước 3: Fallback OCR (Chỉ khi cần thiết):</strong> Hệ thống chỉ tự động chuyển tiếp ảnh Base64 lên OpenAI Vision khi kết quả quét local trả về rỗng (tệp tin là tài liệu Scan hoàn toàn bằng ảnh).
+                </li>
+              </ol>
+              <div class="p-3.5 bg-primary/10 border border-primary/20 rounded-xl flex items-start gap-3 mt-4">
+                <i data-lucide="info" class="size-4 text-primary-light mt-0.5 flex-shrink-0"></i>
+                <span class="text-xs text-text-primary leading-normal">
+                  Cấu hình này đã được ghi nhận trong lộ trình phát triển. Bạn có thể kiểm tra danh sách TODO tương ứng trong tab <a href="#" onclick="switchTab('todo')" class="text-primary-light hover:underline font-bold">Todolist</a>.
+                </span>
+              </div>
+            </div>
+          </div>
+        `;
+        lucide.createIcons();
+      }
+      else if (currentTab === 'roles') {
+        renderSidebar();
+
+        const role = systemRoles[selectedRoleTab];
+
+        let groupsHtml = '';
+        role.groups.forEach(g => {
+          let pagesHtml = '';
+          g.pages.forEach(p => {
+            let featuresListHtml = '';
+            if (p.features && p.features.length > 0) {
+              featuresListHtml = `<ul class="list-disc pl-5 mt-2 space-y-1 text-text-muted text-[11.5px]">`;
+              p.features.forEach(f => {
+                featuresListHtml += `<li>${f}</li>`;
+              });
+              featuresListHtml += `</ul>`;
+            }
+
+            pagesHtml += `
+              <div class="bg-[#101625] p-4 rounded-xl border border-border flex flex-col justify-between hover:border-primary/30 transition-colors">
+                <div>
+                  <div class="flex justify-between items-start mb-1.5">
+                    <h4 class="text-[13px] font-bold text-text-primary">${p.name}</h4>
+                    <span class="text-[10px] font-mono text-text-muted bg-background border border-border px-1.5 py-0.5 rounded">${p.path}</span>
+                  </div>
+                  <p class="text-[11.5px] text-text-secondary leading-normal">${p.desc}</p>
+                  ${featuresListHtml}
+                </div>
+              </div>
+            `;
+          });
+
+          groupsHtml += `
+            <div class="glass-card p-5 rounded-2xl border border-border mb-6">
+              <h3 class="font-display font-bold text-[14.5px] text-text-primary mb-4 flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full bg-primary shadow-glow"></span>
+                Sidebar Group: ${g.title}
+              </h3>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                ${pagesHtml}
+              </div>
+            </div>
+          `;
+        });
+
+        container.innerHTML = `
+          <!-- Header and Stats -->
+          <div class="mb-8">
+            <h1 class="font-display font-bold text-3xl mb-2 text-text-primary">Tài Khoản & Vai Trò</h1>
+            <p class="text-[13.5px] text-text-secondary">Chi tiết quyền hạn và phân vùng giao diện dựa trên vai trò người dùng.</p>
+          </div>
+
+          <!-- Active Role Details Card -->
+          <div class="p-6 rounded-2xl relative overflow-hidden bg-gradient-to-br from-[#161E30] to-[#0D1322] border border-border mb-8">
+            <div class="absolute top-0 right-0 w-80 h-80 bg-primary/10 rounded-full filter blur-3xl pointer-events-none"></div>
+            <div class="flex justify-between items-start gap-4 flex-wrap mb-4">
+              <div>
+                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/10 text-primary-light border border-primary/20 text-xs font-semibold uppercase tracking-wider mb-2">
+                  Role: ${role.name}
+                </span>
+                <h2 class="font-display font-bold text-xl text-text-primary leading-tight">
+                  Mô tả quyền hạn của ${role.name}
+                </h2>
+              </div>
+              <span class="text-xs font-display font-bold text-success bg-success/10 px-3 py-1 rounded-full border border-success/20">
+                ${role.badge}
+              </span>
+            </div>
+            <p class="text-[13px] text-text-muted leading-relaxed font-body font-normal">
+              ${role.desc}
+            </p>
+          </div>
+
+          <!-- Groups/Pages list -->
+          <div class="mb-10">
+            <h2 class="font-display font-bold text-lg text-text-primary mb-4">Các nhóm trang hiển thị ở Sidebar</h2>
+            ${groupsHtml}
+          </div>
+
+          <!-- Staging/QA Test Accounts: credentials live in the team secret manager, never in source -->
+          <div class="glass-card p-6 rounded-2xl border border-border mb-10 bg-gradient-to-br from-[#161E30] to-[#121927]">
+            <h3 class="font-display font-bold text-base text-text-primary mb-1 flex items-center gap-2">
+              <i data-lucide="shield-alert" class="size-5 text-warning"></i>
+              Tài Khoản Kiểm Thử (Staging/QA)
+            </h3>
+            <p class="text-xs text-text-secondary mb-4">Email/mật khẩu staging không được lưu trong repository. Lấy từ secret manager của đội, xoay vòng khi lộ, và không dùng trên production.</p>
+            <div class="mt-2 p-3 bg-warning/10 border border-warning/20 rounded-xl text-[11px] text-warning flex items-start gap-2.5">
+              <i data-lucide="info" class="size-4 flex-shrink-0 mt-0.5"></i>
+              <span><strong>Lưu ý:</strong> Không commit credential. Mọi tài khoản kiểm thử đã từng nằm trong source phải được rotate.</span>
+            </div>
+          </div>
+
+          <!-- General Access Matrix -->
+          <div class="glass-card p-6 rounded-2xl border border-border bg-gradient-to-br from-[#161E30] to-[#0F1524]">
+            <h3 class="font-display font-bold text-base text-text-primary mb-1">Ma Trận Quyền Truy Cập (Access Matrix)</h3>
+            <p class="text-xs text-text-secondary mb-5">Bảng đối chiếu tổng quan quyền truy cập các tính năng / sidebar group giữa các vai trò.</p>
+
+            <div class="overflow-x-auto">
+              <table class="w-full border-collapse text-left text-xs">
+                <thead>
+                  <tr class="border-b border-border/80 text-text-muted">
+                    <th class="py-2.5 font-bold uppercase tracking-wider">Tính năng / Sidebar Group</th>
+                    <th class="py-2.5 font-bold uppercase tracking-wider text-center">Super Admin</th>
+                    <th class="py-2.5 font-bold uppercase tracking-wider text-center">Admin</th>
+                    <th class="py-2.5 font-bold uppercase tracking-wider text-center">Leader</th>
+                    <th class="py-2.5 font-bold uppercase tracking-wider text-center">Recruiter</th>
+                    <th class="py-2.5 font-bold uppercase tracking-wider text-center">HR</th>
+                    <th class="py-2.5 font-bold uppercase tracking-wider text-center">Interviewer</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-border/40 text-text-secondary">
+                  <tr>
+                    <td class="py-3 font-semibold text-text-primary">People & Roles (Persons, Positions, Skills, Groups)</td>
+                    <td class="py-3 text-center text-success font-bold"><i data-lucide="check" class="size-4 mx-auto"></i></td>
+                    <td class="py-3 text-center text-success font-bold"><i data-lucide="check" class="size-4 mx-auto"></i></td>
+                    <td class="py-3 text-center text-success font-bold"><i data-lucide="check" class="size-4 mx-auto"></i></td>
+                    <td class="py-3 text-center text-success font-bold"><i data-lucide="check" class="size-4 mx-auto"></i></td>
+                    <td class="py-3 text-center text-text-muted">—</td>
+                    <td class="py-3 text-center text-text-muted">—</td>
+                  </tr>
+                  <tr>
+                    <td class="py-3 font-semibold text-text-primary">Recruitment: Candidate CV</td>
+                    <td class="py-3 text-center text-success font-bold"><i data-lucide="check" class="size-4 mx-auto"></i></td>
+                    <td class="py-3 text-center text-success font-bold"><i data-lucide="check" class="size-4 mx-auto"></i></td>
+                    <td class="py-3 text-center text-text-muted">—</td>
+                    <td class="py-3 text-center text-text-muted">—</td>
+                    <td class="py-3 text-center text-success font-bold"><i data-lucide="check" class="size-4 mx-auto"></i></td>
+                    <td class="py-3 text-center text-success font-bold"><i data-lucide="check" class="size-4 mx-auto"></i></td>
+                  </tr>
+                  <tr>
+                    <td class="py-3 font-semibold text-text-primary">Recruitment: Schedule</td>
+                    <td class="py-3 text-center text-success font-bold"><i data-lucide="check" class="size-4 mx-auto"></i></td>
+                    <td class="py-3 text-center text-success font-bold"><i data-lucide="check" class="size-4 mx-auto"></i></td>
+                    <td class="py-3 text-center text-text-muted">—</td>
+                    <td class="py-3 text-center text-text-muted">—</td>
+                    <td class="py-3 text-center text-success font-bold"><i data-lucide="check" class="size-4 mx-auto"></i></td>
+                    <td class="py-3 text-center text-success font-bold"><i data-lucide="check" class="size-4 mx-auto"></i></td>
+                  </tr>
+                  <tr>
+                    <td class="py-3 font-semibold text-text-primary">Recruitment: Report</td>
+                    <td class="py-3 text-center text-success font-bold"><i data-lucide="check" class="size-4 mx-auto"></i></td>
+                    <td class="py-3 text-center text-success font-bold"><i data-lucide="check" class="size-4 mx-auto"></i></td>
+                    <td class="py-3 text-center text-text-muted">—</td>
+                    <td class="py-3 text-center text-text-muted">—</td>
+                    <td class="py-3 text-center text-success font-bold"><i data-lucide="check" class="size-4 mx-auto"></i></td>
+                    <td class="py-3 text-center text-success font-bold"><i data-lucide="check" class="size-4 mx-auto"></i></td>
+                  </tr>
+                  <tr>
+                    <td class="py-3 font-semibold text-text-primary">Recruitment: Settings</td>
+                    <td class="py-3 text-center text-success font-bold"><i data-lucide="check" class="size-4 mx-auto"></i></td>
+                    <td class="py-3 text-center text-success font-bold"><i data-lucide="check" class="size-4 mx-auto"></i></td>
+                    <td class="py-3 text-center text-text-muted">—</td>
+                    <td class="py-3 text-center text-text-muted">—</td>
+                    <td class="py-3 text-center text-success font-bold"><i data-lucide="check" class="size-4 mx-auto"></i></td>
+                    <td class="py-3 text-center text-success font-bold"><i data-lucide="check" class="size-4 mx-auto"></i></td>
+                  </tr>
+                  <tr>
+                    <td class="py-3 font-semibold text-text-primary">Recruitment: Question Bank</td>
+                    <td class="py-3 text-center text-success font-bold"><i data-lucide="check" class="size-4 mx-auto"></i></td>
+                    <td class="py-3 text-center text-success font-bold"><i data-lucide="check" class="size-4 mx-auto"></i></td>
+                    <td class="py-3 text-center text-success font-bold"><i data-lucide="check" class="size-4 mx-auto"></i></td>
+                    <td class="py-3 text-center text-text-muted">—</td>
+                    <td class="py-3 text-center text-text-muted">—</td>
+                    <td class="py-3 text-center text-text-muted">—</td>
+                  </tr>
+                  <tr>
+                    <td class="py-3 font-semibold text-text-primary">Interviews: Interview Room</td>
+                    <td class="py-3 text-center text-success font-bold"><i data-lucide="check" class="size-4 mx-auto"></i></td>
+                    <td class="py-3 text-center text-success font-bold"><i data-lucide="check" class="size-4 mx-auto"></i></td>
+                    <td class="py-3 text-center text-text-muted">—</td>
+                    <td class="py-3 text-center text-text-muted">—</td>
+                    <td class="py-3 text-center text-text-muted">—</td>
+                    <td class="py-3 text-center text-success font-bold"><i data-lucide="check" class="size-4 mx-auto"></i></td>
+                  </tr>
+                  <tr>
+                    <td class="py-3 font-semibold text-text-primary">System: Users, Templates, Settings</td>
+                    <td class="py-3 text-center text-success font-bold"><i data-lucide="check" class="size-4 mx-auto"></i></td>
+                    <td class="py-3 text-center text-success font-bold"><i data-lucide="check" class="size-4 mx-auto"></i></td>
+                    <td class="py-3 text-center text-text-muted">—</td>
+                    <td class="py-3 text-center text-text-muted">—</td>
+                    <td class="py-3 text-center text-text-muted">—</td>
+                    <td class="py-3 text-center text-text-muted">—</td>
+                  </tr>
+                  <tr>
+                    <td class="py-3 font-semibold text-text-primary">Versions: create / edit / approve / archive</td>
+                    <td class="py-3 text-center text-success font-bold"><i data-lucide="check" class="size-4 mx-auto"></i></td>
+                    <td class="py-3 text-center text-text-muted font-medium text-[11px]">Chỉ Xem</td>
+                    <td class="py-3 text-center text-text-muted">—</td>
+                    <td class="py-3 text-center text-text-muted">—</td>
+                    <td class="py-3 text-center text-text-muted">—</td>
+                    <td class="py-3 text-center text-text-muted">—</td>
+                  </tr>
+                  <tr>
+                    <td class="py-3 font-semibold text-text-primary">Emails: Compose, Logs</td>
+                    <td class="py-3 text-center text-success font-bold"><i data-lucide="check" class="size-4 mx-auto"></i></td>
+                    <td class="py-3 text-center text-success font-bold"><i data-lucide="check" class="size-4 mx-auto"></i></td>
+                    <td class="py-3 text-center text-success font-bold"><i data-lucide="check" class="size-4 mx-auto"></i></td>
+                    <td class="py-3 text-center text-success font-bold"><i data-lucide="check" class="size-4 mx-auto"></i></td>
+                    <td class="py-3 text-center text-success font-bold"><i data-lucide="check" class="size-4 mx-auto"></i></td>
+                    <td class="py-3 text-center text-success font-bold"><i data-lucide="check" class="size-4 mx-auto"></i></td>
+                  </tr>
+                  <tr>
+                    <td class="py-3 font-semibold text-text-primary">Emails: Settings (SMTP & Templates)</td>
+                    <td class="py-3 text-center text-success font-bold"><i data-lucide="check" class="size-4 mx-auto"></i></td>
+                    <td class="py-3 text-center text-success font-bold"><i data-lucide="check" class="size-4 mx-auto"></i></td>
+                    <td class="py-3 text-center text-text-muted">—</td>
+                    <td class="py-3 text-center text-text-muted">—</td>
+                    <td class="py-3 text-center text-text-muted">—</td>
+                    <td class="py-3 text-center text-text-muted">—</td>
+                  </tr>
+                  <tr>
+                    <td class="py-3 font-semibold text-text-primary">Standalone Versions Link (No System Group)</td>
+                    <td class="py-3 text-center text-text-muted">System Group</td>
+                    <td class="py-3 text-center text-text-muted">System Group</td>
+                    <td class="py-3 text-center text-success font-bold"><i data-lucide="check" class="size-4 mx-auto"></i></td>
+                    <td class="py-3 text-center text-success font-bold"><i data-lucide="check" class="size-4 mx-auto"></i></td>
+                    <td class="py-3 text-center text-success font-bold"><i data-lucide="check" class="size-4 mx-auto"></i></td>
+                    <td class="py-3 text-center text-success font-bold"><i data-lucide="check" class="size-4 mx-auto"></i></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        `;
+        lucide.createIcons();
+      }
+      else if (currentTab === 'home') {
+        renderSidebar();
+
+        // Beautiful premium landing page dashboard
+        container.innerHTML = `
+          <!-- Hero Section -->
+          <div class="mb-10 p-8 rounded-3xl relative overflow-hidden bg-gradient-to-br from-[#161E30] to-[#0D1322] border border-border">
+            <div class="absolute top-0 right-0 w-80 h-80 bg-primary/10 rounded-full filter blur-3xl pointer-events-none"></div>
+            <div class="absolute bottom-0 left-0 w-60 h-60 bg-ai-violet/5 rounded-full filter blur-2xl pointer-events-none"></div>
+
+            <div class="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-8">
+              <div class="max-w-2xl">
+                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/10 text-primary-light border border-primary/20 text-xs font-semibold uppercase tracking-wider mb-4">
+                  <i data-lucide="sparkles" class="size-3.5"></i> Deep Intelligence Engine
+                </span>
+                <h1 class="font-display font-bold text-3xl md:text-4xl text-text-primary mb-3 leading-tight">
+                  Hệ Thống Tuyển Dụng & Đánh Giá Nhân Sự AI
+                </h1>
+                <p class="text-[14px] text-text-secondary leading-relaxed mb-6 font-body">
+                  Nền tảng tự động hóa toàn diện: hỗ trợ trích xuất CV thông minh, xếp hạng năng lực chuyên môn, tự động hóa câu hỏi cho đến ghi âm & phân tích phỏng vấn thông qua trí tuệ nhân tạo.
+                </p>
+                <div class="flex flex-wrap gap-3.5">
+                  <button onclick="switchTab('todo')" class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#5B6CF0] to-[#7C8FFF] shadow-glow text-white text-[13px] font-bold hover:scale-[1.02] active:scale-[0.98] transition-all">
+                    Xem Lộ Trình Phát Triển
+                  </button>
+                  <button onclick="switchTab('guides')" class="px-5 py-2.5 rounded-xl border border-border hover:bg-accent text-text-primary text-[13px] font-semibold transition-all">
+                    Tài Liệu Hướng Dẫn
+                  </button>
+                </div>
+              </div>
+
+              <div class="flex-shrink-0 flex justify-center lg:pr-6">
+                <!-- Dashboard Ring Graphic -->
+                <div class="relative w-40 h-40 flex items-center justify-center">
+                  <div class="absolute inset-0 border-[6px] border-white/5 rounded-full"></div>
+                  <div class="absolute inset-0 border-[6px] border-transparent border-t-primary border-r-primary rounded-full animate-[spin_8s_linear_infinite]"></div>
+                  <div class="absolute inset-4 border-[4px] border-transparent border-b-ai-violet border-l-ai-violet rounded-full animate-[spin_6s_linear_infinite_reverse]"></div>
+                  <div class="flex flex-col items-center">
+                    <span class="text-3xl font-display font-bold text-text-primary">94%</span>
+                    <span class="text-[9px] text-text-muted uppercase tracking-widest mt-1">Độ chính xác</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Statistics Grid -->
+          <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
+            <div class="glass-card p-5 rounded-2xl border border-border">
+              <span class="text-[11.5px] text-text-muted font-bold block mb-1 uppercase tracking-wider">CV Đã Quét</span>
+              <div class="flex items-baseline gap-2">
+                <span class="text-3xl font-display font-bold text-text-primary tabular-nums">1.284</span>
+                <span class="text-[10.5px] text-success font-semibold flex items-center gap-0.5">
+                  <i data-lucide="trending-up" class="size-3"></i> +12%
+                </span>
+              </div>
+              <p class="text-[10px] text-text-muted mt-2">Dữ liệu từ Supabase Storage</p>
+            </div>
+
+            <div class="glass-card p-5 rounded-2xl border border-border">
+              <span class="text-[11.5px] text-text-muted font-bold block mb-1 uppercase tracking-wider">Match Score TB</span>
+              <div class="flex items-baseline gap-2">
+                <span class="text-3xl font-display font-bold text-text-primary tabular-nums">78.4%</span>
+                <span class="text-[10.5px] text-text-muted">Độ chuẩn khớp</span>
+              </div>
+              <p class="text-[10px] text-text-muted mt-2">Ngưỡng tự động lọc: 70%</p>
+            </div>
+
+            <div class="glass-card p-5 rounded-2xl border border-border">
+              <span class="text-[11.5px] text-text-muted font-bold block mb-1 uppercase tracking-wider">Phòng Phỏng Vấn AI</span>
+              <div class="flex items-baseline gap-2">
+                <span class="text-3xl font-display font-bold text-text-primary tabular-nums">342</span>
+                <span class="text-[10.5px] text-primary-light font-semibold flex items-center gap-0.5">
+                  Active
+                </span>
+              </div>
+              <p class="text-[10px] text-text-muted mt-2">Ghi âm & Dịch thuật Whisper</p>
+            </div>
+
+            <div class="glass-card p-5 rounded-2xl border border-border">
+              <span class="text-[11.5px] text-text-muted font-bold block mb-1 uppercase tracking-wider">Câu Hỏi Đã Tạo</span>
+              <div class="flex items-baseline gap-2">
+                <span class="text-3xl font-display font-bold text-text-primary tabular-nums">8.420</span>
+                <span class="text-[10.5px] text-success font-semibold flex items-center gap-0.5">
+                  Dynamic
+                </span>
+              </div>
+              <p class="text-[10px] text-text-muted mt-2">Tạo tự động theo Job Title</p>
+            </div>
+          </div>
+
+          <!-- Interactive CV Parser Demo Card -->
+          <div class="glass-card p-6 rounded-2xl border border-border mb-10 bg-gradient-to-br from-[#161E30] to-[#121927]">
+            <div class="flex items-center gap-3 mb-4">
+              <div class="w-9 h-9 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center text-primary-light">
+                <i data-lucide="cpu" class="size-4.5"></i>
+              </div>
+              <div>
+                <h3 class="font-display font-semibold text-[15px] text-text-primary">Mô Phỏng Trích Xuất CV & Tính Match Score</h3>
+                <span class="text-xs text-text-muted block">Nhấp để thử nghiệm cách Hitek TestHub phân tích kỹ năng ứng viên.</span>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-center">
+              <!-- Action Zone -->
+              <div class="bg-[#101625] p-5 rounded-xl border border-border flex flex-col justify-center items-center h-44 text-center relative overflow-hidden group">
+                <div id="demo-uploader-content" class="flex flex-col items-center justify-center gap-3">
+                  <i data-lucide="file-text" class="size-10 text-text-muted group-hover:text-primary-light transition-colors"></i>
+                  <div>
+                    <span class="text-[13px] text-text-primary font-medium block">Tệp mẫu: cv_senior_ba.pdf</span>
+                    <span class="text-[11px] text-text-muted block">Kích thước: 342 KB • Định dạng: PDF</span>
+                  </div>
+                  <button onclick="startDemoParsing()" id="btn-start-demo" class="px-4 py-2 rounded-lg bg-[#212C4A] hover:bg-primary hover:text-white border border-border text-[12px] font-semibold text-text-primary transition-all">
+                    Bắt đầu phân tích AI
+                  </button>
+                </div>
+
+                <!-- Progress State -->
+                <div id="demo-uploader-loading" class="hidden flex flex-col items-center justify-center gap-4 w-full px-6">
+                  <div class="w-full bg-white/5 h-1 rounded-full overflow-hidden relative">
+                    <div id="demo-progress-bar" class="h-full bg-gradient-to-r from-primary to-ai-violet w-0 transition-all duration-300"></div>
+                  </div>
+                  <span id="demo-status-text" class="text-xs text-text-secondary font-mono">Đang đọc text nhị phân...</span>
+                </div>
+              </div>
+
+              <!-- Result Zone -->
+              <div id="demo-result-zone" class="bg-[#101625]/50 p-5 rounded-xl border border-border h-44 flex flex-col justify-center items-center text-center text-text-muted border-dashed">
+                <i data-lucide="bar-chart-2" class="size-8 text-text-dim mb-2"></i>
+                <p class="text-xs">Kết quả phân tích Match Score sẽ hiển thị ở đây sau khi kết thúc mô phỏng.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Recruitment Funnel Visualization -->
+          <div class="glass-card p-6 rounded-3xl border border-border mb-10 bg-gradient-to-r from-[#161E30]/60 to-[#0F1524]/60">
+            <div class="flex justify-between items-center mb-6">
+              <div>
+                <h3 class="font-display font-semibold text-base text-text-primary">Quy Trình Sàng Lọc Tuyển Dụng AI Kép</h3>
+                <p class="text-xs text-text-secondary mt-0.5">Phác thảo đường đi của hồ sơ ứng viên thông qua các module của Hitek TestHub.</p>
+              </div>
+              <span class="text-[11px] text-text-muted bg-[#212C4A] border border-border px-2 py-0.5 rounded-full font-mono">10-Step Pipeline</span>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-5 gap-4 relative">
+              <!-- Step 1 -->
+              <div class="bg-[#101625] border border-border rounded-xl p-4 flex flex-col justify-between h-32 relative">
+                <div class="flex justify-between items-start">
+                  <span class="text-[10px] font-mono text-[#5B6CF0] font-bold">BƯỚC 01</span>
+                  <i data-lucide="upload-cloud" class="size-4.5 text-[#5B6CF0]"></i>
+                </div>
+                <div>
+                  <h4 class="text-[12.5px] font-bold text-text-primary mb-1">Tải Lên CV</h4>
+                  <p class="text-[10.5px] text-text-secondary leading-normal">Chấp nhận PDF/DOCX, xử lý OCR local siêu tốc.</p>
+                </div>
+              </div>
+              <!-- Step 2 -->
+              <div class="bg-[#101625] border border-border rounded-xl p-4 flex flex-col justify-between h-32">
+                <div class="flex justify-between items-start">
+                  <span class="text-[10px] font-mono text-ai-violet font-bold">BƯỚC 02</span>
+                  <i data-lucide="cpu" class="size-4.5 text-ai-violet"></i>
+                </div>
+                <div>
+                  <h4 class="text-[12.5px] font-bold text-text-primary mb-1">Sàng Lọc Kép (CV)</h4>
+                  <p class="text-[10.5px] text-text-secondary leading-normal">Tính Match Score, phân tích kỹ năng & kinh nghiệm.</p>
+                </div>
+              </div>
+              <!-- Step 3 -->
+              <div class="bg-[#101625] border border-border rounded-xl p-4 flex flex-col justify-between h-32">
+                <div class="flex justify-between items-start">
+                  <span class="text-[10px] font-mono text-success font-bold">BƯỚC 03</span>
+                  <i data-lucide="calendar" class="size-4.5 text-success"></i>
+                </div>
+                <div>
+                  <h4 class="text-[12.5px] font-bold text-text-primary mb-1">Lịch Hẹn Phỏng Vấn</h4>
+                  <p class="text-[10.5px] text-text-secondary leading-normal">Tự động đặt lịch, gửi link phòng phỏng vấn.</p>
+                </div>
+              </div>
+              <!-- Step 4 -->
+              <div class="bg-[#101625] border border-border rounded-xl p-4 flex flex-col justify-between h-32">
+                <div class="flex justify-between items-start">
+                  <span class="text-[10px] font-mono text-warning font-bold">BƯỚC 04</span>
+                  <i data-lucide="mic" class="size-4.5 text-warning"></i>
+                </div>
+                <div>
+                  <h4 class="text-[12.5px] font-bold text-text-primary mb-1">Interview Room</h4>
+                  <p class="text-[10.5px] text-text-secondary leading-normal">Ghi âm trực tiếp, dịch thuật & AI chấm điểm.</p>
+                </div>
+              </div>
+              <!-- Step 5 -->
+              <div class="bg-[#101625] border border-border rounded-xl p-4 flex flex-col justify-between h-32">
+                <div class="flex justify-between items-start">
+                  <span class="text-[10px] font-mono text-[#EC4899] font-bold">BƯỚC 05</span>
+                  <i data-lucide="file-check" class="size-4.5 text-[#EC4899]"></i>
+                </div>
+                <div>
+                  <h4 class="text-[12.5px] font-bold text-text-primary mb-1">Báo Cáo PDF</h4>
+                  <p class="text-[10.5px] text-text-secondary leading-normal">Xuất tóm tắt đánh giá của AI & Interviewer ra PDF.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Bento Grid Showcase -->
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <!-- Box 1: Whisper Audio Room -->
+            <div class="glass-card p-6 rounded-2xl border border-border md:col-span-2 flex flex-col justify-between bg-gradient-to-br from-[#161E30] to-[#0E1523] hover:border-warning/30 transition-colors">
+              <div>
+                <div class="flex justify-between items-start mb-4">
+                  <div class="w-10 h-10 rounded-xl bg-warning/10 border border-warning/20 flex items-center justify-center">
+                    <i data-lucide="mic" class="size-5 text-warning"></i>
+                  </div>
+                  <span class="text-[10px] font-bold text-warning bg-warning/10 px-2 py-0.5 rounded border border-warning/20">MODULE 4 SPOTLIGHT</span>
+                </div>
+                <h3 class="font-display font-bold text-lg text-text-primary mb-2">Phòng Phỏng Vấn Trực Tuyến AI (Interview Room)</h3>
+                <p class="text-[13px] text-text-muted leading-relaxed font-body mb-6">
+                  Giao diện tích hợp bộ ghi âm thời gian thực <code class="text-primary-light">MediaRecorder</code> cho phép thu âm hội thoại phỏng vấn. File ghi âm được đẩy trực tiếp lên Supabase Bucket <code class="text-warning">interview-recordings</code>, sau đó kích hoạt API Whisper để chuyển giọng nói thành văn bản chuẩn xác và AI đánh giá độ khớp (Fit Summary) tự động.
+                </p>
+              </div>
+              <div class="border-t border-border/50 pt-4 flex justify-between items-center">
+                <span class="text-[12px] text-text-muted">Trạng thái: <strong class="text-success">Đã hoàn thành trên nhánh dev</strong></span>
+                <button onclick="switchTab('todo')" class="text-xs font-semibold text-warning hover:text-white flex items-center gap-1">
+                  <span>Xem roadmap</span>
+                  <i data-lucide="chevron-right" class="size-3.5"></i>
+                </button>
+              </div>
+            </div>
+
+            <!-- Box 2: Favorite Questions Bank -->
+            <div class="glass-card p-6 rounded-2xl border border-border flex flex-col justify-between bg-gradient-to-br from-[#161E30] to-[#0E1523] hover:border-primary/30 transition-colors">
+              <div>
+                <div class="flex justify-between items-start mb-4">
+                  <div class="w-10 h-10 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center">
+                    <i data-lucide="heart" class="size-5 text-primary-light"></i>
+                  </div>
+                  <span class="text-[10px] font-bold text-primary-light bg-primary/10 px-2 py-0.5 rounded border border-primary/20">DATABASE</span>
+                </div>
+                <h3 class="font-display font-bold text-lg text-text-primary mb-2">Thư Viện Câu Hỏi Yêu Thích</h3>
+                <p class="text-[13px] text-text-muted leading-relaxed font-body mb-4">
+                  Quản lý và lưu trữ các câu hỏi phỏng vấn hay do AI tạo ra hoặc nhà tuyển dụng tự biên soạn. Kết nối bảng trung gian với phân loại Department & Level để dễ dàng tái cấu trúc vào Test Workbench.
+                </p>
+              </div>
+              <div class="border-t border-border/50 pt-4 flex justify-between items-center">
+                <span class="text-[11.5px] text-text-muted">RLS & Schema ready</span>
+                <button onclick="switchTab('todo')" class="text-xs font-semibold text-primary-light hover:text-white flex items-center gap-1">
+                  <span>Chi tiết</span>
+                  <i data-lucide="chevron-right" class="size-3.5"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        `;
+        lucide.createIcons();
+      }
+      else if (currentTab === 'features') {
+        renderSidebar();
+
+        // Features dynamic list
+        container.innerHTML = `
+          <div class="mb-8">
+            <h1 class="font-display font-bold text-3xl mb-2 text-text-primary">Danh Mục Tính Năng Phân Vùng</h1>
+            <p class="text-[13.5px] text-text-secondary">Chi tiết các cấu phần chức năng cốt lõi của hệ thống tuyển dụng Hitek TestHub.</p>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- F1 -->
+            <div class="glass-card p-6 rounded-2xl border border-border flex gap-4">
+              <div class="w-10 h-10 rounded-xl bg-success/10 border border-success/20 flex items-center justify-center flex-shrink-0">
+                <i data-lucide="file-text" class="size-5 text-success"></i>
+              </div>
+              <div>
+                <span class="text-[10px] font-mono text-success font-bold uppercase tracking-wider block mb-1">Module 1 • Hoàn thành</span>
+                <h3 class="font-display font-bold text-[15px] text-text-primary mb-1">Sàng lọc & Phân tích CV AI</h3>
+                <p class="text-[12px] text-text-muted leading-relaxed">Parser PDF/DOCX, tính toán Match Score chi tiết theo năng lực và xếp hạng ứng viên so với JD.</p>
+              </div>
+            </div>
+
+            <!-- F2 -->
+            <div class="glass-card p-6 rounded-2xl border border-border flex gap-4">
+              <div class="w-10 h-10 rounded-xl bg-success/10 border border-success/20 flex items-center justify-center flex-shrink-0">
+                <i data-lucide="columns" class="size-5 text-success"></i>
+              </div>
+              <div>
+                <span class="text-[10px] font-mono text-success font-bold uppercase tracking-wider block mb-1">Module 2 • Hoàn thành</span>
+                <h3 class="font-display font-bold text-[15px] text-text-primary mb-1">Quản lý Pipeline Tuyển Dụng</h3>
+                <p class="text-[12px] text-text-muted leading-relaxed">Bảng Kanban 10 bước từ khi tiếp nhận hồ sơ mới đến khi Onboarded thành công.</p>
+              </div>
+            </div>
+
+            <!-- F3 -->
+            <div class="glass-card p-6 rounded-2xl border border-border flex gap-4">
+              <div class="w-10 h-10 rounded-xl bg-success/10 border border-success/20 flex items-center justify-center flex-shrink-0">
+                <i data-lucide="calendar" class="size-5 text-success"></i>
+              </div>
+              <div>
+                <span class="text-[10px] font-mono text-success font-bold uppercase tracking-wider block mb-1">Module 3 • Hoàn thành</span>
+                <h3 class="font-display font-bold text-[15px] text-text-primary mb-1">Lên Lịch & Thông Báo Hẹn</h3>
+                <p class="text-[12px] text-text-muted leading-relaxed">Form xếp lịch tự động đồng bộ email, phân bổ interviewer và gửi link phòng phỏng vấn.</p>
+              </div>
+            </div>
+
+            <!-- F4 -->
+            <div class="glass-card p-6 rounded-2xl border border-border flex gap-4 border-warning/30">
+              <div class="w-10 h-10 rounded-xl bg-warning/10 border border-warning/20 flex items-center justify-center flex-shrink-0">
+                <i data-lucide="mic" class="size-5 text-warning"></i>
+              </div>
+              <div>
+                <span class="text-[10px] font-mono text-warning font-bold uppercase tracking-wider block mb-1">Module 4 • Đang phát triển</span>
+                <h3 class="font-display font-bold text-[15px] text-text-primary mb-1">Phòng Phỏng Vấn AI Tích Hợp</h3>
+                <p class="text-[12px] text-text-muted leading-relaxed">Thu âm trực tiếp trên trình duyệt, Whisper Speech-to-Text, AI Summary và xuất báo cáo kết quả PDF.</p>
+              </div>
+            </div>
+
+            <!-- F5 -->
+            <div class="glass-card p-6 rounded-2xl border border-border flex gap-4">
+              <div class="w-10 h-10 rounded-xl bg-success/10 border border-success/20 flex items-center justify-center flex-shrink-0">
+                <i data-lucide="database" class="size-5 text-success"></i>
+              </div>
+              <div>
+                <span class="text-[10px] font-mono text-success font-bold uppercase tracking-wider block mb-1">Module 5 • Hoàn thành</span>
+                <h3 class="font-display font-bold text-[15px] text-text-primary mb-1">Ngân hàng Câu Hỏi & Đánh Giá</h3>
+                <p class="text-[12px] text-text-muted leading-relaxed">AI generate đề thi từ tài liệu nguồn, bulk import Excel, và giao diện chấm tay essay.</p>
+              </div>
+            </div>
+
+            <!-- F6 -->
+            <div class="glass-card p-6 rounded-2xl border border-border flex gap-4 border-warning/30">
+              <div class="w-10 h-10 rounded-xl bg-warning/10 border border-warning/20 flex items-center justify-center flex-shrink-0">
+                <i data-lucide="heart" class="size-5 text-warning"></i>
+              </div>
+              <div>
+                <span class="text-[10px] font-mono text-warning font-bold uppercase tracking-wider block mb-1">Module 6 • Đang phát triển</span>
+                <h3 class="font-display font-bold text-[15px] text-text-primary mb-1">Thư viện Câu Hỏi Yêu Thích</h3>
+                <p class="text-[12px] text-text-muted leading-relaxed">Kho lưu trữ cá nhân hóa của recruiter, phân loại theo Level/Phòng ban để tái sử dụng nhanh chóng.</p>
+              </div>
+            </div>
+          </div>
+        `;
+        lucide.createIcons();
+      }
+    }
+
+    // Set filter functions
+    function updateSearch(val) {
+      searchQuery = val;
+      renderActiveTab();
+    }
+
+    // Set status filters
+    function setStatusFilter(filter) {
+      statusFilter = filter;
+      renderActiveTab();
+    }
+
+    // Reset filters
+    function resetFilters() {
+      searchQuery = '';
+      statusFilter = 'all';
+      selectedModuleFilter = 'all';
+      renderSidebar();
+      renderActiveTab();
+    }
+
+    // Demo CV Parsing Simulation
+    function startDemoParsing() {
+      const uploader = document.getElementById('demo-uploader-content');
+      const loader = document.getElementById('demo-uploader-loading');
+      const bar = document.getElementById('demo-progress-bar');
+      const statusText = document.getElementById('demo-status-text');
+      const resultZone = document.getElementById('demo-result-zone');
+
+      if (!uploader || !loader || !bar || !statusText || !resultZone) return;
+
+      uploader.classList.add('hidden');
+      loader.classList.remove('hidden');
+      bar.style.width = '0%';
+      resultZone.innerHTML = `
+        <div class="flex flex-col items-center justify-center h-full text-text-muted">
+          <i data-lucide="loader" class="size-6 animate-spin text-primary-light mb-2"></i>
+          <span class="text-xs">Đang chờ phân tích dữ liệu...</span>
+        </div>
+      `;
+      lucide.createIcons();
+
+      const steps = [
+        { progress: '15%', text: 'Đọc dữ liệu nhị phân PDF (pdf-parse)...' },
+        { progress: '45%', text: 'Trích xuất thực thể NLP (Họ tên, Kỹ năng, Số năm kinh nghiệm)...' },
+        { progress: '75%', text: 'Đối chiếu từ khóa với đặc tả JD Business Analyst...' },
+        { progress: '90%', text: 'Tính toán Match Score & sinh đánh giá tự động...' },
+        { progress: '100%', text: 'Hoàn tất!' }
+      ];
+
+      let currentStep = 0;
+      const interval = setInterval(() => {
+        if (currentStep < steps.length) {
+          bar.style.width = steps[currentStep].progress;
+          statusText.innerText = steps[currentStep].text;
+          currentStep++;
+        } else {
+          clearInterval(interval);
+          showToast('Phân tích CV thành công!', 'success');
+
+          // Show parsed CV result
+          resultZone.innerHTML = `
+            <div class="w-full space-y-3.5 text-left animate-[fadeIn_0.3s_ease-out]">
+              <div class="flex justify-between items-center">
+                <div>
+                  <h4 class="text-[13.5px] font-bold text-text-primary">Nguyễn Trần Đạt</h4>
+                  <span class="text-[11px] text-text-muted">Vị trí ứng tuyển: Senior Business Analyst</span>
+                </div>
+                <span class="text-xs font-display font-bold text-success bg-success/10 px-2.5 py-0.5 rounded border border-success/20">92% Match</span>
+              </div>
+              <div class="grid grid-cols-2 gap-3 text-[11px]">
+                <div class="bg-[#161E30] p-2 rounded border border-border">
+                  <span class="text-text-muted block">Kỹ năng cốt lõi:</span>
+                  <span class="text-text-primary font-medium block truncate" title="SQL, UML, SRS, Agile/Scrum">SQL, UML, SRS, Agile/Scrum</span>
+                </div>
+                <div class="bg-[#161E30] p-2 rounded border border-border">
+                  <span class="text-text-muted block">Kinh nghiệm:</span>
+                  <span class="text-text-primary font-medium block">5.5 năm (Đạt yêu cầu JD)</span>
+                </div>
+              </div>
+              <div class="text-[11px] text-text-muted leading-relaxed">
+                <span class="text-success font-semibold">Nhận xét AI:</span> Ứng viên sở hữu bộ kỹ năng phân tích nghiệp vụ xuất sắc, có kinh nghiệm quản lý dự án Fintech. Đạt ngưỡng đi tiếp vào vòng phỏng vấn.
+              </div>
+            </div>
+          `;
+          lucide.createIcons();
+
+          // Reset demo button after a while
+          setTimeout(() => {
+            loader.classList.add('hidden');
+            uploader.classList.remove('hidden');
+          }, 6000);
+        }
+      }, 600);
+    }
+
+    // Initialize Page
+    document.addEventListener('DOMContentLoaded', () => {
+      initLocalStorage();
+
+      // Parse active hash if exists
+      const hash = window.location.hash.replace('#', '');
+      if (['home', 'features', 'guides', 'roles', 'todo'].includes(hash)) {
+        switchTab(hash);
+      } else {
+        switchTab('todo');
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,23 @@
+# /.dockerignore
+node_modules
+.next
+.git
+.github
+.claude
+.history
+.vscode
+.env
+.env.*
+!.env.example
+README.md
+docs
+plans
+/tmp
+# *.mjs
+*.tsbuildinfo
+AGENTS.md
+CLAUDE.md
+SECURITY.md
+des.md
+new_feature.md
+upgrade.md

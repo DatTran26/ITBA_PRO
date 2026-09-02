@@ -3,7 +3,7 @@ from __future__ import annotations
 from fastapi import APIRouter, File, HTTPException, UploadFile
 
 from app.core.config import ALLOWED_MIME_TYPES, MAX_UPLOAD_SIZE
-from app.services.ocr_service import extract_text_from_image
+from app.services.ocr_service import OCRUnavailableError, extract_text_from_image
 
 router = APIRouter(prefix="/api/ocr", tags=["ocr"])
 
@@ -28,5 +28,10 @@ async def scan_image(file: UploadFile = File(...)):
     if not image_bytes:
         raise HTTPException(status_code=400, detail="Empty file uploaded")
 
-    result = await extract_text_from_image(image_bytes, content_type)
-    return result
+    try:
+        return await extract_text_from_image(image_bytes, content_type)
+    except OCRUnavailableError as exc:
+        raise HTTPException(
+            status_code=503,
+            detail="OCR service temporarily unavailable",
+        ) from exc

@@ -1,0 +1,54 @@
+"use client";
+
+import { Users, UserCheck } from "lucide-react";
+
+interface Props {
+    value: string;
+    onChange: (value: string) => void;
+    disabled?: boolean;
+    allowedTypes?: string[]; // if omitted, all types shown
+}
+
+const OPTIONS = [
+    { value: "candidate", label: "Candidate", icon: Users, desc: "For external applicants" },
+    { value: "employee", label: "Employee", icon: UserCheck, desc: "For internal evaluation" },
+];
+
+export default function TargetTypeSelector({ value, onChange, disabled, allowedTypes }: Props) {
+    const visibleOptions = allowedTypes
+        ? OPTIONS.filter((o) => allowedTypes.includes(o.value))
+        : OPTIONS;
+
+    return (
+        <div className="flex flex-col gap-1.5">
+            <span className="text-[10px] uppercase tracking-widest font-semibold text-[#5A6882]">
+                Assessment Type<span className="text-red-500 text-sm font-bold ml-1">*</span>
+            </span>
+            <div className={`grid gap-3 ${visibleOptions.length === 1 ? "grid-cols-1" : "grid-cols-2"}`}>
+                {visibleOptions.map((opt) => {
+                    const Icon = opt.icon;
+                    const active = value === opt.value;
+                    return (
+                        <button
+                            key={opt.value}
+                            type="button"
+                            disabled={disabled}
+                            onClick={() => onChange(opt.value)}
+                            className={`flex flex-col items-start gap-2 p-3 rounded-xl border text-left transition-all duration-300 disabled:opacity-50 ${
+                                active
+                                    ? "bg-[#5B6CF0] border-[#5B6CF0] text-white shadow-[0_4px_15px_-3px_rgba(91,108,240,0.4)] ring-1 ring-[#5B6CF0]"
+                                    : "bg-black/30 border-white/5 text-[#8B99B0] hover:border-white/10 hover:bg-white/5 hover:text-white"
+                            }`}
+                        >
+                            <div className="flex items-center gap-2">
+                                <Icon className={`w-3.5 h-3.5 ${active ? "text-white" : "text-[#5A6882]"}`} />
+                                <div className="text-[11px] font-bold tracking-wide">{opt.label}</div>
+                            </div>
+                            <div className="text-[9px] opacity-70 leading-tight">{opt.desc}</div>
+                        </button>
+                    );
+                })}
+            </div>
+        </div>
+    );
+}
