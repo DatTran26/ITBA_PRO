@@ -1,0 +1,34 @@
+# Traefik on this VPS owns :80/:443. Cloudflare already terminates HTTPS for
+# *.wpcteam.shop (orange cloud), so origin routers listen on `web` only.
+# Do not redirect origin HTTP→HTTPS (Flexible SSL loops).
+#
+# Use with:
+#   docker compose --env-file /opt/ITBA-OCR/<env>/.env \
+#     -f docker-compose.yml -f deploy/vps/docker-compose.traefik.yml up -d
+#
+# Required in that env file: COMPOSE_PROJECT_NAME, TRAEFIK_HOST, APP_PORT
+#
+# Do not add `ports:` here. Compose merges lists, so a second mapping for the
+# same APP_PORT (e.g. 127.0.0.1:2005 plus 0.0.0.0:2005) fails with
+# "address already in use" and leaves the container in Created.
+
+services:
+  web:
+    networks:
+      - default
+      - traefik-public
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=traefik-public
+      - traefik.http.routers.${COMPOSE_PROJECT_NAME}.rule=Host(`${TRAEFIK_HOST}`)
+      - traefik.http.routers.${COMPOSE_PROJECT_NAME}.entrypoints=web
+      - traefik.http.services.${COMPOSE_PROJECT_NAME}.loadbalancer.server.port=3000
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+networks:
+  traefik-public:
+    external: true

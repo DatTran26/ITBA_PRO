@@ -14,20 +14,28 @@ links:
 ## Trạng thái vận hành
 
 Source có Dockerfile dưới `Frontend/` và compose ở repository root. Pipeline
-GitLab đã được gỡ; không còn `.gitlab-ci.yml`. GitHub Actions
-`.github/workflows/docker-publish.yml` build và đẩy image `linux/amd64` lên
-GHCR. SSH/VPS auto-deploy vẫn ngoài v1.
+GitLab đã được gỡ; không còn `.gitlab-ci.yml`. GitHub Actions `.github/workflows/docker-publish.yml` build image `linux/amd64`
+lên GHCR rồi SSH **root** lên VPS:
+
+- push `develop` → Environment `staging` → `/opt/ITBA-OCR/staging` →
+  `staging.wpcteam.shop` (`APP_PORT=2026`)
+- push `main` → Environment `production` → `/opt/ITBA-OCR/production` →
+  `production.wpcteam.shop` (`APP_PORT=2005`)
+
+Runtime `.env` trên VPS không đi qua GitHub. Deploy key nằm ở
+`/root/.ssh/authorized_keys`.
 
 - Local/VPS runtime owner: [`docker-compose.yml`](../../docker-compose.yml)
   (service `web`).
 - Image owner: [`Frontend/Dockerfile`](../../Frontend/Dockerfile).
-- Publish: push `develop` → `:staging` + sha; git tag `v*` → `:x.y.z` +
-  `:latest` + sha. Image tags follow **git tags**, not
-  `Frontend/package.json` (currently `1.6.4` vs tag `v0.1.0`).
-- GitHub workflows khác: hygiene, branch-policy, workflow lint.
+- Publish: push `develop` → `:staging` + sha; push `main` → `:latest` + sha;
+  git tag `v*` → `:x.y.z` + `:latest` + sha.
 
-VPS vẫn pull/recreate thủ công. Không gọi Vercel hoặc SSH CD là production
-automation cho đến khi owner bổ sung pipeline đó.
+Tracking (GitHub, không chứa secret):
+
+- Cutover còn lại: https://github.com/DatTran26/down-town/issues/22
+- Docker/GHCR PR: https://github.com/DatTran26/down-town/pull/21
+  (`develop-dat` → `develop`; merge không đóng #22)
 
 ## GitHub Environments (bắt buộc trước publish thật)
 
@@ -36,13 +44,25 @@ Environment. Trên `DatTran26/down-town` → Settings → Environments:
 
 Canonical origins (baked into each image as `NEXT_PUBLIC_APP_URL`):
 
-| Environment | Origin |
-| --- | --- |
-| `staging` | `https://staging.wpcteam.shop` |
-| `production` | `https://production.wpcteam.shop` |
+| Environment | Origin | Supabase project |
+| --- | --- | --- |
+| `staging` | `https://staging.wpcteam.shop` | `itba-ai-staging` (`kxpunppvqfxfqdwpqpmp`), org **WPCTeam** |
+| `production` | `https://production.wpcteam.shop` | `itba-ai` (`lhvdtmieaplxzqmpmupe`), org **WPC Team** |
+
+Bốn biến public trên mỗi Environment (đã set): `NEXT_PUBLIC_SUPABASE_URL`,
+`NEXT_PUBLIC_SUPABASE_ANON_KEY`, `NEXT_PUBLIC_APP_URL`,
+`NEXT_PUBLIC_ENABLE_TURNSTILE` (`false` — bật khi Turnstile site key sẵn sàng).
+
+Không đưa `SUPABASE_SERVICE_ROLE_KEY` / `OPENAI_API_KEY` / `DATABASE_URL` lên
+GitHub. Chúng thuộc `.env` trên VPS (runtime) và/hoặc Supabase Edge Function
+secrets / `system_settings`.
+
+Org **WPCTeam** (staging) hiện chỉ có Owner `wpcteampro`. Mời Dat/Hieu/Kien/Thanh
+vào [Team settings](https://supabase.com/dashboard/org/qfnvmweuancehaukodeb/team)
+để cùng thấy project staging (API invite Free plan trả 402).
 
 Không dùng một image cho cả hai origin. Staging build từ `develop`; production
-build từ tag `v*`.
+build từ `main` (và tag `v*`).
 
 1. Tạo `staging` và `production`.
 2. Mỗi environment: `NEXT_PUBLIC_SUPABASE_URL`,
@@ -219,10 +239,20 @@ Chỉ tag/publish khi manifest/lockfile đồng bộ, validation pass và artifa
 
 ## Reverse proxy và Cloudflare
 
+Cùng VPS với Max Claw; Town Hown **không** dùng cổng Claw. Host ports cố định:
+
+| Env | Domain | Host port | Compose project |
+| --- | --- | --- | --- |
+| production | `production.wpcteam.shop` | **2005** | `itba-ocr-production` |
+| staging | `staging.wpcteam.shop` | **2026** | `itba-ocr-staging` |
+
+Snippet Nginx/Caddy: [`deploy/vps/`](../../deploy/vps/README.md). Local compose vẫn mặc định `APP_PORT=3000`.
+
 Request path kỳ vọng:
 
 ```text
-Browser -> Cloudflare/DNS/TLS -> reverse proxy -> host ${APP_PORT:-3000}
+Browser -> Cloudflare/DNS/TLS -> reverse proxy
+        -> 127.0.0.1:2005 (prod) hoặc :2026 (staging)
         -> container :3000 -> Next.js standalone
 ```
 

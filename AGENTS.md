@@ -16,7 +16,7 @@
   - Else: repo skills `.claude/skills/principled-git-commit` then `.claude/skills/caveman-commit` (English), then wpc git-fallback
 - License: mit
 - Security file: SECURITY.md on
-- Environments: staging, production (no deploy secrets in v1)
+- Environments: staging (`develop` → `/opt/ITBA-OCR/staging`), production (`main` → `/opt/ITBA-OCR/production`). Runtime secrets stay on the VPS `.env`, not in git.
 - Releases: cut release/x.y.z from develop, merge to main, then scripts/create-release.ps1 or ak:ship official
 - Do not commit .env or secrets
 

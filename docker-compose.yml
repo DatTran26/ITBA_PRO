@@ -1,6 +1,9 @@
+name: ${COMPOSE_PROJECT_NAME:-town-hown}
+
 services:
   web:
     image: ${DOCKER_IMAGE:-ghcr.io/dattran26/down-town:local}
+    container_name: ${COMPOSE_PROJECT_NAME:-town-hown}-web
     build:
       context: ./Frontend
       dockerfile: Dockerfile
@@ -14,6 +17,16 @@ services:
     env_file:
       - path: .env
         required: false
+    environment:
+      NEXT_PUBLIC_SUPABASE_URL: ${NEXT_PUBLIC_SUPABASE_URL:-}
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: ${NEXT_PUBLIC_SUPABASE_ANON_KEY:-}
+      NEXT_PUBLIC_APP_URL: ${NEXT_PUBLIC_APP_URL:-}
+      NEXT_PUBLIC_ENABLE_TURNSTILE: ${NEXT_PUBLIC_ENABLE_TURNSTILE:-}
+      SUPABASE_SERVICE_ROLE_KEY: ${SUPABASE_SERVICE_ROLE_KEY:-}
+      DATABASE_URL: ${DATABASE_URL:-}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      OPENAI_MODEL: ${OPENAI_MODEL:-gpt-4o}
+      SMTP_PASSWORD_ENCRYPTION_KEY: ${SMTP_PASSWORD_ENCRYPTION_KEY:-}
     restart: unless-stopped
     healthcheck:
       test:
