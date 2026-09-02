@@ -51,7 +51,7 @@ Canonical origins (baked into each image as `NEXT_PUBLIC_APP_URL`):
 
 Bốn biến public trên mỗi Environment (đã set): `NEXT_PUBLIC_SUPABASE_URL`,
 `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `NEXT_PUBLIC_APP_URL`,
-`NEXT_PUBLIC_ENABLE_TURNSTILE` (`false` — bật khi Turnstile site key sẵn sàng).
+`NEXT_PUBLIC_ENABLE_TURNSTILE` (`true` — Cloudflare Turnstile / Captcha Provider đang bật trên staging và production).
 
 Không đưa `SUPABASE_SERVICE_ROLE_KEY` / `OPENAI_API_KEY` / `DATABASE_URL` lên
 GitHub. Chúng thuộc `.env` trên VPS (runtime) và/hoặc Supabase Edge Function
