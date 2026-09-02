@@ -11,3 +11,8 @@
 - `Backend/supabase/migrations/20260326000000_talent_assessment_schema.sql:84` — skills.
 - `Backend/supabase/migrations/20260326000000_talent_assessment_schema.sql:164` — groups.
 - `Backend/supabase/migrations/20260331000000_crm_layer_schema.sql:32` — person skills.
+- `Backend/supabase/migrations/20260329000001_skill_framework.sql:6` — skill categories.
+- `Backend/supabase/migrations/20260329000001_skill_framework.sql:36` — level expectations.
+- `Backend/supabase/migrations/20260326000000_talent_assessment_schema.sql:235` — skill evaluations.
+- `Backend/supabase/migrations/20260524173440_skill_documents.sql:3` — skill documents.
+- `Backend/supabase/migrations/20260331000000_crm_layer_schema.sql:112` — tags.

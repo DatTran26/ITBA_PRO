@@ -1,8 +1,12 @@
 # Bộ SRS tái lập từ source
 
-Trạng thái: **reverse draft**, cập nhật 2026-08-27. Bộ tài liệu này mô tả hành
+Trạng thái: **reverse draft**, cập nhật 2026-09-02. Bộ tài liệu này mô tả hành
 vi có bằng chứng trong `Frontend` và `Backend` tại repository root. Đây không
 phải business baseline đã phê duyệt.
+
+ERD trong từng cluster khớp 46 bảng `public` trên live/staging và
+`Backend/supabase/migrations`. Inventory và lệch còn lại (lock assessment chưa
+apply, `cv-processor` chưa deploy) nằm tại [`Backend/README.md`](../../Backend/README.md).
 
 ## Phạm vi
 

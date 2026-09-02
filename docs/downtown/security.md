@@ -1,7 +1,7 @@
 ---
 type: security-policy
 status: active
-updated: 2026-08-27
+updated: 2026-09-02
 links:
   - README.md
   - prd.md
@@ -131,9 +131,10 @@ Không thay audit bằng application log dễ mất/rotate.
 
 ## Rủi ro hiện hành cần ưu tiên
 
-Reverse audit 2026-08-27 ghi nhận các vấn đề; các mục assessment/RLS/submit
-đã được vá trên nhánh này (migration `20260828000000_lock_public_assessment_access.sql`
-và API `/api/tests/public`, `/api/results`). Còn lại:
+Reverse audit 2026-08-27 ghi nhận các vấn đề. Trên git, nhánh này có migration
+`20260828000000_lock_public_assessment_access.sql` và API `/api/tests/public`,
+`/api/results`. **Migration lock chưa apply** lên production `itba-ai` hay
+staging `itba-ai-staging` (live vẫn còn policy anon đọc/ghi assessment). Còn lại:
 
 - Một số recruitment route dùng admin/service access sau broad role gate; cần
   đối chiếu ownership/tenant scope với RLS và role matrix chính thức; xem
