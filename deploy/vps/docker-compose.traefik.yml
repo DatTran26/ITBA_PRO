@@ -1,6 +1,8 @@
-# Traefik on this VPS owns :80/:443. Cloudflare already terminates HTTPS for
-# *.wpcteam.shop (orange cloud), so origin routers listen on `web` only.
-# Do not redirect origin HTTP→HTTPS (Flexible SSL loops).
+# Traefik on this VPS owns :80/:443. Cloudflare orange-cloud + SSL Full
+# connects to origin on HTTPS :443, so Host() routers must exist on
+# `websecure` with TLS. HTTP `web` redirects to HTTPS so browsers do not
+# stay on http:// (Not secure). Do not use this overlay with Flexible SSL
+# — origin HTTP→HTTPS redirects loop under Flexible.
 #
 # Use with:
 #   docker compose --env-file /opt/ITBA-OCR/<env>/.env \
@@ -11,6 +13,10 @@
 # Do not add `ports:` here. Compose merges lists, so a second mapping for the
 # same APP_PORT (e.g. 127.0.0.1:2005 plus 0.0.0.0:2005) fails with
 # "address already in use" and leaves the container in Created.
+#
+# Do not enable docker-compose.traefik-acme.yml while the hostname stays
+# orange-clouded. Let's Encrypt HTTP-01/TLS-ALPN will not issue for CF-proxied
+# hosts; Full SSL uses Traefik TLS on websecure (default or origin cert).
 
 services:
   web:
@@ -20,8 +26,16 @@ services:
     labels:
       - traefik.enable=true
       - traefik.docker.network=traefik-public
+      - traefik.http.middlewares.${COMPOSE_PROJECT_NAME}-https.redirectscheme.scheme=https
+      - traefik.http.middlewares.${COMPOSE_PROJECT_NAME}-https.redirectscheme.permanent=true
       - traefik.http.routers.${COMPOSE_PROJECT_NAME}.rule=Host(`${TRAEFIK_HOST}`)
       - traefik.http.routers.${COMPOSE_PROJECT_NAME}.entrypoints=web
+      - traefik.http.routers.${COMPOSE_PROJECT_NAME}.middlewares=${COMPOSE_PROJECT_NAME}-https
+      - traefik.http.routers.${COMPOSE_PROJECT_NAME}.service=${COMPOSE_PROJECT_NAME}
+      - traefik.http.routers.${COMPOSE_PROJECT_NAME}-secure.rule=Host(`${TRAEFIK_HOST}`)
+      - traefik.http.routers.${COMPOSE_PROJECT_NAME}-secure.entrypoints=websecure
+      - traefik.http.routers.${COMPOSE_PROJECT_NAME}-secure.tls=true
+      - traefik.http.routers.${COMPOSE_PROJECT_NAME}-secure.service=${COMPOSE_PROJECT_NAME}
       - traefik.http.services.${COMPOSE_PROJECT_NAME}.loadbalancer.server.port=3000
     logging:
       driver: json-file
