@@ -40,16 +40,80 @@ Environment secrets: `SSH_PRIVATE_KEY`, `SSH_KNOWN_HOSTS`.
 
 ## Reverse proxy
 
-This VPS: Traefik overlay `docker-compose.traefik.yml` (HTTP origin). Cloudflare
-already proxies `*.wpcteam.shop`. Set the Cloudflare **origin** A record to this
-VPS. Keep SSL mode compatible with HTTP origin (Flexible, or Full + origin cert).
-Do not enable `docker-compose.traefik-acme.yml` while the hostname stays orange-clouded.
+This VPS: Traefik overlay `docker-compose.traefik.yml`. Cloudflare orange-cloud
+proxies `*.wpcteam.shop` with SSL **Full**: visitors use HTTPS to Cloudflare,
+Cloudflare uses HTTPS to origin `:443`. Routers therefore listen on `websecure`
+(TLS). HTTP `web` permanently redirects to HTTPS (Full only — do not combine
+with Flexible). Do not enable `docker-compose.traefik-acme.yml` while the
+hostname stays orange-clouded.
+
+In Cloudflare: SSL/TLS encryption **Full** (or **Full (strict)** after Origin
+CA is installed). Edge **Always Use HTTPS** is optional; origin already 308s
+HTTP to HTTPS.
+
+## Full (strict) — Cloudflare Origin CA
+
+Full accepts Traefik’s default TLS cert. Full (strict) requires a certificate
+Cloudflare trusts on origin — use **Origin CA**, not Let’s Encrypt (orange
+cloud breaks HTTP-01).
+
+Do **not** commit the PEM or private key. Do **not** paste the private key in
+chat. Save both files locally, then tell the operator the path.
+
+### 1. Create the certificate (dashboard)
+
+1. [Cloudflare Dashboard](https://dash.cloudflare.com) → zone **wpcteam.shop**.
+2. **SSL/TLS** → **Origin Server** → **Create Certificate**.
+3. Leave **Generate private key and CSR with Cloudflare** selected.
+4. Hostnames: `wpcteam.shop` and `*.wpcteam.shop`.
+5. Certificate Validity: **15 years**. Key type: **RSA (2048)**.
+6. **Create**. Copy both blocks immediately (the private key is shown once):
+   - Origin Certificate → `wpcteam.shop.crt`
+   - Private Key → `wpcteam.shop.key`
+7. Keep SSL/TLS encryption on **Full** until Traefik is serving that cert.
+   Switch to **Full (strict)** only after origin HTTPS still returns 200.
+
+### 2. Install on the VPS (operator)
+
+Place PEMs on the Traefik host (already mounted `ro`):
+
+```text
+/opt/traefik/certs/wpcteam.shop.crt    # mode 644
+/opt/traefik/certs/wpcteam.shop.key    # mode 600, root
+```
+
+Copy [`origin-tls.example.yml`](origin-tls.example.yml) to
+`/opt/traefik/dynamic/origin-tls.yml`. Add a file provider to
+`/opt/traefik/traefik.yml` if missing:
+
+```yaml
+providers:
+  docker:
+    endpoint: "unix:///var/run/docker.sock"
+    exposedByDefault: false
+    network: traefik-public
+  file:
+    directory: /etc/traefik/dynamic
+    watch: true
+```
+
+Restart Traefik, then verify the origin presents Origin CA (not Traefik
+DEFAULT CERT). After that, set Cloudflare encryption to **Full (strict)**.
+
+```bash
+echo | openssl s_client -connect 127.0.0.1:443 -servername staging.wpcteam.shop 2>/dev/null \
+  | openssl x509 -noout -issuer -subject
+curl -fsS https://staging.wpcteam.shop/api/health
+curl -fsS https://production.wpcteam.shop/api/health
+```
 
 ## Smoke
 
 ```bash
 curl -fsS http://127.0.0.1:2005/api/health
 curl -fsS http://127.0.0.1:2026/api/health
-curl -fsS -H 'Host: production.wpcteam.shop' http://127.0.0.1/api/health
-curl -fsS -H 'Host: staging.wpcteam.shop' http://127.0.0.1/api/health
+curl -sS -o /dev/null -w '%{http_code} %{redirect_url}\n' -H 'Host: production.wpcteam.shop' http://127.0.0.1/api/health
+curl -sS -o /dev/null -w '%{http_code} %{redirect_url}\n' -H 'Host: staging.wpcteam.shop' http://127.0.0.1/api/health
+curl -fskS --resolve production.wpcteam.shop:443:127.0.0.1 https://production.wpcteam.shop/api/health
+curl -fskS --resolve staging.wpcteam.shop:443:127.0.0.1 https://staging.wpcteam.shop/api/health
 ```
