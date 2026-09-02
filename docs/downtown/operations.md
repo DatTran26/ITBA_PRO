@@ -81,6 +81,7 @@ Ngày 2026-08-27:
 | GHCR publish | [`.github/workflows/docker-publish.yml`](../../.github/workflows/docker-publish.yml) |
 | GitHub CI | [`.github/workflows`](../../.github/workflows) |
 | Database evolution | [`Backend/supabase/migrations`](../../Backend/supabase/migrations) |
+| Schema contract vs live/staging | [`Backend/README.md`](../../Backend/README.md) |
 
 ## Local build
 
@@ -168,6 +169,11 @@ curl -fsS "http://127.0.0.1:${APP_PORT:-3000}/api/health"
 `--remove-orphans` tránh container `itba-ai` cũ giữ host port.
 
 ## Database migration
+
+Inventory object (bảng, bucket, lệch còn lại) nằm tại
+[`Backend/README.md`](../../Backend/README.md). Timestamp trong
+`schema_migrations` trên dashboard không cần trùng tên file git; object
+`public` mới là contract.
 
 1. Xác minh đúng Supabase project/environment.
 2. Backup database/data trước schema hoặc bulk data change.

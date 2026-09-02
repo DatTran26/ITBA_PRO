@@ -16,8 +16,10 @@
 - `Backend/supabase/migrations/20260310000000_init_schema.sql:27` — tests.
 - `Backend/supabase/migrations/20260310000000_init_schema.sql:55` — questions.
 - `Backend/supabase/migrations/20260310000000_init_schema.sql:78` — results.
-- `Backend/supabase/migrations/20260525000000_manual_grading.sql:11` — grades.
+- `Backend/supabase/migrations/20260525000001_manual_grading.sql:11` — grades.
 - `Backend/supabase/migrations/20260319000000_follow_up_sessions.sql:6` — follow-up.
+- `Backend/supabase/migrations/20260524180000_favourite_questions.sql:3` — favourites.
+- `Backend/supabase/migrations/20260329000000_admin_role_and_version_management.sql:130` — templates.
 
 ## Confidence
 
