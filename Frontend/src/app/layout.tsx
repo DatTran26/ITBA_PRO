@@ -23,9 +23,35 @@ const plusJakarta = Plus_Jakarta_Sans({
   display: "swap",
 });
 
+const siteTitle = "ITBA.AI - Nexus for Tech Assessments";
+const siteDescription =
+  "Next-gen AI Interview Testing Platform. Generate dynamic technical tests, automated evaluation, and deep neural analysis for IT/BA candidates.";
+
 export const metadata: Metadata = {
-  title: "ITBA.AI - Nexus for Tech Assessments",
-  description: "Next-gen AI Interview Testing Platform. Generate dynamic technical tests, automated evaluation, and deep neural analysis for IT/BA candidates.",
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000"),
+  title: siteTitle,
+  description: siteDescription,
+  openGraph: {
+    type: "website",
+    locale: "vi_VN",
+    siteName: "ITBA.CORE",
+    title: siteTitle,
+    description: siteDescription,
+    images: [
+      {
+        url: "/og-image.jpg",
+        width: 1200,
+        height: 630,
+        alt: "ITBA.CORE — Autonomous Digital Intelligence",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: siteTitle,
+    description: siteDescription,
+    images: ["/og-image.jpg"],
+  },
 };
 
 export default function RootLayout({

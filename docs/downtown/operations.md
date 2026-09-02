@@ -251,10 +251,14 @@ Snippet Nginx/Caddy: [`deploy/vps/`](../../deploy/vps/README.md). Local compose 
 Request path kỳ vọng:
 
 ```text
-Browser -> Cloudflare/DNS/TLS -> reverse proxy
+Browser -> Cloudflare (SSL Full / Full strict, HTTPS) -> Traefik :443
         -> 127.0.0.1:2005 (prod) hoặc :2026 (staging)
         -> container :3000 -> Next.js standalone
 ```
+
+HTTP tới origin được Traefik 308 sang HTTPS. Overlay này không dùng với
+Cloudflare Flexible. Full (strict): Origin CA trên Traefik, xem
+[`deploy/vps/README.md`](../../deploy/vps/README.md).
 
 Khi gặp connection refused, không đổi sang port mới ngẫu nhiên. Xác minh compose
 `APP_PORT`, container state và proxy upstream.
