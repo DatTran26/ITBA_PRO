@@ -1,3 +1,4 @@
+import os
 from functools import lru_cache
 from pathlib import Path
 
@@ -7,6 +8,7 @@ from app.config import (
     BEHAVIOR_CONFIDENCE,
     BEHAVIOR_LABELS,
     BEHAVIOR_MODEL_PATH,
+    SRC_ROOT,
     FACE_MATCH_THRESHOLD,
     FACE_MODEL_NAME,
 )
@@ -60,18 +62,25 @@ def verify_face(
     return matches >= 2, matches, scores
 
 
-@lru_cache(maxsize=1)
-def get_behavior_model():
+def _resolve_behavior_model_path(model_path: str | None) -> Path:
+    if not model_path:
+        return Path(BEHAVIOR_MODEL_PATH)
+    path = Path(os.path.expandvars(model_path)).expanduser()
+    return path if path.is_absolute() else (SRC_ROOT / path).resolve()
+
+
+@lru_cache(maxsize=4)
+def get_behavior_model(model_path: str | None = None):
     from ultralytics import YOLO
 
-    model_path = Path(BEHAVIOR_MODEL_PATH)
-    if not model_path.is_file():
-        raise FileNotFoundError(f"Behavior weights missing at {model_path}")
-    return YOLO(str(model_path))
+    resolved_path = _resolve_behavior_model_path(model_path)
+    if not resolved_path.is_file():
+        raise FileNotFoundError(f"Behavior weights missing at {resolved_path}")
+    return YOLO(str(resolved_path))
 
 
-def detect_behaviors(content: bytes) -> list[dict]:
-    result = get_behavior_model().predict(
+def detect_behaviors(content: bytes, model_path: str | None = None) -> list[dict]:
+    result = get_behavior_model(model_path).predict(
         source=decode_image(content), conf=BEHAVIOR_CONFIDENCE, verbose=False
     )[0]
     detections = []

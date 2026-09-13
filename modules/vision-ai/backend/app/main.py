@@ -93,9 +93,12 @@ async def verify_face_image(
 
 
 @app.post("/api/behavior/detect")
-async def detect_behavior(image: Annotated[UploadFile, File()]):
+async def detect_behavior(
+    image: Annotated[UploadFile, File()],
+    model_path: Annotated[str | None, Form(alias="modelPath")] = None,
+):
     try:
-        detections = detect_behaviors(await read_image(image))
+        detections = detect_behaviors(await read_image(image), model_path)
     except FileNotFoundError as exc:
         raise HTTPException(status_code=503, detail=str(exc)) from exc
     except ValueError as exc:

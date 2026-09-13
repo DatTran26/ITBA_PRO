@@ -27,9 +27,11 @@ export async function POST(request: Request) {
   const incoming = await request.formData();
   const image = incoming.get("image");
   const cameraLocation = String(incoming.get("cameraLocation") ?? "Manual upload").slice(0, 200);
+  const modelPath = String(incoming.get("modelPath") ?? "").trim();
   if (!validateImage(image)) return NextResponse.json({ error: "A JPEG, PNG, or WebP image is required" }, { status: 400 });
   const body = new FormData();
   body.append("image", image);
+  if (modelPath) body.append("modelPath", modelPath);
 
   try {
     const result = await callVisionAi("/api/behavior/detect", { method: "POST", body }) as {
