@@ -67,6 +67,14 @@ Supabase advisors also reported mutable function search-path, SECURITY DEFINER e
 - Production web: `/` 200, `/api/health` ok; anonymous `recruitment_dashboard` RPC still returns HTTP 200 (blocker 1 stands).
 - **New finding:** `kxpunppvqfxfqdwpqpmp.supabase.co` no longer resolves (NXDOMAIN via public DNS). The staging Supabase project is paused or deleted, so staging logins and DB-backed routes will fail until it is restored or the disposable project is recreated from the snapshot at `C:\Users\ACER\.codex\backups\town-hown`. The staging MCP token also lacks database read permissions, so DB-level re-checks were not possible in this pass.
 
+## Re-verification (2026-09-13, HEAD `db274f2`)
+
+- OCR module: `vitest run` 32/32 pass; `tsc -b && vite build` clean.
+- Main frontend: `next build` pass (compile, TypeScript, 71 static pages).
+- Staging web: `/`, `/login`, `/api/health` return 200; `kxpunppvqfxfqdwpqpmp.supabase.co` still unreachable — later identified as the superseded staging project, not an outage (see Re-verification 2). The live frontend bundle points at `mqwsulanzahqaiecnfwc.supabase.co`, which responds normally.
+- Production web: `/`, `/api/health` 200; production Supabase reachable.
+- Anonymous `recruitment_dashboard` RPC against production still returns HTTP 200 with live aggregate data — blocker 1 stands until the security migration is promoted through the release flow.
+
 ## Re-verification 2 (2026-09-13, HEAD `db274f2`) — staging outage was a stale-ref false alarm
 
 The dead `kxpunppvqfxfqdwpqpmp` is the **superseded** staging project. The active staging project is the replacement `mqwsulanzahqaiecnfwc`, created during this audit (snapshot manifest `project_ref` and account handoff confirm "new project"). Verified live:
