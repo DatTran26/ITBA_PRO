@@ -3,6 +3,8 @@ import { redirect } from "next/navigation";
 import DashboardClient from "./dashboard-client";
 import { createAdminClient } from "@/lib/supabase/admin";
 import type { DashboardStats, PipelineStage, AttentionCandidate, DashboardTest, MonthlyData, DashboardMode, EmployeeStats, SkillGapItem, AdminStats } from "./types";
+import { cookies } from "next/headers";
+import { DEV_AUTH_COOKIE, DEV_AUTH_USER, isDevAuthCookieValue } from "@/lib/dev-auth";
 
 export default async function DashboardPage({
     searchParams,
@@ -13,13 +15,17 @@ export default async function DashboardPage({
 
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
-    if (!user) redirect("/login");
+    const cookieStore = await cookies();
+    const devUser = isDevAuthCookieValue(cookieStore.get(DEV_AUTH_COOKIE)?.value) ? DEV_AUTH_USER : null;
+    if (!user && !devUser) redirect("/login");
 
-    const { data: userData } = await supabase
-        .from("users")
-        .select("*")
-        .eq("auth_id", user.id)
-        .single();
+    const { data: userData } = user
+        ? await supabase
+            .from("users")
+            .select("*")
+            .eq("auth_id", user.id)
+            .single()
+        : { data: devUser };
 
     const isAdmin = userData?.role === "admin" || userData?.role === "super_admin";
     const isHr = userData?.role === "hr";

@@ -27,6 +27,8 @@ export default function LoginPage() {
     const [captchaToken, setCaptchaToken] = useState<string>();
     const turnstileRef = useRef<TurnstileInstance>(null);
     const router = useRouter();
+    const isDevAuthBypass = process.env.NEXT_PUBLIC_DEV_AUTH_BYPASS === "true";
+    const isTurnstileEnabled = !isDevAuthBypass && process.env.NEXT_PUBLIC_ENABLE_TURNSTILE === "true";
 
     const {
         register,
@@ -35,18 +37,37 @@ export default function LoginPage() {
         reset
     } = useForm<LoginSchema>({
         resolver: zodResolver(loginSchema),
+        defaultValues: {
+            email: process.env.NEXT_PUBLIC_DEV_LOGIN_EMAIL ?? "",
+        },
     });
 
     const onSubmit = async (data: any) => {
         setIsLoading(true);
-        const supabase = createClient();
 
         try {
             const loginData = data as LoginSchema;
+            if (isDevAuthBypass) {
+                const response = await fetch("/api/dev-login", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(loginData),
+                });
+                if (!response.ok) {
+                    const body = await response.json().catch(() => ({}));
+                    throw new Error(body.error ?? "Local dev login failed");
+                }
+                toast.success("Local super admin session active.");
+                router.push("/dashboard");
+                router.refresh();
+                return;
+            }
+
+            const supabase = createClient();
             const { error, data: authData } = await supabase.auth.signInWithPassword({
                 email: loginData.email,
                 password: loginData.password,
-                options: { captchaToken },
+                ...(isTurnstileEnabled ? { options: { captchaToken } } : {}),
             });
 
             if (error) throw error;
@@ -177,26 +198,28 @@ export default function LoginPage() {
                                 )}
                             </div>
 
-                            <div className="py-2">
-                                <Turnstile
-                                    ref={turnstileRef}
-                                    siteKey="0x4AAAAAACwDOJ4K8U9X9Ci7"
-                                    onSuccess={(token) => setCaptchaToken(token)}
-                                    onExpire={() => {
-                                        setCaptchaToken(undefined);
-                                        turnstileRef.current?.reset();
-                                    }}
-                                    onError={() => {
-                                        setCaptchaToken(undefined);
-                                        turnstileRef.current?.reset();
-                                    }}
-                                    options={{ theme: "dark", size: "flexible" }}
-                                />
-                            </div>
+                            {isTurnstileEnabled && (
+                                <div className="py-2">
+                                    <Turnstile
+                                        ref={turnstileRef}
+                                        siteKey="0x4AAAAAACwDOJ4K8U9X9Ci7"
+                                        onSuccess={(token) => setCaptchaToken(token)}
+                                        onExpire={() => {
+                                            setCaptchaToken(undefined);
+                                            turnstileRef.current?.reset();
+                                        }}
+                                        onError={() => {
+                                            setCaptchaToken(undefined);
+                                            turnstileRef.current?.reset();
+                                        }}
+                                        options={{ theme: "dark", size: "flexible" }}
+                                    />
+                                </div>
+                            )}
 
                             <Button
                                 type="submit"
-                                disabled={isLoading || !captchaToken}
+                                disabled={isLoading || (isTurnstileEnabled && !captchaToken)}
                                 className="w-full h-14 bg-[#5B6CF0] hover:bg-[#4F5FE0] text-white font-bold text-base border-0 transition-all hover:scale-[1.01] active:scale-[0.99] hover:shadow-[0_15px_30px_-5px_rgba(91,108,240,0.5)] flex items-center justify-center gap-3 group/btn rounded-[1.25rem]"
                             >
                                 {isLoading ? (

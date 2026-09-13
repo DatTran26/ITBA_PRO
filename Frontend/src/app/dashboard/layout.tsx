@@ -4,6 +4,8 @@ import NavShell from "@/components/ui/nav-shell";
 import { readUiLayout } from "@/lib/settings/ui-layout";
 import { readSidebarCollapsed } from "@/components/ui/sidebar-collapse-cookie";
 import type { UserRole } from "@/components/ui/nav-config";
+import { cookies } from "next/headers";
+import { DEV_AUTH_COOKIE, DEV_AUTH_USER, isDevAuthCookieValue } from "@/lib/dev-auth";
 
 /* Force dynamic so router.refresh() re-reads ui_layout from DB instead of
  * serving a static-cached layout. Without this, Next 16 may serve stale
@@ -17,13 +19,15 @@ export default async function DashboardLayout({
 }) {
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
-    if (!user) redirect("/login");
+    const cookieStore = await cookies();
+    const devUser = isDevAuthCookieValue(cookieStore.get(DEV_AUTH_COOKIE)?.value) ? DEV_AUTH_USER : null;
+    if (!user && !devUser) redirect("/login");
 
     /* Fetch user data + layout setting + collapse cookie in parallel.
      * NavShell decides chrome based on layout; pages keep their existing
      * AppNavbar calls (self-suppressed in sidebar mode via context). */
     const [userResult, layout, sidebarCollapsed] = await Promise.all([
-        supabase.from("users").select("name, email, role").eq("auth_id", user.id).single(),
+        user ? supabase.from("users").select("name, email, role").eq("auth_id", user.id).single() : Promise.resolve({ data: devUser }),
         readUiLayout(),
         readSidebarCollapsed(),
     ]);

@@ -17,6 +17,9 @@ import {
     ScrollText,
     Database,
     ScanText,
+    ScanFace,
+    Clock3,
+    ShieldAlert,
 } from "lucide-react";
 
 /**
@@ -42,7 +45,7 @@ export interface NavLink {
 }
 
 export interface NavGroup {
-    id: "people" | "recruitment" | "interviews" | "system" | "emails";
+    id: "people" | "workplace" | "recruitment" | "interviews" | "system" | "emails";
     label: string;
     /** Optional icon shown next to the group trigger label (top-nav dropdowns). */
     triggerIcon?: LucideIcon;
@@ -73,6 +76,18 @@ export const NAV_GROUPS: NavGroup[] = [
         accentColor: "#7C8FFF",
     },
     {
+        id: "workplace",
+        label: "Workplace",
+        triggerIcon: Clock3,
+        links: [
+            { href: "/dashboard/attendance", label: "Attendance", icon: Clock3 },
+            { href: "/dashboard/faces", label: "Face Enrollment", icon: ScanFace, allowedRoles: ["leader", "admin", "super_admin"] },
+            { href: "/dashboard/behavior", label: "Behavior Review", icon: ShieldAlert, allowedRoles: ["leader", "admin", "super_admin"] },
+        ],
+        allowedRoles: ["hr", "interviewer", "recruiter", "leader", "admin", "super_admin"],
+        accentColor: "#36DDAB",
+    },
+    {
         id: "recruitment",
         label: "Recruitment",
         triggerIcon: ClipboardList,
@@ -83,6 +98,7 @@ export const NAV_GROUPS: NavGroup[] = [
             { href: "/dashboard/recruitment/settings", label: "Settings", icon: Settings, allowedRoles: ["hr", "interviewer", "admin", "super_admin"] as UserRole[] },
             { href: "/dashboard/question-bank", label: "Question Bank", icon: Database, allowedRoles: ["leader", "admin", "super_admin"] as UserRole[] },
             { href: "/dashboard/ocr", label: "Vision OCR", icon: ScanText, allowedRoles: ["hr", "interviewer", "leader", "admin", "super_admin"] as UserRole[] },
+            { href: "/dashboard/document-ai/ocr", label: "Document OCR", icon: ScanText, allowedRoles: ["leader", "admin", "super_admin"] as UserRole[] },
         ],
         allowedRoles: ["hr", "interviewer", "leader", "admin", "super_admin"],
         accentColor: "#7C8FFF",

@@ -1,9 +1,23 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
+import { DEV_AUTH_COOKIE, isDevAuthCookieValue } from '@/lib/dev-auth'
 
 export async function middleware(request: NextRequest) {
     const pathname = request.nextUrl.pathname
     if (pathname === '/api/health' || pathname === '/api/health/') {
+        return NextResponse.next()
+    }
+
+    const publicRoutes = ['/login', '/reset-password', '/test/']
+    const isPublicRoute = pathname === '/' || publicRoutes.some(r => pathname.startsWith(r))
+    const isApiRoute = pathname.startsWith('/api/')
+    const hasDevAuth = isDevAuthCookieValue(request.cookies.get(DEV_AUTH_COOKIE)?.value)
+    if (hasDevAuth) {
+        if (pathname === "/login") {
+            const url = request.nextUrl.clone()
+            url.pathname = "/dashboard"
+            return NextResponse.redirect(url)
+        }
         return NextResponse.next()
     }
 
@@ -46,10 +60,6 @@ export async function middleware(request: NextRequest) {
     } = await supabase.auth.getUser()
 
     // Public routes that don't require authentication
-    const publicRoutes = ['/login', '/reset-password', '/test/']
-    const isPublicRoute = pathname === '/' || publicRoutes.some(r => pathname.startsWith(r))
-    const isApiRoute = pathname.startsWith('/api/')
-
     // Protect all non-public routes
     if (!user && !isPublicRoute && !isApiRoute) {
         const url = request.nextUrl.clone()
