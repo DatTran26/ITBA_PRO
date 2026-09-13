@@ -18,6 +18,10 @@ Thumbs.db
 *.pem
 *.key
 secrets/
+TIEN_DO.md
+*.pt
+/data/vision-ai/
+/models/vision-ai/
 
 # Scratch & temporary workspace
 scratch/

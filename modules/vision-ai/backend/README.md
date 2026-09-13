@@ -17,11 +17,17 @@ Enrollment images are written to `FACE_DATA_DIR/{userId}/`. In Compose, the defa
 
 Put behavior weights at `./models/vision-ai/behavior.pt`, or configure `BEHAVIOR_MODEL_PATH`. The YOLO weights must contain one or more configured classes from `BEHAVIOR_LABELS`; stock COCO weights do not provide these application-specific labels.
 
-## Run
+## Run (local, no Docker)
+
+1. Copy `.env.example` to `.env`.
+2. Set `BEHAVIOR_MODEL_PATH` to your YOLO `.pt` (absolute path is fine).
+3. From this directory:
 
 ```bash
-docker compose up --build vision-ai-api
+python -m uvicorn app.main:app --host 127.0.0.1 --port 8001
 ```
 
-The service is internal to Compose on `http://vision-ai-api:8000` and is intended to be called by the Next.js BFF.
+Next BFF: `VISION_AI_URL=http://localhost:8001` in `Frontend/.env.local`.
+
+Compose is optional. If you use it, it still injects container paths (`/data/faces`, `/models/behavior.pt`).
 
