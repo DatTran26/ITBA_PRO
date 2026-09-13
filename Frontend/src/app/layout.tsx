@@ -5,7 +5,7 @@ import { Toaster } from "sonner";
 import AppUpdateBanner from "@/components/ui/app-update-banner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 
-// Design system fonts (docs/design-guidelines.md §5): Geist (UI/sans),
+// Design system fonts (docs/downtown/design-guidelines.md §4.5): Geist (UI/sans),
 // Geist Mono (code/metrics), Outfit (display/headings), Plus Jakarta Sans (body).
 // Vietnamese subset on display+body since the app ships lang="vi".
 const geist = Geist({ subsets: ["latin"], variable: "--font-geist", display: "swap" });
