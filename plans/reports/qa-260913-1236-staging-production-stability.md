@@ -58,3 +58,11 @@ Supabase advisors also reported mutable function search-path, SECURITY DEFINER e
 - Should the six production test accounts be reset now, and if so who should receive the new credentials?
 - Who will promote `develop-dat` through `develop`, a release branch, and `main` to deploy the security migration?
 - Is enabling Supabase leaked-password protection approved for both environments?
+
+## Re-verification (2026-09-13, HEAD `cc6efbb`)
+
+- OCR module: `vitest run` 32/32 pass; `tsc -b && vite build` clean.
+- Main frontend: `next build` pass (compile, TypeScript, 71 static pages).
+- Staging web: `/` and `/login` return 200, `/api/health` returns ok.
+- Production web: `/` 200, `/api/health` ok; anonymous `recruitment_dashboard` RPC still returns HTTP 200 (blocker 1 stands).
+- **New finding:** `kxpunppvqfxfqdwpqpmp.supabase.co` no longer resolves (NXDOMAIN via public DNS). The staging Supabase project is paused or deleted, so staging logins and DB-backed routes will fail until it is restored or the disposable project is recreated from the snapshot at `C:\Users\ACER\.codex\backups\town-hown`. The staging MCP token also lacks database read permissions, so DB-level re-checks were not possible in this pass.

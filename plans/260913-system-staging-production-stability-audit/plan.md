@@ -1,6 +1,6 @@
 # Staging and Production Stability Audit
 
-Status: release remediation ready; production remains blocked
+Status: release remediation ready; production remains blocked; staging Supabase project currently unreachable (NXDOMAIN — paused or deleted)
 
 ## Outcome
 
