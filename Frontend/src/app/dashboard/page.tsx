@@ -4,7 +4,7 @@ import DashboardClient from "./dashboard-client";
 import { createAdminClient } from "@/lib/supabase/admin";
 import type { DashboardStats, PipelineStage, AttentionCandidate, DashboardTest, MonthlyData, DashboardMode, EmployeeStats, SkillGapItem, AdminStats } from "./types";
 import { cookies } from "next/headers";
-import { DEV_AUTH_COOKIE, DEV_AUTH_USER, isDevAuthCookieValue } from "@/lib/dev-auth";
+import { DEV_AUTH_COOKIE, parseDevAuthCookie } from "@/lib/dev-auth";
 
 export default async function DashboardPage({
     searchParams,
@@ -16,7 +16,7 @@ export default async function DashboardPage({
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
     const cookieStore = await cookies();
-    const devUser = isDevAuthCookieValue(cookieStore.get(DEV_AUTH_COOKIE)?.value) ? DEV_AUTH_USER : null;
+    const devUser = parseDevAuthCookie(cookieStore.get(DEV_AUTH_COOKIE)?.value);
     if (!user && !devUser) redirect("/login");
 
     const { data: userData } = user
@@ -77,7 +77,9 @@ export default async function DashboardPage({
         const { count: testCount } = await adminDb.from("tests").select("*", { count: "exact", head: true });
         const { count: resultCount } = await adminDb.from("results").select("*", { count: "exact", head: true });
 
-        const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
+        const thirtyDaysAgoDate = new Date();
+        thirtyDaysAgoDate.setUTCDate(thirtyDaysAgoDate.getUTCDate() - 30);
+        const thirtyDaysAgo = thirtyDaysAgoDate.toISOString();
         const { data: usageData } = await adminDb
             .from("ai_usage")
             .select("feature, tokens_in, tokens_out, cost_estimate, created_at")

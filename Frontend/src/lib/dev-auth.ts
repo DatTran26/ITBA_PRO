@@ -12,9 +12,38 @@ export const DEV_AUTH_USER = {
 };
 
 export function isDevAuthEnabled() {
-    return process.env.NEXT_PUBLIC_DEV_AUTH_BYPASS === "true" && process.env.NODE_ENV !== "production";
+    // Avoid NODE_ENV — Turbopack can inline it as "production" even in `next dev`.
+    return process.env.NEXT_PUBLIC_DEV_AUTH_BYPASS === "true";
+}
+
+export function isLocalDevHost(hostname: string | null | undefined) {
+    const host = (hostname ?? "").split(":")[0].toLowerCase();
+    return host === "localhost" || host === "127.0.0.1" || host === "[::1]" || host === "::1";
 }
 
 export function isDevAuthCookieValue(value?: string) {
-    return isDevAuthEnabled() && value === DEV_AUTH_COOKIE_VALUE;
+    return !!parseDevAuthCookie(value);
+}
+
+export function parseDevAuthCookie(value?: string) {
+    if (!isDevAuthEnabled()) return null;
+    if (value === DEV_AUTH_COOKIE_VALUE) return DEV_AUTH_USER;
+    if (!value?.startsWith("user.")) return null;
+
+    try {
+        const encoded = value.slice(5).replace(/-/g, "+").replace(/_/g, "/");
+        const binary = atob(encoded);
+        const bytes = Uint8Array.from(binary, (char) => char.charCodeAt(0));
+        const user = JSON.parse(new TextDecoder().decode(bytes));
+        if (!user?.id || !user?.email || !user?.role) return null;
+        return {
+            id: String(user.id),
+            authId: String(user.authId ?? user.id),
+            name: String(user.name ?? user.email),
+            email: String(user.email),
+            role: user.role as UserRole,
+        };
+    } catch {
+        return null;
+    }
 }

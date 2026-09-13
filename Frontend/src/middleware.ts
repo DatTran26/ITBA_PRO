@@ -1,6 +1,6 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
-import { DEV_AUTH_COOKIE, isDevAuthCookieValue } from '@/lib/dev-auth'
+import { DEV_AUTH_COOKIE, parseDevAuthCookie } from '@/lib/dev-auth'
 
 export async function middleware(request: NextRequest) {
     const pathname = request.nextUrl.pathname
@@ -11,7 +11,7 @@ export async function middleware(request: NextRequest) {
     const publicRoutes = ['/login', '/reset-password', '/test/']
     const isPublicRoute = pathname === '/' || publicRoutes.some(r => pathname.startsWith(r))
     const isApiRoute = pathname.startsWith('/api/')
-    const hasDevAuth = isDevAuthCookieValue(request.cookies.get(DEV_AUTH_COOKIE)?.value)
+    const hasDevAuth = !!parseDevAuthCookie(request.cookies.get(DEV_AUTH_COOKIE)?.value)
     if (hasDevAuth) {
         if (pathname === "/login") {
             const url = request.nextUrl.clone()

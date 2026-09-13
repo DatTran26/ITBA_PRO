@@ -77,12 +77,12 @@ export const NAV_GROUPS: NavGroup[] = [
     },
     {
         id: "workplace",
-        label: "Workplace",
+        label: "Giám sát nơi làm việc",
         triggerIcon: Clock3,
         links: [
-            { href: "/dashboard/attendance", label: "Attendance", icon: Clock3 },
-            { href: "/dashboard/faces", label: "Face Enrollment", icon: ScanFace, allowedRoles: ["leader", "admin", "super_admin"] },
-            { href: "/dashboard/behavior", label: "Behavior Review", icon: ShieldAlert, allowedRoles: ["leader", "admin", "super_admin"] },
+            { href: "/dashboard/attendance", label: "Chấm công", icon: Clock3 },
+            { href: "/dashboard/faces", label: "Đăng ký khuôn mặt", icon: ScanFace, allowedRoles: ["leader", "admin", "super_admin"] },
+            { href: "/dashboard/behavior", label: "Duyệt vi phạm", icon: ShieldAlert, allowedRoles: ["leader", "admin", "super_admin"] },
         ],
         allowedRoles: ["hr", "interviewer", "recruiter", "leader", "admin", "super_admin"],
         accentColor: "#36DDAB",

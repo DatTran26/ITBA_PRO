@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -24,8 +24,13 @@ type LoginSchema = z.infer<typeof loginSchema>;
 
 export default function LoginPage() {
     const [isLoading, setIsLoading] = useState(false);
+    const [isFaceLoginOpen, setIsFaceLoginOpen] = useState(false);
+    const [isFaceBusy, setIsFaceBusy] = useState(false);
     const [captchaToken, setCaptchaToken] = useState<string>();
     const turnstileRef = useRef<TurnstileInstance>(null);
+    const videoRef = useRef<HTMLVideoElement>(null);
+    const canvasRef = useRef<HTMLCanvasElement>(null);
+    const streamRef = useRef<MediaStream | null>(null);
     const router = useRouter();
     const isDevAuthBypass = process.env.NEXT_PUBLIC_DEV_AUTH_BYPASS === "true";
     const isTurnstileEnabled = !isDevAuthBypass && process.env.NEXT_PUBLIC_ENABLE_TURNSTILE === "true";
@@ -33,8 +38,8 @@ export default function LoginPage() {
     const {
         register,
         handleSubmit,
+        getValues,
         formState: { errors },
-        reset
     } = useForm<LoginSchema>({
         resolver: zodResolver(loginSchema),
         defaultValues: {
@@ -42,29 +47,32 @@ export default function LoginPage() {
         },
     });
 
-    const onSubmit = async (data: any) => {
+    const onSubmit = async (data: LoginSchema) => {
         setIsLoading(true);
 
         try {
             const loginData = data as LoginSchema;
-            if (isDevAuthBypass) {
+            const isLocalhost =
+                typeof window !== "undefined" &&
+                ["localhost", "127.0.0.1", "::1"].includes(window.location.hostname);
+            if (isDevAuthBypass || isLocalhost) {
                 const response = await fetch("/api/dev-login", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify(loginData),
                 });
-                if (!response.ok) {
-                    const body = await response.json().catch(() => ({}));
-                    throw new Error(body.error ?? "Local dev login failed");
+                if (response.ok) {
+                    toast.success("Local super admin session active.");
+                    router.push("/dashboard");
+                    router.refresh();
+                    return;
                 }
-                toast.success("Local super admin session active.");
-                router.push("/dashboard");
-                router.refresh();
-                return;
+                const devLoginError = await response.json().catch(() => null);
+                throw new Error(devLoginError?.error ?? "Local dev login failed");
             }
 
             const supabase = createClient();
-            const { error, data: authData } = await supabase.auth.signInWithPassword({
+            const { error } = await supabase.auth.signInWithPassword({
                 email: loginData.email,
                 password: loginData.password,
                 ...(isTurnstileEnabled ? { options: { captchaToken } } : {}),
@@ -93,6 +101,66 @@ export default function LoginPage() {
             setIsLoading(false);
         }
     };
+
+    async function startFaceCamera() {
+        setIsFaceLoginOpen(true);
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" }, audio: false });
+            streamRef.current = stream;
+            if (videoRef.current) videoRef.current.srcObject = stream;
+        } catch {
+            toast.error("Không mở được camera. Hãy cấp quyền camera cho trình duyệt.");
+        }
+    }
+
+    function stopFaceCamera() {
+        streamRef.current?.getTracks().forEach((track) => track.stop());
+        streamRef.current = null;
+        setIsFaceLoginOpen(false);
+    }
+
+    async function captureFaceLogin() {
+        const email = getValues("email")?.trim();
+        const video = videoRef.current;
+        const canvas = canvasRef.current;
+        if (!email) {
+            toast.error("Nhập email trước khi đăng nhập bằng khuôn mặt.");
+            return;
+        }
+        if (!video || !canvas || video.videoWidth === 0) {
+            toast.error("Camera chưa sẵn sàng.");
+            return;
+        }
+
+        setIsFaceBusy(true);
+        try {
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            const context = canvas.getContext("2d");
+            context?.drawImage(video, 0, 0, canvas.width, canvas.height);
+            const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, "image/jpeg", 0.92));
+            if (!blob) throw new Error("Không chụp được ảnh khuôn mặt");
+
+            const body = new FormData();
+            body.append("email", email);
+            body.append("image", new File([blob], "face-login.jpg", { type: "image/jpeg" }));
+            const response = await fetch("/api/face-login", { method: "POST", body });
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.error ?? "Đăng nhập khuôn mặt thất bại");
+            toast.success("Xác thực khuôn mặt thành công.");
+            stopFaceCamera();
+            router.push(data.redirectUrl ?? "/dashboard");
+            router.refresh();
+        } catch (error) {
+            toast.error(error instanceof Error ? error.message : "Đăng nhập khuôn mặt thất bại");
+        } finally {
+            setIsFaceBusy(false);
+        }
+    }
+
+    useEffect(() => () => {
+        streamRef.current?.getTracks().forEach((track) => track.stop());
+    }, []);
 
     return (
         <PageTransition className="min-h-screen bg-[#121A2E] text-[#ECF0F7] flex overflow-hidden font-body selection:bg-[#7C8FFF]/30 relative">
@@ -235,6 +303,36 @@ export default function LoginPage() {
                                 )}
                             </Button>
                         </form>
+
+                        <div className="mt-5 border-t border-white/10 pt-5">
+                            {!isFaceLoginOpen ? (
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    className="w-full h-12 rounded-[1rem] border-white/10 bg-[#1B253B]/40 text-[#ECF0F7] hover:bg-[#24304A]"
+                                    onClick={startFaceCamera}
+                                >
+                                    <Fingerprint className="mr-2 h-4 w-4" />
+                                    Đăng nhập bằng khuôn mặt
+                                </Button>
+                            ) : (
+                                <div className="space-y-3 rounded-[1rem] border border-white/10 bg-[#0B1220]/70 p-3">
+                                    <div className="overflow-hidden rounded-xl bg-black aspect-video">
+                                        <video ref={videoRef} autoPlay muted playsInline className="h-full w-full -scale-x-100 object-cover" />
+                                        <canvas ref={canvasRef} className="hidden" />
+                                    </div>
+                                    <p className="text-center text-xs text-[#8B99B0]">Nhìn thẳng vào camera rồi chụp để xác thực.</p>
+                                    <div className="grid grid-cols-2 gap-2">
+                                        <Button type="button" disabled={isFaceBusy} onClick={captureFaceLogin}>
+                                            {isFaceBusy ? <Loader2 className="animate-spin" /> : "Chụp & đăng nhập"}
+                                        </Button>
+                                        <Button type="button" variant="outline" disabled={isFaceBusy} onClick={stopFaceCamera}>
+                                            Hủy
+                                        </Button>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
                     </FadeIn>
                 </div>
             </div>

@@ -5,7 +5,7 @@ import { readUiLayout } from "@/lib/settings/ui-layout";
 import { readSidebarCollapsed } from "@/components/ui/sidebar-collapse-cookie";
 import type { UserRole } from "@/components/ui/nav-config";
 import { cookies } from "next/headers";
-import { DEV_AUTH_COOKIE, DEV_AUTH_USER, isDevAuthCookieValue } from "@/lib/dev-auth";
+import { DEV_AUTH_COOKIE, parseDevAuthCookie } from "@/lib/dev-auth";
 
 /* Force dynamic so router.refresh() re-reads ui_layout from DB instead of
  * serving a static-cached layout. Without this, Next 16 may serve stale
@@ -20,7 +20,7 @@ export default async function DashboardLayout({
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
     const cookieStore = await cookies();
-    const devUser = isDevAuthCookieValue(cookieStore.get(DEV_AUTH_COOKIE)?.value) ? DEV_AUTH_USER : null;
+    const devUser = parseDevAuthCookie(cookieStore.get(DEV_AUTH_COOKIE)?.value);
     if (!user && !devUser) redirect("/login");
 
     /* Fetch user data + layout setting + collapse cookie in parallel.
