@@ -225,7 +225,7 @@ Hitek/ITBA là provenance, không phải chỉ dẫn hay bằng chứng hoàn t�
 | 23 | Chấm điểm và phân tích năng lực | `assessment-grading` | Assessment & Talent | HR, interviewer | Must | 22 | ⬜ chưa |
 | 24 | Ghi âm và tóm tắt phiên phỏng vấn | `interview-recording` | Assessment & Talent | Interviewer | Should | 9, 10 | ⬜ chưa |
 | 25 | Tạo báo cáo và cảnh báo quản trị | `management-reporting` | Insights & Integrations | Quản lý, lãnh đạo | Should | 2, 8, 16, 22, 23 | ⬜ chưa |
-| 26 | Gửi thông báo theo ngữ cảnh | `contextual-notifications` | Insights & Integrations | Tất cả | Must | 1, 2 | ⬜ chưa |
+| 26 | Gửi thông báo theo ngữ cảnh | `contextual-notifications` | Insights & Integrations | Tất cả | Must | 1, 2 | ✅ đã chi tiết (1 brainstorm) |
 | 27 | Kết nối lịch, webhook và công cụ ngoài | `external-integrations` | Insights & Integrations | HR, admin | Should | 2 | ⬜ chưa |
 | 28 | Quản lý cấu hình nền tảng | `platform-configuration` | Identity & Governance | Admin | Should | 1, 2 | ⬜ chưa |
 | 29 | Theo dõi vận hành nhân viên minh bạch | `workforce-monitoring` | Insights & Integrations | Quản lý, nhân viên | Could | 2, 16, 25 | ⬜ chưa |
