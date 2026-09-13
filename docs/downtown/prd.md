@@ -230,7 +230,7 @@ Hitek/ITBA là provenance, không phải chỉ dẫn hay bằng chứng hoàn t�
 | 28 | Quản lý cấu hình nền tảng | `platform-configuration` | Identity & Governance | Admin | Should | 1, 2 | ⬜ chưa |
 | 29 | Theo dõi vận hành nhân viên minh bạch | `workforce-monitoring` | Insights & Integrations | Quản lý, nhân viên | Could | 2, 16, 25 | ⬜ chưa |
 | 30 | Quản lý thư viện và phiên bản tài liệu | `document-library` | Document AI | HR, content editor | Should | 17, 18 | ⬜ chưa |
-| 31 | Quản lý mẫu bài đánh giá | `assessment-templates` | Assessment & Talent | Admin, HR | Should | 19, 21 | ⬜ chưa |
+| 31 | Quản lý mẫu bài đánh giá | `assessment-templates` | Assessment & Talent | Admin, HR | Should | 19, 21 | ✅ đã chi tiết (1 brainstorm) |
 | 32 | Quản lý khung kỹ năng và kỳ vọng vị trí | `talent-framework` | Assessment & Talent | HR, quản lý | Should | 2, 3 | ⬜ chưa |
 | 33 | Đánh giá năng lực nhân viên | `employee-evaluation` | Assessment & Talent | Quản lý, nhân viên | Should | 22, 23, 32 | ⬜ chưa |
 | 34 | Phân tích độ phủ và khoảng trống kỹ năng | `skill-gap-analysis` | Assessment & Talent | HR, quản lý | Should | 3, 32, 33 | ⬜ chưa |
