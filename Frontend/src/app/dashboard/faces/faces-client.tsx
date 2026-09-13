@@ -8,7 +8,7 @@ import PageBreadcrumb from "@/components/ui/page-breadcrumb";
 import PageContainer from "@/components/ui/page-container";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 
 type FaceUser = {
@@ -19,7 +19,7 @@ type FaceUser = {
   enrollment: { id: string; created_at: string } | null;
 };
 
-const ANGLES = ["Chính diện", "Nghiêng trái", "Nghiêng phải", "Cúi mặt"];
+const ANGLES = ["Front", "Left profile", "Right profile", "Looking down"];
 
 export default function FacesClient() {
   const [users, setUsers] = useState<FaceUser[]>([]);
@@ -30,7 +30,7 @@ export default function FacesClient() {
   const load = useCallback(async () => {
     const response = await fetch("/api/face", { cache: "no-store" });
     const data = await response.json();
-    if (!response.ok) throw new Error(data.error ?? "Không tải được danh sách khuôn mặt");
+    if (!response.ok) throw new Error(data.error ?? "Unable to load face enrollments");
     setUsers(data.users);
   }, []);
 
@@ -47,12 +47,12 @@ export default function FacesClient() {
     try {
       const response = await fetch("/api/face", { method: "POST", body });
       const data = await response.json();
-      if (!response.ok) throw new Error(data.error ?? "Đăng ký khuôn mặt thất bại");
-      toast.success("Đã lưu dữ liệu khuôn mặt 4 góc");
+      if (!response.ok) throw new Error(data.error ?? "Face enrollment failed");
+      toast.success("Face enrollment saved");
       setFiles([null, null, null, null]);
       await load();
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Đăng ký khuôn mặt thất bại");
+      toast.error(error instanceof Error ? error.message : "Face enrollment failed");
     } finally {
       setBusy(false);
     }
@@ -63,11 +63,11 @@ export default function FacesClient() {
     try {
       const response = await fetch(`/api/face?userId=${encodeURIComponent(userId)}`, { method: "DELETE" });
       const data = await response.json();
-      if (!response.ok) throw new Error(data.error ?? "Xóa dữ liệu khuôn mặt thất bại");
-      toast.success("Đã xóa dữ liệu khuôn mặt");
+      if (!response.ok) throw new Error(data.error ?? "Unable to delete face enrollment");
+      toast.success("Face enrollment deleted");
       await load();
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Xóa dữ liệu khuôn mặt thất bại");
+      toast.error(error instanceof Error ? error.message : "Unable to delete face enrollment");
     } finally {
       setBusy(false);
     }
@@ -77,23 +77,21 @@ export default function FacesClient() {
     <div className="min-h-screen bg-[#121A2E] text-[#ECF0F7]">
       <AppNavbar />
       <PageContainer>
-        <PageBreadcrumb breadcrumbs={[{ label: "Dashboard", href: "/dashboard" }, { label: "Đăng ký khuôn mặt" }]} />
+        <PageBreadcrumb breadcrumbs={[{ label: "Dashboard", href: "/dashboard" }, { label: "Face Enrollment" }]} />
         <div className="mb-8 flex items-end justify-between gap-4">
           <div>
-            <h1 className="font-display text-4xl font-light">Đăng ký khuôn mặt</h1>
-            <p className="mt-2 text-sm text-[#8B99B0]">Đăng ký 4 góc khuôn mặt để xác thực đăng nhập và chấm công.</p>
+            <h1 className="font-display text-4xl font-light">Face Enrollment</h1>
           </div>
-          <Button variant="outline" size="icon" title="Làm mới" onClick={() => load()}><RefreshCw /></Button>
+          <Button variant="outline" size="icon" title="Refresh" onClick={() => load()}><RefreshCw /></Button>
         </div>
         <div className="grid gap-5 lg:grid-cols-[420px_1fr]">
           <Card className="rounded-lg bg-[#10192B]/80">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2"><ScanFace className="size-4" />Đăng ký 4 góc mặt</CardTitle>
-              <CardDescription>Mỗi ảnh cần rõ mặt và chỉ có một khuôn mặt.</CardDescription>
+              <CardTitle className="flex items-center gap-2"><ScanFace className="size-4" />Four-Angle Enrollment</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <select className="h-9 w-full rounded-lg border border-white/10 bg-[#0B1220] px-3 text-sm" value={selectedUser} onChange={(event) => setSelectedUser(event.target.value)}>
-                <option value="">Chọn tài khoản</option>
+                <option value="">Select account</option>
                 {users.map((user) => <option key={user.id} value={user.id}>{user.name} ({user.email})</option>)}
               </select>
               <div className="grid gap-3 sm:grid-cols-2">
@@ -105,14 +103,13 @@ export default function FacesClient() {
                 ))}
               </div>
               <Button className="w-full" disabled={busy || !selectedUser || files.some((file) => !file)} onClick={enroll}>
-                {busy ? <Loader2 className="animate-spin" /> : <Upload />}Lưu dữ liệu khuôn mặt
+                {busy ? <Loader2 className="animate-spin" /> : <Upload />}Save Enrollment
               </Button>
             </CardContent>
           </Card>
           <Card className="rounded-lg bg-[#10192B]/80">
             <CardHeader>
-              <CardTitle>Danh sách đăng ký</CardTitle>
-              <CardDescription>Đăng ký lại sẽ thay toàn bộ 4 ảnh và embedding cũ.</CardDescription>
+              <CardTitle>Enrollments</CardTitle>
             </CardHeader>
             <CardContent className="space-y-2">
               {users.map((user) => (
@@ -122,9 +119,9 @@ export default function FacesClient() {
                     <p className="truncate text-xs text-[#8B99B0]">{user.email} · {user.role}</p>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Badge variant={user.enrollment ? "default" : "outline"}>{user.enrollment ? "Đã đăng ký" : "Chưa đăng ký"}</Badge>
+                    <Badge variant={user.enrollment ? "default" : "outline"}>{user.enrollment ? "Enrolled" : "Not enrolled"}</Badge>
                     {user.enrollment && (
-                      <Button variant="destructive" size="icon" title="Xóa đăng ký" disabled={busy} onClick={() => remove(user.id)}>
+                      <Button variant="destructive" size="icon" title="Delete enrollment" disabled={busy} onClick={() => remove(user.id)}>
                         <Trash2 />
                       </Button>
                     )}

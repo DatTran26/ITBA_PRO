@@ -109,7 +109,7 @@ export default function LoginPage() {
             streamRef.current = stream;
             if (videoRef.current) videoRef.current.srcObject = stream;
         } catch {
-            toast.error("Không mở được camera. Hãy cấp quyền camera cho trình duyệt.");
+            toast.error("Unable to open the camera. Please allow camera access.");
         }
     }
 
@@ -124,11 +124,11 @@ export default function LoginPage() {
         const video = videoRef.current;
         const canvas = canvasRef.current;
         if (!email) {
-            toast.error("Nhập email trước khi đăng nhập bằng khuôn mặt.");
+            toast.error("Enter your email before using face login.");
             return;
         }
         if (!video || !canvas || video.videoWidth === 0) {
-            toast.error("Camera chưa sẵn sàng.");
+            toast.error("Camera is not ready.");
             return;
         }
 
@@ -139,20 +139,20 @@ export default function LoginPage() {
             const context = canvas.getContext("2d");
             context?.drawImage(video, 0, 0, canvas.width, canvas.height);
             const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, "image/jpeg", 0.92));
-            if (!blob) throw new Error("Không chụp được ảnh khuôn mặt");
+            if (!blob) throw new Error("Unable to capture a face image");
 
             const body = new FormData();
             body.append("email", email);
             body.append("image", new File([blob], "face-login.jpg", { type: "image/jpeg" }));
             const response = await fetch("/api/face-login", { method: "POST", body });
             const data = await response.json();
-            if (!response.ok) throw new Error(data.error ?? "Đăng nhập khuôn mặt thất bại");
-            toast.success("Xác thực khuôn mặt thành công.");
+            if (!response.ok) throw new Error(data.error ?? "Face login failed");
+            toast.success("Face verified successfully.");
             stopFaceCamera();
             router.push(data.redirectUrl ?? "/dashboard");
             router.refresh();
         } catch (error) {
-            toast.error(error instanceof Error ? error.message : "Đăng nhập khuôn mặt thất bại");
+            toast.error(error instanceof Error ? error.message : "Face login failed");
         } finally {
             setIsFaceBusy(false);
         }
@@ -313,7 +313,7 @@ export default function LoginPage() {
                                     onClick={startFaceCamera}
                                 >
                                     <Fingerprint className="mr-2 h-4 w-4" />
-                                    Đăng nhập bằng khuôn mặt
+                                    Sign in with Face ID
                                 </Button>
                             ) : (
                                 <div className="space-y-3 rounded-[1rem] border border-white/10 bg-[#0B1220]/70 p-3">
@@ -321,13 +321,12 @@ export default function LoginPage() {
                                         <video ref={videoRef} autoPlay muted playsInline className="h-full w-full -scale-x-100 object-cover" />
                                         <canvas ref={canvasRef} className="hidden" />
                                     </div>
-                                    <p className="text-center text-xs text-[#8B99B0]">Nhìn thẳng vào camera rồi chụp để xác thực.</p>
                                     <div className="grid grid-cols-2 gap-2">
                                         <Button type="button" disabled={isFaceBusy} onClick={captureFaceLogin}>
-                                            {isFaceBusy ? <Loader2 className="animate-spin" /> : "Chụp & đăng nhập"}
+                                            {isFaceBusy ? <Loader2 className="animate-spin" /> : "Capture & sign in"}
                                         </Button>
                                         <Button type="button" variant="outline" disabled={isFaceBusy} onClick={stopFaceCamera}>
-                                            Hủy
+                                            Cancel
                                         </Button>
                                     </div>
                                 </div>
