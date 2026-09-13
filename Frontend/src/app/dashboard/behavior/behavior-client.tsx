@@ -21,6 +21,9 @@ type Alert = {
   detections_json?: { confidence?: number; label?: string; bbox?: number[] };
 };
 
+type Detection = { label: string; confidence: number; bbox: number[] };
+type Overlay = { detections: Detection[]; width: number; height: number };
+
 const DEFAULT_MODEL_PATH = "models/vision-ai/behavior.pt";
 
 export default function BehaviorClient() {
@@ -31,6 +34,7 @@ export default function BehaviorClient() {
   const [busy, setBusy] = useState(false);
   const [cameraOn, setCameraOn] = useState(false);
   const [autoScan, setAutoScan] = useState(false);
+  const [overlay, setOverlay] = useState<Overlay | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
@@ -67,6 +71,7 @@ export default function BehaviorClient() {
     streamRef.current = null;
     setCameraOn(false);
     setAutoScan(false);
+    setOverlay(null);
   }
 
   const captureFrame = useCallback(async () => {
@@ -78,10 +83,14 @@ export default function BehaviorClient() {
     canvas.getContext("2d")?.drawImage(video, 0, 0, canvas.width, canvas.height);
     const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, "image/jpeg", 0.9));
     if (!blob) throw new Error("Unable to capture a frame");
-    return new File([blob], "behavior-frame.jpg", { type: "image/jpeg" });
+    return {
+      file: new File([blob], "behavior-frame.jpg", { type: "image/jpeg" }),
+      width: canvas.width,
+      height: canvas.height,
+    };
   }, []);
 
-  const submitImage = useCallback(async (file: File, quiet = false) => {
+  const submitImage = useCallback(async (file: File, quiet = false, frameSize?: { width: number; height: number }) => {
     if (busyRef.current) return;
     busyRef.current = true;
     setBusy(true);
@@ -94,6 +103,7 @@ export default function BehaviorClient() {
       const response = await fetch("/api/behavior", { method: "POST", body });
       const data = await response.json();
       if (!response.ok) throw new Error(data.error ?? "Behavior scan failed");
+      if (frameSize) setOverlay({ detections: data.detections ?? [], ...frameSize });
       if (!quiet) {
         toast.success(data.alerts.length ? `${data.alerts.length} alerts pending review` : "No target behavior detected");
       }
@@ -108,7 +118,8 @@ export default function BehaviorClient() {
 
   const scanCurrentFrame = useCallback(async (quiet = false) => {
     try {
-      await submitImage(await captureFrame(), quiet);
+      const frame = await captureFrame();
+      await submitImage(frame.file, quiet, frame);
     } catch (error) {
       if (!quiet) toast.error(error instanceof Error ? error.message : "Unable to capture a frame");
     }
@@ -157,8 +168,29 @@ export default function BehaviorClient() {
               <CardTitle className="flex items-center gap-2"><Camera className="size-4" />Live Camera</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="overflow-hidden rounded-lg bg-black aspect-video">
+              <div className="relative overflow-hidden rounded-lg bg-black aspect-video">
                 <video ref={videoRef} autoPlay muted playsInline className="h-full w-full object-cover" />
+                {overlay && cameraOn && (
+                  <svg
+                    className="pointer-events-none absolute inset-0 h-full w-full"
+                    viewBox={`0 0 ${overlay.width} ${overlay.height}`}
+                    preserveAspectRatio="xMidYMid slice"
+                    aria-hidden="true"
+                  >
+                    {overlay.detections.map((detection, index) => {
+                      const [x1, y1, x2, y2] = detection.bbox;
+                      const color = detection.label.toLowerCase().includes("smoke") || detection.label.toLowerCase().includes("cigarette") ? "#F87171" : "#FBBF24";
+                      return (
+                        <g key={`${detection.label}-${index}`}>
+                          <rect x={x1} y={y1} width={Math.max(0, x2 - x1)} height={Math.max(0, y2 - y1)} fill="none" stroke={color} strokeWidth="4" />
+                          <text x={x1 + 4} y={Math.max(20, y1 - 8)} fill={color} stroke="#0B1220" strokeWidth="4" paintOrder="stroke" fontSize="18" fontWeight="700">
+                            {detection.label} {(detection.confidence * 100).toFixed(0)}%
+                          </text>
+                        </g>
+                      );
+                    })}
+                  </svg>
+                )}
                 <canvas ref={canvasRef} className="hidden" />
               </div>
               <Input value={modelPath} onChange={(event) => setModelPath(event.target.value)} placeholder="YOLO model path" aria-label="YOLO model path" />
