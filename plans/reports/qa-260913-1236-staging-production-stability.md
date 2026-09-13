@@ -66,3 +66,17 @@ Supabase advisors also reported mutable function search-path, SECURITY DEFINER e
 - Staging web: `/` and `/login` return 200, `/api/health` returns ok.
 - Production web: `/` 200, `/api/health` ok; anonymous `recruitment_dashboard` RPC still returns HTTP 200 (blocker 1 stands).
 - **New finding:** `kxpunppvqfxfqdwpqpmp.supabase.co` no longer resolves (NXDOMAIN via public DNS). The staging Supabase project is paused or deleted, so staging logins and DB-backed routes will fail until it is restored or the disposable project is recreated from the snapshot at `C:\Users\ACER\.codex\backups\town-hown`. The staging MCP token also lacks database read permissions, so DB-level re-checks were not possible in this pass.
+
+## Re-verification 2 (2026-09-13, HEAD `db274f2`) — staging outage was a stale-ref false alarm
+
+The dead `kxpunppvqfxfqdwpqpmp` is the **superseded** staging project. The active staging project is the replacement `mqwsulanzahqaiecnfwc`, created during this audit (snapshot manifest `project_ref` and account handoff confirm "new project"). Verified live:
+
+- `mqwsulanzahqaiecnfwc.supabase.co` resolves; bare REST returns 401 (normal without key).
+- GitHub `staging` environment already points at it: `SUPABASE_PROJECT_REF=mqwsulanzahqaiecnfwc`, matching `NEXT_PUBLIC_SUPABASE_URL` and anon JWT `ref` claim. No env update needed.
+- Staging web: `/` 200, `/api/health` `{"ok":true}`.
+- All 6 staging test accounts authenticate via `/auth/v1/token` password grant (HTTP 200, token issued).
+- `recruitment_dashboard` RPC: anonymous → 401 `permission denied`; `test.superadmin` → 200 with full 8-stage funnel — confirms both `secure_definer_functions` and `fix_dashboard_pipeline_status` are applied and working.
+- Schema coverage: 19 representative tables across the migration range (`users`, `persons`, `versions`, `skills`, `interview_sessions`, `job_applications`, `candidate_cvs`, `assessment_templates`, `crm_tasks`, …) all return 200 via REST — consistent with all 48 repo migrations applied. Direct `schema_migrations` row count was not possible: the staging MCP token still lacks DB read permission.
+- Production project ref is `lhvdtmieaplxzqmpmupe` — a separate project, untouched.
+
+**Conclusion:** no restore was required. Staging is functional; blockers 1–5 stand for production only.
