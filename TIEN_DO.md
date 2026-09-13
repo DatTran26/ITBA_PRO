@@ -11,7 +11,7 @@ Nhánh: `develop-hieu`. Kiến trúc **B**: Next.js admin UI; Python chỉ HTTP 
 | Vision AI: Next BFF & UI | PASS. Faces / Attendance / Behavior. Browser không gọi Python. `pending_review`. |
 | Vision AI: Migrations | File PASS. **Chưa apply lên Supabase**: `Frontend/.env.local` có `DATABASE_URL=` trống. Chạy SQL editor hoặc điền URL rồi `python scripts/apply_vision_migrations.py`. |
 | Verify E2E | Một phần. Next :3000: BFF 401; `/dashboard/faces|attendance|behavior|document-ai/ocr` 307 → `/login`; login 200. Docker Desktop **engine chưa lên** → chưa `compose up`. Chưa E2E login session (browser a11y trống + không nhập password). |
-| Merge vào `develop` | Merge local `develop-hieu` → `develop` (xem commit). **Chưa push** remote. |
+| Merge vào `develop` | **Local xong.** `develop` fast-forward = `develop-hieu` @ `5a353a2`. **Chưa push** `origin/develop` / `origin/develop-hieu`. |
 
 ## Chạy
 
