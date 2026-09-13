@@ -36,6 +36,21 @@ _templates/
 .claude/scripts/
 .claude/settings.json
 
+# Local credential stores & tool state — never commit
+/accounts/
+/.1devtool/
+/.devin/mcp_config.local.json
+docs/_shared/.status-state/
+docs/_shared/kg/.dirty
+
+# Local agent tool skill installs (tracked via skills-lock.json only)
+/skills/
+/agent/skills/
+/data/skills/
+/.devin/skills/
+/.kimchi/
+/.pi/
+
 # ITBAAI generated/local state
 /Frontend/.next/
 /Frontend/out/
