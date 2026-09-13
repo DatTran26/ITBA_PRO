@@ -70,7 +70,7 @@ begin
      left join lateral (
        select count(*) as cnt
        from job_applications
-       where pipeline_status = stage::text
+       where pipeline_status::text = stage
          and created_at between from_date and to_date
          and (p_jd_id is null or job_description_id = p_jd_id)
      ) counts on true),

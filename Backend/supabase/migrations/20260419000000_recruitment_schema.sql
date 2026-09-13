@@ -1,20 +1,16 @@
--- 1. Extend user_role enum with 'hr' and 'interviewer'
-ALTER TYPE user_role ADD VALUE IF NOT EXISTS 'hr';
-ALTER TYPE user_role ADD VALUE IF NOT EXISTS 'interviewer';
-
--- 2. Add persons.source column + backfill
+-- 1. Add persons.source column + backfill
 ALTER TABLE persons ADD COLUMN IF NOT EXISTS source text
   CHECK (source IN ('test','recruitment','both'));
 UPDATE persons SET source = 'test' WHERE type = 'candidate' AND source IS NULL;
 
--- 3. Create pipeline_status enum
+-- 2. Create pipeline_status enum
 CREATE TYPE pipeline_status AS ENUM (
   'NEW','SCREENED','REJECTED','SHORTLISTED',
   'INTERVIEW_SCHEDULED','INTERVIEWED','PASSED','FAILED',
   'OFFERED','ACCEPTED','OFFER_REJECTED','ONBOARDED'
 );
 
--- 4. Create job_descriptions table
+-- 3. Create job_descriptions table
 CREATE TABLE IF NOT EXISTS job_descriptions (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   title text NOT NULL,
@@ -29,7 +25,7 @@ CREATE TABLE IF NOT EXISTS job_descriptions (
   created_at timestamptz DEFAULT now()
 );
 
--- 5. Create candidate_cvs table
+-- 4. Create candidate_cvs table
 CREATE TABLE IF NOT EXISTS candidate_cvs (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   person_id uuid NOT NULL REFERENCES persons(id) ON DELETE CASCADE,
@@ -47,7 +43,7 @@ CREATE TABLE IF NOT EXISTS candidate_cvs (
   uploaded_at timestamptz DEFAULT now()
 );
 
--- 6. Create job_applications table (current_screening_id FK added later)
+-- 5. Create job_applications table (current_screening_id FK added later)
 CREATE TABLE IF NOT EXISTS job_applications (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   person_id uuid NOT NULL REFERENCES persons(id) ON DELETE CASCADE,
@@ -64,7 +60,7 @@ CREATE INDEX IF NOT EXISTS idx_job_apps_jd ON job_applications(job_description_i
 CREATE INDEX IF NOT EXISTS idx_job_apps_person ON job_applications(person_id);
 CREATE INDEX IF NOT EXISTS idx_job_apps_created ON job_applications(created_at DESC);
 
--- 7. Create candidate_screenings table
+-- 6. Create candidate_screenings table
 CREATE TABLE IF NOT EXISTS candidate_screenings (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   job_application_id uuid NOT NULL REFERENCES job_applications(id) ON DELETE CASCADE,
@@ -87,12 +83,12 @@ CREATE TABLE IF NOT EXISTS candidate_screenings (
 );
 CREATE INDEX IF NOT EXISTS idx_screenings_application ON candidate_screenings(job_application_id);
 
--- 8. Add FK from job_applications.current_screening_id → candidate_screenings
+-- 7. Add FK from job_applications.current_screening_id → candidate_screenings
 ALTER TABLE job_applications
   ADD CONSTRAINT fk_current_screening
   FOREIGN KEY (current_screening_id) REFERENCES candidate_screenings(id);
 
--- 9. Create candidate_status_history table
+-- 8. Create candidate_status_history table
 CREATE TABLE IF NOT EXISTS candidate_status_history (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   job_application_id uuid NOT NULL REFERENCES job_applications(id) ON DELETE CASCADE,
@@ -104,7 +100,7 @@ CREATE TABLE IF NOT EXISTS candidate_status_history (
 );
 CREATE INDEX IF NOT EXISTS idx_status_history_application ON candidate_status_history(job_application_id);
 
--- 10. Create interview_schedules table
+-- 9. Create interview_schedules table
 CREATE TABLE IF NOT EXISTS interview_schedules (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   job_application_id uuid NOT NULL REFERENCES job_applications(id) ON DELETE CASCADE,
@@ -119,7 +115,7 @@ CREATE TABLE IF NOT EXISTS interview_schedules (
 CREATE INDEX IF NOT EXISTS idx_interview_schedules_application ON interview_schedules(job_application_id);
 CREATE INDEX IF NOT EXISTS idx_interview_schedules_interviewer ON interview_schedules(interviewer_id);
 
--- 11. Create interview_results table (unique per schedule)
+-- 10. Create interview_results table (unique per schedule)
 CREATE TABLE IF NOT EXISTS interview_results (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   interview_schedule_id uuid NOT NULL REFERENCES interview_schedules(id) ON DELETE CASCADE,
