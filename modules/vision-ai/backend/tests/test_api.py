@@ -72,6 +72,12 @@ def test_behavior_filters_are_returned_by_service():
     assert response.json() == {"detections": [detection]}
 
 
+def test_behavior_detect_returns_503_when_weights_missing():
+    with patch("app.main.detect_behaviors", side_effect=FileNotFoundError("Behavior weights missing")):
+        response = client.post("/api/behavior/detect", files={"image": upload()})
+    assert response.status_code == 503
+
+
 def test_enroll_rejects_path_traversal():
     response = client.post(
         "/api/face/enroll",

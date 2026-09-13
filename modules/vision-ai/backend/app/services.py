@@ -1,4 +1,5 @@
 from functools import lru_cache
+from pathlib import Path
 
 import numpy as np
 
@@ -63,7 +64,10 @@ def verify_face(
 def get_behavior_model():
     from ultralytics import YOLO
 
-    return YOLO(BEHAVIOR_MODEL_PATH)
+    model_path = Path(BEHAVIOR_MODEL_PATH)
+    if not model_path.is_file():
+        raise FileNotFoundError(f"Behavior weights missing at {model_path}")
+    return YOLO(str(model_path))
 
 
 def detect_behaviors(content: bytes) -> list[dict]:

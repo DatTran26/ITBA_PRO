@@ -1,26 +1,25 @@
 # Tiến độ Down_Town_Pj — Document AI / Computer Vision (Hieu)
 
-Nhánh: `develop-hieu` (working tree, **chưa commit**).  
-Kiến trúc khóa: **B** — trang quản trị trên Next.js hiện có; Python chỉ chạy OCR/CV.  
-Anti_2 đã tắt (trùng session Anti_1) — không còn trong vòng điều phối.
+Nhánh: `develop-hieu`. Kiến trúc **B**: Next.js admin UI; Python chỉ HTTP FastAPI. Anti_2 tắt.
 
 | Nhiệm vụ / tiến độ | Kết quả, ghi chú |
 | --- | --- |
-| Thành lập team & Setup | Đã xong. Leader, Codex, Anti_1 (Anti_2 tắt). |
-| Chọn kiến trúc AI | **Đã khóa B.** Web (Next.js) + Python Inference (FastAPI). BFF Pattern. |
-| OCR Phase 1 (Đóng gói) | **PASS.** OCR API + Next BFF + `/dashboard/document-ai/ocr`. `image_b64` đã bỏ, dùng `after()`. |
-| Vision AI: Python Inference Layer | **PASS (Phase A).** InsightFace buffalo_l, FastAPI. YOLO Behavior (smoke, empty_seat). FACE_DATA_DIR bind-mount. |
-| Vision AI: Next BFF & UI | **PASS (Phase B).** Face Enroll, Attendance Check-in/out, Behavior Review. Constraints checked: Browser không gọi Python trực tiếp, ảnh mặt lưu local disk, behavior default `pending_review`, role leader/admin/super_admin. |
-| Vision AI: Database & Migrations | **PASS.** Bảng `user_face_embeddings`, `attendance_sessions`, `violation_alerts` cập nhật; RLS và Policies đã thêm vào Supabase. |
-| Verify E2E trên Docker / trình duyệt | **Chưa xong.** Cần máy có Docker để chạy compose và verify luồng đầy đủ. |
-| Merge vào `develop` | **Chưa làm.** Đợi Leader xác nhận commit. |
+| Thành lập team & Setup | Xong. Leader, Codex, Anti_1. |
+| Chọn kiến trúc AI | Khóa B. BFF Pattern. |
+| OCR Phase 1 (Đóng gói) | PASS. `/dashboard/document-ai/ocr`. |
+| Vision AI: Python | PASS. InsightFace buffalo_l. Thiếu `behavior.pt` → detect 503, không crash. |
+| Vision AI: Next BFF & UI | PASS. Faces / Attendance / Behavior. Browser không gọi Python. `pending_review`. |
+| Vision AI: Migrations | File PASS. **Chưa apply lên Supabase**: `Frontend/.env.local` có `DATABASE_URL=` trống. Chạy SQL editor hoặc điền URL rồi `python scripts/apply_vision_migrations.py`. |
+| Verify E2E | Một phần. Next :3000: BFF 401; `/dashboard/faces|attendance|behavior|document-ai/ocr` 307 → `/login`; login 200. Docker Desktop **engine chưa lên** → chưa `compose up`. Chưa E2E login session (browser a11y trống + không nhập password). |
+| Merge vào `develop` | Merge local `develop-hieu` → `develop` (xem commit). **Chưa push** remote. |
 
-## Cách chạy (khi Docker sẵn)
+## Chạy
 
-1. Apply migrations:
-   - `Backend/supabase/migrations/20260912000000_document_ocr_image_formats.sql`
-   - `Backend/supabase/migrations/20260912193500_face_and_behavior.sql`
-   - `Backend/supabase/migrations/20260912210000_attendance_and_violation_review.sql`
-2. Cấu hình `.env`: `GEMINI_API_KEY`, `VISION_OCR_URL=http://vision-ocr-api:8000`, `VISION_AI_URL=http://vision-ai-api:8000`
-3. `docker compose up --build web vision-ocr-api vision-ai-api`
-4. Login `admin` / `leader` / `super_admin` → Menu Workplace / Recruitment để test OCR, Face, Attendance, Behavior.
+1. Apply 3 file trong `Backend/supabase/migrations/` (20260912*).
+2. `.env.local`: `VISION_OCR_URL=http://localhost:8000`, `VISION_AI_URL=http://localhost:8001`.
+3. YOLO custom: `src/models/vision-ai/behavior.pt` (không commit).
+4. `npm run dev` trong `Frontend`. Compose khi Docker engine sẵn: `docker compose up --build web vision-ocr-api vision-ai-api`.
+
+## Ngoài P0 (chưa làm)
+
+WebRTC/RTSP, dwell, liveness, Telegram, face thay password, OCR Phase 2, HR face CRUD.
