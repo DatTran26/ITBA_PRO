@@ -50,6 +50,7 @@ export default function LoginPage() {
 
         try {
             const loginData = data as LoginSchema;
+            const signInOptions = captchaToken ? { captchaToken } : undefined;
             const { error, data: authData } = await supabase.auth.signInWithPassword({
                 email: loginData.email,
                 password: loginData.password,
