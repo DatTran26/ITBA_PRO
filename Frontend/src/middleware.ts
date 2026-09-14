@@ -8,12 +8,12 @@ export async function middleware(request: NextRequest) {
         return NextResponse.next()
     }
 
-    const publicRoutes = ['/login', '/reset-password', '/test/']
+    const publicRoutes = ['/login', '/register', '/reset-password', '/test/']
     const isPublicRoute = pathname === '/' || publicRoutes.some(r => pathname.startsWith(r))
     const isApiRoute = pathname.startsWith('/api/')
     const hasDevAuth = !!parseDevAuthCookie(request.cookies.get(DEV_AUTH_COOKIE)?.value)
     if (hasDevAuth) {
-        if (pathname === "/login") {
+        if (pathname === "/login" || pathname === "/register") {
             const url = request.nextUrl.clone()
             url.pathname = "/dashboard"
             return NextResponse.redirect(url)
@@ -70,7 +70,7 @@ export async function middleware(request: NextRequest) {
     // For authenticated users: enforce routing rules
     if (user) {
         // All roles land on /dashboard after login — no role check needed
-        if (pathname === "/login") {
+        if (pathname === "/login" || pathname === "/register") {
             const url = request.nextUrl.clone();
             url.pathname = "/dashboard";
             return NextResponse.redirect(url);
