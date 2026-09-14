@@ -203,12 +203,12 @@ mẫu cá nhân: bản-nháp → đã-công-bố (phạm vi cá nhân) → ngừ
 
 | Field | Rule |
 |---|---|
-| Tên mẫu | bắt buộc, không trùng trong cùng phạm vi (cá nhân) / toàn hệ thống (mẫu chung); độ dài tối đa TBD (OQ-7) |
-| Vị trí áp dụng | bắt buộc; chọn từ danh sách vị trí của tổ chức hoặc nhập tự do — TBD (OQ-8) |
+| Tên mẫu | bắt buộc, không trùng trong cùng phạm vi (cá nhân) / toàn hệ thống (mẫu chung); độ dài tối đa chờ Product owner xác nhận tại OQ-7 |
+| Vị trí áp dụng | bắt buộc; nguồn danh mục vị trí chờ Product owner xác nhận tại OQ-8 |
 | Trình độ | bắt buộc; một trong các mức seniority chuẩn của khung kỹ năng (intern/fresher/junior/mid/senior/lead) |
 | Đối tượng làm bài | bắt buộc; ứng viên hoặc nhân viên (mặc định: ứng viên) |
-| Số câu hỏi | số nguyên dương; mặc định 10; min/max TBD (OQ-9) |
-| Thời lượng | phút, số nguyên dương; mặc định 30; min/max TBD (OQ-9) |
+| Số câu hỏi | số nguyên dương; mặc định 10; min/max chờ Product owner xác nhận tại OQ-9 |
+| Thời lượng | phút, số nguyên dương; mặc định 30; min/max chờ Product owner xác nhận tại OQ-9 |
 | Quy tắc chấm | ghi nhận dạng mô tả (thang điểm, cách quy đổi) — v1 chưa ép công thức máy tính (OQ-10) |
 | Gửi review mẫu chung | chỉ khi mẫu đã đủ các field bắt buộc |
 
@@ -220,8 +220,8 @@ mẫu cá nhân: bản-nháp → đã-công-bố (phạm vi cá nhân) → ngừ
 | Đối tượng hợp lệ | 2 (ứng viên, nhân viên) | — | chặn giá trị khác |
 | Số câu hỏi mặc định | 10 | — | chỉ là default khi tạo mẫu |
 | Thời lượng mặc định | 30 phút | — | chỉ là default khi tạo mẫu |
-| Số mẫu tối đa mỗi người/tổ chức | TBD (OQ-9) | — | chặn tạo mới + gợi ý ngừng dùng mẫu cũ |
-| Giới hạn số câu/thời lượng | TBD (OQ-9) | — | chặn lưu với thông báo lỗi |
+| Số mẫu tối đa mỗi người/tổ chức | Chờ Product owner xác nhận tại OQ-9 | — | chặn tạo mới + gợi ý ngừng dùng mẫu cũ |
+| Giới hạn số câu/thời lượng | Chờ Product owner xác nhận tại OQ-9 | — | chặn lưu với thông báo lỗi |
 
 ### 7.3 Wording samples (exact strings)
 
@@ -279,7 +279,8 @@ mẫu cá nhân: bản-nháp → đã-công-bố (phạm vi cá nhân) → ngừ
 
 ## 10. Success Criteria (preliminary)
 
-- Tỷ lệ bài tạo từ mẫu không phải hủy do sai cấu hình — target TBD (OQ-11).
+- Tỷ lệ bài tạo từ mẫu không phải hủy do sai cấu hình — target chờ Product
+  owner xác nhận tại OQ-11.
 - Tỷ lệ bài mới được tạo từ mẫu (thay vì cấu hình tay) — đo mức tái sử dụng.
 - Tỷ lệ mẫu chung có reviewer xác nhận trước khi công bố = 100%.
 

@@ -15,6 +15,7 @@ dụng, raw requirements và hồ sơ thực thi được tách rõ để tránh
 | Frontend ITBAAI | [`../Frontend/package.json`](../Frontend/package.json) | Runtime, scripts và dependency manifest |
 | Backend ITBAAI | [`../Backend/`](../Backend) | Supabase platform và DB utilities |
 | Tài liệu chuẩn | [`downtown/README.md`](downtown/README.md) | Product, architecture, development, operations, security |
+| Yêu cầu theo tính năng | [`features/README.md`](features/README.md) | Tuyến PRD → brainstorm → URD → SRS → ERD cho BA, Product, Dev và QA |
 | Thiết kế Town Hown | [`downtown/design-guidelines.md`](downtown/design-guidelines.md) | Visual direction, token, component, responsive và accessibility của `Frontend/` |
 | SRS tái lập | [`_reverse/README.md`](_reverse/README.md) | Requirement draft, evidence, gaps và open questions |
 
