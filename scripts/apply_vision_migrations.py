@@ -8,6 +8,7 @@ MIGRATIONS = [
     ROOT / "Backend" / "supabase" / "migrations" / "20260912000000_document_ocr_image_formats.sql",
     ROOT / "Backend" / "supabase" / "migrations" / "20260912193500_face_and_behavior.sql",
     ROOT / "Backend" / "supabase" / "migrations" / "20260912210000_attendance_and_violation_review.sql",
+    ROOT / "Backend" / "supabase" / "migrations" / "20260914183000_attendance_face_behavior.sql",
 ]
 
 
