@@ -24,18 +24,33 @@ const loginSchema = z.object({
 
 type LoginSchema = z.infer<typeof loginSchema>;
 
-const REG_ANGLES = ["Chính diện", "Nghiêng trái", "Nghiêng phải", "Ngước lên", "Cúi xuống", "Tự nhiên"];
+const REG_ANGLES_DETAIL = [
+    { name: "Front", hint: "Look directly at the camera" },
+    { name: "Left", hint: "Turn your face 15-30 degrees to the left" },
+    { name: "Right", hint: "Turn your face 15-30 degrees to the right" },
+    { name: "Looking up", hint: "Raise your chin slightly" },
+    { name: "Looking down", hint: "Lower your head slightly" },
+    { name: "Natural / Smile", hint: "Smile or use a natural expression" },
+];
+const REG_ANGLES = REG_ANGLES_DETAIL.map((d) => d.name);
 type Capture = { file: File; url: string };
 
 export default function LoginPage() {
     const [isLoading, setIsLoading] = useState(false);
     const [isFaceLoginOpen, setIsFaceLoginOpen] = useState(false);
     const [isFaceBusy, setIsFaceBusy] = useState(false);
+    const [faceAttempts, setFaceAttempts] = useState(0);
+    const [isFaceAutoScanning, setIsFaceAutoScanning] = useState(false);
     const [faceMode, setFaceMode] = useState<"login" | "register" | null>(null);
     const [regCaptures, setRegCaptures] = useState<Array<Capture | null>>(() => REG_ANGLES.map(() => null));
     const [regActiveAngle, setRegActiveAngle] = useState(0);
     const [isRegBusy, setIsRegBusy] = useState(false);
     const [regCameraOn, setRegCameraOn] = useState(false);
+
+    // 1-touch 3s auto-capture state
+    const [isAutoCapturing, setIsAutoCapturing] = useState(false);
+    const [autoCountdown, setAutoCountdown] = useState<number | null>(null);
+    const autoCapturingRef = useRef(false);
     const [captchaToken, setCaptchaToken] = useState<string>();
     const turnstileRef = useRef<TurnstileInstance>(null);
     const videoRef = useRef<HTMLVideoElement>(null);
@@ -121,15 +136,29 @@ export default function LoginPage() {
         }
     };
 
-    // --- Face Login functions ---
+    // --- Face Login functions with Auto-Scan & 3 Attempts limit ---
     async function startFaceCamera() {
+        const email = getValues("email")?.trim();
+        if (!email) {
+            toast.error("Enter your email before using Face ID.");
+            return;
+        }
         setIsFaceLoginOpen(true);
+        setFaceMode("login");
+        setFaceAttempts(0);
+        setIsFaceAutoScanning(true);
+
         try {
             const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" }, audio: false });
             streamRef.current = stream;
             if (videoRef.current) videoRef.current.srcObject = stream;
+            // Scan and sign in automatically after the camera settles.
+            window.setTimeout(() => {
+                void triggerAutoFaceLogin(1);
+            }, 1500);
         } catch {
-            toast.error("Không thể mở camera. Vui lòng cho phép truy cập camera.");
+            setIsFaceAutoScanning(false);
+            toast.error("Unable to open the camera. Please allow camera access.");
         }
     }
 
@@ -137,48 +166,62 @@ export default function LoginPage() {
         streamRef.current?.getTracks().forEach((track) => track.stop());
         streamRef.current = null;
         setIsFaceLoginOpen(false);
+        setIsFaceAutoScanning(false);
     }
 
-    async function captureFaceLogin() {
+    async function triggerAutoFaceLogin(attemptNumber = 1) {
         const email = getValues("email")?.trim();
         const video = videoRef.current;
         const canvas = canvasRef.current;
         if (!email) {
-            toast.error("Nhập email trước khi đăng nhập bằng khuôn mặt.");
+            toast.error("Enter your email before using Face ID.");
             return;
         }
         if (!video || !canvas || video.videoWidth === 0) {
-            toast.error("Camera chưa sẵn sàng.");
+            window.setTimeout(() => void triggerAutoFaceLogin(attemptNumber), 500);
             return;
         }
 
         setIsFaceBusy(true);
+        setIsFaceAutoScanning(true);
         try {
             canvas.width = video.videoWidth;
             canvas.height = video.videoHeight;
             const context = canvas.getContext("2d");
             context?.drawImage(video, 0, 0, canvas.width, canvas.height);
             const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, "image/jpeg", 0.92));
-            if (!blob) throw new Error("Không thể chụp ảnh khuôn mặt");
+            if (!blob) throw new Error("Unable to capture a face image");
 
             const body = new FormData();
             body.append("email", email);
             body.append("image", new File([blob], "face-login.jpg", { type: "image/jpeg" }));
             const response = await fetch("/api/face-login", { method: "POST", body });
             const data = await readApiResponse<{ ok?: boolean; error?: string; redirectUrl?: string }>(response);
-            if (!response.ok) throw new Error(data.error ?? "Đăng nhập bằng khuôn mặt thất bại");
-            toast.success("Xác thực khuôn mặt thành công!");
+            if (!response.ok) throw new Error(data.error ?? "Face does not match");
+
+            toast.success("Face verified successfully!");
             stopFaceCamera();
             router.push(data.redirectUrl ?? "/dashboard");
             router.refresh();
-        } catch (error) {
-            toast.error(error instanceof Error ? error.message : "Đăng nhập bằng khuôn mặt thất bại");
+        } catch {
+            setFaceAttempts(attemptNumber);
+            setIsFaceAutoScanning(false);
+            if (attemptNumber >= 3) {
+                stopFaceCamera();
+                setFaceMode(null);
+                toast.error("Face verification failed three times. Sign in with your password.");
+                document.getElementById("password")?.focus();
+            } else {
+                toast.error(
+                    `Face does not match (attempt ${attemptNumber}/3). Select Retry below.`
+                );
+            }
         } finally {
             setIsFaceBusy(false);
         }
     }
 
-    // --- Face Registration functions ---
+    // --- Face Registration functions: 1-touch 3s Auto 6-Angle Capture ---
     async function startRegCamera() {
         setRegCameraOn(true);
         try {
@@ -186,17 +229,19 @@ export default function LoginPage() {
             regStreamRef.current = stream;
             if (regVideoRef.current) regVideoRef.current.srcObject = stream;
         } catch {
-            toast.error("Không thể mở camera. Vui lòng cho phép truy cập camera.");
+            toast.error("Unable to open the camera. Please allow camera access.");
         }
     }
 
     function stopRegCamera() {
+        stopAutoCapture();
         regStreamRef.current?.getTracks().forEach((track) => track.stop());
         regStreamRef.current = null;
         setRegCameraOn(false);
     }
 
     function closeFaceRegister() {
+        stopAutoCapture();
         stopRegCamera();
         regCaptures.forEach((c) => c && URL.revokeObjectURL(c.url));
         setRegCaptures(REG_ANGLES.map(() => null));
@@ -204,22 +249,107 @@ export default function LoginPage() {
         setFaceMode(null);
     }
 
-    async function captureRegAngle() {
+    function stopAutoCapture() {
+        autoCapturingRef.current = false;
+        setIsAutoCapturing(false);
+        setAutoCountdown(null);
+    }
+
+    async function startAuto6AngleCapture() {
+        const email = getValues("email")?.trim();
+        if (!email) {
+            toast.error("Enter your email before starting face registration.");
+            return;
+        }
+
+        if (!regCameraOn || !regStreamRef.current) {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" }, audio: false });
+                regStreamRef.current = stream;
+                if (regVideoRef.current) regVideoRef.current.srcObject = stream;
+                setRegCameraOn(true);
+            } catch {
+                toast.error("Unable to open the camera. Please allow camera access.");
+                return;
+            }
+        }
+
+        setIsAutoCapturing(true);
+        autoCapturingRef.current = true;
+        setRegActiveAngle(0);
+        toast.info("Automatic six-angle capture started. One image will be taken every three seconds.");
+        runAngleCountdown(0);
+    }
+
+    function runAngleCountdown(angleIndex: number) {
+        if (!autoCapturingRef.current) return;
+        if (angleIndex >= 6) {
+            setIsAutoCapturing(false);
+            autoCapturingRef.current = false;
+            setAutoCountdown(null);
+            toast.success("All six angles captured. Saving automatically...");
+            window.setTimeout(() => {
+                void submitFaceRegistration();
+            }, 600);
+            return;
+        }
+
+        setRegActiveAngle(angleIndex);
+        setAutoCountdown(3);
+
+        let currentSec = 3;
+        const timer = window.setInterval(() => {
+            if (!autoCapturingRef.current) {
+                window.clearInterval(timer);
+                return;
+            }
+            currentSec -= 1;
+            if (currentSec > 0) {
+                setAutoCountdown(currentSec);
+            } else {
+                window.clearInterval(timer);
+                setAutoCountdown(0);
+                void snapPhotoForAngle(angleIndex).then((success) => {
+                    if (success && autoCapturingRef.current) {
+                        window.setTimeout(() => {
+                            runAngleCountdown(angleIndex + 1);
+                        }, 400);
+                    } else {
+                        stopAutoCapture();
+                    }
+                });
+            }
+        }, 1000);
+    }
+
+    async function snapPhotoForAngle(angleIndex: number): Promise<boolean> {
         const video = regVideoRef.current;
         const canvas = regCanvasRef.current;
-        if (!video || !canvas || video.videoWidth === 0) return toast.error("Camera chưa sẵn sàng");
+        if (!video || !canvas || video.videoWidth === 0) {
+            toast.error("Camera is not ready to capture " + REG_ANGLES[angleIndex]);
+            return false;
+        }
         canvas.width = video.videoWidth;
         canvas.height = video.videoHeight;
         canvas.getContext("2d")?.drawImage(video, 0, 0, canvas.width, canvas.height);
         const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, "image/jpeg", 0.92));
-        if (!blob) return toast.error("Không thể chụp ảnh khuôn mặt");
-        const file = new File([blob], `face-reg-${regActiveAngle + 1}.jpg`, { type: "image/jpeg" });
+        if (!blob) {
+            toast.error("Unable to capture the " + REG_ANGLES[angleIndex] + " angle");
+            return false;
+        }
+        const file = new File([blob], `face-reg-${angleIndex + 1}.jpg`, { type: "image/jpeg" });
         setRegCaptures((current) => {
-            if (current[regActiveAngle]) URL.revokeObjectURL(current[regActiveAngle]!.url);
+            if (current[angleIndex]) URL.revokeObjectURL(current[angleIndex]!.url);
             const next = [...current];
-            next[regActiveAngle] = { file, url: URL.createObjectURL(file) };
+            next[angleIndex] = { file, url: URL.createObjectURL(file) };
             return next;
         });
+        toast.info(`Captured angle ${angleIndex + 1}/6: ${REG_ANGLES[angleIndex]}`);
+        return true;
+    }
+
+    async function captureRegAngle() {
+        void snapPhotoForAngle(regActiveAngle);
         const nextEmpty = regCaptures.findIndex((c, i) => i > regActiveAngle && !c);
         if (nextEmpty !== -1) setRegActiveAngle(nextEmpty);
     }
@@ -228,11 +358,11 @@ export default function LoginPage() {
         const email = getValues("email")?.trim();
         const password = getValues("password");
         if (!email) {
-            toast.error("Nhập email trước khi đăng ký khuôn mặt.");
+            toast.error("Enter your email before registering your face.");
             return;
         }
         if (regCaptures.some((c) => !c)) {
-            toast.error("Vui lòng chụp đủ 6 góc khuôn mặt.");
+            toast.error("Please capture all six face angles.");
             return;
         }
         setIsRegBusy(true);
@@ -243,11 +373,11 @@ export default function LoginPage() {
             regCaptures.forEach((c) => body.append("images", c!.file));
             const response = await fetch("/api/face-register", { method: "POST", body });
             const data = await readApiResponse<{ ok?: boolean; error?: string; message?: string }>(response);
-            if (!response.ok) throw new Error(data.error ?? "Đăng ký khuôn mặt thất bại");
-            toast.success(data.message ?? "Đăng ký khuôn mặt thành công!");
+            if (!response.ok) throw new Error(data.error ?? "Face registration failed");
+            toast.success(data.message ?? "Face registered successfully!");
             closeFaceRegister();
         } catch (error) {
-            toast.error(error instanceof Error ? error.message : "Đăng ký khuôn mặt thất bại");
+            toast.error(error instanceof Error ? error.message : "Face registration failed");
         } finally {
             setIsRegBusy(false);
         }
@@ -416,8 +546,8 @@ export default function LoginPage() {
                                         className="h-12 rounded-[1rem] border-white/10 bg-[#1B253B]/40 text-[#ECF0F7] hover:bg-[#24304A]"
                                         onClick={() => { setFaceMode("login"); startFaceCamera(); }}
                                     >
-                                        <Fingerprint className="mr-2 h-4 w-4" />
-                                        Đăng nhập
+                                        <Fingerprint className="mr-2 h-4 w-4 text-[#5B6CF0]" />
+                                        Face ID Sign In
                                     </Button>
                                     <Button
                                         type="button"
@@ -425,26 +555,78 @@ export default function LoginPage() {
                                         className="h-12 rounded-[1rem] border-white/10 bg-[#1B253B]/40 text-[#ECF0F7] hover:bg-[#24304A]"
                                         onClick={() => setFaceMode("register")}
                                     >
-                                        <ScanFace className="mr-2 h-4 w-4" />
-                                        Đăng ký khuôn mặt
+                                        <ScanFace className="mr-2 h-4 w-4 text-[#36DDAB]" />
+                                        Register Face
                                     </Button>
                                 </div>
                             )}
 
                             {/* Face Login Mode */}
                             {(faceMode === "login" || isFaceLoginOpen) && faceMode !== "register" && (
-                                <div className="space-y-3 rounded-[1rem] border border-white/10 bg-[#0B1220]/70 p-3">
-                                    <p className="text-center text-xs text-[#8B99B0]">Nhìn thẳng vào camera rồi chụp để đăng nhập.</p>
-                                    <div className="overflow-hidden rounded-xl bg-black aspect-video">
+                                <div className="space-y-3 rounded-[1rem] border border-[#5B6CF0]/40 bg-[#0B1220]/90 p-3.5 shadow-xl">
+                                    <div className="flex items-center justify-between">
+                                        <div className="flex items-center gap-2">
+                                            <Fingerprint className="size-4 text-[#7C8FFF]" />
+                                            <p className="text-sm font-semibold text-white">Đăng nhập Face ID</p>
+                                        </div>
+                                        <span className="text-[11px] font-mono text-[#8B99B0]">
+                                            Attempt: <strong className={faceAttempts >= 2 ? "text-[#FF6B82]" : "text-[#36DDAB]"}>{faceAttempts}/3</strong>
+                                        </span>
+                                    </div>
+
+                                    {/* Video with scanning effect */}
+                                    <div className="relative overflow-hidden rounded-xl bg-black aspect-video border border-white/10">
                                         <video ref={videoRef} autoPlay muted playsInline className="h-full w-full -scale-x-100 object-cover" />
                                         <canvas ref={canvasRef} className="hidden" />
+
+                                        {/* Auto-scanning overlay */}
+                                        {isFaceAutoScanning && (
+                                            <div className="absolute inset-0 bg-[#5B6CF0]/10 flex flex-col items-center justify-center backdrop-blur-[1px]">
+                                                <div className="size-16 rounded-full border-2 border-[#5B6CF0] border-t-transparent animate-spin mb-2" />
+                                                <span className="text-xs font-semibold text-white bg-black/60 px-3 py-1 rounded-full border border-white/10">
+                                                    Scanning face automatically...
+                                                </span>
+                                            </div>
+                                        )}
                                     </div>
+
+                                    <div className="text-center text-xs text-[#8B99B0]">
+                                        {isFaceAutoScanning ? (
+                                            <span className="text-[#36DDAB]">Giữ nguyên tư thế và nhìn thẳng vào camera</span>
+                                        ) : faceAttempts > 0 ? (
+                                            <span className="text-[#FF6B82]">
+                                                Face did not match. Select Retry or use your password.
+                                            </span>
+                                        ) : (
+                                            <span>Nhìn thẳng vào camera để hệ thống tự động quét và đăng nhập.</span>
+                                        )}
+                                    </div>
+
                                     <div className="grid grid-cols-2 gap-2">
-                                        <Button type="button" disabled={isFaceBusy} onClick={captureFaceLogin}>
-                                            {isFaceBusy ? <Loader2 className="animate-spin" /> : "Chụp & đăng nhập"}
+                                        <Button
+                                            type="button"
+                                            disabled={isFaceBusy}
+                                            className="bg-[#5B6CF0] hover:bg-[#4F5FE0] text-white text-xs font-semibold h-10"
+                                            onClick={() => triggerAutoFaceLogin(faceAttempts + 1)}
+                                        >
+                                            {isFaceBusy ? (
+                                                <Loader2 className="animate-spin size-4" />
+                                            ) : (
+                                                `Retry (Attempt ${Math.min(3, faceAttempts + 1)}/3)`
+                                            )}
                                         </Button>
-                                        <Button type="button" variant="outline" disabled={isFaceBusy} onClick={() => { stopFaceCamera(); setFaceMode(null); }}>
-                                            Hủy
+                                        <Button
+                                            type="button"
+                                            variant="outline"
+                                            disabled={isFaceBusy}
+                                            className="border-white/10 bg-[#1B253B]/50 text-xs h-10"
+                                            onClick={() => {
+                                                stopFaceCamera();
+                                                setFaceMode(null);
+                                                document.getElementById("password")?.focus();
+                                            }}
+                                        >
+                                            Use Password
                                         </Button>
                                     </div>
                                 </div>
@@ -452,32 +634,91 @@ export default function LoginPage() {
 
                             {/* Face Registration Mode */}
                             {faceMode === "register" && (
-                                <div className="space-y-3 rounded-[1rem] border border-[#36DDAB]/30 bg-[#0B1220]/70 p-3">
+                                <div className="space-y-3.5 rounded-[1rem] border border-[#36DDAB]/40 bg-[#0B1220]/90 p-3.5 shadow-xl">
                                     <div className="flex items-center justify-between">
-                                        <p className="text-sm font-medium text-[#36DDAB]">Đăng ký khuôn mặt — chụp 6 góc</p>
-                                        <button type="button" onClick={closeFaceRegister} className="rounded p-1 hover:bg-white/10">
+                                        <div className="flex items-center gap-2">
+                                            <ScanFace className="size-4 text-[#36DDAB]" />
+                                            <p className="text-sm font-semibold text-[#36DDAB]">Face Registration - Six Angles</p>
+                                        </div>
+                                        <button type="button" onClick={closeFaceRegister} aria-label="Close" className="rounded p-1 hover:bg-white/10">
                                             <X className="size-4 text-[#8B99B0]" />
                                         </button>
                                     </div>
-                                    <p className="text-xs text-[#8B99B0]">Nhập email (và mật khẩu nếu cần), sau đó chụp 6 góc khuôn mặt để đăng ký.</p>
 
-                                    {/* Camera preview */}
-                                    <div className="overflow-hidden rounded-xl bg-black aspect-video">
+                                    {/* 1-Touch 3-Second Auto Capture Action Bar */}
+                                    {!isAutoCapturing ? (
+                                        <Button
+                                            type="button"
+                                            className="w-full bg-[#36DDAB] hover:bg-[#2ec596] text-[#0B1220] font-bold text-xs h-11 rounded-xl shadow-lg shadow-[#36DDAB]/20 flex items-center justify-center gap-2"
+                                            onClick={startAuto6AngleCapture}
+                                        >
+                                            <ScanFace className="size-4" />
+                                            Automatic Six-Angle Capture (one image every 3s)
+                                        </Button>
+                                    ) : (
+                                        <Button
+                                            type="button"
+                                            variant="destructive"
+                                            className="w-full text-xs h-11 rounded-xl font-bold flex items-center justify-center gap-2"
+                                            onClick={stopAutoCapture}
+                                        >
+                                            <X className="size-4" /> Stop Automatic Capture
+                                        </Button>
+                                    )}
+
+                                    {/* Camera preview with countdown overlay */}
+                                    <div className="relative overflow-hidden rounded-xl bg-black aspect-video border border-white/10">
                                         <video ref={regVideoRef} autoPlay muted playsInline className="h-full w-full -scale-x-100 object-cover" />
                                         <canvas ref={regCanvasRef} className="hidden" />
+
+                                        {/* Auto-countdown overlay */}
+                                        {isAutoCapturing && autoCountdown !== null && (
+                                            <div className="absolute inset-0 bg-black/40 flex flex-col items-center justify-between p-3 pointer-events-none">
+                                                {/* Top angle label */}
+                                                <div className="bg-black/75 px-3 py-1.5 rounded-full border border-white/20 text-center">
+                                                    <p className="text-xs font-bold text-[#36DDAB]">
+                                                        Angle {regActiveAngle + 1}/6: {REG_ANGLES_DETAIL[regActiveAngle]?.name}
+                                                    </p>
+                                                    <p className="text-[10px] text-white/80">
+                                                        {REG_ANGLES_DETAIL[regActiveAngle]?.hint}
+                                                    </p>
+                                                </div>
+
+                                                {/* Giant animated countdown circle */}
+                                                <div className="size-16 rounded-full bg-[#36DDAB]/20 border-2 border-[#36DDAB] flex items-center justify-center animate-pulse">
+                                                    <span className="font-mono text-3xl font-black text-white">
+                                                        {autoCountdown > 0 ? autoCountdown : "📸"}
+                                                    </span>
+                                                </div>
+
+                                                {/* Bottom notice */}
+                                                <div className="bg-black/70 px-2.5 py-1 rounded-md text-[10px] text-[#8B99B0]">
+                                                    Capturing automatically after three seconds, then moving to the next angle...
+                                                </div>
+                                            </div>
+                                        )}
                                     </div>
-                                    <div className="grid grid-cols-2 gap-2">
+
+                                    {/* Manual controls fallback */}
+                                    <div className="flex items-center justify-between gap-2 text-xs">
                                         {!regCameraOn ? (
-                                            <Button type="button" size="sm" onClick={startRegCamera}>
-                                                <Camera className="mr-1 size-3.5" /> Mở Camera
+                                            <Button type="button" size="sm" variant="outline" className="border-white/10 text-xs h-8" onClick={startRegCamera}>
+                                                <Camera className="mr-1 size-3.5" /> Open Camera
                                             </Button>
                                         ) : (
-                                            <Button type="button" size="sm" variant="outline" onClick={stopRegCamera}>
-                                                Tắt Camera
+                                            <Button type="button" size="sm" variant="outline" className="border-white/10 text-xs h-8" onClick={stopRegCamera}>
+                                                Stop Camera
                                             </Button>
                                         )}
-                                        <Button type="button" size="sm" disabled={!regCameraOn} onClick={captureRegAngle}>
-                                            <Camera className="mr-1 size-3.5" /> Chụp {REG_ANGLES[regActiveAngle]}
+                                        <Button
+                                            type="button"
+                                            size="sm"
+                                            variant="secondary"
+                                            disabled={!regCameraOn || isAutoCapturing}
+                                            className="text-xs h-8"
+                                            onClick={captureRegAngle}
+                                        >
+                                            <Camera className="mr-1 size-3.5" /> Manual Capture ({REG_ANGLES[regActiveAngle]})
                                         </Button>
                                     </div>
 
@@ -487,7 +728,11 @@ export default function LoginPage() {
                                             <button
                                                 key={angle}
                                                 type="button"
-                                                className={`relative block aspect-video w-full rounded-lg overflow-hidden border ${regActiveAngle === index ? "border-[#5B6CF0]" : "border-white/10"} bg-[#0B1220]`}
+                                                className={`relative block aspect-video w-full rounded-lg overflow-hidden border transition-all ${
+                                                    regActiveAngle === index
+                                                        ? "border-[#36DDAB] ring-1 ring-[#36DDAB]"
+                                                        : "border-white/10 hover:border-white/20"
+                                                } bg-[#0B1220]`}
                                                 onClick={() => setRegActiveAngle(index)}
                                             >
                                                 {regCaptures[index] ? (
@@ -495,8 +740,12 @@ export default function LoginPage() {
                                                 ) : (
                                                     <ScanFace className="absolute inset-0 m-auto size-5 text-[#56627A]" />
                                                 )}
-                                                {regCaptures[index] && <Check className="absolute right-1 top-1 size-3.5 rounded-full bg-[#36DDAB] p-0.5 text-[#0B1220]" />}
-                                                <span className="absolute bottom-0 inset-x-0 bg-black/60 text-[9px] text-center text-[#8B99B0] py-0.5">{index + 1}. {angle}</span>
+                                                {regCaptures[index] && (
+                                                    <Check className="absolute right-1 top-1 size-3.5 rounded-full bg-[#36DDAB] p-0.5 text-[#0B1220]" />
+                                                )}
+                                                <span className="absolute bottom-0 inset-x-0 bg-black/70 text-[9px] text-center text-[#8B99B0] py-0.5 truncate px-1">
+                                                    {index + 1}. {angle}
+                                                </span>
                                             </button>
                                         ))}
                                     </div>
@@ -504,12 +753,12 @@ export default function LoginPage() {
                                     {/* Submit registration */}
                                     <Button
                                         type="button"
-                                        className="w-full"
+                                        className="w-full bg-[#36DDAB] hover:bg-[#2ec596] text-[#0B1220] font-semibold text-xs h-10 rounded-xl"
                                         disabled={isRegBusy || regCaptures.some((c) => !c)}
                                         onClick={submitFaceRegistration}
                                     >
-                                        {isRegBusy ? <Loader2 className="animate-spin mr-2" /> : <ScanFace className="mr-2 size-4" />}
-                                        Đăng ký khuôn mặt ({regCaptures.filter(Boolean).length}/6)
+                                        {isRegBusy ? <Loader2 className="animate-spin mr-2 size-4" /> : <Check className="mr-2 size-4" />}
+                                        Complete Face Registration ({regCaptures.filter(Boolean).length}/6)
                                     </Button>
                                 </div>
                             )}

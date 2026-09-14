@@ -8,6 +8,7 @@ services:
     container_name: ${COMPOSE_PROJECT_NAME:-town-hown}-vision-ai-api
     environment:
       FACE_DATA_DIR: /data/faces
+      VIOLATION_DATA_DIR: /data/violations
       FACE_MODEL_NAME: ${FACE_MODEL_NAME:-buffalo_l}
       FACE_MATCH_THRESHOLD: ${FACE_MATCH_THRESHOLD:-0.75}
       BEHAVIOR_MODEL_PATH: ${BEHAVIOR_MODEL_PATH:-/models/behavior.pt}
@@ -15,6 +16,7 @@ services:
       BEHAVIOR_LABELS: ${BEHAVIOR_LABELS:-smoke,Cigarette,empty_seat,un-occupied_desk}
     volumes:
       - ${FACE_DATA_HOST_DIR:-./data/vision-ai/faces}:/data/faces
+      - ${VIOLATION_DATA_HOST_DIR:-./data/vision-ai/violations}:/data/violations
       - ${VISION_AI_MODEL_HOST_DIR:-./models/vision-ai}:/models:ro
     expose:
       - "8000"

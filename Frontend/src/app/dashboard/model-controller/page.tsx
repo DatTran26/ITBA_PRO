@@ -3,8 +3,8 @@ import { getAuthContext, isAuthError } from "@/lib/api/auth-helpers";
 import ModelControllerClient from "./model-controller-client";
 
 export const metadata = {
-  title: "Cấu hình Model AI | DownTown",
-  description: "Trang điều khiển và tinh chỉnh thông số mô hình Vision AI",
+  title: "AI Model Configuration | DownTown",
+  description: "Configure Vision AI model settings",
 };
 
 export default async function ModelControllerPage() {

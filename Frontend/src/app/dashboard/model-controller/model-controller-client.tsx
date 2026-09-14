@@ -14,7 +14,6 @@ import {
   Plus,
   X,
   Sliders,
-  Info,
   Activity,
   RefreshCw,
   Trash2,
@@ -23,7 +22,6 @@ import {
   Flame,
   UserX,
   Sparkles,
-  Layers,
 } from "lucide-react";
 import { toast } from "sonner";
 import AppNavbar from "@/components/ui/app-navbar";
@@ -50,6 +48,8 @@ export interface BehaviorModelConfig {
 export interface VisionConfig {
   faceStoragePath: string;
   faceStorageExists?: boolean;
+  violationStoragePath: string;
+  violationStorageExists?: boolean;
   faceModelName: string;
   faceMatchThreshold: number;
   behaviorModelPath?: string;
@@ -70,8 +70,8 @@ interface StorageStats {
 const DEFAULT_BEHAVIOR_MODELS: BehaviorModelConfig[] = [
   {
     id: "smoke_detection",
-    name: "Mô hình phát hiện Hút thuốc (Smoking Detection)",
-    description: "Phát hiện người hút thuốc lá, điếu thuốc và khói thuốc trong khu vực làm việc",
+    name: "Smoking Detection",
+    description: "Detects smoking, cigarettes, and smoke in the workplace",
     enabled: true,
     modelPath: "D:\\WEB\\model_trained\\ML\\Model_trained\\rc_v1_yolov8\\train_yolov8n_200ep\\weights\\best.pt",
     confidence: 0.5,
@@ -80,8 +80,8 @@ const DEFAULT_BEHAVIOR_MODELS: BehaviorModelConfig[] = [
   },
   {
     id: "seat_occupancy",
-    name: "Mô hình phát hiện Rời vị trí (Seat & Desk Occupancy)",
-    description: "Phát hiện bàn làm việc không có người hoặc ghế trống trong giờ làm",
+    name: "Seat & Desk Occupancy",
+    description: "Detects unoccupied desks or empty seats during working hours",
     enabled: true,
     modelPath: "D:\\Open AI\\down_town\\src\\models\\vision-ai\\behavior.pt",
     confidence: 0.25,
@@ -93,38 +93,40 @@ const DEFAULT_BEHAVIOR_MODELS: BehaviorModelConfig[] = [
 const DEFAULT_CONFIG: VisionConfig = {
   faceStoragePath: "D:\\Open AI\\down_town\\src\\data\\vision-ai\\faces",
   faceStorageExists: true,
+  violationStoragePath: "D:\\Open AI\\down_town\\src\\data\\vision-ai\\violations",
+  violationStorageExists: true,
   faceModelName: "buffalo_l",
   faceMatchThreshold: 0.75,
   behaviorModels: DEFAULT_BEHAVIOR_MODELS,
 };
 
 const ARCFACE_MODELS = [
-  { id: "buffalo_l", name: "buffalo_l (Khuyên dùng - Chuẩn nhận diện cao nhất 512-dim)" },
-  { id: "buffalo_m", name: "buffalo_m (Cân bằng tốc độ CPU & độ chính xác)" },
-  { id: "buffalo_s", name: "buffalo_s (Nhẹ & siêu nhanh, tài nguyên thấp)" },
-  { id: "buffalo_sc", name: "buffalo_sc (Biến thể rút gọn)" },
+  { id: "buffalo_l", name: "buffalo_l (Recommended - Highest 512-dim accuracy)" },
+  { id: "buffalo_m", name: "buffalo_m (Balanced CPU speed and accuracy)" },
+  { id: "buffalo_s", name: "buffalo_s (Lightweight and fast)" },
+  { id: "buffalo_sc", name: "buffalo_sc (Compact variant)" },
 ];
 
 const MODEL_TEMPLATES = [
   {
-    name: "Phát hiện Sử dụng điện thoại (Phone Usage)",
-    description: "Cảnh báo khi nhân sự dùng điện thoại cá nhân trong giờ làm việc",
+    name: "Phone Usage Detection",
+    description: "Alerts when employees use personal phones during working hours",
     modelPath: "models/vision-ai/phone.pt",
     confidence: 0.4,
     iouThreshold: 0.45,
     labels: ["phone", "cell phone", "phone_use"],
   },
   {
-    name: "Phát hiện Ngủ trong giờ (Sleeping / Inactive)",
-    description: "Cảnh báo tư thế gục đầu xuống bàn hoặc ngủ trong ca trực",
+    name: "Sleeping / Inactivity Detection",
+    description: "Alerts on sleeping or head-down desk posture during a shift",
     modelPath: "models/vision-ai/sleeping.pt",
     confidence: 0.35,
     iouThreshold: 0.45,
     labels: ["sleeping", "head_down", "drowsy"],
   },
   {
-    name: "Mô hình Tùy chỉnh (Custom Behavior)",
-    description: "Tự định nghĩa trọng số YOLO và danh sách các nhãn vi phạm mục tiêu",
+    name: "Custom Behavior Model",
+    description: "Define custom YOLO weights and target violation labels",
     modelPath: "yolov8n.pt",
     confidence: 0.3,
     iouThreshold: 0.45,
@@ -173,8 +175,8 @@ export default function ModelControllerClient() {
 
       if (!res.ok || !data.ok) {
         setBackendOnline(false);
-        toast.error("Không thể kết nối dịch vụ Vision AI Backend", {
-          description: data.error || "Vui lòng kiểm tra cổng 8001 của Python FastAPI",
+        toast.error("Unable to connect to the Vision AI backend", {
+          description: data.error || "Check the Python FastAPI service on port 8001",
         });
       } else {
         setBackendOnline(true);
@@ -191,7 +193,7 @@ export default function ModelControllerClient() {
       }
     } catch (err) {
       setBackendOnline(false);
-      toast.error(err instanceof Error ? err.message : "Lỗi mạng khi tải cấu hình Model AI");
+      toast.error(err instanceof Error ? err.message : "Network error while loading AI model configuration");
     } finally {
       setLoading(false);
     }
@@ -219,12 +221,12 @@ export default function ModelControllerClient() {
       }>(res);
 
       if (!res.ok || !data.ok) {
-        toast.error("Lưu cấu hình thất bại", {
-          description: data.error || "Kiểm tra lại định dạng tham số",
+        toast.error("Unable to save configuration", {
+          description: data.error || "Check the parameter format",
         });
       } else {
-        toast.success("Cập nhật tham số mô hình Vision AI thành công!", {
-          description: "Các mô hình ArcFace & YOLO (Smoke, Seat, Custom) đã nạp cấu hình mới nhất.",
+        toast.success("Vision AI model settings updated", {
+          description: "ArcFace and YOLO models have loaded the latest configuration.",
         });
         if (data.config) {
           const cfg = data.config;
@@ -236,7 +238,7 @@ export default function ModelControllerClient() {
         if (data.storage) setStorageStats(data.storage);
       }
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Lỗi khi gửi yêu cầu cập nhật");
+      toast.error(err instanceof Error ? err.message : "Unable to send the update request");
     } finally {
       setSaving(false);
     }
@@ -244,8 +246,8 @@ export default function ModelControllerClient() {
 
   const handleResetDefaults = () => {
     setConfig(DEFAULT_CONFIG);
-    toast.info("Đã đặt lại thông số về giá trị mặc định", {
-      description: "Nhấn 'Lưu cấu hình' để áp dụng xuống hệ thống.",
+    toast.info("Settings reset to defaults", {
+      description: "Select Save Configuration to apply them.",
     });
   };
 
@@ -270,14 +272,14 @@ export default function ModelControllerClient() {
 
   const handleDeleteModel = (modelId: string, modelName: string) => {
     if (config.behaviorModels.length <= 1) {
-      toast.warning("Hệ thống cần giữ lại ít nhất 1 mô hình giám sát");
+      toast.warning("At least one monitoring model is required");
       return;
     }
     setConfig((prev) => ({
       ...prev,
       behaviorModels: prev.behaviorModels.filter((m) => m.id !== modelId),
     }));
-    toast.info(`Đã xóa mô hình "${modelName}"`);
+    toast.info(`Removed model "${modelName}"`);
   };
 
   const handleAddLabelToModel = (modelId: string) => {
@@ -287,7 +289,7 @@ export default function ModelControllerClient() {
     if (!targetModel) return;
 
     if (targetModel.labels.includes(raw)) {
-      toast.warning("Nhãn này đã có trong danh sách");
+      toast.warning("This label is already in the list");
       return;
     }
 
@@ -317,11 +319,11 @@ export default function ModelControllerClient() {
 
   const handleAddNewModelSubmit = () => {
     if (!newModelName.trim()) {
-      toast.error("Vui lòng nhập tên mô hình");
+      toast.error("Enter a model name");
       return;
     }
     if (!newModelPath.trim()) {
-      toast.error("Vui lòng nhập đường dẫn file weights (.pt)");
+      toast.error("Enter a weights file path (.pt)");
       return;
     }
     const newId = `custom_${Date.now()}`;
@@ -342,8 +344,8 @@ export default function ModelControllerClient() {
       behaviorModels: [...prev.behaviorModels, newModel],
     }));
 
-    toast.success(`Đã thêm mô hình "${newModel.name}" vào danh sách`, {
-      description: "Hãy nhấn 'Lưu cấu hình Model AI' để áp dụng xuống hệ thống.",
+    toast.success(`Added model "${newModel.name}"`, {
+      description: "Select Save AI Model Configuration to apply it.",
     });
 
     // Reset add form
@@ -360,7 +362,7 @@ export default function ModelControllerClient() {
     const raw = newModelTagInput.trim().toLowerCase();
     if (!raw) return;
     if (newModelLabels.includes(raw)) {
-      toast.warning("Nhãn này đã tồn tại");
+      toast.warning("This label already exists");
       return;
     }
     setNewModelLabels((prev) => [...prev, raw]);
@@ -390,8 +392,8 @@ export default function ModelControllerClient() {
           <PageBreadcrumb
             breadcrumbs={[
               { label: "Dashboard", href: "/dashboard" },
-              { label: "Giám sát nơi làm việc", href: "/dashboard/faces" },
-              { label: "Cấu hình Model AI" },
+              { label: "Workplace Monitoring", href: "/dashboard/faces" },
+              { label: "AI Model Configuration" },
             ]}
           />
 
@@ -405,14 +407,14 @@ export default function ModelControllerClient() {
                 <div>
                   <div className="flex items-center gap-2.5">
                     <h1 className="text-2xl font-bold tracking-tight text-white">
-                      Bộ điều khiển Mô hình Vision AI
+                      Vision AI Model Controller
                     </h1>
                     <Badge variant="outline" className="border-amber-500/40 text-amber-400 bg-amber-500/10">
                       Super Admin Only
                     </Badge>
                   </div>
                   <p className="text-sm text-slate-400 mt-1">
-                    Tinh chỉnh độc lập tham số ArcFace và các mô hình YOLO (Smoke, Rời vị trí, Custom) kèm ngưỡng IOU.
+                    Configure ArcFace and each YOLO behavior model independently, including confidence and IOU thresholds.
                   </p>
                 </div>
               </div>
@@ -435,7 +437,7 @@ export default function ModelControllerClient() {
                   </span>
                 )}
                 {backendOnline === null && (
-                  <span className="text-slate-500">Đang kiểm tra...</span>
+                  <span className="text-slate-500">Checking...</span>
                 )}
               </div>
 
@@ -447,7 +449,7 @@ export default function ModelControllerClient() {
                 className="border-slate-700 bg-slate-900/60 hover:bg-slate-800 text-slate-200"
               >
                 <RefreshCw className={`h-4 w-4 mr-1.5 ${loading ? "animate-spin" : ""}`} />
-                Tải lại
+                Reload
               </Button>
             </div>
           </div>
@@ -455,7 +457,7 @@ export default function ModelControllerClient() {
           {loading ? (
             <div className="flex flex-col items-center justify-center py-24 gap-3">
               <Loader2 className="h-8 w-8 animate-spin text-indigo-400" />
-              <p className="text-sm text-slate-400">Đang tải tham số các mô hình AI...</p>
+              <p className="text-sm text-slate-400">Loading AI model settings...</p>
             </div>
           ) : (
             <div className="space-y-8">
@@ -463,7 +465,7 @@ export default function ModelControllerClient() {
               <div>
                 <div className="flex items-center gap-2 mb-3">
                   <ScanFace className="h-5 w-5 text-emerald-400" />
-                  <h2 className="text-lg font-semibold text-white">1. Mô hình Khuôn mặt (ArcFace / InsightFace)</h2>
+                  <h2 className="text-lg font-semibold text-white">1. Face Model (ArcFace / InsightFace)</h2>
                 </div>
                 <Card className="border-slate-800 bg-slate-900/80 shadow-lg">
                   <CardHeader className="border-b border-slate-800 pb-4">
@@ -471,7 +473,7 @@ export default function ModelControllerClient() {
                       <div>
                         <CardTitle className="text-base text-white">InsightFace Buffalo Biometric Engine</CardTitle>
                         <CardDescription className="text-xs text-slate-400">
-                          Xử lý Đăng ký 6 góc, Đăng nhập Face Login & Chấm công nhận diện
+                          Handles six-angle enrollment, Face ID sign-in, and attendance verification
                         </CardDescription>
                       </div>
                       <Badge className="bg-emerald-500/10 border-emerald-500/30 text-emerald-400">
@@ -483,12 +485,12 @@ export default function ModelControllerClient() {
                     {/* Model Architecture Selector */}
                     <div className="space-y-2">
                       <label className="text-xs font-semibold uppercase tracking-wider text-slate-300">
-                        Kiến trúc mô hình khuôn mặt (Model Name)
+                        Face model architecture
                       </label>
                       <select
                         value={config.faceModelName}
                         onChange={(e) => setConfig({ ...config, faceModelName: e.target.value })}
-                        aria-label="Kiến trúc mô hình khuôn mặt"
+                        aria-label="Face model architecture"
                         className="w-full rounded-md border border-slate-700 bg-slate-800/90 px-3 py-2 text-sm text-slate-100 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
                       >
                         {ARCFACE_MODELS.map((m) => (
@@ -498,7 +500,7 @@ export default function ModelControllerClient() {
                         ))}
                       </select>
                       <p className="text-[11px] text-slate-400">
-                        buffalo_l trích xuất vector đặc trưng chuẩn 512 chiều với độ chính xác cao nhất.
+                        buffalo_l extracts 512-dimensional embeddings with the highest accuracy.
                       </p>
                     </div>
 
@@ -506,7 +508,7 @@ export default function ModelControllerClient() {
                     <div className="space-y-3">
                       <div className="flex items-center justify-between">
                         <label className="text-xs font-semibold uppercase tracking-wider text-slate-300">
-                          Ngưỡng so khớp khuôn mặt (Cosine Similarity)
+                          Face match threshold (Cosine Similarity)
                         </label>
                         <span className="font-mono text-sm font-bold text-emerald-400">
                           {(config.faceMatchThreshold * 100).toFixed(0)}% ({config.faceMatchThreshold})
@@ -521,17 +523,17 @@ export default function ModelControllerClient() {
                         onChange={(e) =>
                           setConfig({ ...config, faceMatchThreshold: parseFloat(e.target.value) })
                         }
-                        aria-label="Ngưỡng so khớp khuôn mặt"
+                        aria-label="Face match threshold"
                         className="w-full accent-emerald-500 cursor-pointer"
                       />
                       <div className="flex justify-between text-[10px] text-slate-500 font-mono">
-                        <span>0.40 (Dễ)</span>
-                        <span className="text-emerald-400 font-semibold">0.75 (Khuyên dùng)</span>
-                        <span>0.95 (Cực kỳ nghiêm ngặt)</span>
+                        <span>0.40 (Lenient)</span>
+                        <span className="text-emerald-400 font-semibold">0.75 (Recommended)</span>
+                        <span>0.95 (Strict)</span>
                       </div>
                       <div className="rounded-lg bg-slate-800/60 p-2.5 border border-slate-700/60 text-xs text-slate-300">
-                        <span className="text-emerald-300 font-medium">Quy tắc xác thực 6 góc:</span> Khi chấm công, ảnh quét phải đạt độ tương đồng ≥{" "}
-                        <strong className="text-emerald-400">{config.faceMatchThreshold}</strong> trên ít nhất 2 trong 6 góc.
+                        <span className="text-emerald-300 font-medium">Six-angle verification rule:</span> Attendance scans must reach a similarity of at least{" "}
+                        <strong className="text-emerald-400">{config.faceMatchThreshold}</strong> on two of the six enrolled angles.
                       </div>
                     </div>
                   </CardContent>
@@ -544,9 +546,9 @@ export default function ModelControllerClient() {
                   <div className="flex items-center gap-2">
                     <ShieldAlert className="h-5 w-5 text-amber-400" />
                     <div>
-                      <h2 className="text-lg font-semibold text-white">2. Các Mô hình YOLO Giám sát hành vi</h2>
+                      <h2 className="text-lg font-semibold text-white">2. YOLO Behavior Monitoring Models</h2>
                       <p className="text-xs text-slate-400">
-                        Từng mô hình hoạt động độc lập với trọng số weights, ngưỡng Confidence, ngưỡng IOU và danh sách nhãn riêng biệt.
+                        Each model uses independent weights, confidence, IOU, and target labels.
                       </p>
                     </div>
                   </div>
@@ -556,7 +558,7 @@ export default function ModelControllerClient() {
                     className="bg-indigo-600 hover:bg-indigo-500 text-white text-xs h-9 px-3.5 self-start sm:self-auto"
                   >
                     <Plus className="h-4 w-4 mr-1.5" />
-                    {showAddForm ? "Đóng form thêm model" : "Thêm Model mới"}
+                    {showAddForm ? "Close Add Model Form" : "Add Model"}
                   </Button>
                 </div>
 
@@ -568,26 +570,26 @@ export default function ModelControllerClient() {
                         <div className="flex items-center gap-2">
                           <Sparkles className="h-4 w-4 text-indigo-400" />
                           <CardTitle className="text-sm font-semibold text-white">
-                            Thêm mô hình giám sát hành vi mới
+                            Add Behavior Monitoring Model
                           </CardTitle>
                         </div>
                         <button
                           type="button"
                           onClick={() => setShowAddForm(false)}
-                          aria-label="Đóng"
+                          aria-label="Close"
                           className="text-slate-400 hover:text-white"
                         >
                           <X className="h-4 w-4" />
                         </button>
                       </div>
                       <CardDescription className="text-xs text-slate-400">
-                        Chọn một mẫu có sẵn hoặc tự điền trọng số YOLOv8 để bổ sung thêm model mới vào hệ thống.
+                        Choose a preset or provide YOLO weights and labels for a custom model.
                       </CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4 pt-4">
                       {/* Templates shortcuts */}
                       <div>
-                        <p className="text-xs text-slate-300 font-medium mb-1.5">Mẫu cấu hình nhanh:</p>
+                        <p className="text-xs text-slate-300 font-medium mb-1.5">Quick presets:</p>
                         <div className="flex flex-wrap gap-2">
                           {MODEL_TEMPLATES.map((tmpl) => (
                             <button
@@ -604,31 +606,31 @@ export default function ModelControllerClient() {
 
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="space-y-1.5">
-                          <label className="text-xs text-slate-300">Tên mô hình:</label>
+                          <label className="text-xs text-slate-300">Model name:</label>
                           <Input
                             value={newModelName}
                             onChange={(e) => setNewModelName(e.target.value)}
-                            placeholder="vd: Phát hiện Dùng điện thoại"
+                            placeholder="e.g. Phone Usage Detection"
                             className="bg-slate-800 border-slate-700 text-xs h-8"
                           />
                         </div>
                         <div className="space-y-1.5">
-                          <label className="text-xs text-slate-300">Mô tả ngắn:</label>
+                          <label className="text-xs text-slate-300">Description:</label>
                           <Input
                             value={newModelDesc}
                             onChange={(e) => setNewModelDesc(e.target.value)}
-                            placeholder="vd: Nhận diện cầm điện thoại trong giờ làm việc"
+                            placeholder="e.g. Detect personal phone use during working hours"
                             className="bg-slate-800 border-slate-700 text-xs h-8"
                           />
                         </div>
                       </div>
 
                       <div className="space-y-1.5">
-                        <label className="text-xs text-slate-300">Đường dẫn trọng số weights (.pt):</label>
+                        <label className="text-xs text-slate-300">Weights path (.pt):</label>
                         <Input
                           value={newModelPath}
                           onChange={(e) => setNewModelPath(e.target.value)}
-                          placeholder="D:\models\phone_detection.pt hoặc yolov8n.pt"
+                          placeholder="D:\models\phone_detection.pt or yolov8n.pt"
                           className="bg-slate-800 border-slate-700 font-mono text-xs h-8"
                         />
                       </div>
@@ -637,7 +639,7 @@ export default function ModelControllerClient() {
                         {/* New Model Confidence Slider */}
                         <div className="space-y-2">
                           <div className="flex justify-between text-xs">
-                            <span className="text-slate-300">Confidence Threshold (Độ tin cậy):</span>
+                            <span className="text-slate-300">Confidence Threshold:</span>
                             <span className="font-mono text-amber-400 font-bold">{(newModelConf * 100).toFixed(0)}%</span>
                           </div>
                           <input
@@ -654,7 +656,7 @@ export default function ModelControllerClient() {
                         {/* New Model IOU Slider */}
                         <div className="space-y-2">
                           <div className="flex justify-between text-xs">
-                            <span className="text-slate-300">IOU Threshold (Ngưỡng lọc trùng):</span>
+                            <span className="text-slate-300">IOU Threshold:</span>
                             <span className="font-mono text-sky-400 font-bold">{(newModelIou * 100).toFixed(0)}%</span>
                           </div>
                           <input
@@ -671,7 +673,7 @@ export default function ModelControllerClient() {
 
                       {/* New Model Labels */}
                       <div className="space-y-1.5 pt-1">
-                        <label className="text-xs text-slate-300">Nhãn vi phạm bắt buộc:</label>
+                        <label className="text-xs text-slate-300">Target violation labels:</label>
                         <div className="flex flex-wrap gap-1.5 mb-2">
                           {newModelLabels.map((lbl) => (
                             <Badge
@@ -699,7 +701,7 @@ export default function ModelControllerClient() {
                                 handleAddNewModelTag();
                               }
                             }}
-                            placeholder="Thêm nhãn (vd: phone_use)..."
+                            placeholder="Add a label (e.g. phone_use)..."
                             className="bg-slate-800 border-slate-700 text-xs h-8"
                           />
                           <Button
@@ -708,7 +710,7 @@ export default function ModelControllerClient() {
                             onClick={handleAddNewModelTag}
                             className="bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 h-8 px-3 text-xs"
                           >
-                            + Thêm nhãn
+                            + Add Label
                           </Button>
                         </div>
                       </div>
@@ -721,7 +723,7 @@ export default function ModelControllerClient() {
                           onClick={() => setShowAddForm(false)}
                           className="border-slate-700 bg-slate-800 text-slate-300 text-xs h-8"
                         >
-                          Hủy bỏ
+                          Cancel
                         </Button>
                         <Button
                           type="button"
@@ -729,7 +731,7 @@ export default function ModelControllerClient() {
                           onClick={handleAddNewModelSubmit}
                           className="bg-indigo-600 hover:bg-indigo-500 text-white text-xs h-8"
                         >
-                          Xác nhận thêm Model
+                          Add Model
                         </Button>
                       </div>
                     </CardContent>
@@ -738,7 +740,7 @@ export default function ModelControllerClient() {
 
                 {/* INDIVIDUAL MODEL CARDS */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  {config.behaviorModels.map((model, idx) => {
+                  {config.behaviorModels.map((model) => {
                     const isSmoke = model.id.includes("smoke");
                     const isSeat = model.id.includes("seat") || model.id.includes("leaving");
 
@@ -762,7 +764,7 @@ export default function ModelControllerClient() {
                                   </CardTitle>
                                 </div>
                                 <CardDescription className="text-xs text-slate-400 mt-0.5">
-                                  {model.description || "Mô hình suy luận vi phạm hành vi"}
+                                  {model.description || "Behavior violation inference model"}
                                 </CardDescription>
                               </div>
                             </div>
@@ -771,18 +773,18 @@ export default function ModelControllerClient() {
                               <button
                                 type="button"
                                 onClick={() => handleToggleModelEnabled(model.id)}
-                                title={model.enabled ? "Đang bật - Nhấn để tắt" : "Đang tắt - Nhấn để bật"}
+                                title={model.enabled ? "Enabled - Select to disable" : "Disabled - Select to enable"}
                                 className="flex items-center gap-1.5 text-xs px-2 py-1 rounded-md border border-slate-700 bg-slate-800/80 transition-colors hover:bg-slate-700"
                               >
                                 {model.enabled ? (
                                   <>
                                     <ToggleRight className="h-4 w-4 text-emerald-400" />
-                                    <span className="text-emerald-400 font-medium">Bật</span>
+                                    <span className="text-emerald-400 font-medium">Enabled</span>
                                   </>
                                 ) : (
                                   <>
                                     <ToggleLeft className="h-4 w-4 text-slate-500" />
-                                    <span className="text-slate-500">Tắt</span>
+                                    <span className="text-slate-500">Disabled</span>
                                   </>
                                 )}
                               </button>
@@ -791,7 +793,7 @@ export default function ModelControllerClient() {
                                 <button
                                   type="button"
                                   onClick={() => handleDeleteModel(model.id, model.name)}
-                                  title="Xóa mô hình này"
+                                  title="Delete this model"
                                   className="p-1 rounded-md text-slate-500 hover:text-rose-400 hover:bg-rose-500/10"
                                 >
                                   <Trash2 className="h-4 w-4" />
@@ -806,15 +808,15 @@ export default function ModelControllerClient() {
                           <div className="space-y-1.5">
                             <div className="flex items-center justify-between">
                               <label className="text-xs font-semibold uppercase tracking-wider text-slate-300">
-                                Đường dẫn trọng số weights (.pt)
+                                Weights path (.pt)
                               </label>
                               {model.modelExists ? (
                                 <span className="flex items-center gap-1 text-[11px] text-emerald-400">
-                                  <CheckCircle2 className="h-3 w-3" /> File khả dụng
+                                  <CheckCircle2 className="h-3 w-3" /> File available
                                 </span>
                               ) : (
                                 <span className="flex items-center gap-1 text-[11px] text-amber-400">
-                                  <AlertTriangle className="h-3 w-3" /> Chưa tìm thấy file
+                                  <AlertTriangle className="h-3 w-3" /> File not found
                                 </span>
                               )}
                             </div>
@@ -827,7 +829,7 @@ export default function ModelControllerClient() {
 
                             {/* Preset Shortcuts */}
                             <div className="flex flex-wrap gap-1.5 pt-1">
-                              <span className="text-[11px] text-slate-500 self-center mr-0.5">Gợi ý:</span>
+                              <span className="text-[11px] text-slate-500 self-center mr-0.5">Suggested:</span>
                               {isSmoke && (
                                 <button
                                   type="button"
@@ -871,7 +873,7 @@ export default function ModelControllerClient() {
                             <div className="space-y-2">
                               <div className="flex items-center justify-between">
                                 <label className="text-[11px] font-semibold uppercase tracking-wider text-slate-300">
-                                  Confidence (Độ tin cậy)
+                                  Confidence
                                 </label>
                                 <span className="font-mono text-xs font-bold text-amber-400">
                                   {(model.confidence * 100).toFixed(0)}% ({model.confidence})
@@ -886,11 +888,11 @@ export default function ModelControllerClient() {
                                 onChange={(e) =>
                                   updateModelField(model.id, { confidence: parseFloat(e.target.value) })
                                 }
-                                aria-label={`Độ tin cậy của ${model.name}`}
+                                aria-label={`Confidence for ${model.name}`}
                                 className="w-full accent-amber-500 cursor-pointer"
                               />
                               <p className="text-[10px] text-slate-500">
-                                Ngưỡng tối thiểu để chấp nhận phát hiện là vi phạm.
+                                Minimum confidence required to accept a violation detection.
                               </p>
                             </div>
 
@@ -898,7 +900,7 @@ export default function ModelControllerClient() {
                             <div className="space-y-2">
                               <div className="flex items-center justify-between">
                                 <label className="text-[11px] font-semibold uppercase tracking-wider text-slate-300">
-                                  IOU Threshold (Gộp BBox)
+                                  IOU Threshold (BBox NMS)
                                 </label>
                                 <span className="font-mono text-xs font-bold text-sky-400">
                                   {(model.iouThreshold * 100).toFixed(0)}% ({model.iouThreshold})
@@ -913,11 +915,11 @@ export default function ModelControllerClient() {
                                 onChange={(e) =>
                                   updateModelField(model.id, { iouThreshold: parseFloat(e.target.value) })
                                 }
-                                aria-label={`Ngưỡng IOU của ${model.name}`}
+                                aria-label={`IOU threshold for ${model.name}`}
                                 className="w-full accent-sky-500 cursor-pointer"
                               />
                               <p className="text-[10px] text-slate-500">
-                                Ngưỡng NMS loại bỏ bounding box trùng lặp (chuẩn 0.45).
+                                NMS threshold used to remove overlapping bounding boxes (default 0.45).
                               </p>
                             </div>
                           </div>
@@ -925,7 +927,7 @@ export default function ModelControllerClient() {
                           {/* Target Violation Labels */}
                           <div className="space-y-2.5">
                             <label className="text-xs font-semibold uppercase tracking-wider text-slate-300">
-                              Nhãn vi phạm theo dõi (Target Labels)
+                              Target Violation Labels
                             </label>
                             <div className="flex flex-wrap gap-1.5">
                               {model.labels.map((lbl) => (
@@ -939,7 +941,7 @@ export default function ModelControllerClient() {
                                   <button
                                     type="button"
                                     onClick={() => handleRemoveLabelFromModel(model.id, lbl)}
-                                    aria-label={`Xóa nhãn ${lbl}`}
+                                    aria-label={`Remove label ${lbl}`}
                                     className="hover:bg-white/20 rounded-full p-0.5"
                                   >
                                     <X className="h-3 w-3" />
@@ -964,7 +966,7 @@ export default function ModelControllerClient() {
                                     handleAddLabelToModel(model.id);
                                   }
                                 }}
-                                placeholder="Thêm nhãn vi phạm..."
+                                placeholder="Add violation label..."
                                 className="bg-slate-800/90 border-slate-700 text-xs text-slate-100 h-8"
                               />
                               <Button
@@ -973,7 +975,7 @@ export default function ModelControllerClient() {
                                 onClick={() => handleAddLabelToModel(model.id)}
                                 className="bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 h-8 px-3 text-xs"
                               >
-                                <Plus className="h-3.5 w-3.5 mr-1" /> Thêm
+                                <Plus className="h-3.5 w-3.5 mr-1" /> Add
                               </Button>
                             </div>
                           </div>
@@ -988,17 +990,17 @@ export default function ModelControllerClient() {
               <div>
                 <div className="flex items-center gap-2 mb-3">
                   <HardDrive className="h-5 w-5 text-sky-400" />
-                  <h2 className="text-lg font-semibold text-white">3. Đường dẫn Lưu trữ Dữ liệu Cục bộ (Local Storage)</h2>
+                  <h2 className="text-lg font-semibold text-white">3. Local Data Storage</h2>
                 </div>
                 <Card className="border-slate-800 bg-slate-900/80 shadow-lg">
                   <CardHeader className="border-b border-slate-800 pb-4">
                     <div className="flex items-center justify-between">
                       <div>
                         <CardTitle className="text-base text-white">
-                          Cấu hình Đường dẫn Lưu trữ Dữ liệu (Local Storage)
+                          Local Data Storage Paths
                         </CardTitle>
                         <CardDescription className="text-xs text-slate-400">
-                          Đường dẫn thư mục vật lý lưu trữ ảnh mẫu 6 góc, vector embeddings và dữ liệu vi phạm
+                          Local directories for six-angle face images, embeddings, and violation evidence
                         </CardDescription>
                       </div>
                       <Badge className="bg-sky-500/10 border-sky-500/30 text-sky-400">
@@ -1010,15 +1012,15 @@ export default function ModelControllerClient() {
                     <div className="space-y-2">
                       <div className="flex items-center justify-between">
                         <label className="text-xs font-semibold uppercase tracking-wider text-slate-300">
-                          Đường dẫn thư mục lưu khuôn mặt (Face Storage Path)
+                          Face Storage Path
                         </label>
                         {storageStats?.exists ? (
                           <span className="flex items-center gap-1 text-[11px] text-emerald-400">
-                            <CheckCircle2 className="h-3 w-3" /> Thư mục đã sẵn sàng trên ổ đĩa
+                            <CheckCircle2 className="h-3 w-3" /> Directory is ready
                           </span>
                         ) : (
                           <span className="flex items-center gap-1 text-[11px] text-amber-400">
-                            <AlertTriangle className="h-3 w-3" /> Thư mục sẽ được tạo tự động khi ghi dữ liệu
+                            <AlertTriangle className="h-3 w-3" /> Directory will be created automatically
                           </span>
                         )}
                       </div>
@@ -1031,7 +1033,7 @@ export default function ModelControllerClient() {
                         />
                       </div>
                       <div className="flex flex-wrap gap-2 pt-1">
-                        <span className="text-[11px] text-slate-400 self-center">Gợi ý:</span>
+                        <span className="text-[11px] text-slate-400 self-center">Suggested:</span>
                         <button
                           type="button"
                           onClick={() =>
@@ -1043,7 +1045,7 @@ export default function ModelControllerClient() {
                           }
                           className="px-2 py-0.5 text-[11px] rounded bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 font-mono"
                         >
-                          src/data/vision-ai/faces (Chuẩn dự án)
+                          src/data/vision-ai/faces (Project default)
                         </button>
                         <button
                           type="button"
@@ -1060,25 +1062,58 @@ export default function ModelControllerClient() {
                       </div>
                     </div>
 
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <label className="text-xs font-semibold uppercase tracking-wider text-slate-300">
+                          Violation Evidence Path
+                        </label>
+                        {config.violationStorageExists ? (
+                          <span className="flex items-center gap-1 text-[11px] text-emerald-400">
+                            <CheckCircle2 className="h-3 w-3" /> Directory is ready
+                          </span>
+                        ) : (
+                          <span className="flex items-center gap-1 text-[11px] text-amber-400">
+                            <AlertTriangle className="h-3 w-3" /> Directory will be created automatically
+                          </span>
+                        )}
+                      </div>
+                      <Input
+                        value={config.violationStoragePath}
+                        onChange={(e) => setConfig({ ...config, violationStoragePath: e.target.value })}
+                        placeholder="D:\data\vision-ai\violations"
+                        className="bg-slate-800/90 border-slate-700 text-slate-100 font-mono text-xs"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setConfig({
+                          ...config,
+                          violationStoragePath: "D:\\Open AI\\down_town\\src\\data\\vision-ai\\violations",
+                        })}
+                        className="px-2 py-0.5 text-[11px] rounded bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 font-mono"
+                      >
+                        src/data/vision-ai/violations (Project default)
+                      </button>
+                    </div>
+
                     {/* Real-time Storage Metrics Cards */}
                     {storageStats && (
                       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-1">
                         <div className="rounded-xl border border-slate-800 bg-slate-950/60 p-4">
-                          <p className="text-xs text-slate-400">Tổng số hồ sơ nhân sự</p>
+                          <p className="text-xs text-slate-400">Profiles stored</p>
                           <p className="text-2xl font-bold text-white mt-1">
                             {storageStats.totalUsers}{" "}
-                            <span className="text-xs font-normal text-slate-500">tài khoản</span>
+                            <span className="text-xs font-normal text-slate-500">profiles</span>
                           </p>
                         </div>
                         <div className="rounded-xl border border-slate-800 bg-slate-950/60 p-4">
-                          <p className="text-xs text-slate-400">Tổng ảnh mẫu 6 góc</p>
+                          <p className="text-xs text-slate-400">Face reference images</p>
                           <p className="text-2xl font-bold text-sky-400 mt-1">
                             {storageStats.totalImages}{" "}
-                            <span className="text-xs font-normal text-slate-500">ảnh</span>
+                            <span className="text-xs font-normal text-slate-500">images</span>
                           </p>
                         </div>
                         <div className="rounded-xl border border-slate-800 bg-slate-950/60 p-4">
-                          <p className="text-xs text-slate-400">Dung lượng đĩa đã chiếm dụng</p>
+                          <p className="text-xs text-slate-400">Disk usage</p>
                           <p className="text-2xl font-bold text-emerald-400 mt-1">
                             {formatBytes(storageStats.totalSizeBytes)}
                           </p>
@@ -1094,7 +1129,7 @@ export default function ModelControllerClient() {
                 <div className="flex items-center gap-3 text-sm text-slate-300">
                   <Sliders className="h-5 w-5 text-indigo-400 shrink-0" />
                   <span className="text-xs sm:text-sm">
-                    Thông số của từng mô hình (Smoke, Seat, ArcFace) sẽ có hiệu lực ngay lập tức không cần restart backend.
+                    Model settings take effect immediately without restarting the backend.
                   </span>
                 </div>
                 <div className="flex items-center gap-3 shrink-0">
@@ -1106,7 +1141,7 @@ export default function ModelControllerClient() {
                     className="border-slate-700 bg-slate-800/80 hover:bg-slate-700 text-slate-300 text-xs sm:text-sm"
                   >
                     <RotateCcw className="h-4 w-4 mr-1.5" />
-                    Khôi phục mặc định
+                    Restore Defaults
                   </Button>
                   <Button
                     type="button"
@@ -1117,12 +1152,12 @@ export default function ModelControllerClient() {
                     {saving ? (
                       <>
                         <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                        Đang lưu cấu hình...
+                        Saving configuration...
                       </>
                     ) : (
                       <>
                         <Save className="h-4 w-4 mr-2" />
-                        Lưu cấu hình Model AI
+                        Save AI Model Configuration
                       </>
                     )}
                   </Button>

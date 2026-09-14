@@ -40,6 +40,7 @@ export async function POST(request: Request) {
 
   const body = new FormData();
   body.append("userId", userId);
+  body.append("profileName", target.name);
   images.forEach((image) => body.append("images", image));
 
   try {

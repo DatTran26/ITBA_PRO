@@ -73,14 +73,14 @@ export async function POST(request: Request) {
   const action = incoming.get("action");
   const image = incoming.get("image");
   if ((action !== "check-in" && action !== "check-out") || !validateImage(image)) {
-    return NextResponse.json({ error: "Thao tác và hình ảnh khuôn mặt hợp lệ là bắt buộc" }, { status: 400 });
+    return NextResponse.json({ error: "A valid action and face image are required" }, { status: 400 });
   }
 
   // 1. Single Source of Truth: Get enrollment from face-store (same as login)
   const enrollment = await getFaceEnrollment(ctx.userId);
   if (!enrollment) {
     return NextResponse.json({
-      error: "Không tìm thấy dữ liệu khuôn mặt đã đăng ký cho tài khoản này. Vui lòng đăng ký khuôn mặt trước khi chấm công.",
+      error: "No face enrollment was found for this account. Enroll your face before using attendance.",
     }, { status: 409 });
   }
 
@@ -97,7 +97,7 @@ export async function POST(request: Request) {
     };
     if (!verification.match) {
       return NextResponse.json({
-        error: "Khuôn mặt quét được không khớp với khuôn mặt đã đăng ký lúc đăng nhập!",
+        error: "The scanned face does not match the enrolled face.",
       }, { status: 401 });
     }
 
@@ -117,7 +117,7 @@ export async function POST(request: Request) {
         .maybeSingle();
 
       if (action === "check-in") {
-        if (active) return NextResponse.json({ error: "Bạn đã có phiên chấm công đang mở (Check-in)" }, { status: 409 });
+        if (active) return NextResponse.json({ error: "You already have an active attendance session" }, { status: 409 });
         const { data, error } = await admin
           .from("attendance_sessions")
           .insert({ user_id: ctx.userId, check_in_similarity: similarity })
@@ -127,7 +127,7 @@ export async function POST(request: Request) {
         return NextResponse.json({ session: data });
       }
 
-      if (!active) return NextResponse.json({ error: "Bạn cần Check-in trước khi Check-out" }, { status: 409 });
+      if (!active) return NextResponse.json({ error: "Check in before checking out" }, { status: 409 });
       const { data, error } = await admin
         .from("attendance_sessions")
         .update({ check_out_at: now, check_out_similarity: similarity, updated_at: now })
@@ -143,7 +143,7 @@ export async function POST(request: Request) {
 
       if (action === "check-in") {
         if (activeIdx !== -1) {
-          return NextResponse.json({ error: "Bạn đã có phiên chấm công đang mở (Check-in)" }, { status: 409 });
+          return NextResponse.json({ error: "You already have an active attendance session" }, { status: 409 });
         }
         const newSession: LocalAttendanceSession = {
           id: `att-${Date.now()}`,
@@ -160,7 +160,7 @@ export async function POST(request: Request) {
       }
 
       if (activeIdx === -1) {
-        return NextResponse.json({ error: "Bạn cần Check-in trước khi Check-out" }, { status: 409 });
+        return NextResponse.json({ error: "Check in before checking out" }, { status: 409 });
       }
       localSessions[activeIdx].check_out_at = now;
       localSessions[activeIdx].check_out_similarity = similarity;
@@ -169,7 +169,7 @@ export async function POST(request: Request) {
     }
   } catch (error) {
     return NextResponse.json({
-      error: error instanceof Error ? error.message : "Chấm công thất bại",
+      error: error instanceof Error ? error.message : "Attendance failed",
     }, { status: 502 });
   }
 }

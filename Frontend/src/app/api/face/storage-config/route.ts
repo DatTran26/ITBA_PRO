@@ -15,7 +15,7 @@ export async function GET() {
 
   if (!ctx.isSuperAdmin) {
     return NextResponse.json(
-      { error: "Chỉ Super Admin mới có quyền xem và chỉnh cấu hình đường dẫn lưu trữ" },
+      { error: "Only Super Admin can view and edit storage paths" },
       { status: 403 }
     );
   }
@@ -25,7 +25,7 @@ export async function GET() {
     return NextResponse.json(config);
   } catch (error) {
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : "Không thể lấy cấu hình lưu trữ" },
+      { error: error instanceof Error ? error.message : "Unable to load storage configuration" },
       { status: 502 }
     );
   }
@@ -37,7 +37,7 @@ export async function POST(request: NextRequest) {
 
   if (!ctx.isSuperAdmin) {
     return NextResponse.json(
-      { error: "Chỉ Super Admin mới có quyền thay đổi đường dẫn lưu trữ dữ liệu" },
+      { error: "Only Super Admin can change data storage paths" },
       { status: 403 }
     );
   }
@@ -46,7 +46,7 @@ export async function POST(request: NextRequest) {
   const storagePath = typeof body.storagePath === "string" ? body.storagePath.trim() : "";
 
   if (!storagePath) {
-    return NextResponse.json({ error: "Đường dẫn thư mục lưu trữ không được để trống" }, { status: 400 });
+    return NextResponse.json({ error: "Storage directory cannot be empty" }, { status: 400 });
   }
 
   try {
@@ -61,7 +61,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(result);
   } catch (error) {
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : "Không thể cập nhật đường dẫn lưu trữ" },
+      { error: error instanceof Error ? error.message : "Unable to update the storage path" },
       { status: 502 }
     );
   }

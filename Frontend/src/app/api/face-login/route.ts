@@ -27,26 +27,26 @@ export async function POST(request: NextRequest) {
     const host = request.headers.get("host") ?? request.nextUrl.hostname;
     if (!isDevAuthEnabled() || !isLocalDevHost(host)) {
       return NextResponse.json(
-        { error: "Đăng nhập bằng khuôn mặt chỉ hỗ trợ ở môi trường dev local" },
+        { error: "Face ID sign-in is only available in local development" },
         { status: 403 }
       );
     }
 
     const incoming = await request.formData().catch(() => null);
     if (!incoming) {
-      return NextResponse.json({ error: "Dữ liệu gửi lên không hợp lệ" }, { status: 400 });
+      return NextResponse.json({ error: "Invalid request data" }, { status: 400 });
     }
 
     const email = incoming.get("email");
     const image = incoming.get("image");
     if (typeof email !== "string" || !email.trim() || !validateImage(image)) {
-      return NextResponse.json({ error: "Email và ảnh khuôn mặt là bắt buộc" }, { status: 400 });
+      return NextResponse.json({ error: "Email and a face image are required" }, { status: 400 });
     }
 
     // 1. Find user by email
     const user = await findUserByEmail(email);
     if (!user) {
-      return NextResponse.json({ error: "Không tìm thấy tài khoản trong hệ thống" }, { status: 404 });
+      return NextResponse.json({ error: "Account not found" }, { status: 404 });
     }
 
     // 2. Check enrollment
@@ -69,13 +69,13 @@ export async function POST(request: NextRequest) {
       })) as VerifyResponse;
     } catch (aiErr) {
       return NextResponse.json(
-        { error: aiErr instanceof Error ? aiErr.message : "Xác thực khuôn mặt thất bại (lỗi AI)" },
+        { error: aiErr instanceof Error ? aiErr.message : "Face verification failed in Vision AI" },
         { status: 502 }
       );
     }
 
     if (!verification.match) {
-      return NextResponse.json({ error: "Khuôn mặt không khớp với tài khoản" }, { status: 401 });
+      return NextResponse.json({ error: "Face does not match this account" }, { status: 401 });
     }
 
     const response = NextResponse.json({
@@ -97,7 +97,7 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error("Error in /api/face-login:", error);
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : "Xác thực khuôn mặt thất bại do lỗi hệ thống" },
+      { error: error instanceof Error ? error.message : "Face verification failed due to a system error" },
       { status: 500 }
     );
   }

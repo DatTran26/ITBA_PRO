@@ -13,7 +13,15 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Input } from "@/components/ui/input";
 import { readApiResponse } from "@/lib/api-response";
 
-const ANGLES = ["Chính diện", "Nghiêng trái", "Nghiêng phải", "Ngước lên", "Cúi xuống", "Tự nhiên"];
+const ANGLES_DETAIL = [
+  { name: "Front", hint: "Look directly at the camera" },
+  { name: "Left", hint: "Turn your face 15-30 degrees to the left" },
+  { name: "Right", hint: "Turn your face 15-30 degrees to the right" },
+  { name: "Looking up", hint: "Raise your chin slightly" },
+  { name: "Looking down", hint: "Lower your head slightly" },
+  { name: "Natural / Smile", hint: "Smile or use a natural expression" },
+];
+const ANGLES = ANGLES_DETAIL.map((d) => d.name);
 type Capture = { file: File; url: string };
 
 export default function MyFaceClient() {
@@ -23,6 +31,12 @@ export default function MyFaceClient() {
   const [activeAngle, setActiveAngle] = useState(0);
   const [cameraOn, setCameraOn] = useState(false);
   const [busy, setBusy] = useState(false);
+
+  // 1-touch 3s auto capture state
+  const [isAutoCapturing, setIsAutoCapturing] = useState(false);
+  const [autoCountdown, setAutoCountdown] = useState<number | null>(null);
+  const autoCapturingRef = useRef(false);
+
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
@@ -31,7 +45,7 @@ export default function MyFaceClient() {
   const load = useCallback(async () => {
     const response = await fetch("/api/face/self-enroll", { cache: "no-store" });
     const data = await readApiResponse<{ enrolled: boolean; enrollment: { id: string; created_at: string } | null; error?: string }>(response);
-    if (!response.ok) throw new Error(data.error ?? "Không thể tải trạng thái đăng ký");
+    if (!response.ok) throw new Error(data.error ?? "Unable to load enrollment status");
     setEnrollment(data.enrollment);
     setLoaded(true);
   }, []);
@@ -62,26 +76,108 @@ export default function MyFaceClient() {
       if (videoRef.current) videoRef.current.srcObject = stream;
       setCameraOn(true);
     } catch {
-      toast.error("Không thể mở camera. Vui lòng cho phép truy cập camera.");
+      toast.error("Unable to open the camera. Please allow camera access.");
     }
   }
 
   function stopCamera() {
+    stopAutoCapture();
     streamRef.current?.getTracks().forEach((track) => track.stop());
     streamRef.current = null;
     setCameraOn(false);
   }
 
-  async function captureAngle() {
+  function stopAutoCapture() {
+    autoCapturingRef.current = false;
+    setIsAutoCapturing(false);
+    setAutoCountdown(null);
+  }
+
+  async function startAuto6AngleCapture() {
+    let stream = streamRef.current;
+    if (!cameraOn || !stream) {
+      try {
+        stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" }, audio: false });
+        streamRef.current = stream;
+        if (videoRef.current) videoRef.current.srcObject = stream;
+        setCameraOn(true);
+      } catch {
+        toast.error("Unable to open the camera. Please allow camera access.");
+        return;
+      }
+    }
+
+    setIsAutoCapturing(true);
+    autoCapturingRef.current = true;
+    setActiveAngle(0);
+    toast.info("Automatic six-angle capture started. One image will be taken every three seconds.");
+    runAngleCountdown(0);
+  }
+
+  function runAngleCountdown(angleIndex: number) {
+    if (!autoCapturingRef.current) return;
+    if (angleIndex >= 6) {
+      setIsAutoCapturing(false);
+      autoCapturingRef.current = false;
+      setAutoCountdown(null);
+      toast.success("All six angles captured. Saving enrollment automatically...");
+      window.setTimeout(() => {
+        void enroll();
+      }, 500);
+      return;
+    }
+
+    setActiveAngle(angleIndex);
+    setAutoCountdown(3);
+
+    let currentSec = 3;
+    const timer = window.setInterval(() => {
+      if (!autoCapturingRef.current) {
+        window.clearInterval(timer);
+        return;
+      }
+      currentSec -= 1;
+      if (currentSec > 0) {
+        setAutoCountdown(currentSec);
+      } else {
+        window.clearInterval(timer);
+        setAutoCountdown(0);
+        void snapPhotoForAngle(angleIndex).then((success) => {
+          if (success && autoCapturingRef.current) {
+            window.setTimeout(() => {
+              runAngleCountdown(angleIndex + 1);
+            }, 400);
+          } else {
+            stopAutoCapture();
+          }
+        });
+      }
+    }, 1000);
+  }
+
+  async function snapPhotoForAngle(angleIndex: number): Promise<boolean> {
     const video = videoRef.current;
     const canvas = canvasRef.current;
-    if (!video || !canvas || video.videoWidth === 0) return toast.error("Camera chưa sẵn sàng");
+    if (!video || !canvas || video.videoWidth === 0) {
+      toast.error("Camera is not ready to capture " + ANGLES[angleIndex]);
+      return false;
+    }
     canvas.width = video.videoWidth;
     canvas.height = video.videoHeight;
     canvas.getContext("2d")?.drawImage(video, 0, 0, canvas.width, canvas.height);
     const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, "image/jpeg", 0.92));
-    if (!blob) return toast.error("Không thể chụp ảnh khuôn mặt");
-    replaceCapture(activeAngle, new File([blob], `face-${activeAngle + 1}.jpg`, { type: "image/jpeg" }));
+    if (!blob) {
+      toast.error("Unable to capture the " + ANGLES[angleIndex] + " angle");
+      return false;
+    }
+    const file = new File([blob], `face-${angleIndex + 1}.jpg`, { type: "image/jpeg" });
+    replaceCapture(angleIndex, file);
+    toast.info(`Captured angle ${angleIndex + 1}/6: ${ANGLES[angleIndex]}`);
+    return true;
+  }
+
+  async function captureAngle() {
+    void snapPhotoForAngle(activeAngle);
     const nextEmpty = captures.findIndex((capture, index) => index > activeAngle && !capture);
     if (nextEmpty !== -1) setActiveAngle(nextEmpty);
   }
@@ -102,29 +198,29 @@ export default function MyFaceClient() {
     try {
       const response = await fetch("/api/face/self-enroll", { method: "POST", body });
       const data = await readApiResponse<{ ok?: boolean; enrollment?: { id: string; created_at: string }; error?: string }>(response);
-      if (!response.ok) throw new Error(data.error ?? "Đăng ký khuôn mặt thất bại");
-      toast.success("Đăng ký khuôn mặt thành công!");
+      if (!response.ok) throw new Error(data.error ?? "Face enrollment failed");
+      toast.success("Face enrolled successfully!");
       clearCaptures();
       stopCamera();
       await load();
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Đăng ký khuôn mặt thất bại");
+      toast.error(error instanceof Error ? error.message : "Face enrollment failed");
     } finally {
       setBusy(false);
     }
   }
 
   async function remove() {
-    if (!confirm("Bạn có chắc muốn xóa đăng ký khuôn mặt? Bạn sẽ không thể đăng nhập hoặc chấm công bằng khuôn mặt.")) return;
+    if (!confirm("Delete your face enrollment? Face ID sign-in and attendance will stop working.")) return;
     setBusy(true);
     try {
       const response = await fetch("/api/face/self-enroll", { method: "DELETE" });
       const data = await readApiResponse<{ error?: string }>(response);
-      if (!response.ok) throw new Error(data.error ?? "Không thể xóa đăng ký khuôn mặt");
-      toast.success("Đã xóa đăng ký khuôn mặt");
+      if (!response.ok) throw new Error(data.error ?? "Unable to delete face enrollment");
+      toast.success("Face enrollment deleted");
       await load();
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Xóa đăng ký khuôn mặt thất bại");
+      toast.error(error instanceof Error ? error.message : "Unable to delete face enrollment");
     } finally {
       setBusy(false);
     }
@@ -134,13 +230,13 @@ export default function MyFaceClient() {
     <div className="min-h-screen bg-[#121A2E] text-[#ECF0F7]">
       <AppNavbar />
       <PageContainer>
-        <PageBreadcrumb breadcrumbs={[{ label: "Dashboard", href: "/dashboard" }, { label: "Khuôn mặt của tôi" }]} />
+        <PageBreadcrumb breadcrumbs={[{ label: "Dashboard", href: "/dashboard" }, { label: "My Face" }]} />
         <div className="mb-8 flex items-end justify-between gap-4">
           <div>
-            <h1 className="font-display text-4xl font-light">Khuôn mặt của tôi</h1>
-            <p className="mt-2 text-[#8B99B0]">Đăng ký khuôn mặt để đăng nhập và chấm công bằng nhận diện khuôn mặt.</p>
+            <h1 className="font-display text-4xl font-light">My Face</h1>
+            <p className="mt-2 text-[#8B99B0]">Enroll your face for Face ID sign-in and attendance.</p>
           </div>
-          <Button variant="outline" size="icon" title="Làm mới" onClick={() => load()}>
+          <Button variant="outline" size="icon" title="Refresh" onClick={() => load()}>
             <RefreshCw />
           </Button>
         </div>
@@ -154,9 +250,9 @@ export default function MyFaceClient() {
                   <>
                     <ShieldCheck className="size-5 text-[#36DDAB]" />
                     <div>
-                      <p className="font-medium text-[#36DDAB]">Đã đăng ký khuôn mặt</p>
+                      <p className="font-medium text-[#36DDAB]">Face enrolled</p>
                       <p className="text-xs text-[#8B99B0]">
-                        Đăng ký lúc: {new Date(enrollment.created_at).toLocaleString("vi-VN")}
+                        Enrolled: {new Date(enrollment.created_at).toLocaleString("en-US")}
                       </p>
                     </div>
                   </>
@@ -164,15 +260,15 @@ export default function MyFaceClient() {
                   <>
                     <ScanFace className="size-5 text-[#FF6B82]" />
                     <div>
-                      <p className="font-medium text-[#FF6B82]">Chưa đăng ký khuôn mặt</p>
-                      <p className="text-xs text-[#8B99B0]">Hãy chụp 6 góc khuôn mặt bên dưới để đăng ký.</p>
+                      <p className="font-medium text-[#FF6B82]">Face not enrolled</p>
+                      <p className="text-xs text-[#8B99B0]">Capture the six face angles below to enroll.</p>
                     </div>
                   </>
                 )}
               </div>
               {enrollment && (
                 <Button variant="destructive" size="sm" disabled={busy} onClick={remove}>
-                  <Trash2 className="mr-1 size-4" /> Xóa
+                  <Trash2 className="mr-1 size-4" /> Delete
                 </Button>
               )}
             </CardContent>
@@ -185,25 +281,66 @@ export default function MyFaceClient() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <ScanFace className="size-4" />
-                {enrollment ? "Cập nhật khuôn mặt" : "Đăng ký khuôn mặt"}
+                {enrollment ? "Update Face" : "Enroll Face"}
               </CardTitle>
               <CardDescription>
-                Chụp 6 góc khuôn mặt: chính diện, nghiêng trái/phải, ngước lên, cúi xuống, và tự nhiên.
+                Capture six angles: front, left, right, looking up, looking down, and natural.
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="overflow-hidden rounded-lg bg-black aspect-video">
+              <div className="relative overflow-hidden rounded-lg bg-black aspect-video">
                 <video ref={videoRef} autoPlay muted playsInline className="h-full w-full -scale-x-100 object-cover" />
                 <canvas ref={canvasRef} className="hidden" />
+                {isAutoCapturing && autoCountdown !== null && (
+                  <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-black/60 backdrop-blur-sm transition-all">
+                    <div className="flex h-20 w-20 items-center justify-center rounded-full border-4 border-emerald-400 bg-emerald-950/80 shadow-lg shadow-emerald-500/30 animate-pulse">
+                      <span className="font-mono text-4xl font-extrabold text-emerald-300">
+                        {autoCountdown > 0 ? autoCountdown : <Camera className="size-6" />}
+                      </span>
+                    </div>
+                    <div className="mt-3 rounded-full bg-black/80 px-4 py-1.5 text-center shadow">
+                      <p className="text-xs font-semibold text-emerald-400">
+                        Angle {activeAngle + 1}/6: {ANGLES[activeAngle]}
+                      </p>
+                      <p className="text-xs text-white/80">
+                        {ANGLES_DETAIL[activeAngle]?.hint}
+                      </p>
+                    </div>
+                  </div>
+                )}
               </div>
+
+              {/* 1-touch Auto 6-Angle Capture Button */}
+              <Button
+                type="button"
+                onClick={isAutoCapturing ? stopAutoCapture : startAuto6AngleCapture}
+                className={`w-full font-semibold ${
+                  isAutoCapturing
+                    ? "bg-amber-600 hover:bg-amber-700 text-white"
+                    : "bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white shadow-md shadow-emerald-900/30"
+                }`}
+              >
+                {isAutoCapturing ? (
+                  <>
+                    <Square className="mr-2 size-4" />
+                    Stop Automatic Capture (Angle {activeAngle + 1}/6: {ANGLES[activeAngle]})
+                  </>
+                ) : (
+                  <>
+                    <ScanFace className="mr-2 size-4" />
+                    Automatic Six-Angle Capture (one image every 3s)
+                  </>
+                )}
+              </Button>
+
               <div className="grid grid-cols-2 gap-2">
                 {!cameraOn ? (
-                  <Button onClick={startCamera}><Play className="mr-1 size-4" />Mở Camera</Button>
+                  <Button variant="outline" onClick={startCamera}><Play className="mr-1 size-4" />Open Camera</Button>
                 ) : (
-                  <Button variant="outline" onClick={stopCamera}><Square className="mr-1 size-4" />Tắt Camera</Button>
+                  <Button variant="outline" onClick={stopCamera}><Square className="mr-1 size-4" />Stop Camera</Button>
                 )}
-                <Button disabled={!cameraOn} onClick={captureAngle}>
-                  <Camera className="mr-1 size-4" />Chụp {ANGLES[activeAngle]}
+                <Button disabled={!cameraOn || isAutoCapturing} onClick={captureAngle}>
+                  <Camera className="mr-1 size-4" />Manual Capture
                 </Button>
               </div>
 
@@ -222,11 +359,11 @@ export default function MyFaceClient() {
                     <div className="flex items-center justify-between gap-2 px-2 py-1.5 text-xs text-[#8B99B0]">
                       <span>{index + 1}. {angle}</span>
                       <div className="flex items-center gap-1">
-                        <label className="cursor-pointer rounded p-1 hover:bg-white/10" title={`Tải lên ${angle}`}>
+                        <label className="cursor-pointer rounded p-1 hover:bg-white/10" title={`Upload ${angle}`}>
                           <Upload className="size-3.5" />
                           <Input className="hidden" type="file" accept="image/png,image/jpeg,image/webp" capture="user" onChange={(event) => replaceCapture(index, event.target.files?.[0] ?? null)} />
                         </label>
-                        {captures[index] && <button type="button" className="rounded p-1 hover:bg-white/10" title={`Xóa ${angle}`} onClick={() => replaceCapture(index, null)}><X className="size-3.5" /></button>}
+                        {captures[index] && <button type="button" className="rounded p-1 hover:bg-white/10" title={`Remove ${angle}`} onClick={() => replaceCapture(index, null)}><X className="size-3.5" /></button>}
                       </div>
                     </div>
                   </div>
@@ -236,10 +373,10 @@ export default function MyFaceClient() {
               <div className="grid grid-cols-2 gap-2">
                 <Button className="w-full" disabled={busy || captures.some((capture) => !capture)} onClick={enroll}>
                   {busy ? <Loader2 className="animate-spin" /> : <Upload className="mr-1 size-4" />}
-                  {enrollment ? "Cập nhật" : "Đăng ký"}
+                  {enrollment ? "Update" : "Enroll"}
                 </Button>
                 <Button variant="outline" className="w-full" onClick={clearCaptures} disabled={busy || captures.every((c) => !c)}>
-                  Xóa tất cả ảnh
+                  Clear All Images
                 </Button>
               </div>
             </CardContent>
@@ -248,33 +385,33 @@ export default function MyFaceClient() {
           {/* Instructions panel */}
           <Card className="rounded-lg bg-[#10192B]/80">
             <CardHeader>
-              <CardTitle>Hướng dẫn</CardTitle>
+              <CardTitle>Instructions</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4 text-[#8B99B0]">
               <div className="space-y-3">
                 <div className="flex items-start gap-3">
                   <Badge className="mt-0.5 shrink-0">1</Badge>
-                  <p>Mở camera và đảm bảo khuôn mặt hiển thị rõ ràng, đủ ánh sáng.</p>
+                  <p>Open the camera and ensure your face is clear and well lit.</p>
                 </div>
                 <div className="flex items-start gap-3">
                   <Badge className="mt-0.5 shrink-0">2</Badge>
-                  <p>Chụp lần lượt 6 góc: <strong>chính diện</strong>, <strong>nghiêng trái</strong>, <strong>nghiêng phải</strong>, <strong>ngước lên</strong>, <strong>cúi xuống</strong>, và <strong>tự nhiên</strong>.</p>
+                  <p>Capture six angles: <strong>front</strong>, <strong>left</strong>, <strong>right</strong>, <strong>looking up</strong>, <strong>looking down</strong>, and <strong>natural</strong>.</p>
                 </div>
                 <div className="flex items-start gap-3">
                   <Badge className="mt-0.5 shrink-0">3</Badge>
-                  <p>Bạn có thể chụp lại hoặc tải ảnh lên cho từng góc bằng nút <Upload className="inline size-3.5" /> bên cạnh.</p>
+                  <p>You can retake or upload each angle using the adjacent <Upload className="inline size-3.5" /> button.</p>
                 </div>
                 <div className="flex items-start gap-3">
                   <Badge className="mt-0.5 shrink-0">4</Badge>
-                  <p>Sau khi đủ 6 ảnh, nhấn <strong>&quot;Đăng ký&quot;</strong> để hoàn tất.</p>
+                  <p>After all six images are ready, select <strong>Enroll</strong>.</p>
                 </div>
               </div>
               <div className="rounded-lg border border-white/10 bg-[#0B1220]/60 p-4">
-                <p className="text-sm font-medium text-[#ECF0F7] mb-2">Lưu ý bảo mật</p>
+                <p className="text-sm font-medium text-[#ECF0F7] mb-2">Privacy</p>
                 <ul className="list-disc list-inside space-y-1 text-sm">
-                  <li>Ảnh khuôn mặt được xử lý trên máy chủ nội bộ, không gửi ra bên ngoài.</li>
-                  <li>Dữ liệu nhận diện được mã hóa và lưu an toàn.</li>
-                  <li>Bạn có thể xóa đăng ký bất cứ lúc nào.</li>
+                  <li>Face images are processed by the internal server and are not sent to external services.</li>
+                  <li>Recognition data is stored securely.</li>
+                  <li>You can delete your enrollment at any time.</li>
                 </ul>
               </div>
             </CardContent>

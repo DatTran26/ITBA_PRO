@@ -74,33 +74,51 @@ export default function AttendanceClient() {
     setCameraOn(false);
   }
 
-  async function captureFace() {
+  async function captureFace(): Promise<File | null> {
     const video = videoRef.current;
     const canvas = canvasRef.current;
-    if (!video || !canvas || video.videoWidth === 0) return toast.error("Camera is not ready");
+    if (!video || !canvas || video.videoWidth === 0) {
+      toast.error("Camera is not ready. Open the camera first.");
+      return null;
+    }
     canvas.width = video.videoWidth;
     canvas.height = video.videoHeight;
     canvas.getContext("2d")?.drawImage(video, 0, 0, canvas.width, canvas.height);
     const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, "image/jpeg", 0.92));
-    if (!blob) return toast.error("Unable to capture a face image");
-    selectImage(new File([blob], "attendance-face.jpg", { type: "image/jpeg" }));
+    if (!blob) {
+      toast.error("Unable to capture an image from the camera");
+      return null;
+    }
+    const capturedFile = new File([blob], "attendance-face.jpg", { type: "image/jpeg" });
+    selectImage(capturedFile);
+    return capturedFile;
   }
 
   async function record(action: "check-in" | "check-out") {
-    if (!image) return;
+    let targetImage = image;
+    if (!targetImage) {
+      if (cameraOn) {
+        targetImage = await captureFace();
+      }
+      if (!targetImage) {
+        toast.error("Open the camera or upload a face image for attendance");
+        return;
+      }
+    }
+
     setBusy(true);
     const body = new FormData();
     body.append("action", action);
-    body.append("image", image);
+    body.append("image", targetImage);
     try {
       const response = await fetch("/api/attendance", { method: "POST", body });
       const data = await readApiResponse<{ error?: string }>(response);
-      if (!response.ok) throw new Error(data.error ?? "Attendance failed");
-      toast.success(action === "check-in" ? "Checked in" : "Checked out");
+      if (!response.ok) throw new Error(data.error ?? "Điểm danh không thành công");
+      toast.success(action === "check-in" ? "✓ Điểm danh VÀO (Check-in) thành công!" : "✓ Điểm danh RA (Check-out) thành công!");
       selectImage(null);
       await load();
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Attendance failed");
+      toast.error(error instanceof Error ? error.message : "Điểm danh thất bại");
     } finally {
       setBusy(false);
     }
@@ -112,12 +130,21 @@ export default function AttendanceClient() {
       <PageContainer>
         <PageBreadcrumb breadcrumbs={[{ label: "Dashboard", href: "/dashboard" }, { label: "Attendance" }]} />
         <div className="mb-8 flex items-end justify-between">
-          <h1 className="font-display text-4xl font-light">Attendance</h1>
-          <Button variant="outline" size="icon" title="Refresh" onClick={() => load()}><RefreshCw /></Button>
+          <div>
+            <h1 className="font-display text-4xl font-light">Attendance</h1>
+            <p className="mt-1 text-sm text-[#8B99B0]">Face attendance powered by ArcFace.</p>
+          </div>
+          <Button variant="outline" size="icon" title="Làm mới" onClick={() => load()}><RefreshCw className="size-4" /></Button>
         </div>
+
+        {/* Sync Info Banner */}
+        <div className="mb-6 rounded-lg border border-[#36DDAB]/30 bg-[#36DDAB]/10 p-3.5 text-xs text-[#36DDAB]">
+          <strong>Face verification:</strong> The current face is checked against Face ID and My Face enrollment data before check-in or check-out.
+        </div>
+
         <div className="grid gap-5 lg:grid-cols-[420px_1fr]">
           <Card className="rounded-lg bg-[#10192B]/80">
-            <CardHeader><CardTitle className="flex items-center gap-2"><Clock3 className="size-4" />Face Check</CardTitle></CardHeader>
+            <CardHeader><CardTitle className="flex items-center gap-2"><Clock3 className="size-4" />Attendance Face Scan</CardTitle></CardHeader>
             <CardContent className="space-y-4">
               <div className="relative overflow-hidden rounded-lg bg-black aspect-video">
                 <video ref={videoRef} autoPlay muted playsInline className="h-full w-full -scale-x-100 object-cover" />
@@ -126,31 +153,35 @@ export default function AttendanceClient() {
               </div>
               <div className="grid grid-cols-2 gap-2">
                 {!cameraOn ? (
-                  <Button onClick={startCamera}><Play />Start Camera</Button>
+                  <Button onClick={startCamera}><Play className="mr-1 size-4" />Open Camera</Button>
                 ) : (
-                  <Button variant="outline" onClick={stopCamera}><Square />Stop Camera</Button>
+                  <Button variant="outline" onClick={stopCamera}><Square className="mr-1 size-4" />Stop Camera</Button>
                 )}
-                <Button disabled={!cameraOn} onClick={captureFace}><Camera />{image ? "Retake" : "Capture"}</Button>
+                <Button disabled={!cameraOn} onClick={() => void captureFace()}><Camera className="mr-1 size-4" />{image ? "Retake" : "Capture"}</Button>
               </div>
               <Input type="file" accept="image/png,image/jpeg,image/webp" capture="user" onChange={(event) => selectImage(event.target.files?.[0] ?? null)} />
               <div className="grid grid-cols-2 gap-2">
-                <Button disabled={!image || busy} onClick={() => record("check-in")}><LogIn />Check in</Button>
-                <Button variant="outline" disabled={!image || busy} onClick={() => record("check-out")}><LogOut />Check out</Button>
+                <Button disabled={(!image && !cameraOn) || busy} className="bg-emerald-600 hover:bg-emerald-500 text-white" onClick={() => record("check-in")}>
+                  <LogIn className="mr-1.5 size-4" /> Điểm danh Vào
+                </Button>
+                <Button variant="outline" disabled={(!image && !cameraOn) || busy} className="border-white/15 hover:bg-white/10" onClick={() => record("check-out")}>
+                  <LogOut className="mr-1.5 size-4" /> Điểm danh Ra
+                </Button>
               </div>
             </CardContent>
           </Card>
           <Card className="rounded-lg bg-[#10192B]/80">
-            <CardHeader><CardTitle>Recent Sessions</CardTitle></CardHeader>
+            <CardHeader><CardTitle>Lịch sử điểm danh gần đây</CardTitle></CardHeader>
             <CardContent className="space-y-2">
-              {sessions.length === 0 && <p className="text-sm text-[#8B99B0]">No attendance sessions yet.</p>}
+              {sessions.length === 0 && <p className="text-sm text-[#8B99B0]">Chưa có phiên điểm danh nào.</p>}
               {sessions.map((session) => (
                 <div key={session.id} className="grid gap-2 border-b border-white/10 py-3 sm:grid-cols-[1fr_auto_auto]">
                   <div>
-                    <p className="font-medium">{session.users?.name ?? "Current user"}</p>
+                    <p className="font-medium">{session.users?.name ?? "Người dùng hiện tại"}</p>
                     <p className="text-xs text-[#8B99B0]">{new Date(session.check_in_at).toLocaleString()}</p>
                   </div>
                   <Badge variant={session.check_out_at ? "outline" : "default"}>{session.check_out_at ? "Completed" : "Active"}</Badge>
-                  <p className="text-xs text-[#8B99B0]">In {(session.check_in_similarity * 100).toFixed(1)}%{session.check_out_similarity != null ? ` · Out ${(session.check_out_similarity * 100).toFixed(1)}%` : ""}</p>
+                  <p className="text-xs text-[#8B99B0]">Vào: {(session.check_in_similarity * 100).toFixed(1)}%{session.check_out_similarity != null ? ` · Ra: ${(session.check_out_similarity * 100).toFixed(1)}%` : ""}</p>
                 </div>
               ))}
             </CardContent>

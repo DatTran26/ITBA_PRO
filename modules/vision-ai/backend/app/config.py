@@ -53,6 +53,10 @@ FACE_DATA_DIR = _resolve_path(
     _saved_configs.get("faceStoragePath") or os.getenv("FACE_DATA_DIR", ""),
     SRC_ROOT / "data" / "vision-ai" / "faces",
 )
+VIOLATION_DATA_DIR = _resolve_path(
+    _saved_configs.get("violationStoragePath") or os.getenv("VIOLATION_DATA_DIR", ""),
+    SRC_ROOT / "data" / "vision-ai" / "violations",
+)
 FACE_MODEL_NAME = str(_saved_configs.get("faceModelName") or os.getenv("FACE_MODEL_NAME", "buffalo_l"))
 FACE_MATCH_THRESHOLD = float(_saved_configs.get("faceMatchThreshold") or os.getenv("FACE_MATCH_THRESHOLD", "0.75"))
 
@@ -75,8 +79,8 @@ _default_seat_path = (
 DEFAULT_BEHAVIOR_MODELS = [
     {
         "id": "smoke_detection",
-        "name": "Mô hình phát hiện Hút thuốc (Smoking Detection)",
-        "description": "Phát hiện người hút thuốc, điếu thuốc và khói thuốc trong khu vực làm việc",
+        "name": "Smoking Detection",
+        "description": "Detects smoking, cigarettes, and smoke in the workplace",
         "enabled": True,
         "modelPath": str(_default_smoke_path),
         "confidence": float(_saved_configs.get("behaviorConfidence") or 0.50),
@@ -85,8 +89,8 @@ DEFAULT_BEHAVIOR_MODELS = [
     },
     {
         "id": "seat_occupancy",
-        "name": "Mô hình phát hiện Rời vị trí (Seat & Desk Occupancy)",
-        "description": "Phát hiện bàn làm việc không có người hoặc ghế trống trong giờ làm",
+        "name": "Seat & Desk Occupancy",
+        "description": "Detects unoccupied desks or empty seats during working hours",
         "enabled": True,
         "modelPath": str(_default_seat_path),
         "confidence": 0.25,
@@ -96,6 +100,15 @@ DEFAULT_BEHAVIOR_MODELS = [
 ]
 
 BEHAVIOR_MODELS = _saved_behavior_models if isinstance(_saved_behavior_models, list) and len(_saved_behavior_models) > 0 else DEFAULT_BEHAVIOR_MODELS
+
+# Keep built-in model copy in English when loading older local configuration files.
+for _model in BEHAVIOR_MODELS:
+    if _model.get("id") == "smoke_detection":
+        _model["name"] = "Smoking Detection"
+        _model["description"] = "Detects smoking, cigarettes, and smoke in the workplace"
+    elif _model.get("id") == "seat_occupancy":
+        _model["name"] = "Seat & Desk Occupancy"
+        _model["description"] = "Detects unoccupied desks or empty seats during working hours"
 
 # Top-level legacy fallbacks
 first_model = BEHAVIOR_MODELS[0] if BEHAVIOR_MODELS else DEFAULT_BEHAVIOR_MODELS[0]
@@ -129,6 +142,10 @@ def set_face_data_dir(new_path: str | Path) -> Path:
     return FACE_DATA_DIR
 
 
+def get_violation_data_dir() -> Path:
+    return VIOLATION_DATA_DIR
+
+
 def get_vision_config() -> dict:
     models_info = []
     for m in BEHAVIOR_MODELS:
@@ -136,7 +153,7 @@ def get_vision_config() -> dict:
         resolved_path = _resolve_path(m_path_str, SRC_ROOT / "models" / "vision-ai" / "behavior.pt")
         models_info.append({
             "id": m.get("id") or "custom_model",
-            "name": m.get("name") or "Mô hình hành vi",
+            "name": m.get("name") or "Behavior model",
             "description": m.get("description", ""),
             "enabled": bool(m.get("enabled", True)),
             "modelPath": str(resolved_path),
@@ -150,6 +167,8 @@ def get_vision_config() -> dict:
     return {
         "faceStoragePath": str(FACE_DATA_DIR.resolve()),
         "faceStorageExists": FACE_DATA_DIR.exists(),
+        "violationStoragePath": str(VIOLATION_DATA_DIR.resolve()),
+        "violationStorageExists": VIOLATION_DATA_DIR.exists(),
         "faceModelName": FACE_MODEL_NAME,
         "faceMatchThreshold": FACE_MATCH_THRESHOLD,
         "behaviorModelPath": first["modelPath"] if first else str(BEHAVIOR_MODEL_PATH),
@@ -161,13 +180,21 @@ def get_vision_config() -> dict:
 
 
 def update_vision_config(updates: dict) -> dict:
-    global FACE_DATA_DIR, FACE_MODEL_NAME, FACE_MATCH_THRESHOLD
+    global FACE_DATA_DIR, VIOLATION_DATA_DIR, FACE_MODEL_NAME, FACE_MATCH_THRESHOLD
     global BEHAVIOR_MODEL_PATH, BEHAVIOR_CONFIDENCE, BEHAVIOR_LABELS, BEHAVIOR_MODELS
 
     if "faceStoragePath" in updates and str(updates["faceStoragePath"]).strip():
         resolved_path = _resolve_path(str(updates["faceStoragePath"]).strip(), SRC_ROOT / "data" / "vision-ai" / "faces")
         resolved_path.mkdir(parents=True, exist_ok=True)
         FACE_DATA_DIR = resolved_path
+
+    if "violationStoragePath" in updates and str(updates["violationStoragePath"]).strip():
+        resolved_path = _resolve_path(
+            str(updates["violationStoragePath"]).strip(),
+            SRC_ROOT / "data" / "vision-ai" / "violations",
+        )
+        resolved_path.mkdir(parents=True, exist_ok=True)
+        VIOLATION_DATA_DIR = resolved_path
 
     if "faceModelName" in updates and str(updates["faceModelName"]).strip():
         FACE_MODEL_NAME = str(updates["faceModelName"]).strip()
@@ -263,6 +290,7 @@ def update_vision_config(updates: dict) -> dict:
 
     current = {
         "faceStoragePath": str(FACE_DATA_DIR.resolve()),
+        "violationStoragePath": str(VIOLATION_DATA_DIR.resolve()),
         "faceModelName": FACE_MODEL_NAME,
         "faceMatchThreshold": FACE_MATCH_THRESHOLD,
         "behaviorModelPath": str(BEHAVIOR_MODEL_PATH),

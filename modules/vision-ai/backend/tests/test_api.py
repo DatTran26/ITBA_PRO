@@ -43,13 +43,15 @@ def test_enroll_saves_six_images(tmp_path: Path):
     ):
         response = client.post(
             "/api/face/enroll",
-            data={"userId": "user-1"},
+            data={"userId": "user-1", "profileName": "Test User"},
             files=[("images", upload(f"face-{index}.png")) for index in range(6)],
         )
     assert response.status_code == 200
     assert len(response.json()["embeddings"]) == 6
-    assert len(list((tmp_path / "user-1").glob("*.png"))) == 6
-    assert np.load(tmp_path / "user-1" / "embeddings.npy").shape == (6, 2)
+    profile_dir = tmp_path / "Test User__user-1"
+    assert len(list(profile_dir.glob("*.png"))) == 6
+    assert json.loads((profile_dir / "profile.json").read_text())["profileName"] == "Test User"
+    assert np.load(profile_dir / "embeddings.npy").shape == (6, 2)
 
 
 def test_verify_endpoint():
@@ -78,6 +80,25 @@ def test_behavior_detect_returns_503_when_weights_missing():
     with patch("app.main.detect_behaviors", side_effect=FileNotFoundError("Behavior weights missing")):
         response = client.post("/api/behavior/detect", files={"image": upload()})
     assert response.status_code == 503
+
+
+def test_behavior_saves_violation_evidence_by_profile(tmp_path: Path):
+    detection = {"label": "smoke", "confidence": 0.9, "bbox": [1, 2, 3, 4], "isViolation": True}
+    with (
+        patch("app.main.detect_behaviors", return_value=[detection]),
+        patch("app.main.get_violation_data_dir", return_value=tmp_path),
+        patch.dict("app.main._evidence_saved_at", {}, clear=True),
+    ):
+        response = client.post(
+            "/api/behavior/detect",
+            data={"userId": "user-1", "profileName": "Test User"},
+            files={"image": upload()},
+        )
+    assert response.status_code == 200
+    evidence_path = Path(response.json()["evidencePath"])
+    assert evidence_path.parent.parent.name == "Test User__user-1"
+    assert evidence_path.exists()
+    assert evidence_path.with_suffix(".json").exists()
 
 
 def test_behavior_returns_non_violation_boxes_for_overlay():
@@ -116,8 +137,9 @@ def test_enroll_rejects_path_traversal():
 
 
 def test_delete_enrollment_removes_local_images(tmp_path: Path):
-    user_dir = tmp_path / "user-1"
+    user_dir = tmp_path / "Test User__user-1"
     user_dir.mkdir()
+    (user_dir / "profile.json").write_text(json.dumps({"userId": "user-1", "profileName": "Test User"}))
     (user_dir / "1.png").write_bytes(image_bytes())
     with patch("app.main.FACE_DATA_DIR", tmp_path):
         response = client.delete("/api/face/enroll/user-1")

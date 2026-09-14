@@ -19,24 +19,27 @@ type Alert = {
   camera_location: string;
   status: "pending_review" | "approved" | "rejected";
   detected_at: string;
-  detections_json?: { confidence?: number; label?: string; bbox?: number[] };
+  detections_json?: { confidence?: number; label?: string; bbox?: number[]; userId?: string; profileName?: string };
 };
 
 type Detection = { label: string; confidence: number; bbox: number[]; isViolation: boolean };
 type Overlay = { detections: Detection[]; width: number; height: number };
+type Profile = { id: string; name: string; email: string };
 type MonitorProps = {
   title: string;
   defaultModelPath: string;
   defaultCameraIndex: number;
   devices: MediaDeviceInfo[];
+  profiles: Profile[];
   onAlertsSaved: () => Promise<void>;
 };
 
-function MonitorPanel({ title, defaultModelPath, defaultCameraIndex, devices, onAlertsSaved }: MonitorProps) {
+function MonitorPanel({ title, defaultModelPath, defaultCameraIndex, devices, profiles, onAlertsSaved }: MonitorProps) {
   const [sourceType, setSourceType] = useState<"camera" | "video">("camera");
   const [deviceId, setDeviceId] = useState("");
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
   const [modelPath, setModelPath] = useState(defaultModelPath);
+  const [userId, setUserId] = useState("");
   useEffect(() => {
     if (defaultModelPath) setModelPath(defaultModelPath);
   }, [defaultModelPath]);
@@ -80,6 +83,10 @@ function MonitorPanel({ title, defaultModelPath, defaultCameraIndex, devices, on
     }
   }, [defaultCameraIndex, deviceId, devices]);
 
+  useEffect(() => {
+    if (!userId && profiles.length) setUserId(profiles[0].id);
+  }, [profiles, userId]);
+
   function selectVideo(file: File | null) {
     stop();
     if (videoUrlRef.current) URL.revokeObjectURL(videoUrlRef.current);
@@ -90,6 +97,7 @@ function MonitorPanel({ title, defaultModelPath, defaultCameraIndex, devices, on
 
   async function start() {
     stop();
+    if (!userId) return toast.error(`${title}: select a monitored profile`);
     const video = videoRef.current;
     if (!video) return;
     try {
@@ -148,6 +156,14 @@ function MonitorPanel({ title, defaultModelPath, defaultCameraIndex, devices, on
     body.append("image", new File([blob], "monitor-frame.jpg", { type: "image/jpeg" }));
     body.append("cameraLocation", `${title} / ${sourceType === "camera" ? `Camera ${cameraIndex}` : "Video file"}`);
     body.append("modelPath", modelPath);
+    const profile = profiles.find((item) => item.id === userId);
+    if (!profile) {
+      busyRef.current = false;
+      setBusy(false);
+      return;
+    }
+    body.append("userId", profile.id);
+    body.append("profileName", profile.name);
 
     const requestStarted = performance.now();
     try {
@@ -173,7 +189,7 @@ function MonitorPanel({ title, defaultModelPath, defaultCameraIndex, devices, on
       busyRef.current = false;
       setBusy(false);
     }
-  }, [addLog, deviceId, devices, modelPath, onAlertsSaved, paused, sourceType, title]);
+  }, [addLog, deviceId, devices, modelPath, onAlertsSaved, paused, profiles, sourceType, title, userId]);
 
   useEffect(() => {
     if (!running || paused) return;
@@ -217,6 +233,11 @@ function MonitorPanel({ title, defaultModelPath, defaultCameraIndex, devices, on
           <canvas ref={canvasRef} className="hidden" />
         </div>
 
+        <select className="h-9 w-full rounded-lg border border-white/10 bg-[#0B1220] px-3 text-sm" value={userId} onChange={(event) => { stop(); setUserId(event.target.value); }} aria-label={`${title} monitored profile`}>
+          <option value="">Select monitored profile</option>
+          {profiles.map((profile) => <option key={profile.id} value={profile.id}>{profile.name} ({profile.email})</option>)}
+        </select>
+
         <div className="grid grid-cols-2 gap-2">
           <select className="h-9 rounded-lg border border-white/10 bg-[#0B1220] px-3 text-sm" value={sourceType} onChange={(event) => { stop(); setSourceType(event.target.value as "camera" | "video"); }}>
             <option value="camera">Camera</option>
@@ -237,11 +258,11 @@ function MonitorPanel({ title, defaultModelPath, defaultCameraIndex, devices, on
             Model AI:
           </span>
           <span className="truncate max-w-[260px] text-white text-[11px]" title={modelPath}>
-            {modelPath ? modelPath.split(/[/\\]/).pop() || modelPath : "Theo Controller"}
+            {modelPath ? modelPath.split(/[/\\]/).pop() || modelPath : "From Controller"}
           </span>
         </div>
         <div className="grid grid-cols-4 gap-2">
-          <Button className="col-span-2" disabled={running || !modelPath || (sourceType === "video" && !videoUrl)} onClick={start}><Play />Start</Button>
+          <Button className="col-span-2" disabled={running || !userId || !modelPath || (sourceType === "video" && !videoUrl)} onClick={start}><Play />Start</Button>
           <Button variant="outline" size="icon" title={paused ? "Resume" : "Pause"} disabled={!running} onClick={togglePause}><Pause /></Button>
           <Button variant="destructive" size="icon" title="Stop" disabled={!running} onClick={stop}><Square /></Button>
         </div>
@@ -259,6 +280,7 @@ function MonitorPanel({ title, defaultModelPath, defaultCameraIndex, devices, on
 export default function BehaviorClient() {
   const [alerts, setAlerts] = useState<Alert[]>([]);
   const [devices, setDevices] = useState<MediaDeviceInfo[]>([]);
+  const [profiles, setProfiles] = useState<Profile[]>([]);
   const [smokeModelPath, setSmokeModelPath] = useState("models/vision-ai/smoking.pt");
   const [leavingModelPath, setLeavingModelPath] = useState("models/vision-ai/leaving.pt");
 
@@ -273,6 +295,13 @@ export default function BehaviorClient() {
     if (!navigator.mediaDevices?.enumerateDevices) return;
     const allDevices = await navigator.mediaDevices.enumerateDevices();
     setDevices(allDevices.filter((device) => device.kind === "videoinput"));
+  }, []);
+
+  const loadProfiles = useCallback(async () => {
+    const response = await fetch("/api/face", { cache: "no-store" });
+    const data = await readApiResponse<{ error?: string; users: Profile[] }>(response);
+    if (!response.ok) throw new Error(data.error ?? "Unable to load profiles");
+    setProfiles(data.users ?? []);
   }, []);
 
   useEffect(() => {
@@ -295,6 +324,7 @@ export default function BehaviorClient() {
     const initialLoad = window.setTimeout(() => {
       load().catch((error) => toast.error(error.message));
       void refreshDevices();
+      loadProfiles().catch((error) => toast.error(error.message));
     }, 0);
     const timer = window.setInterval(() => load().catch(() => undefined), 5000);
     navigator.mediaDevices?.addEventListener("devicechange", refreshDevices);
@@ -303,7 +333,7 @@ export default function BehaviorClient() {
       window.clearInterval(timer);
       navigator.mediaDevices?.removeEventListener("devicechange", refreshDevices);
     };
-  }, [load, refreshDevices]);
+  }, [load, loadProfiles, refreshDevices]);
 
   async function review(id: string, decision: "approved" | "rejected") {
     const response = await fetch(`/api/behavior/${id}/review`, {
@@ -324,12 +354,12 @@ export default function BehaviorClient() {
         <PageBreadcrumb breadcrumbs={[{ label: "Dashboard", href: "/dashboard" }, { label: "Behavior Monitoring" }]} />
         <div className="mb-6 flex items-end justify-between">
           <h1 className="font-display text-4xl font-light">Behavior Monitoring</h1>
-          <Button variant="outline" size="icon" title="Refresh cameras and alerts" onClick={() => { void refreshDevices(); void load(); }}><RefreshCw /></Button>
+          <Button variant="outline" size="icon" title="Refresh cameras, profiles, and alerts" onClick={() => { void refreshDevices(); void loadProfiles(); void load(); }}><RefreshCw /></Button>
         </div>
 
         <div className="grid gap-5 xl:grid-cols-2">
-          <MonitorPanel title="Smoking Monitor" defaultModelPath={smokeModelPath} defaultCameraIndex={0} devices={devices} onAlertsSaved={load} />
-          <MonitorPanel title="Away-from-Desk Monitor" defaultModelPath={leavingModelPath} defaultCameraIndex={1} devices={devices} onAlertsSaved={load} />
+          <MonitorPanel title="Smoking Monitor" defaultModelPath={smokeModelPath} defaultCameraIndex={0} devices={devices} profiles={profiles} onAlertsSaved={load} />
+          <MonitorPanel title="Away-from-Desk Monitor" defaultModelPath={leavingModelPath} defaultCameraIndex={1} devices={devices} profiles={profiles} onAlertsSaved={load} />
         </div>
 
         <Card className="mt-5 rounded-lg bg-[#10192B]/80">
@@ -344,7 +374,7 @@ export default function BehaviorClient() {
                     <Badge variant={alert.status === "pending_review" ? "default" : "outline"}>{alert.status}</Badge>
                   </div>
                   <p className="mt-1 text-xs text-[#8B99B0]">
-                    {alert.camera_location} · {new Date(alert.detected_at).toLocaleString()} · {alert.detections_json?.confidence ? `${(alert.detections_json.confidence * 100).toFixed(1)}%` : alert.severity}
+                    {alert.detections_json?.profileName ?? "Unassigned profile"} · {alert.camera_location} · {new Date(alert.detected_at).toLocaleString()} · {alert.detections_json?.confidence ? `${(alert.detections_json.confidence * 100).toFixed(1)}%` : alert.severity}
                   </p>
                 </div>
                 {alert.status === "pending_review" && (

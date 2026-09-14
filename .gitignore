@@ -1,6 +1,8 @@
 .env
 .env.*
 !.env.example
+/modules/vision-ai/backend/face_storage_config.json
+/modules/vision-ai/backend/vision_controller_config.json
 node_modules/
 dist/
 build/

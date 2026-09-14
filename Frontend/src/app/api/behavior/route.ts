@@ -35,25 +35,34 @@ export async function POST(request: Request) {
   const image = incoming.get("image");
   const cameraLocation = String(incoming.get("cameraLocation") ?? "Manual upload").slice(0, 200);
   const modelPath = String(incoming.get("modelPath") ?? "").trim();
+  const userId = String(incoming.get("userId") ?? "").trim();
+  const profileName = String(incoming.get("profileName") ?? "").trim().slice(0, 100);
   if (!validateImage(image)) return NextResponse.json({ error: "A JPEG, PNG, or WebP image is required" }, { status: 400 });
+  if (!/^[A-Za-z0-9_-]{1,128}$/.test(userId) || !profileName) {
+    return NextResponse.json({ error: "Select a monitored profile" }, { status: 400 });
+  }
   const body = new FormData();
   body.append("image", image);
+  body.append("userId", userId);
+  body.append("profileName", profileName);
   if (modelPath) body.append("modelPath", modelPath);
 
   try {
     const result = await callVisionAi("/api/behavior/detect", { method: "POST", body }) as {
       detections: Array<{ label: string; confidence: number; bbox: number[]; isViolation: boolean }>;
       processingMs: number;
+      evidencePath: string | null;
     };
     if (!Array.isArray(result.detections)) throw new Error("Invalid behavior response");
-    const rows = result.detections.filter((detection) => detection.isViolation).map((detection) => ({
+    const rows = result.evidencePath ? result.detections.filter((detection) => detection.isViolation).map((detection) => ({
       track_id: randomUUID(),
       violation_type: ["smoke", "cigarette"].includes(detection.label.toLowerCase()) ? "smoking" : "empty_desk",
       severity: ["smoke", "cigarette"].includes(detection.label.toLowerCase()) ? "High" : "Medium",
       camera_location: cameraLocation,
+      evidence_url: result.evidencePath,
       status: "pending_review",
-      detections_json: detection,
-    }));
+      detections_json: { ...detection, userId, profileName },
+    })) : [];
     if (!rows.length) return NextResponse.json({ detections: result.detections, alerts: [], processingMs: result.processingMs });
     try {
       const { data, error } = await createAdminClient().from("violation_alerts").insert(rows).select();
