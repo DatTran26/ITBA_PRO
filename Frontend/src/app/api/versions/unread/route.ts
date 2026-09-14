@@ -19,9 +19,9 @@ export async function GET() {
     // Fetch approved versions not yet read
     let query = ctx.supabase
         .from("versions")
-        .select("id, version_number, title, description, approved_at")
+        .select("id, version_number, title, description, published_at, created_at")
         .eq("status", "approved")
-        .order("approved_at", { ascending: false })
+        .order("created_at", { ascending: false })
         .limit(50);
 
     if (readIds.length > 0) {
