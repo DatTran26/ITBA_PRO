@@ -16,6 +16,12 @@ CREATE TABLE IF NOT EXISTS public.user_face_embeddings (
     updated_at timestamptz DEFAULT now()
 );
 
+-- Earlier Vision migrations created a narrower version of this table.
+ALTER TABLE public.user_face_embeddings
+    ADD COLUMN IF NOT EXISTS angle_count int4 DEFAULT 6,
+    ADD COLUMN IF NOT EXISTS is_active boolean DEFAULT true,
+    ADD COLUMN IF NOT EXISTS updated_at timestamptz DEFAULT now();
+
 CREATE INDEX IF NOT EXISTS idx_user_face_embeddings_user 
     ON public.user_face_embeddings (user_id);
 CREATE INDEX IF NOT EXISTS idx_user_face_embeddings_active 
@@ -78,6 +84,17 @@ CREATE TABLE IF NOT EXISTS public.attendance_sessions (
     CONSTRAINT attendance_checkout_after_checkin
         CHECK (check_out_at IS NULL OR check_out_at >= check_in_at)
 );
+
+-- Keep this migration compatible with the Phase 1 attendance table.
+ALTER TABLE public.attendance_sessions
+    ADD COLUMN IF NOT EXISTS shift_id uuid REFERENCES public.attendance_shifts(id) ON DELETE SET NULL,
+    ADD COLUMN IF NOT EXISTS check_in_snapshot text,
+    ADD COLUMN IF NOT EXISTS check_out_snapshot text,
+    ADD COLUMN IF NOT EXISTS status varchar(50) DEFAULT 'valid',
+    ADD COLUMN IF NOT EXISTS work_duration_minutes int4,
+    ADD COLUMN IF NOT EXISTS location text,
+    ADD COLUMN IF NOT EXISTS notes text,
+    ADD COLUMN IF NOT EXISTS updated_at timestamptz NOT NULL DEFAULT now();
 
 CREATE INDEX IF NOT EXISTS idx_attendance_sessions_user_active 
     ON public.attendance_sessions (user_id, check_out_at);
@@ -145,22 +162,22 @@ CREATE TABLE IF NOT EXISTS public.violation_alerts (
 
 DO $$
 BEGIN
-    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'violation_alerts' AND column_name = 'detections_json') THEN
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'violation_alerts' AND column_name = 'detections_json') THEN
         ALTER TABLE public.violation_alerts ADD COLUMN detections_json jsonb;
     END IF;
-    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'violation_alerts' AND column_name = 'reviewed_by') THEN
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'violation_alerts' AND column_name = 'reviewed_by') THEN
         ALTER TABLE public.violation_alerts ADD COLUMN reviewed_by uuid REFERENCES public.users(id) ON DELETE SET NULL;
     END IF;
-    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'violation_alerts' AND column_name = 'reviewed_at') THEN
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'violation_alerts' AND column_name = 'reviewed_at') THEN
         ALTER TABLE public.violation_alerts ADD COLUMN reviewed_at timestamptz;
     END IF;
-    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'violation_alerts' AND column_name = 'review_note') THEN
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'violation_alerts' AND column_name = 'review_note') THEN
         ALTER TABLE public.violation_alerts ADD COLUMN review_note text;
     END IF;
-    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'violation_alerts' AND column_name = 'rule_id') THEN
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'violation_alerts' AND column_name = 'rule_id') THEN
         ALTER TABLE public.violation_alerts ADD COLUMN rule_id uuid REFERENCES public.violation_rules(id) ON DELETE SET NULL;
     END IF;
-    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'violation_alerts' AND column_name = 'user_id') THEN
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'violation_alerts' AND column_name = 'user_id') THEN
         ALTER TABLE public.violation_alerts ADD COLUMN user_id uuid REFERENCES public.users(id) ON DELETE SET NULL;
     END IF;
 END $$;
