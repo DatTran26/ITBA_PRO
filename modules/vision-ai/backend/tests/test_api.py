@@ -35,7 +35,7 @@ def test_verify_requires_two_matching_embeddings():
     assert count == 2
 
 
-def test_enroll_saves_four_images(tmp_path: Path):
+def test_enroll_saves_six_images(tmp_path: Path):
     with (
         patch("app.main.FACE_DATA_DIR", tmp_path),
         patch("app.main.extract_face_embedding", return_value=[1.0, 0.0]),
@@ -43,16 +43,16 @@ def test_enroll_saves_four_images(tmp_path: Path):
         response = client.post(
             "/api/face/enroll",
             data={"userId": "user-1"},
-            files=[("images", upload(f"face-{index}.png")) for index in range(4)],
+            files=[("images", upload(f"face-{index}.png")) for index in range(6)],
         )
     assert response.status_code == 200
-    assert len(response.json()["embeddings"]) == 4
-    assert len(list((tmp_path / "user-1").glob("*.png"))) == 4
-    assert np.load(tmp_path / "user-1" / "embeddings.npy").shape == (4, 2)
+    assert len(response.json()["embeddings"]) == 6
+    assert len(list((tmp_path / "user-1").glob("*.png"))) == 6
+    assert np.load(tmp_path / "user-1" / "embeddings.npy").shape == (6, 2)
 
 
 def test_verify_endpoint():
-    embeddings = [[1.0, 0.0]] * 2 + [[0.0, 1.0]] * 2
+    embeddings = [[1.0, 0.0]] * 2 + [[0.0, 1.0]] * 4
     with patch("app.main.extract_face_embedding", return_value=[1.0, 0.0]):
         response = client.post(
             "/api/face/verify",
@@ -82,7 +82,7 @@ def test_enroll_rejects_path_traversal():
     response = client.post(
         "/api/face/enroll",
         data={"userId": "../outside"},
-        files=[("images", upload()) for _ in range(4)],
+        files=[("images", upload()) for _ in range(6)],
     )
     assert response.status_code == 400
 

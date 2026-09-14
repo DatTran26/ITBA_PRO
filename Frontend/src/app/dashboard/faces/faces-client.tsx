@@ -21,13 +21,13 @@ type FaceUser = {
   enrollment: { id: string; created_at: string } | null;
 };
 
-const ANGLES = ["Front", "Left profile", "Right profile", "Looking down"];
+const ANGLES = ["Front", "Left profile", "Right profile", "Looking up", "Looking down", "Natural expression"];
 type Capture = { file: File; url: string };
 
 export default function FacesClient() {
   const [users, setUsers] = useState<FaceUser[]>([]);
   const [selectedUser, setSelectedUser] = useState("");
-  const [captures, setCaptures] = useState<Array<Capture | null>>([null, null, null, null]);
+  const [captures, setCaptures] = useState<Array<Capture | null>>(() => ANGLES.map(() => null));
   const [activeAngle, setActiveAngle] = useState(0);
   const [cameraOn, setCameraOn] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -95,7 +95,7 @@ export default function FacesClient() {
 
   function clearCaptures() {
     capturesRef.current.forEach((capture) => capture && URL.revokeObjectURL(capture.url));
-    const empty = [null, null, null, null];
+    const empty = ANGLES.map(() => null);
     capturesRef.current = empty;
     setCaptures(empty);
     setActiveAngle(0);
@@ -150,7 +150,7 @@ export default function FacesClient() {
         <div className="grid gap-5 lg:grid-cols-[420px_1fr]">
           <Card className="rounded-lg bg-[#10192B]/80">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2"><ScanFace className="size-4" />Four-Angle Enrollment</CardTitle>
+              <CardTitle className="flex items-center gap-2"><ScanFace className="size-4" />Six-Image Enrollment</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <select className="h-9 w-full rounded-lg border border-white/10 bg-[#0B1220] px-3 text-sm" value={selectedUser} onChange={(event) => setSelectedUser(event.target.value)}>

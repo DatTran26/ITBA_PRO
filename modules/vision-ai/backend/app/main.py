@@ -37,8 +37,8 @@ async def enroll_face(
 ):
     if not USER_ID_PATTERN.fullmatch(user_id):
         raise HTTPException(status_code=400, detail="Invalid userId")
-    if len(images) != 4:
-        raise HTTPException(status_code=400, detail="Exactly 4 images are required")
+    if len(images) != 6:
+        raise HTTPException(status_code=400, detail="Exactly 6 images are required")
 
     contents = [await read_image(image) for image in images]
     try:
@@ -77,8 +77,8 @@ async def verify_face_image(
 ):
     try:
         stored_embeddings = json.loads(embeddings)
-        if not isinstance(stored_embeddings, list) or len(stored_embeddings) != 4:
-            raise ValueError("Exactly 4 stored embeddings are required")
+        if not isinstance(stored_embeddings, list) or len(stored_embeddings) not in {4, 6}:
+            raise ValueError("Exactly 4 or 6 stored embeddings are required")
         probe = extract_face_embedding(await read_image(image))
         match, match_count, scores = verify_face(probe, stored_embeddings)
     except (json.JSONDecodeError, TypeError, ValueError) as exc:

@@ -4,12 +4,12 @@ FastAPI execution service for ArcFace enrollment/verification and YOLO behavior 
 
 ## API contract
 
-- `POST /api/face/enroll`: multipart fields `userId` and four repeated `images` files.
-- `POST /api/face/verify`: multipart fields `image` and `embeddings`, where `embeddings` is a JSON array of exactly four vectors.
+- `POST /api/face/enroll`: multipart fields `userId` and six repeated `images` files.
+- `POST /api/face/verify`: multipart fields `image` and `embeddings`, where `embeddings` is a JSON array of six vectors. Existing four-vector enrollments remain compatible.
 - `POST /api/behavior/detect`: multipart field `image`.
 - `GET /health`: lightweight health check that does not load either model.
 
-Face verification uses cosine similarity `>= FACE_MATCH_THRESHOLD` and succeeds when at least two of four embeddings match.
+Face verification uses cosine similarity `>= FACE_MATCH_THRESHOLD` and succeeds when at least two stored embeddings match.
 
 ## Models and data
 

@@ -55,7 +55,7 @@ export async function POST(request: NextRequest) {
     .limit(1)
     .maybeSingle();
   if (faceError) return NextResponse.json({ error: faceError.message }, { status: 500 });
-  if (!enrollment) return NextResponse.json({ error: "Tài khoản chưa đăng ký khuôn mặt 4 góc" }, { status: 409 });
+  if (!enrollment) return NextResponse.json({ error: "This account has no face enrollment" }, { status: 409 });
 
   const body = new FormData();
   body.append("image", image);

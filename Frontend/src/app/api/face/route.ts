@@ -33,8 +33,8 @@ export async function POST(request: Request) {
   const incoming = await request.formData();
   const userId = incoming.get("userId");
   const images = incoming.getAll("images");
-  if (typeof userId !== "string" || !userId || images.length !== 4 || !images.every(validateImage)) {
-    return NextResponse.json({ error: "userId and exactly four JPEG, PNG, or WebP images are required" }, { status: 400 });
+  if (typeof userId !== "string" || !userId || images.length !== 6 || !images.every(validateImage)) {
+    return NextResponse.json({ error: "userId and exactly six JPEG, PNG, or WebP images are required" }, { status: 400 });
   }
 
   const admin = createAdminClient();
@@ -47,7 +47,7 @@ export async function POST(request: Request) {
 
   try {
     const result = await callVisionAi("/api/face/enroll", { method: "POST", body }) as { embeddings: number[][] };
-    if (!Array.isArray(result.embeddings) || result.embeddings.length !== 4) throw new Error("Invalid enroll response");
+    if (!Array.isArray(result.embeddings) || result.embeddings.length !== 6) throw new Error("Invalid enroll response");
     await admin.from("user_face_embeddings").delete().eq("user_id", userId);
     const { data, error } = await admin
       .from("user_face_embeddings")
