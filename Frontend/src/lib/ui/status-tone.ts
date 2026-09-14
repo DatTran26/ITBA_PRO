@@ -1,5 +1,5 @@
 // Single source of truth: status string → semantic tone → color classes.
-// Consumed by ui/status-chip, ui/status-dot. See docs/design-guidelines.md §4.2.
+// Consumed by ui/status-chip, ui/status-dot. See docs/downtown/design-guidelines.md §4.3.
 // Replaces per-feature status→color config maps (was scattered across crm/status-badge consumers).
 
 export type StatusTone =
@@ -23,7 +23,7 @@ export function toneHex(tone: StatusTone): string {
   return TONE_HEX[tone];
 }
 
-// Chip: ~14% tint fill + full-strength text (design-guidelines §4.2).
+// Chip: ~14% tint fill + full-strength text (design-guidelines §4.3).
 export const toneChipClass: Record<StatusTone, string> = {
   success: "bg-[#34D399]/15 text-[#34D399]",
   warning: "bg-[#FBBF24]/15 text-[#FBBF24]",

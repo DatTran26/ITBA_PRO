@@ -46,7 +46,7 @@ Canonical origins (baked into each image as `NEXT_PUBLIC_APP_URL`):
 
 | Environment | Origin | Supabase project |
 | --- | --- | --- |
-| `staging` | `https://staging.wpcteam.shop` | `itba-ai-staging` (`kxpunppvqfxfqdwpqpmp`), org **WPCTeam** |
+| `staging` | `https://staging.wpcteam.shop` | `itba-ai-staging` (`mqwsulanzahqaiecnfwc`; thay `kxpunppvqfxfqdwpqpmp` đã xóa), org **WPCTeam** |
 | `production` | `https://production.wpcteam.shop` | `itba-ai` (`lhvdtmieaplxzqmpmupe`), org **WPC Team** |
 
 Các biến public trên mỗi Environment: `NEXT_PUBLIC_SUPABASE_URL`,

@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Town Hown — Design System · Deep Intelligence</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --background: #121A2E;
+      --immersive: #0A0F1E;
+      --sidebar: #101828;
+      --card: #161E30;
+      --popover: #1B2540;
+      --accent: #212C4A;
+      --foreground: #ECF0F7;
+      --sidebar-foreground: #AEB9CC;
+      --muted-foreground: #8B99B0;
+      --text-dim: #5A6882;
+      --border: rgba(255,255,255,.08);
+      --input: rgba(255,255,255,.12);
+      --primary: #5B6CF0;
+      --primary-light: #7C8FFF;
+      --ai: #A78BFA;
+      --violet-light: #B48EFF;
+      --accent-orange: #FFB86C;
+      --success: #34D399;
+      --warning: #FBBF24;
+      --destructive: #FB7185;
+      --radius: 10px;
+      --e1: 0 1px 2px rgba(0,0,0,.4);
+      --e2: 0 8px 24px rgba(0,0,0,.45);
+      --e3: 0 24px 60px rgba(0,0,0,.55);
+      --glow: 0 8px 28px rgba(91,108,240,.35);
+      --font-ui: "Plus Jakarta Sans", system-ui, sans-serif;
+      --font-display: Outfit, "Plus Jakarta Sans", sans-serif;
+      --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+    }
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      background: var(--immersive);
+      color: var(--foreground);
+      font-family: var(--font-ui);
+      font-size: 14px;
+      line-height: 1.5;
+    }
+    body { min-width: 1440px; }
+    .board {
+      display: flex;
+      flex-direction: column;
+      gap: 64px;
+      padding: 64px 80px 120px;
+    }
+    .page {
+      width: 1280px;
+      margin: 0 auto;
+      background: var(--background);
+      border: 1px solid var(--border);
+      border-radius: 22px;
+      box-shadow: var(--e2);
+      overflow: hidden;
+    }
+    .page-label {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      padding: 16px 28px;
+      background: var(--sidebar);
+      border-bottom: 1px solid var(--border);
+      font-size: 11px;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--muted-foreground);
+    }
+    .page-label strong { color: var(--foreground); letter-spacing: 0; text-transform: none; font-size: 13px; }
+    .inner { padding: 32px 36px 40px; }
+    h1 { font-family: var(--font-display); font-size: 32px; font-weight: 700; margin: 0 0 8px; text-wrap: balance; }
+    h2 { font-family: var(--font-display); font-size: 22px; font-weight: 650; margin: 0 0 16px; }
+    h3 { font-size: 16px; font-weight: 650; margin: 0 0 12px; }
+    p { color: var(--sidebar-foreground); margin: 0 0 16px; }
+    .eyebrow { font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--primary-light); margin-bottom: 8px; }
+    .grid { display: grid; gap: 16px; }
+    .cols-6 { grid-template-columns: repeat(6, 1fr); }
+    .cols-5 { grid-template-columns: repeat(5, 1fr); }
+    .cols-4 { grid-template-columns: repeat(4, 1fr); }
+    .cols-3 { grid-template-columns: repeat(3, 1fr); }
+    .cols-2 { grid-template-columns: repeat(2, 1fr); }
+    .swatch {
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      overflow: hidden;
+      background: var(--card);
+    }
+    .swatch .chip { height: 72px; }
+    .swatch .meta { padding: 10px 12px 12px; }
+    .swatch .name { font-size: 13px; font-weight: 600; }
+    .swatch .hex { font-family: var(--font-mono); font-size: 11px; color: var(--muted-foreground); }
+    .role { font-size: 11px; color: var(--muted-foreground); margin-top: 4px; }
+    .type-row {
+      display: flex; justify-content: space-between; align-items: baseline;
+      padding: 14px 0; border-bottom: 1px solid var(--border);
+    }
+    .type-row:last-child { border-bottom: 0; }
+    .spec { font-family: var(--font-mono); font-size: 11px; color: var(--muted-foreground); }
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+      min-height: 40px; padding: 0 16px; border-radius: 10px; border: 1px solid transparent;
+      font-family: var(--font-ui); font-size: 14px; font-weight: 600; cursor: default;
+    }
+    .btn-primary { background: var(--primary); color: #fff; box-shadow: var(--glow); }
+    .btn-secondary { background: var(--popover); color: var(--foreground); border-color: var(--border); }
+    .btn-ghost { background: transparent; color: var(--sidebar-foreground); border-color: var(--border); }
+    .btn-danger { background: var(--destructive); color: #121A2E; }
+    .btn:disabled, .btn.is-disabled { opacity: .4; }
+    .btn.is-focus { outline: 2px solid var(--primary); outline-offset: 2px; }
+    .btn-sm { min-height: 36px; padding: 0 12px; font-size: 13px; border-radius: 8px; }
+    .field label { display: block; font-size: 12px; color: var(--muted-foreground); margin-bottom: 6px; }
+    .field input, .field select {
+      width: 100%; min-height: 40px; padding: 0 12px;
+      background: var(--card); color: var(--foreground);
+      border: 1px solid var(--input); border-radius: 10px; font: inherit;
+    }
+    .field input:focus { outline: 2px solid var(--primary); border-color: transparent; }
+    .field .err { font-size: 12px; color: var(--destructive); margin-top: 6px; }
+    .chip {
+      display: inline-flex; align-items: center; gap: 6px;
+      height: 24px; padding: 0 10px; border-radius: 999px;
+      font-size: 11px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase;
+      background: var(--accent); color: var(--sidebar-foreground);
+    }
+    .dot { width: 6px; height: 6px; border-radius: 99px; }
+    .card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 18px; padding: 22px; box-shadow: var(--e1);
+    }
+    .kpi .label { font-size: 12px; color: var(--muted-foreground); }
+    .kpi .value { font-family: var(--font-display); font-size: 32px; font-weight: 700; font-variant-numeric: tabular-nums; margin: 6px 0 4px; }
+    .kpi .delta { font-size: 12px; font-weight: 600; color: var(--success); }
+    table { width: 100%; border-collapse: collapse; }
+    th {
+      text-align: left; font-size: 11px; letter-spacing: .1em; text-transform: uppercase;
+      color: var(--muted-foreground); padding: 10px 12px; border-bottom: 1px solid var(--border);
+    }
+    td { padding: 12px; border-bottom: 1px solid var(--border); color: var(--foreground); }
+    td.num { text-align: right; font-variant-numeric: tabular-nums; font-family: var(--font-mono); font-size: 13px; }
+    .shell {
+      display: grid; grid-template-columns: 240px 1fr; min-height: 720px;
+      background: var(--background);
+    }
+    .nav {
+      background: var(--sidebar); border-right: 1px solid var(--border); padding: 20px 14px;
+    }
+    .brand { font-family: var(--font-display); font-weight: 700; font-size: 18px; padding: 8px 10px 20px; }
+    .nav-item {
+      display: flex; align-items: center; gap: 10px; min-height: 40px;
+      padding: 0 12px; border-radius: 10px; color: var(--sidebar-foreground);
+    }
+    .nav-item.active { background: var(--accent); color: var(--foreground); box-shadow: inset 2px 0 0 var(--primary); }
+    .content { padding: 24px 28px; }
+    .header {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 24px;
+    }
+    .radii, .space, .elev { display: flex; gap: 16px; flex-wrap: wrap; }
+    .rbox { background: var(--popover); border: 1px solid var(--border); padding: 16px; }
+    .open {
+      border: 1px dashed var(--warning); background: rgba(251,191,36,.08);
+      border-radius: 14px; padding: 16px 18px; color: var(--warning);
+    }
+    .note { font-size: 12px; color: var(--muted-foreground); }
+    a { color: var(--primary-light); }
+  </style>
+</head>
+<body>
+  <div class="board">
+
+    <!-- COVER -->
+    <section class="page" data-frame="Cover">
+      <div class="page-label"><span>Town Hown · Figma handoff</span><strong>01 · Cover</strong></div>
+      <div class="inner" style="min-height: 560px; background: linear-gradient(160deg, #0A0F1E 0%, #121A2E 55%, #161E30 100%);">
+        <div class="eyebrow">Deep Intelligence — Arctic Minimalist</div>
+        <h1>Town Hown Design System</h1>
+        <p style="max-width: 640px;">Dark-first. Navy canvas, raised surfaces, indigo interaction. Glass và glow chỉ tạo chiều sâu — không cạnh tranh với dữ liệu. Nguồn: <code>docs/downtown/design-guidelines.md</code> · cập nhật 2026-09-13 · token runtime <code>Frontend/src/app/globals.css</code>.</p>
+        <div class="grid cols-4" style="margin-top: 40px; max-width: 900px;">
+          <div class="card"><div class="label note">Theme sản phẩm</div><div style="margin-top:8px;font-weight:700;">Dark only</div></div>
+          <div class="card"><div class="label note">Locale</div><div style="margin-top:8px;font-weight:700;">Tiếng Việt</div></div>
+          <div class="card"><div class="label note">Primary</div><div style="margin-top:8px;font-weight:700;color:#7C8FFF;">#5B6CF0</div></div>
+          <div class="card"><div class="label note">Radius gốc</div><div style="margin-top:8px;font-weight:700;">10px</div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- COLOR -->
+    <section class="page" data-frame="Foundations / Color">
+      <div class="page-label"><span>Foundations</span><strong>02 · Color tokens</strong></div>
+      <div class="inner">
+        <h2>Surface &amp; text</h2>
+        <div class="grid cols-5">
+          <div class="swatch"><div class="chip" style="background:#121A2E"></div><div class="meta"><div class="name">App canvas</div><div class="hex">--background #121A2E</div></div></div>
+          <div class="swatch"><div class="chip" style="background:#0A0F1E"></div><div class="meta"><div class="name">Immersive</div><div class="hex">chưa token #0A0F1E</div><div class="role">OPEN — test/profile</div></div></div>
+          <div class="swatch"><div class="chip" style="background:#101828"></div><div class="meta"><div class="name">Sidebar</div><div class="hex">--sidebar #101828</div></div></div>
+          <div class="swatch"><div class="chip" style="background:#161E30"></div><div class="meta"><div class="name">Surface 1</div><div class="hex">--card #161E30</div></div></div>
+          <div class="swatch"><div class="chip" style="background:#1B2540"></div><div class="meta"><div class="name">Surface 2</div><div class="hex">--popover #1B2540</div></div></div>
+          <div class="swatch"><div class="chip" style="background:#212C4A"></div><div class="meta"><div class="name">Surface 3</div><div class="hex">--accent #212C4A</div></div></div>
+          <div class="swatch"><div class="chip" style="background:#ECF0F7"></div><div class="meta"><div class="name">Text chính</div><div class="hex">--foreground #ECF0F7</div></div></div>
+          <div class="swatch"><div class="chip" style="background:#AEB9CC"></div><div class="meta"><div class="name">Text phụ</div><div class="hex">--sidebar-foreground</div></div></div>
+          <div class="swatch"><div class="chip" style="background:#8B99B0"></div><div class="meta"><div class="name">Text muted</div><div class="hex">--muted-foreground AA ok</div></div></div>
+          <div class="swatch"><div class="chip" style="background:#5A6882"></div><div class="meta"><div class="name">Text dim</div><div class="hex">#5A6882 không dùng body</div></div></div>
+        </div>
+        <h2 style="margin-top:32px;">Brand &amp; status</h2>
+        <div class="grid cols-5">
+          <div class="swatch"><div class="chip" style="background:#5B6CF0"></div><div class="meta"><div class="name">Primary</div><div class="hex">--primary CTA / focus</div></div></div>
+          <div class="swatch"><div class="chip" style="background:#7C8FFF"></div><div class="meta"><div class="name">Primary light</div><div class="hex">#7C8FFF cần promote token</div></div></div>
+          <div class="swatch"><div class="chip" style="background:#A78BFA"></div><div class="meta"><div class="name">AI insight</div><div class="hex">#A78BFA chip AI</div></div></div>
+          <div class="swatch"><div class="chip" style="background:#FFB86C"></div><div class="meta"><div class="name">Secondary accent</div><div class="hex">--accent-orange</div></div></div>
+          <div class="swatch"><div class="chip" style="background:#34D399"></div><div class="meta"><div class="name">Success</div><div class="hex">#34D399 pass / live</div></div></div>
+          <div class="swatch"><div class="chip" style="background:#FBBF24"></div><div class="meta"><div class="name">Warning</div><div class="hex">#FBBF24 review</div></div></div>
+          <div class="swatch"><div class="chip" style="background:#FB7185"></div><div class="meta"><div class="name">Danger</div><div class="hex">--destructive</div></div></div>
+        </div>
+        <p class="note" style="margin-top:16px;">Không dùng blue/purple/green vật lý khi nghĩa là primary / AI / success. Status luôn kèm text hoặc icon.</p>
+      </div>
+    </section>
+
+    <!-- TYPE + RADIUS -->
+    <section class="page" data-frame="Foundations / Type">
+      <div class="page-label"><span>Foundations</span><strong>03 · Type, radius, elevation</strong></div>
+      <div class="inner">
+        <div class="grid cols-2">
+          <div>
+            <h2>Type scale</h2>
+            <div class="type-row"><span style="font-family:Outfit;font-size:32px;font-weight:700;">Page title</span><span class="spec">28–32 / 700 Outfit</span></div>
+            <div class="type-row"><span style="font-family:Outfit;font-size:22px;font-weight:650;">Section title</span><span class="spec">20–24 / 600–700</span></div>
+            <div class="type-row"><span style="font-size:17px;font-weight:650;">Card title</span><span class="spec">16–18 / 600–700</span></div>
+            <div class="type-row"><span style="font-family:Outfit;font-size:32px;font-weight:700;font-variant-numeric:tabular-nums;">1.284</span><span class="spec">KPI 28–36 / 700 tabular</span></div>
+            <div class="type-row"><span>Body dài, line-height ≥ 1.45</span><span class="spec">14–16 / 400–500 Jakarta</span></div>
+            <div class="type-row"><span style="font-size:12px;color:#8B99B0;">Small metadata</span><span class="spec">12–13</span></div>
+            <div class="type-row"><span class="eyebrow" style="margin:0;">Eyebrow only</span><span class="spec">uppercase hạn chế</span></div>
+          </div>
+          <div>
+            <h2>Radius · spacing · elevation</h2>
+            <div class="radii">
+              <div class="rbox" style="border-radius:6px">sm 6</div>
+              <div class="rbox" style="border-radius:8px">md 8</div>
+              <div class="rbox" style="border-radius:10px">lg 10</div>
+              <div class="rbox" style="border-radius:14px">xl 14</div>
+              <div class="rbox" style="border-radius:18px">2xl 18 card</div>
+              <div class="rbox" style="border-radius:22px">3xl 22</div>
+            </div>
+            <p class="note" style="margin-top:16px;">Spacing base 4px · nhịp 4 8 12 16 20 24 32 · card padding 20–24 · section gap 16–24.</p>
+            <div class="elev" style="margin-top:16px;">
+              <div class="card" style="box-shadow:var(--e1);width:140px;">e1 card</div>
+              <div class="card" style="box-shadow:var(--e2);width:140px;">e2 hover</div>
+              <div class="card" style="box-shadow:var(--e3);width:140px;">e3 modal</div>
+              <div class="btn btn-primary" style="align-self:center;">glow CTA</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- COMPONENTS -->
+    <section class="page" data-frame="Components">
+      <div class="page-label"><span>Components</span><strong>04 · Controls &amp; states</strong></div>
+      <div class="inner">
+        <h2>Buttons</h2>
+        <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:28px;">
+          <button class="btn btn-primary" type="button">Lưu thay đổi</button>
+          <button class="btn btn-secondary" type="button">Hủy</button>
+          <button class="btn btn-ghost" type="button">Xem thêm</button>
+          <button class="btn btn-danger" type="button">Xóa hồ sơ</button>
+          <button class="btn btn-primary is-focus" type="button">Focus</button>
+          <button class="btn btn-primary is-disabled" type="button" disabled>Disabled</button>
+          <button class="btn btn-primary btn-sm" type="button">Compact 36px</button>
+        </div>
+        <div class="grid cols-2">
+          <div>
+            <h2>Inputs</h2>
+            <form>
+            <div class="field" style="margin-bottom:16px;">
+              <label for="email">Email công việc</label>
+              <input id="email" name="email" type="email" autocomplete="email" value="hr@townhown.vn" />
+            </div>
+            <div class="field">
+              <label for="bad">Mật khẩu</label>
+              <input id="bad" name="password" type="password" autocomplete="current-password" value="••••••••" style="border-color:#FB7185;" />
+              <div class="err">Tối thiểu 8 ký tự. Sửa rồi thử lại.</div>
+            </div>
+            </form>
+          </div>
+          <div>
+            <h2>Status chips</h2>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;">
+              <span class="chip"><span class="dot" style="background:#34D399"></span>Đạt</span>
+              <span class="chip"><span class="dot" style="background:#FBBF24"></span>Chờ review</span>
+              <span class="chip"><span class="dot" style="background:#FB7185"></span>Không đạt</span>
+              <span class="chip"><span class="dot" style="background:#5B6CF0"></span>Thông tin</span>
+              <span class="chip" style="background:rgba(167,139,250,.18);color:#B48EFF;"><span class="dot" style="background:#A78BFA"></span>AI insight</span>
+            </div>
+            <p class="note" style="margin-top:16px;">Touch target ≥ 36px, ưu tiên 40–44 trên mobile. Focus-visible bắt buộc. Loading copy dùng dấu …</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- DATA -->
+    <section class="page" data-frame="Data surfaces">
+      <div class="page-label"><span>Components</span><strong>05 · KPI, table, states</strong></div>
+      <div class="inner">
+        <div class="grid cols-4" style="margin-bottom:24px;">
+          <div class="card kpi"><div class="label">Ứng viên mới</div><div class="value">128</div><div class="delta">▲ 12% so với tuần trước</div></div>
+          <div class="card kpi"><div class="label">Phỏng vấn hôm nay</div><div class="value">18</div><div class="delta" style="color:#FBBF24;">3 chờ xác nhận</div></div>
+          <div class="card kpi"><div class="label">Offer đã gửi</div><div class="value">7</div><div class="delta">▲ 2</div></div>
+          <div class="card kpi"><div class="label">Tỷ lệ pass</div><div class="value">64%</div><div class="delta">tabular-nums</div></div>
+        </div>
+        <div class="card" style="padding:0;overflow:hidden;">
+          <table>
+            <caption class="note" style="text-align:left;padding:16px 12px 0;">Pipeline tuyển dụng · caption bắt buộc</caption>
+            <thead>
+              <tr><th>Ứng viên</th><th>Vị trí</th><th>Trạng thái</th><th>Cập nhật</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Ngô Minh Châu</td><td>Product Designer</td><td><span class="chip"><span class="dot" style="background:#FBBF24"></span>Review</span></td><td class="num">13/09</td></tr>
+              <tr><td>Trần Đức Anh</td><td>Backend Engineer</td><td><span class="chip"><span class="dot" style="background:#34D399"></span>Pass</span></td><td class="num">12/09</td></tr>
+              <tr><td>Lê Phương</td><td>HRBP</td><td><span class="chip"><span class="dot" style="background:#5B6CF0"></span>Interview</span></td><td class="num">12/09</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="grid cols-3" style="margin-top:24px;">
+          <div class="card"><h3>Loading…</h3><p class="note">Dùng ellipsis Unicode. Chiều cao KPI ổn định.</p></div>
+          <div class="card"><h3>Chưa có dữ liệu</h3><p class="note">Empty: nói rõ hành động tiếp theo, không trang trí rỗng.</p></div>
+          <div class="card"><h3>Không tải được bảng</h3><p class="note" style="color:#FB7185;">Error gần dữ liệu, kèm cách sửa.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SHELL -->
+    <section class="page" data-frame="App shell">
+      <div class="page-label"><span>Product</span><strong>06 · Sidebar shell · desktop 1280</strong></div>
+      <div class="shell">
+        <aside class="nav">
+          <div class="brand">Town Hown</div>
+          <div class="nav-item active">Tổng quan</div>
+          <div class="nav-item">Tuyển dụng</div>
+          <div class="nav-item">Phỏng vấn</div>
+          <div class="nav-item">Đánh giá</div>
+          <div class="nav-item">Cài đặt</div>
+        </aside>
+        <main class="content">
+          <div class="header">
+            <div>
+              <div class="eyebrow">Dashboard</div>
+              <h1 style="font-size:28px;">Tổng quan tuyển dụng</h1>
+            </div>
+            <button class="btn btn-primary" type="button">Tạo tin tuyển</button>
+          </div>
+          <div class="grid cols-3">
+            <div class="card kpi"><div class="label">Mở vị trí</div><div class="value">24</div></div>
+            <div class="card kpi"><div class="label">Trong pipeline</div><div class="value">86</div></div>
+            <div class="card kpi"><div class="label">AI gợi ý hôm nay</div><div class="value" style="color:#B48EFF;">11</div></div>
+          </div>
+          <p class="note" style="margin-top:24px;">Z-index: content 0–10 · sticky 20 · sidebar 30 · topnav 40 · overlay 50 · toast 100. Page không tự dựng shell.</p>
+        </main>
+      </div>
+    </section>
+
+    <!-- RESPONSIVE + OPEN -->
+    <section class="page" data-frame="Responsive and open questions">
+      <div class="page-label"><span>Product</span><strong>07 · Breakpoints &amp; quyết định mở</strong></div>
+      <div class="inner">
+        <div class="grid cols-3">
+          <div class="card"><h3>&lt; 1024</h3><p>Sidebar → rail hoặc off-canvas. KPI giảm cột.</p></div>
+          <div class="card"><h3>&lt; 768</h3><p>Split xếp dọc. Secondary vào overflow. Table scroll ngang có chủ đích.</p></div>
+          <div class="card"><h3>Motion</h3><p>150ms micro · 200–300 overlay · reduced-motion tắt hết animation không thiết yếu.</p></div>
+        </div>
+        <div class="open" style="margin-top:24px;">
+          <strong>OPEN QUESTIONS (không đoán trong Figma variables)</strong>
+          <ul>
+            <li>Tách app canvas #121A2E và immersive #0A0F1E hay gộp?</li>
+            <li>Light token dormant: loại bỏ hay phát triển thành theme?</li>
+            <li>Promote primary-light, AI violet, text-dim, success, warning thành CSS token runtime khi nào?</li>
+          </ul>
+        </div>
+        <p class="note">Import Figma: plugin html.to.design → chọn từng <code>section.page</code> thành Frame. Đặt variables theo đúng tên token. Không copy UI từ <code>modules/</code>.</p>
+      </div>
+    </section>
+
+  </div>
+</body>
+</html>
