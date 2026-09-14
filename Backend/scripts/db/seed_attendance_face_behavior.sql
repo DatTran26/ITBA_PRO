@@ -56,13 +56,25 @@ BEGIN
         (uid_hr,          'test.hr@itba.ai',          'Test HR Specialist',     'hr',          false, now() - interval '45 days'),
         (uid_recruiter,   'test.recruiter@itba.ai',   'Test Talent Recruiter',  'recruiter',   false, now() - interval '40 days'),
         (uid_interviewer, 'test.interviewer@itba.ai', 'Test Tech Interviewer',  'interviewer', false, now() - interval '35 days'),
-        (uid_emp_a,       'nguyen.vana@itba.ai',      'Nguyễn Văn A (Backend)', 'employee',    false, now() - interval '30 days'),
-        (uid_emp_b,       'tran.thib@itba.ai',        'Trần Thị B (Frontend)',  'employee',    false, now() - interval '25 days'),
-        (uid_emp_c,       'le.vanc@itba.ai',          'Lê Văn C (AI Engineer)', 'employee',    false, now() - interval '20 days'),
-        (uid_emp_d,       'pham.thid@itba.ai',        'Phạm Thị D (QA Lead)',   'employee',    false, now() - interval '15 days')
+        (uid_emp_a,       'nguyen.vana@itba.ai',      'Nguyễn Văn A (Backend)', 'user',        false, now() - interval '30 days'),
+        (uid_emp_b,       'tran.thib@itba.ai',        'Trần Thị B (Frontend)',  'user',        false, now() - interval '25 days'),
+        (uid_emp_c,       'le.vanc@itba.ai',          'Lê Văn C (AI Engineer)', 'user',        false, now() - interval '20 days'),
+        (uid_emp_d,       'pham.thid@itba.ai',        'Phạm Thị D (QA Lead)',   'user',        false, now() - interval '15 days')
     ON CONFLICT (email) DO UPDATE SET
         name = EXCLUDED.name,
         role = EXCLUDED.role;
+
+    -- Existing databases may already use different IDs for these emails.
+    SELECT id INTO uid_superadmin  FROM public.users WHERE email = 'test.superadmin@itba.ai';
+    SELECT id INTO uid_admin       FROM public.users WHERE email = 'test.admin@itba.ai';
+    SELECT id INTO uid_leader      FROM public.users WHERE email = 'test.leader@itba.ai';
+    SELECT id INTO uid_hr          FROM public.users WHERE email = 'test.hr@itba.ai';
+    SELECT id INTO uid_recruiter   FROM public.users WHERE email = 'test.recruiter@itba.ai';
+    SELECT id INTO uid_interviewer FROM public.users WHERE email = 'test.interviewer@itba.ai';
+    SELECT id INTO uid_emp_a       FROM public.users WHERE email = 'nguyen.vana@itba.ai';
+    SELECT id INTO uid_emp_b       FROM public.users WHERE email = 'tran.thib@itba.ai';
+    SELECT id INTO uid_emp_c       FROM public.users WHERE email = 'le.vanc@itba.ai';
+    SELECT id INTO uid_emp_d       FROM public.users WHERE email = 'pham.thid@itba.ai';
 
     -- ==============================================================================
     -- 2. DỮ LIỆU KHUÔN MẶT (FACE EMBEDDINGS & AUDIT LOGS)
@@ -78,26 +90,26 @@ BEGIN
     );
 
     -- Đăng ký khuôn mặt đã kích hoạt cho Super Admin và các nhân viên
-    INSERT INTO public.user_face_embeddings (user_id, embedding_json, angle_count, is_active, created_at)
+    INSERT INTO public.user_face_embeddings (id, user_id, embedding_json, angle_count, is_active, created_at)
     VALUES
-        (uid_superadmin, mock_embedding, 6, true, now() - interval '20 days'),
-        (uid_admin,      mock_embedding, 6, true, now() - interval '18 days'),
-        (uid_emp_a,      mock_embedding, 6, true, now() - interval '15 days'),
-        (uid_emp_b,      mock_embedding, 6, true, now() - interval '12 days'),
-        (uid_emp_c,      mock_embedding, 6, true, now() - interval '10 days')
-    ON CONFLICT DO NOTHING;
+        ('bbbbbbbb-1111-4bbb-8bbb-bbbbbbbbbbbb', uid_superadmin, mock_embedding, 6, true, now() - interval '20 days'),
+        ('bbbbbbbb-2222-4bbb-8bbb-bbbbbbbbbbbb', uid_admin,      mock_embedding, 6, true, now() - interval '18 days'),
+        ('bbbbbbbb-3333-4bbb-8bbb-bbbbbbbbbbbb', uid_emp_a,      mock_embedding, 6, true, now() - interval '15 days'),
+        ('bbbbbbbb-4444-4bbb-8bbb-bbbbbbbbbbbb', uid_emp_b,      mock_embedding, 6, true, now() - interval '12 days'),
+        ('bbbbbbbb-5555-4bbb-8bbb-bbbbbbbbbbbb', uid_emp_c,      mock_embedding, 6, true, now() - interval '10 days')
+    ON CONFLICT (id) DO NOTHING;
 
     -- Nhật ký xác thực Face ID (Face Audit Logs)
-    INSERT INTO public.face_audit_logs (user_id, email, action_type, similarity_score, is_matched, camera_device, ip_address, created_at)
+    INSERT INTO public.face_audit_logs (id, user_id, email, action_type, similarity_score, is_matched, camera_device, ip_address, created_at)
     VALUES
-        (uid_superadmin, 'test.superadmin@itba.ai', 'login',                 0.924, true,  'Integrated Webcam 1080p', '192.168.1.45', now() - interval '2 hours'),
-        (uid_emp_a,      'nguyen.vana@itba.ai',     'attendance_check_in',   0.881, true,  'Entrance Cam #1',         '192.168.1.10', now() - interval '9 hours'),
-        (uid_emp_b,      'tran.thib@itba.ai',       'attendance_check_in',   0.895, true,  'Entrance Cam #1',         '192.168.1.10', now() - interval '9 hours 5 minutes'),
-        (uid_emp_c,      'le.vanc@itba.ai',         'attendance_check_in',   0.845, true,  'Entrance Cam #2',         '192.168.1.11', now() - interval '8 hours 50 minutes'),
-        (uid_admin,      'test.admin@itba.ai',      'login',                 0.912, true,  'MacBook Face ID Cam',     '192.168.1.50', now() - interval '1 day'),
-        (NULL,           'unknown@visitor.com',     'login',                 0.412, false, 'Entrance Cam #1',         '192.168.1.10', now() - interval '1 day 2 hours'),
-        (uid_emp_a,      'nguyen.vana@itba.ai',     'attendance_check_out',  0.873, true,  'Exit Gate Cam #1',        '192.168.1.12', now() - interval '1 day 4 hours')
-    ON CONFLICT DO NOTHING;
+        ('cccccccc-1111-4ccc-8ccc-cccccccccccc', uid_superadmin, 'test.superadmin@itba.ai', 'login',                 0.924, true,  'Integrated Webcam 1080p', '192.168.1.45', now() - interval '2 hours'),
+        ('cccccccc-2222-4ccc-8ccc-cccccccccccc', uid_emp_a,      'nguyen.vana@itba.ai',     'attendance_check_in',   0.881, true,  'Entrance Cam #1',         '192.168.1.10', now() - interval '9 hours'),
+        ('cccccccc-3333-4ccc-8ccc-cccccccccccc', uid_emp_b,      'tran.thib@itba.ai',       'attendance_check_in',   0.895, true,  'Entrance Cam #1',         '192.168.1.10', now() - interval '9 hours 5 minutes'),
+        ('cccccccc-4444-4ccc-8ccc-cccccccccccc', uid_emp_c,      'le.vanc@itba.ai',         'attendance_check_in',   0.845, true,  'Entrance Cam #2',         '192.168.1.11', now() - interval '8 hours 50 minutes'),
+        ('cccccccc-5555-4ccc-8ccc-cccccccccccc', uid_admin,      'test.admin@itba.ai',      'login',                 0.912, true,  'MacBook Face ID Cam',      '192.168.1.50', now() - interval '1 day'),
+        ('cccccccc-6666-4ccc-8ccc-cccccccccccc', NULL,           'unknown@visitor.com',     'login',                 0.412, false, 'Entrance Cam #1',         '192.168.1.10', now() - interval '1 day 2 hours'),
+        ('cccccccc-7777-4ccc-8ccc-cccccccccccc', uid_emp_a,      'nguyen.vana@itba.ai',     'attendance_check_out',  0.873, true,  'Exit Gate Cam #1',        '192.168.1.12', now() - interval '1 day 4 hours')
+    ON CONFLICT (id) DO NOTHING;
 
     -- ==============================================================================
     -- 3. DỮ LIỆU CHẤM CÔNG (ATTENDANCE SHIFTS & SESSIONS)
@@ -108,27 +120,30 @@ BEGIN
     -- Phiên chấm công các ngày gần đây
     -- Hôm nay: Check-in sáng, đang trong ca làm việc (check_out_at = NULL)
     INSERT INTO public.attendance_sessions 
-        (user_id, shift_id, check_in_at, check_out_at, check_in_similarity, check_out_similarity, status, work_duration_minutes, notes, created_at)
+        (id, user_id, shift_id, check_in_at, check_out_at, check_in_similarity, check_out_similarity, status, work_duration_minutes, notes, created_at)
     VALUES
-        (uid_emp_a, sid_standard, now() - interval '4 hours', NULL, 0.885, NULL, 'valid', NULL, 'Đúng giờ ca sáng', now() - interval '4 hours'),
-        (uid_emp_b, sid_standard, now() - interval '4 hours 10 minutes', NULL, 0.902, NULL, 'valid', NULL, 'Đúng giờ ca sáng', now() - interval '4 hours 10 minutes'),
-        (uid_emp_c, sid_standard, now() - interval '3 hours 40 minutes', NULL, 0.812, NULL, 'late', NULL, 'Đi muộn 20 phút do kẹt xe', now() - interval '3 hours 40 minutes');
+        ('dddddddd-1111-4ddd-8ddd-dddddddddddd', uid_emp_a, sid_standard, now() - interval '4 hours', NULL, 0.885, NULL, 'valid', NULL, 'Đúng giờ ca sáng', now() - interval '4 hours'),
+        ('dddddddd-2222-4ddd-8ddd-dddddddddddd', uid_emp_b, sid_standard, now() - interval '4 hours 10 minutes', NULL, 0.902, NULL, 'valid', NULL, 'Đúng giờ ca sáng', now() - interval '4 hours 10 minutes'),
+        ('dddddddd-3333-4ddd-8ddd-dddddddddddd', uid_emp_c, sid_standard, now() - interval '3 hours 40 minutes', NULL, 0.812, NULL, 'late', NULL, 'Đi muộn 20 phút do kẹt xe', now() - interval '3 hours 40 minutes')
+    ON CONFLICT (id) DO NOTHING;
 
     -- Hôm qua: Đã hoàn tất cả ngày (Check-in & Check-out đầy đủ)
     INSERT INTO public.attendance_sessions 
-        (user_id, shift_id, check_in_at, check_out_at, check_in_similarity, check_out_similarity, status, work_duration_minutes, notes, created_at)
+        (id, user_id, shift_id, check_in_at, check_out_at, check_in_similarity, check_out_similarity, status, work_duration_minutes, notes, created_at)
     VALUES
-        (uid_emp_a, sid_standard, now() - interval '1 day 9 hours', now() - interval '1 day 30 minutes', 0.891, 0.874, 'valid', 510, 'Hoàn thành 8.5 tiếng làm việc', now() - interval '1 day 9 hours'),
-        (uid_emp_b, sid_standard, now() - interval '1 day 8 hours 55 minutes', now() - interval '1 day 25 minutes', 0.915, 0.889, 'valid', 510, 'Hoàn thành đủ giờ', now() - interval '1 day 8 hours 55 minutes'),
-        (uid_emp_c, sid_standard, now() - interval '1 day 9 hours 5 minutes', now() - interval '1 day 1 hour 45 minutes', 0.864, 0.852, 'early_leave', 440, 'Xin về sớm có việc cá nhân', now() - interval '1 day 9 hours 5 minutes'),
-        (uid_emp_d, sid_standard, now() - interval '1 day 8 hours 50 minutes', now() - interval '1 day 20 minutes', 0.920, 0.911, 'valid', 510, 'Làm việc bình thường', now() - interval '1 day 8 hours 50 minutes');
+        ('dddddddd-4444-4ddd-8ddd-dddddddddddd', uid_emp_a, sid_standard, now() - interval '1 day 9 hours', now() - interval '1 day 30 minutes', 0.891, 0.874, 'valid', 510, 'Hoàn thành 8.5 tiếng làm việc', now() - interval '1 day 9 hours'),
+        ('dddddddd-5555-4ddd-8ddd-dddddddddddd', uid_emp_b, sid_standard, now() - interval '1 day 8 hours 55 minutes', now() - interval '1 day 25 minutes', 0.915, 0.889, 'valid', 510, 'Hoàn thành đủ giờ', now() - interval '1 day 8 hours 55 minutes'),
+        ('dddddddd-6666-4ddd-8ddd-dddddddddddd', uid_emp_c, sid_standard, now() - interval '1 day 9 hours 5 minutes', now() - interval '1 day 1 hour 45 minutes', 0.864, 0.852, 'early_leave', 440, 'Xin về sớm có việc cá nhân', now() - interval '1 day 9 hours 5 minutes'),
+        ('dddddddd-7777-4ddd-8ddd-dddddddddddd', uid_emp_d, sid_standard, now() - interval '1 day 8 hours 50 minutes', now() - interval '1 day 20 minutes', 0.920, 0.911, 'valid', 510, 'Làm việc bình thường', now() - interval '1 day 8 hours 50 minutes')
+    ON CONFLICT (id) DO NOTHING;
 
     -- 2 ngày trước:
     INSERT INTO public.attendance_sessions 
-        (user_id, shift_id, check_in_at, check_out_at, check_in_similarity, check_out_similarity, status, work_duration_minutes, notes, created_at)
+        (id, user_id, shift_id, check_in_at, check_out_at, check_in_similarity, check_out_similarity, status, work_duration_minutes, notes, created_at)
     VALUES
-        (uid_emp_a, sid_standard, now() - interval '2 days 9 hours', now() - interval '2 days 30 minutes', 0.878, 0.882, 'valid', 510, 'Ca chuẩn', now() - interval '2 days 9 hours'),
-        (uid_emp_b, sid_standard, now() - interval '2 days 8 hours 40 minutes', now() - interval '2 days 30 minutes', 0.931, 0.894, 'valid', 490, 'Ca chuẩn', now() - interval '2 days 8 hours 40 minutes');
+        ('dddddddd-8888-4ddd-8ddd-dddddddddddd', uid_emp_a, sid_standard, now() - interval '2 days 9 hours', now() - interval '2 days 30 minutes', 0.878, 0.882, 'valid', 510, 'Ca chuẩn', now() - interval '2 days 9 hours'),
+        ('dddddddd-9999-4ddd-8ddd-dddddddddddd', uid_emp_b, sid_standard, now() - interval '2 days 8 hours 40 minutes', now() - interval '2 days 30 minutes', 0.931, 0.894, 'valid', 490, 'Ca chuẩn', now() - interval '2 days 8 hours 40 minutes')
+    ON CONFLICT (id) DO NOTHING;
 
     -- Bảng tổng hợp chấm công hàng ngày (Daily Summary)
     INSERT INTO public.attendance_daily_summary 
@@ -194,11 +209,11 @@ BEGIN
     ON CONFLICT (id) DO NOTHING;
 
     -- Lịch sử hành động xử lý vi phạm (Violation Action Logs)
-    INSERT INTO public.violation_action_logs (alert_id, action_by, action_type, comment, created_at)
+    INSERT INTO public.violation_action_logs (id, alert_id, action_by, action_type, comment, created_at)
     VALUES
-        (aid_3, uid_hr, 'warning_email', 'Đã gửi email nhắc nhở nội quy phòng phỏng vấn tới nhân sự.', now() - interval '1 day 1 hour'),
-        (aid_4, uid_superadmin, 'hr_memo', 'Lập biên bản an ninh và thông báo cho đội tuần tra ca tối.', now() - interval '2 days 2 hours')
-    ON CONFLICT DO NOTHING;
+        ('eeeeeeee-1111-4eee-8eee-eeeeeeeeeeee', aid_3, uid_hr, 'warning_email', 'Đã gửi email nhắc nhở nội quy phòng phỏng vấn tới nhân sự.', now() - interval '1 day 1 hour'),
+        ('eeeeeeee-2222-4eee-8eee-eeeeeeeeeeee', aid_4, uid_superadmin, 'hr_memo', 'Lập biên bản an ninh và thông báo cho đội tuần tra ca tối.', now() - interval '2 days 2 hours')
+    ON CONFLICT (id) DO NOTHING;
 
 END $$;
 

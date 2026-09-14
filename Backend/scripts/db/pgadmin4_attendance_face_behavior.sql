@@ -282,13 +282,11 @@ END $$;
 -- Tương thích trên cả PostgreSQL độc lập (pgAdmin 4) và Supabase:
 CREATE SCHEMA IF NOT EXISTS auth;
 
-CREATE OR REPLACE FUNCTION auth.uid()
-RETURNS uuid AS $$
-    SELECT NULL::uuid;
-$$ LANGUAGE sql STABLE;
-
 DO $$
 BEGIN
+    IF to_regprocedure('auth.uid()') IS NULL THEN
+        EXECUTE 'CREATE FUNCTION auth.uid() RETURNS uuid LANGUAGE sql STABLE AS ''SELECT NULL::uuid''';
+    END IF;
     IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'authenticated') THEN
         CREATE ROLE authenticated;
     END IF;
