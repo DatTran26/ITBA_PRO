@@ -22,7 +22,7 @@ type Alert = {
   detections_json?: { confidence?: number; label?: string; bbox?: number[] };
 };
 
-type Detection = { label: string; confidence: number; bbox: number[] };
+type Detection = { label: string; confidence: number; bbox: number[]; isViolation: boolean };
 type Overlay = { detections: Detection[]; width: number; height: number };
 type MonitorProps = {
   title: string;
@@ -138,15 +138,16 @@ function MonitorPanel({ title, defaultModelPath, defaultCameraIndex, devices, on
 
     try {
       const response = await fetch("/api/behavior", { method: "POST", body });
-      const data = await readApiResponse<{ error?: string; detections: Detection[]; alerts: Alert[] }>(response);
+      const data = await readApiResponse<{ error?: string; warning?: string; detections: Detection[]; alerts: Alert[] }>(response);
       if (!response.ok) throw new Error(data.error ?? "Behavior scan failed");
       const detections = data.detections ?? [];
+      const violations = detections.filter((detection) => detection.isViolation);
       setOverlay({ detections, width: canvas.width, height: canvas.height });
       if (data.alerts?.length) await onAlertsSaved();
-      if (detections.length && Date.now() - lastNoticeRef.current > 10_000) {
+      if (violations.length && Date.now() - lastNoticeRef.current > 10_000) {
         lastNoticeRef.current = Date.now();
-        toast.warning(`${title}: ${detections.length} violation detection${detections.length === 1 ? "" : "s"}`);
-      } else if (!quiet && !detections.length) {
+        toast.warning(data.warning ?? `${title}: ${violations.length} violation detection${violations.length === 1 ? "" : "s"}`);
+      } else if (!quiet && !violations.length) {
         toast.success(`${title}: no violation detected`);
       }
     } catch (error) {
@@ -182,7 +183,9 @@ function MonitorPanel({ title, defaultModelPath, defaultCameraIndex, devices, on
             <svg className="pointer-events-none absolute inset-0 h-full w-full" viewBox={`0 0 ${overlay.width} ${overlay.height}`} preserveAspectRatio="xMidYMid meet" aria-hidden="true">
               {overlay.detections.map((detection, index) => {
                 const [x1, y1, x2, y2] = detection.bbox;
-                const color = detection.label.toLowerCase().includes("smoke") || detection.label.toLowerCase().includes("cigarette") ? "#F87171" : "#FBBF24";
+                const color = detection.isViolation
+                  ? detection.label.toLowerCase().includes("smoke") || detection.label.toLowerCase().includes("cigarette") ? "#F87171" : "#FBBF24"
+                  : "#36DDAB";
                 return (
                   <g key={`${detection.label}-${index}`}>
                     <rect x={x1} y={y1} width={Math.max(0, x2 - x1)} height={Math.max(0, y2 - y1)} fill="none" stroke={color} strokeWidth="4" />

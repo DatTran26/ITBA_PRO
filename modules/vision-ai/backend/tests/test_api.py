@@ -1,6 +1,7 @@
 import io
 import json
 from pathlib import Path
+from types import SimpleNamespace
 from unittest.mock import patch
 
 import numpy as np
@@ -8,7 +9,7 @@ from fastapi.testclient import TestClient
 from PIL import Image
 
 from app.main import app
-from app.services import _resolve_behavior_model_path, verify_face
+from app.services import _resolve_behavior_model_path, detect_behaviors, verify_face
 
 client = TestClient(app)
 
@@ -65,7 +66,7 @@ def test_verify_endpoint():
 
 
 def test_behavior_filters_are_returned_by_service():
-    detection = {"label": "smoke", "confidence": 0.9, "bbox": [1, 2, 3, 4]}
+    detection = {"label": "smoke", "confidence": 0.9, "bbox": [1, 2, 3, 4], "isViolation": True}
     with patch("app.main.detect_behaviors", return_value=[detection]):
         response = client.post("/api/behavior/detect", files={"image": upload()})
     assert response.status_code == 200
@@ -76,6 +77,27 @@ def test_behavior_detect_returns_503_when_weights_missing():
     with patch("app.main.detect_behaviors", side_effect=FileNotFoundError("Behavior weights missing")):
         response = client.post("/api/behavior/detect", files={"image": upload()})
     assert response.status_code == 503
+
+
+def test_behavior_returns_non_violation_boxes_for_overlay():
+    box = SimpleNamespace(
+        cls=np.asarray([0]),
+        conf=np.asarray([0.8]),
+        xyxy=np.asarray([[1.0, 2.0, 30.0, 40.0]]),
+    )
+    result = SimpleNamespace(boxes=[box], names={0: "Working"})
+    model = SimpleNamespace(predict=lambda **_: [result])
+    with (
+        patch("app.services.get_behavior_model", return_value=model),
+        patch("app.services.decode_image", return_value=np.zeros((8, 8, 3))),
+    ):
+        detections = detect_behaviors(b"image")
+    assert detections == [{
+        "label": "Working",
+        "confidence": 0.8,
+        "bbox": [1.0, 2.0, 30.0, 40.0],
+        "isViolation": False,
+    }]
 
 
 def test_behavior_model_path_accepts_copied_quotes(tmp_path: Path):

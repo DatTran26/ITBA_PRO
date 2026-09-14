@@ -35,10 +35,10 @@ export async function POST(request: Request) {
 
   try {
     const result = await callVisionAi("/api/behavior/detect", { method: "POST", body }) as {
-      detections: Array<{ label: string; confidence: number; bbox: number[] }>;
+      detections: Array<{ label: string; confidence: number; bbox: number[]; isViolation: boolean }>;
     };
     if (!Array.isArray(result.detections)) throw new Error("Invalid behavior response");
-    const rows = result.detections.map((detection) => ({
+    const rows = result.detections.filter((detection) => detection.isViolation).map((detection) => ({
       track_id: randomUUID(),
       violation_type: ["smoke", "cigarette"].includes(detection.label.toLowerCase()) ? "smoking" : "empty_desk",
       severity: ["smoke", "cigarette"].includes(detection.label.toLowerCase()) ? "High" : "Medium",
@@ -46,10 +46,18 @@ export async function POST(request: Request) {
       status: "pending_review",
       detections_json: detection,
     }));
-    if (!rows.length) return NextResponse.json({ detections: [], alerts: [] });
-    const { data, error } = await createAdminClient().from("violation_alerts").insert(rows).select();
-    if (error) throw error;
-    return NextResponse.json({ detections: result.detections, alerts: data });
+    if (!rows.length) return NextResponse.json({ detections: result.detections, alerts: [] });
+    try {
+      const { data, error } = await createAdminClient().from("violation_alerts").insert(rows).select();
+      if (error) throw error;
+      return NextResponse.json({ detections: result.detections, alerts: data });
+    } catch {
+      return NextResponse.json({
+        detections: result.detections,
+        alerts: [],
+        warning: "Violation detected but the alert could not be saved",
+      });
+    }
   } catch (error) {
     return NextResponse.json({ error: error instanceof Error ? error.message : "Behavior scan failed" }, { status: 502 });
   }

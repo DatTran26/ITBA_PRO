@@ -86,13 +86,12 @@ def detect_behaviors(content: bytes, model_path: str | None = None) -> list[dict
     detections = []
     for box in result.boxes:
         label = str(result.names[int(box.cls.item())])
-        if label.lower() not in BEHAVIOR_LABELS:
-            continue
         detections.append(
             {
                 "label": label,
                 "confidence": float(box.conf.item()),
                 "bbox": [float(value) for value in box.xyxy[0].tolist()],
+                "isViolation": label.lower() in BEHAVIOR_LABELS,
             }
         )
     return detections
