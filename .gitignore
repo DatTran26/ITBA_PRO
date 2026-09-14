@@ -17,6 +17,9 @@ Thumbs.db
 *.log
 *.pem
 *.key
+*.db
+*.sqlite
+*.sqlite3
 secrets/
 
 # Scratch & temporary workspace
@@ -26,7 +29,7 @@ scratch/
 .claude/skills/
 .agents/
 .superpowers/
-./docs/superpowers/
+docs/superpowers/
 .cursor/
 .codex/
 _templates/

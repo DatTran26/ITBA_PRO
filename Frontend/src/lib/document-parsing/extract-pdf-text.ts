@@ -1,8 +1,3 @@
-import * as pdfParseLib from "pdf-parse";
-// pdf-parse ESM has no default export; resolve the callable regardless of interop
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const pdfParse: (buf: Buffer) => Promise<{ text: string }> = (pdfParseLib as any).default ?? (pdfParseLib as any);
-
 export class ExtractionFailedError extends Error {
   constructor(message: string, public readonly cause?: unknown) {
     super(message);
@@ -12,6 +7,10 @@ export class ExtractionFailedError extends Error {
 
 export async function extractPdfText(buffer: Buffer): Promise<string> {
   try {
+    // Dynamic import to prevent top-level DOMMatrix evaluation during Next.js build collection
+    const pdfParseModule = await import("pdf-parse");
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const pdfParse: (buf: Buffer) => Promise<{ text: string }> = (pdfParseModule as any).default ?? (pdfParseModule as any);
     const result = await pdfParse(buffer);
     return result.text ?? "";
   } catch (err) {
