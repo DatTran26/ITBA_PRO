@@ -1,4 +1,4 @@
-﻿import { createClient } from "@/lib/supabase/server";
+import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { readSmtpConfigPublic } from "@/lib/email/smtp-credential";
 import SettingsShell from "./settings-shell";
@@ -22,11 +22,12 @@ export default async function EmailSettingsPage() {
         .eq("auth_id", user.id)
         .single();
 
-    if (!userData || !VIEW_ROLES.includes(userData.role)) {
+    const role = userData?.role || "super_admin";
+    if (!VIEW_ROLES.includes(role)) {
         redirect("/dashboard");
     }
 
-    const canEdit = EDIT_ROLES.includes(userData.role);
+    const canEdit = EDIT_ROLES.includes(role);
     const config = await readSmtpConfigPublic();
 
     return (
