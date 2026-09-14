@@ -26,7 +26,7 @@ scratch/
 .claude/skills/
 .agents/
 .superpowers/
-./docs/superpowers/
+docs/superpowers/
 .cursor/
 .codex/
 _templates/
