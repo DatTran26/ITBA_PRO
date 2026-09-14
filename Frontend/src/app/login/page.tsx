@@ -34,6 +34,7 @@ export default function LoginPage() {
     const router = useRouter();
     const isDevAuthBypass = process.env.NEXT_PUBLIC_DEV_AUTH_BYPASS === "true";
     const isTurnstileEnabled = !isDevAuthBypass && process.env.NEXT_PUBLIC_ENABLE_TURNSTILE === "true";
+    const turnstileSiteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
 
     const {
         register,
@@ -48,6 +49,11 @@ export default function LoginPage() {
     });
 
     const onSubmit = async (data: LoginSchema) => {
+        if (isTurnstileEnabled && (!turnstileSiteKey || !captchaToken)) {
+            toast.error("Captcha protection is not configured. Please contact support.");
+            return;
+        }
+
         setIsLoading(true);
 
         try {
@@ -268,26 +274,32 @@ export default function LoginPage() {
 
                             {isTurnstileEnabled && (
                                 <div className="py-2">
-                                    <Turnstile
-                                        ref={turnstileRef}
-                                        siteKey="0x4AAAAAACwDOJ4K8U9X9Ci7"
-                                        onSuccess={(token) => setCaptchaToken(token)}
-                                        onExpire={() => {
-                                            setCaptchaToken(undefined);
-                                            turnstileRef.current?.reset();
-                                        }}
-                                        onError={() => {
-                                            setCaptchaToken(undefined);
-                                            turnstileRef.current?.reset();
-                                        }}
-                                        options={{ theme: "dark", size: "flexible" }}
-                                    />
+                                    {turnstileSiteKey ? (
+                                        <Turnstile
+                                            ref={turnstileRef}
+                                            siteKey={turnstileSiteKey}
+                                            onSuccess={(token) => setCaptchaToken(token)}
+                                            onExpire={() => {
+                                                setCaptchaToken(undefined);
+                                                turnstileRef.current?.reset();
+                                            }}
+                                            onError={() => {
+                                                setCaptchaToken(undefined);
+                                                turnstileRef.current?.reset();
+                                            }}
+                                            options={{ theme: "dark", size: "flexible" }}
+                                        />
+                                    ) : (
+                                        <p className="text-sm text-[#FF6B82]" role="alert">
+                                            Captcha protection is not configured. Please contact support.
+                                        </p>
+                                    )}
                                 </div>
                             )}
 
                             <Button
                                 type="submit"
-                                disabled={isLoading || (isTurnstileEnabled && !captchaToken)}
+                                disabled={isLoading || (isTurnstileEnabled && (!turnstileSiteKey || !captchaToken))}
                                 className="w-full h-14 bg-[#5B6CF0] hover:bg-[#4F5FE0] text-white font-bold text-base border-0 transition-all hover:scale-[1.01] active:scale-[0.99] hover:shadow-[0_15px_30px_-5px_rgba(91,108,240,0.5)] flex items-center justify-center gap-3 group/btn rounded-[1.25rem]"
                             >
                                 {isLoading ? (
