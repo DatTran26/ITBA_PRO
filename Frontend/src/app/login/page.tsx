@@ -47,6 +47,10 @@ export default function LoginPage() {
     const [isRegBusy, setIsRegBusy] = useState(false);
     const [regCameraOn, setRegCameraOn] = useState(false);
     const [registrationName, setRegistrationName] = useState("");
+    const [registrationEmail, setRegistrationEmail] = useState("");
+    const [registrationPassword, setRegistrationPassword] = useState("");
+    const [registrationConfirmPassword, setRegistrationConfirmPassword] = useState("");
+    const [showRegPassword, setShowRegPassword] = useState(false);
 
     // 1-touch 3s auto-capture state
     const [isAutoCapturing, setIsAutoCapturing] = useState(false);
@@ -69,6 +73,7 @@ export default function LoginPage() {
         register,
         handleSubmit,
         getValues,
+        setValue,
         formState: { errors },
     } = useForm<LoginSchema>({
         resolver: zodResolver(loginSchema),
@@ -248,6 +253,10 @@ export default function LoginPage() {
         setRegCaptures(REG_ANGLES.map(() => null));
         setRegActiveAngle(0);
         setRegistrationName("");
+        setRegistrationEmail("");
+        setRegistrationPassword("");
+        setRegistrationConfirmPassword("");
+        setShowRegPassword(false);
         setFaceMode(null);
     }
 
@@ -258,9 +267,25 @@ export default function LoginPage() {
     }
 
     async function startAuto6AngleCapture() {
-        const email = getValues("email")?.trim();
-        if (!email) {
-            toast.error("Enter your email before starting face registration.");
+        const name = registrationName.trim();
+        const email = registrationEmail.trim().toLowerCase();
+        const password = registrationPassword;
+        const confirmPassword = registrationConfirmPassword;
+
+        if (!name) {
+            toast.error("Please enter your full name before starting face capture.");
+            return;
+        }
+        if (!email || !/^\S+@\S+\.\S+$/.test(email)) {
+            toast.error("Please enter a valid email address before starting face capture.");
+            return;
+        }
+        if (!password || password.length < 6) {
+            toast.error("Password must contain at least 6 characters.");
+            return;
+        }
+        if (password !== confirmPassword) {
+            toast.error("Passwords do not match. Please verify your password.");
             return;
         }
 
@@ -355,18 +380,24 @@ export default function LoginPage() {
 
     async function submitFaceRegistration() {
         const name = registrationName.trim();
-        const email = getValues("email")?.trim();
-        const password = getValues("password");
+        const email = registrationEmail.trim().toLowerCase();
+        const password = registrationPassword;
+        const confirmPassword = registrationConfirmPassword;
+
         if (!name) {
             toast.error("Enter your full name before registering.");
             return;
         }
-        if (!email) {
-            toast.error("Enter your email before registering.");
+        if (!email || !/^\S+@\S+\.\S+$/.test(email)) {
+            toast.error("Enter a valid email address before registering.");
             return;
         }
         if (!password || password.length < 6) {
             toast.error("Enter a password containing at least 6 characters.");
+            return;
+        }
+        if (password !== confirmPassword) {
+            toast.error("Passwords do not match. Please verify your password.");
             return;
         }
         if (regCaptures.some((c) => !c)) {
@@ -384,6 +415,7 @@ export default function LoginPage() {
             const data = await readApiResponse<{ ok?: boolean; error?: string; message?: string }>(response);
             if (!response.ok) throw new Error(data.error ?? "Account registration failed");
             toast.success(data.message ?? "Account created successfully!");
+            setValue("email", email);
             closeFaceRegister();
         } catch (error) {
             toast.error(error instanceof Error ? error.message : "Account registration failed");
@@ -562,7 +594,11 @@ export default function LoginPage() {
                                         type="button"
                                         variant="outline"
                                         className="h-12 rounded-[1rem] border-white/10 bg-[#1B253B]/40 text-[#ECF0F7] hover:bg-[#24304A]"
-                                        onClick={() => setFaceMode("register")}
+                                        onClick={() => {
+                                            const currentEmail = getValues("email")?.trim();
+                                            if (currentEmail) setRegistrationEmail(currentEmail);
+                                            setFaceMode("register");
+                                        }}
                                     >
                                         <UserPlus className="mr-2 h-4 w-4 text-[#36DDAB]" />
                                         Register Account
@@ -601,7 +637,7 @@ export default function LoginPage() {
 
                                     <div className="text-center text-xs text-[#8B99B0]">
                                         {isFaceAutoScanning ? (
-                                            <span className="text-[#36DDAB]">Hold still and look directly into the camera</span>
+                                             <span className="text-[#36DDAB]">Hold still and look directly into the camera</span>
                                         ) : faceAttempts > 0 ? (
                                             <span className="text-[#FF6B82]">
                                                 Face did not match. Select Retry or use your password.
@@ -643,140 +679,225 @@ export default function LoginPage() {
 
                             {/* Face Registration Mode */}
                             {faceMode === "register" && (
-                                <div className="space-y-3.5 rounded-[1rem] border border-[#36DDAB]/40 bg-[#0B1220]/90 p-3.5 shadow-xl">
-                                    <div className="flex items-center justify-between">
-                                        <div className="flex items-center gap-2">
-                                            <UserPlus className="size-4 text-[#36DDAB]" />
-                                            <p className="text-sm font-semibold text-[#36DDAB]">Create Account</p>
+                                <div className="space-y-3.5 rounded-[1rem] border border-[#36DDAB]/40 bg-[#0B1220]/95 p-4 shadow-2xl max-h-[85vh] overflow-y-auto">
+                                    <div className="flex items-center justify-between border-b border-white/10 pb-3">
+                                        <div className="flex items-center gap-2.5">
+                                            <div className="flex size-8 items-center justify-center rounded-lg bg-[#36DDAB]/10 text-[#36DDAB]">
+                                                <UserPlus className="size-4" />
+                                            </div>
+                                            <div>
+                                                <p className="text-sm font-semibold text-[#ECF0F7]">Create Account</p>
+                                                <p className="text-[11px] text-[#8B99B0]">Biometric-enrolled identity provisioning</p>
+                                            </div>
                                         </div>
-                                        <button type="button" onClick={closeFaceRegister} aria-label="Close" className="rounded p-1 hover:bg-white/10">
-                                            <X className="size-4 text-[#8B99B0]" />
+                                        <button type="button" onClick={closeFaceRegister} aria-label="Close" className="rounded-lg p-1.5 text-[#8B99B0] hover:bg-white/10 hover:text-white transition-colors">
+                                            <X className="size-4" />
                                         </button>
                                     </div>
 
-                                    <div className="space-y-2">
-                                        <Label htmlFor="registration-name" className="text-[11px] font-bold uppercase tracking-[0.15em] text-[#8B99B0]">
-                                            Full Name
-                                        </Label>
-                                        <Input
-                                            id="registration-name"
-                                            value={registrationName}
-                                            onChange={(event) => setRegistrationName(event.target.value)}
-                                            placeholder="Your profile name"
-                                            className="h-10 border-white/10 bg-[#1B253B]/60 text-[#ECF0F7]"
-                                        />
-                                    </div>
+                                    {/* User Account Form Inputs */}
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                        <div className="space-y-1.5 sm:col-span-2">
+                                            <Label htmlFor="registration-name" className="text-[11px] font-bold uppercase tracking-[0.12em] text-[#8B99B0]">
+                                                Full Name <span className="text-[#36DDAB]">*</span>
+                                            </Label>
+                                            <Input
+                                                id="registration-name"
+                                                value={registrationName}
+                                                onChange={(event) => setRegistrationName(event.target.value)}
+                                                placeholder="e.g. Tran Van A"
+                                                className="h-10 border-white/10 bg-[#1B253B]/60 text-xs text-[#ECF0F7] placeholder:text-[#56627A] focus:border-[#36DDAB]"
+                                            />
+                                        </div>
 
-                                    {/* 1-Touch 3-Second Auto Capture Action Bar */}
-                                    {!isAutoCapturing ? (
-                                        <Button
-                                            type="button"
-                                            className="w-full bg-[#36DDAB] hover:bg-[#2ec596] text-[#0B1220] font-bold text-xs h-11 rounded-xl shadow-lg shadow-[#36DDAB]/20 flex items-center justify-center gap-2"
-                                            onClick={startAuto6AngleCapture}
-                                        >
-                                            <ScanFace className="size-4" />
-                                            Automatic Six-Angle Capture (one image every 3s)
-                                        </Button>
-                                    ) : (
-                                        <Button
-                                            type="button"
-                                            variant="destructive"
-                                            className="w-full text-xs h-11 rounded-xl font-bold flex items-center justify-center gap-2"
-                                            onClick={stopAutoCapture}
-                                        >
-                                            <X className="size-4" /> Stop Automatic Capture
-                                        </Button>
-                                    )}
+                                        <div className="space-y-1.5 sm:col-span-2">
+                                            <Label htmlFor="registration-email" className="text-[11px] font-bold uppercase tracking-[0.12em] text-[#8B99B0]">
+                                                Email Address <span className="text-[#36DDAB]">*</span>
+                                            </Label>
+                                            <Input
+                                                id="registration-email"
+                                                type="email"
+                                                value={registrationEmail}
+                                                onChange={(event) => setRegistrationEmail(event.target.value)}
+                                                placeholder="name@company.com"
+                                                className="h-10 border-white/10 bg-[#1B253B]/60 text-xs text-[#ECF0F7] placeholder:text-[#56627A] focus:border-[#36DDAB]"
+                                            />
+                                        </div>
 
-                                    {/* Camera preview with countdown overlay */}
-                                    <div className="relative overflow-hidden rounded-xl bg-black aspect-video border border-white/10">
-                                        <video ref={regVideoRef} autoPlay muted playsInline className="h-full w-full -scale-x-100 object-cover" />
-                                        <canvas ref={regCanvasRef} className="hidden" />
-
-                                        {/* Auto-countdown overlay */}
-                                        {isAutoCapturing && autoCountdown !== null && (
-                                            <div className="absolute inset-0 bg-black/40 flex flex-col items-center justify-between p-3 pointer-events-none">
-                                                {/* Top angle label */}
-                                                <div className="bg-black/75 px-3 py-1.5 rounded-full border border-white/20 text-center">
-                                                    <p className="text-xs font-bold text-[#36DDAB]">
-                                                        Angle {regActiveAngle + 1}/6: {REG_ANGLES_DETAIL[regActiveAngle]?.name}
-                                                    </p>
-                                                    <p className="text-[10px] text-white/80">
-                                                        {REG_ANGLES_DETAIL[regActiveAngle]?.hint}
-                                                    </p>
-                                                </div>
-
-                                                {/* Giant animated countdown circle */}
-                                                <div className="size-16 rounded-full bg-[#36DDAB]/20 border-2 border-[#36DDAB] flex items-center justify-center animate-pulse">
-                                                    <span className="font-mono text-3xl font-black text-white">
-                                                        {autoCountdown > 0 ? autoCountdown : "📸"}
-                                                    </span>
-                                                </div>
-
-                                                {/* Bottom notice */}
-                                                <div className="bg-black/70 px-2.5 py-1 rounded-md text-[10px] text-[#8B99B0]">
-                                                    Capturing automatically after three seconds, then moving to the next angle...
-                                                </div>
+                                        <div className="space-y-1.5">
+                                            <div className="flex items-center justify-between">
+                                                <Label htmlFor="registration-password" className="text-[11px] font-bold uppercase tracking-[0.12em] text-[#8B99B0]">
+                                                    Password <span className="text-[#36DDAB]">*</span>
+                                                </Label>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setShowRegPassword(!showRegPassword)}
+                                                    className="text-[10px] text-[#8B99B0] hover:text-[#36DDAB] transition-colors"
+                                                >
+                                                    {showRegPassword ? "Hide" : "Show"}
+                                                </button>
                                             </div>
-                                        )}
+                                            <Input
+                                                id="registration-password"
+                                                type={showRegPassword ? "text" : "password"}
+                                                value={registrationPassword}
+                                                onChange={(event) => setRegistrationPassword(event.target.value)}
+                                                placeholder="Min. 6 characters"
+                                                className="h-10 border-white/10 bg-[#1B253B]/60 text-xs text-[#ECF0F7] placeholder:text-[#56627A] focus:border-[#36DDAB]"
+                                            />
+                                        </div>
+
+                                        <div className="space-y-1.5">
+                                            <Label htmlFor="registration-confirm-password" className="text-[11px] font-bold uppercase tracking-[0.12em] text-[#8B99B0]">
+                                                Confirm Password <span className="text-[#36DDAB]">*</span>
+                                            </Label>
+                                            <Input
+                                                id="registration-confirm-password"
+                                                type={showRegPassword ? "text" : "password"}
+                                                value={registrationConfirmPassword}
+                                                onChange={(event) => setRegistrationConfirmPassword(event.target.value)}
+                                                placeholder="Re-enter password"
+                                                className={`h-10 border-white/10 bg-[#1B253B]/60 text-xs text-[#ECF0F7] placeholder:text-[#56627A] focus:border-[#36DDAB] ${
+                                                    registrationConfirmPassword && registrationPassword !== registrationConfirmPassword
+                                                        ? "border-rose-500/60 focus:border-rose-500"
+                                                        : ""
+                                                }`}
+                                            />
+                                        </div>
                                     </div>
 
-                                    {/* Manual controls fallback */}
-                                    <div className="flex items-center justify-between gap-2 text-xs">
-                                        {!regCameraOn ? (
-                                            <Button type="button" size="sm" variant="outline" className="border-white/10 text-xs h-8" onClick={startRegCamera}>
-                                                <Camera className="mr-1 size-3.5" /> Open Camera
+                                    {/* Face Biometric Enrollment Section */}
+                                    <div className="border-t border-white/10 pt-3 space-y-3">
+                                        <div className="flex items-center justify-between">
+                                            <div>
+                                                <Label className="text-[11px] font-bold uppercase tracking-[0.12em] text-[#36DDAB]">
+                                                    Biometric Face Enrollment
+                                                </Label>
+                                                <p className="text-[10px] text-[#8B99B0]">6 distinct facial angles required</p>
+                                            </div>
+                                            <span className="text-[11px] font-mono font-semibold px-2 py-0.5 rounded bg-[#36DDAB]/10 text-[#36DDAB]">
+                                                {regCaptures.filter(Boolean).length}/6
+                                            </span>
+                                        </div>
+
+                                        {/* 1-Touch 3-Second Auto Capture Action Bar */}
+                                        {!isAutoCapturing ? (
+                                            <Button
+                                                type="button"
+                                                className="w-full bg-[#36DDAB] hover:bg-[#2ec596] text-[#0B1220] font-bold text-xs h-11 rounded-xl shadow-lg shadow-[#36DDAB]/20 flex items-center justify-center gap-2"
+                                                onClick={startAuto6AngleCapture}
+                                            >
+                                                <ScanFace className="size-4" />
+                                                Automatic Six-Angle Capture (one image every 3s)
                                             </Button>
                                         ) : (
-                                            <Button type="button" size="sm" variant="outline" className="border-white/10 text-xs h-8" onClick={stopRegCamera}>
-                                                Stop Camera
+                                            <Button
+                                                type="button"
+                                                variant="destructive"
+                                                className="w-full text-xs h-11 rounded-xl font-bold flex items-center justify-center gap-2"
+                                                onClick={stopAutoCapture}
+                                            >
+                                                <X className="size-4" /> Stop Automatic Capture
                                             </Button>
                                         )}
-                                        <Button
-                                            type="button"
-                                            size="sm"
-                                            variant="secondary"
-                                            disabled={!regCameraOn || isAutoCapturing}
-                                            className="text-xs h-8"
-                                            onClick={captureRegAngle}
-                                        >
-                                            <Camera className="mr-1 size-3.5" /> Manual Capture ({REG_ANGLES[regActiveAngle]})
-                                        </Button>
-                                    </div>
 
-                                    {/* Angle thumbnails */}
-                                    <div className="grid grid-cols-3 gap-2">
-                                        {REG_ANGLES.map((angle, index) => (
-                                            <button
-                                                key={angle}
+                                        {/* Camera preview with countdown overlay */}
+                                        <div className="relative overflow-hidden rounded-xl bg-black aspect-video border border-white/10">
+                                            <video ref={regVideoRef} autoPlay muted playsInline className="h-full w-full -scale-x-100 object-cover" />
+                                            <canvas ref={regCanvasRef} className="hidden" />
+
+                                            {/* Auto-countdown overlay */}
+                                            {isAutoCapturing && autoCountdown !== null && (
+                                                <div className="absolute inset-0 bg-black/40 flex flex-col items-center justify-between p-3 pointer-events-none">
+                                                    {/* Top angle label */}
+                                                    <div className="bg-black/75 px-3 py-1.5 rounded-full border border-white/20 text-center">
+                                                        <p className="text-xs font-bold text-[#36DDAB]">
+                                                            Angle {regActiveAngle + 1}/6: {REG_ANGLES_DETAIL[regActiveAngle]?.name}
+                                                        </p>
+                                                        <p className="text-[10px] text-white/80">
+                                                            {REG_ANGLES_DETAIL[regActiveAngle]?.hint}
+                                                        </p>
+                                                    </div>
+
+                                                    {/* Giant animated countdown circle */}
+                                                    <div className="size-16 rounded-full bg-[#36DDAB]/20 border-2 border-[#36DDAB] flex items-center justify-center animate-pulse">
+                                                        <span className="font-mono text-3xl font-black text-white">
+                                                            {autoCountdown > 0 ? autoCountdown : "📸"}
+                                                        </span>
+                                                    </div>
+
+                                                    {/* Bottom notice */}
+                                                    <div className="bg-black/70 px-2.5 py-1 rounded-md text-[10px] text-[#8B99B0]">
+                                                        Capturing automatically after three seconds, then moving to the next angle...
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </div>
+
+                                        {/* Manual controls fallback */}
+                                        <div className="flex items-center justify-between gap-2 text-xs">
+                                            {!regCameraOn ? (
+                                                <Button type="button" size="sm" variant="outline" className="border-white/10 text-xs h-8" onClick={startRegCamera}>
+                                                    <Camera className="mr-1 size-3.5" /> Open Camera
+                                                </Button>
+                                            ) : (
+                                                <Button type="button" size="sm" variant="outline" className="border-white/10 text-xs h-8" onClick={stopRegCamera}>
+                                                    Stop Camera
+                                                </Button>
+                                            )}
+                                            <Button
                                                 type="button"
-                                                className={`relative block aspect-video w-full rounded-lg overflow-hidden border transition-all ${
-                                                    regActiveAngle === index
-                                                        ? "border-[#36DDAB] ring-1 ring-[#36DDAB]"
-                                                        : "border-white/10 hover:border-white/20"
-                                                } bg-[#0B1220]`}
-                                                onClick={() => setRegActiveAngle(index)}
+                                                size="sm"
+                                                variant="secondary"
+                                                disabled={!regCameraOn || isAutoCapturing}
+                                                className="text-xs h-8"
+                                                onClick={captureRegAngle}
                                             >
-                                                {regCaptures[index] ? (
-                                                    <Image src={regCaptures[index].url} alt={angle} fill unoptimized sizes="120px" className="object-cover" />
-                                                ) : (
-                                                    <ScanFace className="absolute inset-0 m-auto size-5 text-[#56627A]" />
-                                                )}
-                                                {regCaptures[index] && (
-                                                    <Check className="absolute right-1 top-1 size-3.5 rounded-full bg-[#36DDAB] p-0.5 text-[#0B1220]" />
-                                                )}
-                                                <span className="absolute bottom-0 inset-x-0 bg-black/70 text-[9px] text-center text-[#8B99B0] py-0.5 truncate px-1">
-                                                    {index + 1}. {angle}
-                                                </span>
-                                            </button>
-                                        ))}
+                                                <Camera className="mr-1 size-3.5" /> Manual Capture ({REG_ANGLES[regActiveAngle]})
+                                            </Button>
+                                        </div>
+
+                                        {/* Angle thumbnails */}
+                                        <div className="grid grid-cols-3 gap-2">
+                                            {REG_ANGLES.map((angle, index) => (
+                                                <button
+                                                    key={angle}
+                                                    type="button"
+                                                    className={`relative block aspect-video w-full rounded-lg overflow-hidden border transition-all ${
+                                                        regActiveAngle === index
+                                                            ? "border-[#36DDAB] ring-1 ring-[#36DDAB]"
+                                                            : "border-white/10 hover:border-white/20"
+                                                    } bg-[#0B1220]`}
+                                                    onClick={() => setRegActiveAngle(index)}
+                                                >
+                                                    {regCaptures[index] ? (
+                                                        <Image src={regCaptures[index].url} alt={angle} fill unoptimized sizes="120px" className="object-cover" />
+                                                    ) : (
+                                                        <ScanFace className="absolute inset-0 m-auto size-5 text-[#56627A]" />
+                                                    )}
+                                                    {regCaptures[index] && (
+                                                        <Check className="absolute right-1 top-1 size-3.5 rounded-full bg-[#36DDAB] p-0.5 text-[#0B1220]" />
+                                                    )}
+                                                    <span className="absolute bottom-0 inset-x-0 bg-black/70 text-[9px] text-center text-[#8B99B0] py-0.5 truncate px-1">
+                                                        {index + 1}. {angle}
+                                                    </span>
+                                                </button>
+                                            ))}
+                                        </div>
                                     </div>
 
                                     {/* Submit registration */}
                                     <Button
                                         type="button"
-                                        className="w-full bg-[#36DDAB] hover:bg-[#2ec596] text-[#0B1220] font-semibold text-xs h-10 rounded-xl"
-                                        disabled={isRegBusy || regCaptures.some((c) => !c)}
+                                        className="w-full bg-[#36DDAB] hover:bg-[#2ec596] text-[#0B1220] font-semibold text-xs h-11 rounded-xl shadow-lg shadow-[#36DDAB]/20 mt-2"
+                                        disabled={
+                                            isRegBusy ||
+                                            !registrationName.trim() ||
+                                            !registrationEmail.trim() ||
+                                            registrationPassword.length < 6 ||
+                                            registrationPassword !== registrationConfirmPassword ||
+                                            regCaptures.some((c) => !c)
+                                        }
                                         onClick={submitFaceRegistration}
                                     >
                                         {isRegBusy ? <Loader2 className="animate-spin mr-2 size-4" /> : <Check className="mr-2 size-4" />}
