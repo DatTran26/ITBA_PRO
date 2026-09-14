@@ -200,45 +200,45 @@ Hitek/ITBA là provenance, không phải chỉ dẫn hay bằng chứng hoàn t�
 
 | # | Tính năng | Slug | Theme | Persona | MoSCoW | Phụ thuộc | Chi tiết hóa |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| 1 | Quản lý tài khoản và truy cập | `account-access` | Identity & Governance | Tất cả | Must | Không | ⬜ chưa |
-| 2 | Quản lý tổ chức, quyền và audit | `org-governance` | Identity & Governance | Admin, quản lý | Must | 1 | ⬜ chưa |
-| 3 | Quản lý hồ sơ nhân viên | `employee-profiles` | Core HR | HR, nhân viên | Should | 2 | ⬜ chưa |
-| 4 | Quản lý vòng đời và tài liệu nhân sự | `employment-lifecycle` | Core HR | HR, quản lý | Could | 3 | ⬜ chưa |
-| 5 | Lập và phê duyệt nhu cầu tuyển dụng | `recruitment-planning` | Recruitment | HR, quản lý | Must | 2 | ⬜ chưa |
-| 6 | Tiếp nhận và chuẩn hóa CV | `cv-intake` | Recruitment | HR, ứng viên | Must | 5, 17, 18 | ⬜ chưa |
-| 7 | Đối chiếu ứng viên với vị trí | `candidate-matching` | Recruitment | HR | Must | 5, 6 | ⬜ chưa |
-| 8 | Điều phối pipeline ứng viên | `candidate-pipeline` | Recruitment | HR | Must | 6 | ⬜ chưa |
-| 9 | Lập lịch và điều phối phỏng vấn | `interview-management` | Recruitment | HR, interviewer | Must | 8 | ⬜ chưa |
-| 10 | Ghi nhận và tổng hợp đánh giá phỏng vấn | `interview-evaluation` | Recruitment | Interviewer, HR | Must | 9 | ⬜ chưa |
-| 11 | Tạo và theo dõi offer | `offer-management` | Recruitment | HR, ứng viên | Should | 8, 10 | ⬜ chưa |
-| 12 | Thực hiện onboarding | `employee-onboarding` | Recruitment | HR, nhân viên | Should | 3, 11 | ⬜ chưa |
-| 13 | Quản lý cuộc họp và transcript | `meeting-records` | Meetings & Work | Nhân viên, quản lý | Should | 1 | ⬜ chưa |
-| 14 | Tạo và xác nhận biên bản bằng AI | `ai-meeting-minutes` | Meetings & Work | Chủ trì | Should | 13 | ⬜ chưa |
-| 15 | Chuyển biên bản thành công việc | `meeting-to-tasks` | Meetings & Work | Chủ trì, assignee | Should | 14, 16 | ⬜ chưa |
-| 16 | Quản lý Kanban và bàn giao công việc | `kanban-workspaces` | Meetings & Work | Nhân viên, quản lý | Should | 2 | ⬜ chưa |
-| 17 | Tiếp nhận và xử lý tài liệu | `document-intake` | Document AI | HR, admin | Must | 2 | ⬜ chưa |
-| 18 | Trích xuất và xác nhận dữ liệu tài liệu | `document-review` | Document AI | HR, reviewer | Must | 17 | ⬜ chưa |
-| 19 | Quản lý ngân hàng câu hỏi | `question-bank` | Assessment & Talent | HR, interviewer | Must | 2 | ⬜ chưa |
-| 20 | Sinh câu hỏi từ tài liệu bằng AI | `ai-question-generation` | Assessment & Talent | HR, interviewer | Should | 17, 18, 19 | ⬜ chưa |
-| 21 | Tạo và phát hành bài đánh giá | `assessment-authoring` | Assessment & Talent | HR, interviewer | Must | 19 | ⬜ chưa |
-| 22 | Thực hiện bài đánh giá | `candidate-assessment` | Assessment & Talent | Ứng viên, nhân viên | Must | 21 | ⬜ chưa |
-| 23 | Chấm điểm và phân tích năng lực | `assessment-grading` | Assessment & Talent | HR, interviewer | Must | 22 | ⬜ chưa |
-| 24 | Ghi âm và tóm tắt phiên phỏng vấn | `interview-recording` | Assessment & Talent | Interviewer | Should | 9, 10 | ⬜ chưa |
-| 25 | Tạo báo cáo và cảnh báo quản trị | `management-reporting` | Insights & Integrations | Quản lý, lãnh đạo | Should | 2, 8, 16, 22, 23 | ⬜ chưa |
-| 26 | Gửi thông báo theo ngữ cảnh | `contextual-notifications` | Insights & Integrations | Tất cả | Must | 1, 2 | ✅ đã chi tiết (1 brainstorm) |
-| 27 | Kết nối lịch, webhook và công cụ ngoài | `external-integrations` | Insights & Integrations | HR, admin | Should | 2 | ⬜ chưa |
-| 28 | Quản lý cấu hình nền tảng | `platform-configuration` | Identity & Governance | Admin | Should | 1, 2 | ⬜ chưa |
-| 29 | Theo dõi vận hành nhân viên minh bạch | `workforce-monitoring` | Insights & Integrations | Quản lý, nhân viên | Could | 2, 16, 25 | ⬜ chưa |
-| 30 | Quản lý thư viện và phiên bản tài liệu | `document-library` | Document AI | HR, content editor | Should | 17, 18 | ⬜ chưa |
-| 31 | Quản lý mẫu bài đánh giá | `assessment-templates` | Assessment & Talent | Admin, HR | Should | 19, 21 | ✅ đã chi tiết (1 brainstorm) |
-| 32 | Quản lý khung kỹ năng và kỳ vọng vị trí | `talent-framework` | Assessment & Talent | HR, quản lý | Should | 2, 3 | ⬜ chưa |
-| 33 | Đánh giá năng lực nhân viên | `employee-evaluation` | Assessment & Talent | Quản lý, nhân viên | Should | 22, 23, 32 | ⬜ chưa |
-| 34 | Phân tích độ phủ và khoảng trống kỹ năng | `skill-gap-analysis` | Assessment & Talent | HR, quản lý | Should | 3, 32, 33 | ⬜ chưa |
-| 35 | Gửi email nghiệp vụ có mẫu và nhật ký | `operational-email` | Insights & Integrations | HR, admin | Should | 2, 26 | ⬜ chưa |
-| 36 | Công bố phiên bản và thông báo thay đổi | `release-announcements` | Identity & Governance | Admin, người dùng | Could | 1, 2, 28 | ⬜ chưa |
-| 37 | Theo dõi mức sử dụng AI | `ai-usage-monitoring` | Identity & Governance | Admin | Should | 2, 28 | ⬜ chưa |
-| 38 | Giám sát sự kiện vi phạm bằng Computer Vision | `cv-event-monitoring` | Insights & Integrations | Quản lý, admin | Could | 2, 16, 25, 26, 27 | ⬜ chưa |
-| 39 | Bóc tách văn bản từ ảnh có con người xác nhận | `vision-ocr` | Document AI | HR | Should | Không | ⬜ chưa |
+| 1 | Quản lý tài khoản và truy cập | `account-access` | Identity & Governance | Tất cả | Must | Không | ✅ đã chi tiết |
+| 2 | Quản lý tổ chức, quyền và audit | `org-governance` | Identity & Governance | Admin, quản lý | Must | 1 | ✅ đã chi tiết |
+| 3 | Quản lý hồ sơ nhân viên | `employee-profiles` | Core HR | HR, nhân viên | Should | 2 | ✅ đã chi tiết |
+| 4 | Quản lý vòng đời và tài liệu nhân sự | `employment-lifecycle` | Core HR | HR, quản lý | Could | 3 | ✅ đã chi tiết |
+| 5 | Lập và phê duyệt nhu cầu tuyển dụng | `recruitment-planning` | Recruitment | HR, quản lý | Must | 2 | ✅ đã chi tiết |
+| 6 | Tiếp nhận và chuẩn hóa CV | `cv-intake` | Recruitment | HR, ứng viên | Must | 5, 17, 18 | ✅ đã chi tiết |
+| 7 | Đối chiếu ứng viên với vị trí | `candidate-matching` | Recruitment | HR | Must | 5, 6 | ✅ đã chi tiết |
+| 8 | Điều phối pipeline ứng viên | `candidate-pipeline` | Recruitment | HR | Must | 6 | ✅ đã chi tiết |
+| 9 | Lập lịch và điều phối phỏng vấn | `interview-management` | Recruitment | HR, interviewer | Must | 8 | ✅ đã chi tiết |
+| 10 | Ghi nhận và tổng hợp đánh giá phỏng vấn | `interview-evaluation` | Recruitment | Interviewer, HR | Must | 9 | ✅ đã chi tiết |
+| 11 | Tạo và theo dõi offer | `offer-management` | Recruitment | HR, ứng viên | Should | 8, 10 | ✅ đã chi tiết |
+| 12 | Thực hiện onboarding | `employee-onboarding` | Recruitment | HR, nhân viên | Should | 3, 11 | ✅ đã chi tiết |
+| 13 | Quản lý cuộc họp và transcript | `meeting-records` | Meetings & Work | Nhân viên, quản lý | Should | 1 | ✅ đã chi tiết |
+| 14 | Tạo và xác nhận biên bản bằng AI | `ai-meeting-minutes` | Meetings & Work | Chủ trì | Should | 13 | ✅ đã chi tiết |
+| 15 | Chuyển biên bản thành công việc | `meeting-to-tasks` | Meetings & Work | Chủ trì, assignee | Should | 14, 16 | ✅ đã chi tiết |
+| 16 | Quản lý Kanban và bàn giao công việc | `kanban-workspaces` | Meetings & Work | Nhân viên, quản lý | Should | 2 | ✅ đã chi tiết |
+| 17 | Tiếp nhận và xử lý tài liệu | `document-intake` | Document AI | HR, admin | Must | 2 | ✅ đã chi tiết |
+| 18 | Trích xuất và xác nhận dữ liệu tài liệu | `document-review` | Document AI | HR, reviewer | Must | 17 | ✅ đã chi tiết |
+| 19 | Quản lý ngân hàng câu hỏi | `question-bank` | Assessment & Talent | HR, interviewer | Must | 2 | ✅ đã chi tiết |
+| 20 | Sinh câu hỏi từ tài liệu bằng AI | `ai-question-generation` | Assessment & Talent | HR, interviewer | Should | 17, 18, 19 | ✅ đã chi tiết |
+| 21 | Tạo và phát hành bài đánh giá | `assessment-authoring` | Assessment & Talent | HR, interviewer | Must | 19 | ✅ đã chi tiết |
+| 22 | Thực hiện bài đánh giá | `candidate-assessment` | Assessment & Talent | Ứng viên, nhân viên | Must | 21 | ✅ đã chi tiết |
+| 23 | Chấm điểm và phân tích năng lực | `assessment-grading` | Assessment & Talent | HR, interviewer | Must | 22 | ✅ đã chi tiết |
+| 24 | Ghi âm và tóm tắt phiên phỏng vấn | `interview-recording` | Assessment & Talent | Interviewer | Should | 9, 10 | ✅ đã chi tiết |
+| 25 | Tạo báo cáo và cảnh báo quản trị | `management-reporting` | Insights & Integrations | Quản lý, lãnh đạo | Should | 2, 8, 16, 22, 23 | ✅ đã chi tiết |
+| 26 | Gửi thông báo theo ngữ cảnh | `contextual-notifications` | Insights & Integrations | Tất cả | Must | 1, 2 | ✅ đã chi tiết |
+| 27 | Kết nối lịch, webhook và công cụ ngoài | `external-integrations` | Insights & Integrations | HR, admin | Should | 2 | ✅ đã chi tiết |
+| 28 | Quản lý cấu hình nền tảng | `platform-configuration` | Identity & Governance | Admin | Should | 1, 2 | ✅ đã chi tiết |
+| 29 | Theo dõi vận hành nhân viên minh bạch | `workforce-monitoring` | Insights & Integrations | Quản lý, nhân viên | Could | 2, 16, 25 | ✅ đã chi tiết |
+| 30 | Quản lý thư viện và phiên bản tài liệu | `document-library` | Document AI | HR, content editor | Should | 17, 18 | ✅ đã chi tiết |
+| 31 | Quản lý mẫu bài đánh giá | `assessment-templates` | Assessment & Talent | Admin, HR | Should | 19, 21 | ✅ đã chi tiết |
+| 32 | Quản lý khung kỹ năng và kỳ vọng vị trí | `talent-framework` | Assessment & Talent | HR, quản lý | Should | 2, 3 | ✅ đã chi tiết |
+| 33 | Đánh giá năng lực nhân viên | `employee-evaluation` | Assessment & Talent | Quản lý, nhân viên | Should | 22, 23, 32 | ✅ đã chi tiết |
+| 34 | Phân tích độ phủ và khoảng trống kỹ năng | `skill-gap-analysis` | Assessment & Talent | HR, quản lý | Should | 3, 32, 33 | ✅ đã chi tiết |
+| 35 | Gửi email nghiệp vụ có mẫu và nhật ký | `operational-email` | Insights & Integrations | HR, admin | Should | 2, 26 | ✅ đã chi tiết |
+| 36 | Công bố phiên bản và thông báo thay đổi | `release-announcements` | Identity & Governance | Admin, người dùng | Could | 1, 2, 28 | ✅ đã chi tiết |
+| 37 | Theo dõi mức sử dụng AI | `ai-usage-monitoring` | Identity & Governance | Admin | Should | 2, 28 | ✅ đã chi tiết |
+| 38 | Giám sát sự kiện vi phạm bằng Computer Vision | `cv-event-monitoring` | Insights & Integrations | Quản lý, admin | Could | 2, 16, 25, 26, 27 | ✅ đã chi tiết |
+| 39 | Bóc tách văn bản từ ảnh có con người xác nhận | `vision-ocr` | Document AI | HR | Should | Không | ✅ đã chi tiết |
 
 `Must` là phạm vi pilot v1; `Should`/`Could` không được ngầm kéo vào cam kết chỉ
 vì có mini-brief. Reverse SRS là evidence tái lập từ code, không phải feature

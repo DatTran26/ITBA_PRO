@@ -1,9 +1,12 @@
 # Checkpoint — Pipeline /brainstorm → /urd → /srs → /erd cho Feature Map PRD
 
-> **HOÀN TẤT ARTIFACT 2026-09-14** — 39/39 feature đủ 4 artifact, check-erd
-> 0 lỗi, changelog đã ghi. Quality follow-up hiện hành nằm tại
-> [`quality-audit.md`](quality-audit.md); phần còn lại của file này là snapshot
-> lịch sử lúc pipeline tạm dừng.
+> **HOÀN TẤT + ĐÃ COMMIT 2026-09-14** — 39/39 feature đủ 4 artifact, check-erd
+> 0 lỗi, changelog đã ghi. Đã commit: `b945cdb` (docs/features), `d358a0f`
+> (plans/reports/audit); merge `12e54b5` origin/develop. Final review đã đóng —
+> verify sau commit: `final-review-check` PASS 0 P0, `check-erd` 39/39.
+> Quality follow-up hiện hành nằm tại [`quality-audit.md`](quality-audit.md)
+> (185 open OQ chờ triage + vision-ocr contract chờ Product/BA); phần còn lại
+> của file này là snapshot lịch sử lúc pipeline tạm dừng.
 > Snapshot lúc tạm dừng: **2026-09-14**. Đọc file này để resume.
 > Hợp đồng chung cho mọi worker: `plans/260914-prd-feature-pipeline/agent-brief.md`.
 

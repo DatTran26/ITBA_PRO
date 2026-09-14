@@ -3,7 +3,7 @@ type: srs
 feature: vision-ocr
 status: draft
 updated: 2026-09-14
-links: [docs/features/vision-ocr/vision-ocr-urd.md, modules/vision-ocr/README.md]
+links: [docs/downtown/prd.md, docs/features/vision-ocr/vision-ocr-urd.md, modules/vision-ocr/README.md]
 ---
 
 # vision-ocr — Software Requirements Specification
