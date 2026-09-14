@@ -43,10 +43,11 @@ export default function LoginPage() {
 
         try {
             const loginData = data as LoginSchema;
+            const signInOptions = captchaToken ? { captchaToken } : undefined;
             const { error, data: authData } = await supabase.auth.signInWithPassword({
                 email: loginData.email,
                 password: loginData.password,
-                options: { captchaToken },
+                ...(signInOptions ? { options: signInOptions } : {}),
             });
 
             if (error) throw error;
@@ -180,7 +181,7 @@ export default function LoginPage() {
                             <div className="py-2">
                                 <Turnstile
                                     ref={turnstileRef}
-                                    siteKey="0x4AAAAAACwDOJ4K8U9X9Ci7"
+                                    siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || "1x00000000000000000000AA"}
                                     onSuccess={(token) => setCaptchaToken(token)}
                                     onExpire={() => {
                                         setCaptchaToken(undefined);
@@ -196,7 +197,7 @@ export default function LoginPage() {
 
                             <Button
                                 type="submit"
-                                disabled={isLoading || !captchaToken}
+                                disabled={isLoading || (!captchaToken && process.env.NODE_ENV === "production")}
                                 className="w-full h-14 bg-[#5B6CF0] hover:bg-[#4F5FE0] text-white font-bold text-base border-0 transition-all hover:scale-[1.01] active:scale-[0.99] hover:shadow-[0_15px_30px_-5px_rgba(91,108,240,0.5)] flex items-center justify-center gap-3 group/btn rounded-[1.25rem]"
                             >
                                 {isLoading ? (

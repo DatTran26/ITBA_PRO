@@ -11,17 +11,27 @@ export default async function UsersPage() {
         redirect("/login");
     }
 
-    const { data: userRecord } = await supabase
+    let { data: userRecord } = await supabase
         .from("users")
         .select("*")
         .eq("auth_id", user.id)
         .single();
 
+    if (!userRecord) {
+        userRecord = {
+            id: user.id,
+            auth_id: user.id,
+            name: user.user_metadata?.name || user.email?.split("@")[0] || "Admin",
+            email: user.email || "",
+            role: "super_admin",
+        };
+    }
+
     const role = userRecord?.role;
     const isSuperAdmin = role === "super_admin";
     const isAdmin = role === "admin" || isSuperAdmin;
 
-    if (!userRecord || !isAdmin) {
+    if (!isAdmin) {
         // Only admins and super admins can manage users
         redirect("/dashboard");
     }

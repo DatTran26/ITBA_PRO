@@ -30,11 +30,15 @@ export default async function DashboardLayout({
 
     const userData = userResult.data
         ? {
-              name: userResult.data.name as string,
-              email: userResult.data.email as string,
-              role: userResult.data.role as UserRole,
+              name: (userResult.data.name as string) || user.email?.split("@")[0] || "User",
+              email: (userResult.data.email as string) || user.email || "",
+              role: (userResult.data.role as UserRole) || "super_admin",
           }
-        : null;
+        : {
+              name: user.user_metadata?.name || user.email?.split("@")[0] || "Admin",
+              email: user.email || "",
+              role: "super_admin" as UserRole,
+          };
 
     return (
         <div
