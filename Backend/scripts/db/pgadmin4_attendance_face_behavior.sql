@@ -278,6 +278,25 @@ END $$;
 -- ==============================================================================
 -- PHẦN 6: PHÂN QUYỀN VÀ BẢO MẬT (ROW LEVEL SECURITY - RLS)
 -- ==============================================================================
+
+-- Tương thích trên cả PostgreSQL độc lập (pgAdmin 4) và Supabase:
+CREATE SCHEMA IF NOT EXISTS auth;
+
+CREATE OR REPLACE FUNCTION auth.uid()
+RETURNS uuid AS $$
+    SELECT NULL::uuid;
+$$ LANGUAGE sql STABLE;
+
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'authenticated') THEN
+        CREATE ROLE authenticated;
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'anon') THEN
+        CREATE ROLE anon;
+    END IF;
+END $$;
+
 ALTER TABLE public.user_face_embeddings ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.face_audit_logs ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.attendance_shifts ENABLE ROW LEVEL SECURITY;
