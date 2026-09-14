@@ -41,12 +41,18 @@ function MonitorPanel({ title, defaultModelPath, defaultCameraIndex, devices, on
   const [paused, setPaused] = useState(false);
   const [busy, setBusy] = useState(false);
   const [overlay, setOverlay] = useState<Overlay | null>(null);
+  const [logs, setLogs] = useState<string[]>([]);
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const busyRef = useRef(false);
   const videoUrlRef = useRef<string | null>(null);
   const lastNoticeRef = useRef(0);
+
+  const addLog = useCallback((message: string) => {
+    const time = new Date().toLocaleTimeString([], { hour12: false });
+    setLogs((current) => [`${time}  ${message}`, ...current].slice(0, 24));
+  }, []);
 
   const stop = useCallback(() => {
     streamRef.current?.getTracks().forEach((track) => track.stop());
@@ -99,7 +105,9 @@ function MonitorPanel({ title, defaultModelPath, defaultCameraIndex, devices, on
       await video.play();
       setRunning(true);
       setPaused(false);
+      addLog(`Started ${sourceType === "camera" ? "camera" : "video"}`);
     } catch {
+      addLog("Unable to start source");
       toast.error(`${title}: unable to start the selected source`);
     }
   }
@@ -110,6 +118,7 @@ function MonitorPanel({ title, defaultModelPath, defaultCameraIndex, devices, on
     if (paused) void video.play();
     else video.pause();
     setPaused((value) => !value);
+    addLog(paused ? "Resumed" : "Paused");
   }
 
   const scanFrame = useCallback(async (quiet = true) => {
@@ -120,10 +129,11 @@ function MonitorPanel({ title, defaultModelPath, defaultCameraIndex, devices, on
 
     busyRef.current = true;
     setBusy(true);
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
+    const scale = Math.min(1, 640 / video.videoWidth);
+    canvas.width = Math.round(video.videoWidth * scale);
+    canvas.height = Math.round(video.videoHeight * scale);
     canvas.getContext("2d")?.drawImage(video, 0, 0, canvas.width, canvas.height);
-    const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, "image/jpeg", 0.9));
+    const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, "image/jpeg", 0.75));
     if (!blob) {
       busyRef.current = false;
       setBusy(false);
@@ -136,13 +146,16 @@ function MonitorPanel({ title, defaultModelPath, defaultCameraIndex, devices, on
     body.append("cameraLocation", `${title} / ${sourceType === "camera" ? `Camera ${cameraIndex}` : "Video file"}`);
     body.append("modelPath", modelPath);
 
+    const requestStarted = performance.now();
     try {
       const response = await fetch("/api/behavior", { method: "POST", body });
-      const data = await readApiResponse<{ error?: string; warning?: string; detections: Detection[]; alerts: Alert[] }>(response);
+      const data = await readApiResponse<{ error?: string; warning?: string; detections: Detection[]; alerts: Alert[]; processingMs?: number }>(response);
       if (!response.ok) throw new Error(data.error ?? "Behavior scan failed");
       const detections = data.detections ?? [];
       const violations = detections.filter((detection) => detection.isViolation);
       setOverlay({ detections, width: canvas.width, height: canvas.height });
+      const labels = detections.map((detection) => `${detection.label} ${(detection.confidence * 100).toFixed(0)}%`).join(", ");
+      addLog(`${detections.length} boxes · API ${Math.round(performance.now() - requestStarted)}ms · AI ${Math.round(data.processingMs ?? 0)}ms${labels ? ` · ${labels}` : ""}`);
       if (data.alerts?.length) await onAlertsSaved();
       if (violations.length && Date.now() - lastNoticeRef.current > 10_000) {
         lastNoticeRef.current = Date.now();
@@ -151,17 +164,18 @@ function MonitorPanel({ title, defaultModelPath, defaultCameraIndex, devices, on
         toast.success(`${title}: no violation detected`);
       }
     } catch (error) {
+      addLog(`Error · ${error instanceof Error ? error.message : "Behavior scan failed"}`);
       if (!quiet) toast.error(error instanceof Error ? error.message : "Behavior scan failed");
     } finally {
       busyRef.current = false;
       setBusy(false);
     }
-  }, [deviceId, devices, modelPath, onAlertsSaved, paused, sourceType, title]);
+  }, [addLog, deviceId, devices, modelPath, onAlertsSaved, paused, sourceType, title]);
 
   useEffect(() => {
     if (!running || paused) return;
-    const firstScan = window.setTimeout(() => void scanFrame(false), 500);
-    const timer = window.setInterval(() => void scanFrame(true), 4000);
+    const firstScan = window.setTimeout(() => void scanFrame(false), 250);
+    const timer = window.setInterval(() => void scanFrame(true), 1000);
     return () => {
       window.clearTimeout(firstScan);
       window.clearInterval(timer);
@@ -223,6 +237,9 @@ function MonitorPanel({ title, defaultModelPath, defaultCameraIndex, devices, on
         <Button className="w-full" variant="secondary" disabled={!running || paused || busy} onClick={() => scanFrame(false)}>
           {busy ? <Loader2 className="animate-spin" /> : <ShieldAlert />}Scan Now
         </Button>
+        <div className="h-28 overflow-y-auto rounded-lg border border-white/10 bg-[#080E19] p-2 font-mono text-[11px] leading-5 text-[#8B99B0]" role="log" aria-live="polite">
+          {logs.length === 0 ? <p>No runtime events</p> : logs.map((line, index) => <p key={`${line}-${index}`} className={line.includes("Error") ? "text-[#FF6B82]" : ""}>{line}</p>)}
+        </div>
       </CardContent>
     </Card>
   );

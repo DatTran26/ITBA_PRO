@@ -70,7 +70,8 @@ def test_behavior_filters_are_returned_by_service():
     with patch("app.main.detect_behaviors", return_value=[detection]):
         response = client.post("/api/behavior/detect", files={"image": upload()})
     assert response.status_code == 200
-    assert response.json() == {"detections": [detection]}
+    assert response.json()["detections"] == [detection]
+    assert response.json()["processingMs"] >= 0
 
 
 def test_behavior_detect_returns_503_when_weights_missing():

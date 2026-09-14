@@ -1,11 +1,13 @@
 import json
 import re
 import shutil
+from time import perf_counter
 from pathlib import Path
 from typing import Annotated
 
 import numpy as np
 from fastapi import FastAPI, File, Form, HTTPException, UploadFile
+from starlette.concurrency import run_in_threadpool
 
 from app.config import FACE_DATA_DIR, FACE_MATCH_THRESHOLD
 from app.services import detect_behaviors, extract_face_embedding, verify_face
@@ -97,10 +99,15 @@ async def detect_behavior(
     image: Annotated[UploadFile, File()],
     model_path: Annotated[str | None, Form(alias="modelPath")] = None,
 ):
+    content = await read_image(image)
+    started = perf_counter()
     try:
-        detections = detect_behaviors(await read_image(image), model_path)
+        detections = await run_in_threadpool(detect_behaviors, content, model_path)
     except FileNotFoundError as exc:
         raise HTTPException(status_code=503, detail=str(exc)) from exc
     except ValueError as exc:
         raise HTTPException(status_code=422, detail=str(exc)) from exc
-    return {"detections": detections}
+    return {
+        "detections": detections,
+        "processingMs": round((perf_counter() - started) * 1000, 1),
+    }

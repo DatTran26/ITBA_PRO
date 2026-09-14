@@ -36,6 +36,7 @@ export async function POST(request: Request) {
   try {
     const result = await callVisionAi("/api/behavior/detect", { method: "POST", body }) as {
       detections: Array<{ label: string; confidence: number; bbox: number[]; isViolation: boolean }>;
+      processingMs: number;
     };
     if (!Array.isArray(result.detections)) throw new Error("Invalid behavior response");
     const rows = result.detections.filter((detection) => detection.isViolation).map((detection) => ({
@@ -46,15 +47,16 @@ export async function POST(request: Request) {
       status: "pending_review",
       detections_json: detection,
     }));
-    if (!rows.length) return NextResponse.json({ detections: result.detections, alerts: [] });
+    if (!rows.length) return NextResponse.json({ detections: result.detections, alerts: [], processingMs: result.processingMs });
     try {
       const { data, error } = await createAdminClient().from("violation_alerts").insert(rows).select();
       if (error) throw error;
-      return NextResponse.json({ detections: result.detections, alerts: data });
+      return NextResponse.json({ detections: result.detections, alerts: data, processingMs: result.processingMs });
     } catch {
       return NextResponse.json({
         detections: result.detections,
         alerts: [],
+        processingMs: result.processingMs,
         warning: "Violation detected but the alert could not be saved",
       });
     }
