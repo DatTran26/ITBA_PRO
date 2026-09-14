@@ -4,14 +4,8 @@ from pathlib import Path
 
 import numpy as np
 
-from app.config import (
-    BEHAVIOR_CONFIDENCE,
-    BEHAVIOR_LABELS,
-    BEHAVIOR_MODEL_PATH,
-    SRC_ROOT,
-    FACE_MATCH_THRESHOLD,
-    FACE_MODEL_NAME,
-)
+import app.config as cfg
+from app.config import SRC_ROOT
 
 
 def decode_image(content: bytes) -> np.ndarray:
@@ -27,7 +21,7 @@ def decode_image(content: bytes) -> np.ndarray:
 def get_face_model():
     from insightface.app import FaceAnalysis
 
-    model = FaceAnalysis(name=FACE_MODEL_NAME, providers=["CPUExecutionProvider"])
+    model = FaceAnalysis(name=cfg.FACE_MODEL_NAME, providers=["CPUExecutionProvider"])
     model.prepare(ctx_id=-1, det_size=(640, 640))
     return model
 
@@ -58,13 +52,13 @@ def verify_face(
             raise ValueError("Embedding cannot be a zero vector")
         scores.append(float(np.dot(probe_array, stored_array) / denominator))
 
-    matches = sum(score >= FACE_MATCH_THRESHOLD for score in scores)
+    matches = sum(score >= cfg.FACE_MATCH_THRESHOLD for score in scores)
     return matches >= 2, matches, scores
 
 
 def _resolve_behavior_model_path(model_path: str | None) -> Path:
     if not model_path:
-        return Path(BEHAVIOR_MODEL_PATH)
+        return Path(cfg.BEHAVIOR_MODEL_PATH)
     path = Path(os.path.expandvars(model_path.strip().strip('"').strip("'"))).expanduser()
     return path if path.is_absolute() else (SRC_ROOT / path).resolve()
 
@@ -80,8 +74,63 @@ def get_behavior_model(model_path: str | None = None):
 
 
 def detect_behaviors(content: bytes, model_path: str | None = None) -> list[dict]:
-    result = get_behavior_model(model_path).predict(
-        source=decode_image(content), conf=BEHAVIOR_CONFIDENCE, verbose=False
+    image = decode_image(content)
+
+    if model_path and model_path.strip().lower() == "all":
+        detections = []
+        for m in getattr(cfg, "BEHAVIOR_MODELS", []):
+            if not m.get("enabled", True):
+                continue
+            path = m.get("modelPath")
+            conf = float(m.get("confidence", cfg.BEHAVIOR_CONFIDENCE))
+            iou = float(m.get("iouThreshold", 0.45))
+            labels = {str(l).strip().lower() for l in m.get("labels", [])}
+            try:
+                result = get_behavior_model(path).predict(
+                    source=image, conf=conf, iou=iou, verbose=False
+                )[0]
+                for box in result.boxes:
+                    label = str(result.names[int(box.cls.item())])
+                    detections.append(
+                        {
+                            "label": label,
+                            "confidence": float(box.conf.item()),
+                            "bbox": [float(value) for value in box.xyxy[0].tolist()],
+                            "isViolation": label.lower() in labels,
+                        }
+                    )
+            except FileNotFoundError:
+                continue
+        return detections
+
+    # Single model execution: match model configuration by path or ID
+    matching = None
+    target_path = model_path
+    if hasattr(cfg, "BEHAVIOR_MODELS") and cfg.BEHAVIOR_MODELS:
+        if model_path:
+            norm_target = str(model_path).strip().replace("/", "\\").lower()
+            matching = next(
+                (
+                    m
+                    for m in cfg.BEHAVIOR_MODELS
+                    if str(m.get("modelPath", "")).strip().replace("/", "\\").lower() == norm_target
+                    or m.get("id", "").lower() == str(model_path).strip().lower()
+                ),
+                None,
+            )
+        if not matching:
+            matching = cfg.BEHAVIOR_MODELS[0]
+
+    conf = float(matching.get("confidence", cfg.BEHAVIOR_CONFIDENCE)) if matching else cfg.BEHAVIOR_CONFIDENCE
+    iou = float(matching.get("iouThreshold", 0.45)) if matching else 0.45
+    labels = (
+        {str(lbl).strip().lower() for lbl in matching.get("labels", [])}
+        if matching and matching.get("labels")
+        else cfg.BEHAVIOR_LABELS
+    )
+
+    result = get_behavior_model(target_path).predict(
+        source=image, conf=conf, iou=iou, verbose=False
     )[0]
     detections = []
     for box in result.boxes:
@@ -91,8 +140,7 @@ def detect_behaviors(content: bytes, model_path: str | None = None) -> list[dict
                 "label": label,
                 "confidence": float(box.conf.item()),
                 "bbox": [float(value) for value in box.xyxy[0].tolist()],
-                "isViolation": label.lower() in BEHAVIOR_LABELS,
+                "isViolation": label.lower() in labels,
             }
         )
     return detections
-

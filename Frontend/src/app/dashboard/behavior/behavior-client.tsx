@@ -37,6 +37,9 @@ function MonitorPanel({ title, defaultModelPath, defaultCameraIndex, devices, on
   const [deviceId, setDeviceId] = useState("");
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
   const [modelPath, setModelPath] = useState(defaultModelPath);
+  useEffect(() => {
+    if (defaultModelPath) setModelPath(defaultModelPath);
+  }, [defaultModelPath]);
   const [running, setRunning] = useState(false);
   const [paused, setPaused] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -228,7 +231,15 @@ function MonitorPanel({ title, defaultModelPath, defaultCameraIndex, devices, on
             <Input type="file" accept="video/mp4,video/webm,video/quicktime" onChange={(event) => selectVideo(event.target.files?.[0] ?? null)} />
           )}
         </div>
-        <Input value={modelPath} onChange={(event) => setModelPath(event.target.value)} placeholder="YOLO model path" aria-label={`${title} YOLO model path`} />
+        <div className="flex items-center justify-between text-xs text-[#8B99B0] px-3 py-2 rounded-lg bg-[#0B1220] border border-white/5 font-mono">
+          <span className="flex items-center gap-1.5 text-xs text-[#7C8FFF]">
+            <ShieldAlert className="size-3.5 text-[#5B6CF0]" />
+            Model AI:
+          </span>
+          <span className="truncate max-w-[260px] text-white text-[11px]" title={modelPath}>
+            {modelPath ? modelPath.split(/[/\\]/).pop() || modelPath : "Theo Controller"}
+          </span>
+        </div>
         <div className="grid grid-cols-4 gap-2">
           <Button className="col-span-2" disabled={running || !modelPath || (sourceType === "video" && !videoUrl)} onClick={start}><Play />Start</Button>
           <Button variant="outline" size="icon" title={paused ? "Resume" : "Pause"} disabled={!running} onClick={togglePause}><Pause /></Button>
@@ -248,6 +259,8 @@ function MonitorPanel({ title, defaultModelPath, defaultCameraIndex, devices, on
 export default function BehaviorClient() {
   const [alerts, setAlerts] = useState<Alert[]>([]);
   const [devices, setDevices] = useState<MediaDeviceInfo[]>([]);
+  const [smokeModelPath, setSmokeModelPath] = useState("models/vision-ai/smoking.pt");
+  const [leavingModelPath, setLeavingModelPath] = useState("models/vision-ai/leaving.pt");
 
   const load = useCallback(async () => {
     const response = await fetch("/api/behavior", { cache: "no-store" });
@@ -263,6 +276,22 @@ export default function BehaviorClient() {
   }, []);
 
   useEffect(() => {
+    // Sync models from controller
+    fetch("/api/vision-controller")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data?.config?.behaviorModels && Array.isArray(data.config.behaviorModels)) {
+          const models = data.config.behaviorModels as Array<{ id: string; modelPath: string }>;
+          const smoke = models.find((m) => m.id.includes("smoke"));
+          const seat = models.find((m) => m.id.includes("seat") || m.id.includes("leaving"));
+          if (smoke?.modelPath) setSmokeModelPath(smoke.modelPath);
+          if (seat?.modelPath) setLeavingModelPath(seat.modelPath);
+        } else if (data?.config?.behaviorModelPath) {
+          setSmokeModelPath(data.config.behaviorModelPath);
+        }
+      })
+      .catch(() => undefined);
+
     const initialLoad = window.setTimeout(() => {
       load().catch((error) => toast.error(error.message));
       void refreshDevices();
@@ -299,8 +328,8 @@ export default function BehaviorClient() {
         </div>
 
         <div className="grid gap-5 xl:grid-cols-2">
-          <MonitorPanel title="Smoking Monitor" defaultModelPath="models/vision-ai/smoking.pt" defaultCameraIndex={0} devices={devices} onAlertsSaved={load} />
-          <MonitorPanel title="Away-from-Desk Monitor" defaultModelPath="models/vision-ai/leaving.pt" defaultCameraIndex={1} devices={devices} onAlertsSaved={load} />
+          <MonitorPanel title="Smoking Monitor" defaultModelPath={smokeModelPath} defaultCameraIndex={0} devices={devices} onAlertsSaved={load} />
+          <MonitorPanel title="Away-from-Desk Monitor" defaultModelPath={leavingModelPath} defaultCameraIndex={1} devices={devices} onAlertsSaved={load} />
         </div>
 
         <Card className="mt-5 rounded-lg bg-[#10192B]/80">

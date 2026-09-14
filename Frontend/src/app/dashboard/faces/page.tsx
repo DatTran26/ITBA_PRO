@@ -7,5 +7,5 @@ export default async function FacesPage() {
   const ctx = await getAuthContext();
   if (isAuthError(ctx)) redirect("/login");
   if (!canManageVision(ctx.role)) redirect("/dashboard");
-  return <FacesClient />;
+  return <FacesClient isSuperAdmin={ctx.isSuperAdmin} currentUserRole={ctx.role} />;
 }

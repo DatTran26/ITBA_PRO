@@ -20,6 +20,7 @@ import {
     ScanFace,
     Clock3,
     ShieldAlert,
+    Cpu,
 } from "lucide-react";
 
 /**
@@ -77,12 +78,14 @@ export const NAV_GROUPS: NavGroup[] = [
     },
     {
         id: "workplace",
-        label: "Workplace Monitoring",
+        label: "Giám sát nơi làm việc",
         triggerIcon: Clock3,
         links: [
-            { href: "/dashboard/attendance", label: "Attendance", icon: Clock3 },
-            { href: "/dashboard/faces", label: "Face Enrollment", icon: ScanFace, allowedRoles: ["leader", "admin", "super_admin"] },
-            { href: "/dashboard/behavior", label: "Behavior Review", icon: ShieldAlert, allowedRoles: ["leader", "admin", "super_admin"] },
+            { href: "/dashboard/my-face", label: "Khuôn mặt của tôi", icon: ScanFace },
+            { href: "/dashboard/attendance", label: "Chấm công", icon: Clock3 },
+            { href: "/dashboard/faces", label: "Quản lý khuôn mặt", icon: ScanFace, allowedRoles: ["leader", "admin", "super_admin"] },
+            { href: "/dashboard/behavior", label: "Duyệt vi phạm", icon: ShieldAlert, allowedRoles: ["leader", "admin", "super_admin"] },
+            { href: "/dashboard/model-controller", label: "Cấu hình Model AI", icon: Cpu, allowedRoles: ["super_admin"] },
         ],
         allowedRoles: ["hr", "interviewer", "recruiter", "leader", "admin", "super_admin"],
         accentColor: "#36DDAB",

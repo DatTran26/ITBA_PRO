@@ -11,9 +11,11 @@ import { PageTransition, FadeIn } from "@/components/ui/motion-wrapper";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader2, ArrowRight, Fingerprint } from "lucide-react";
+import { Loader2, ArrowRight, Fingerprint, ScanFace, Camera, Check, X } from "lucide-react";
 import { Turnstile, type TurnstileInstance } from "@marsidev/react-turnstile";
 import Link from "next/link";
+import Image from "next/image";
+import { readApiResponse } from "@/lib/api-response";
 
 const loginSchema = z.object({
     email: z.string().email("Invalid email sequence"),
@@ -22,15 +24,26 @@ const loginSchema = z.object({
 
 type LoginSchema = z.infer<typeof loginSchema>;
 
+const REG_ANGLES = ["Chính diện", "Nghiêng trái", "Nghiêng phải", "Ngước lên", "Cúi xuống", "Tự nhiên"];
+type Capture = { file: File; url: string };
+
 export default function LoginPage() {
     const [isLoading, setIsLoading] = useState(false);
     const [isFaceLoginOpen, setIsFaceLoginOpen] = useState(false);
     const [isFaceBusy, setIsFaceBusy] = useState(false);
+    const [faceMode, setFaceMode] = useState<"login" | "register" | null>(null);
+    const [regCaptures, setRegCaptures] = useState<Array<Capture | null>>(() => REG_ANGLES.map(() => null));
+    const [regActiveAngle, setRegActiveAngle] = useState(0);
+    const [isRegBusy, setIsRegBusy] = useState(false);
+    const [regCameraOn, setRegCameraOn] = useState(false);
     const [captchaToken, setCaptchaToken] = useState<string>();
     const turnstileRef = useRef<TurnstileInstance>(null);
     const videoRef = useRef<HTMLVideoElement>(null);
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const streamRef = useRef<MediaStream | null>(null);
+    const regVideoRef = useRef<HTMLVideoElement>(null);
+    const regCanvasRef = useRef<HTMLCanvasElement>(null);
+    const regStreamRef = useRef<MediaStream | null>(null);
     const router = useRouter();
     const isDevAuthBypass = process.env.NEXT_PUBLIC_DEV_AUTH_BYPASS === "true";
     const isTurnstileEnabled = !isDevAuthBypass && process.env.NEXT_PUBLIC_ENABLE_TURNSTILE === "true";
@@ -108,6 +121,7 @@ export default function LoginPage() {
         }
     };
 
+    // --- Face Login functions ---
     async function startFaceCamera() {
         setIsFaceLoginOpen(true);
         try {
@@ -115,7 +129,7 @@ export default function LoginPage() {
             streamRef.current = stream;
             if (videoRef.current) videoRef.current.srcObject = stream;
         } catch {
-            toast.error("Unable to open the camera. Please allow camera access.");
+            toast.error("Không thể mở camera. Vui lòng cho phép truy cập camera.");
         }
     }
 
@@ -130,11 +144,11 @@ export default function LoginPage() {
         const video = videoRef.current;
         const canvas = canvasRef.current;
         if (!email) {
-            toast.error("Enter your email before using face login.");
+            toast.error("Nhập email trước khi đăng nhập bằng khuôn mặt.");
             return;
         }
         if (!video || !canvas || video.videoWidth === 0) {
-            toast.error("Camera is not ready.");
+            toast.error("Camera chưa sẵn sàng.");
             return;
         }
 
@@ -145,27 +159,103 @@ export default function LoginPage() {
             const context = canvas.getContext("2d");
             context?.drawImage(video, 0, 0, canvas.width, canvas.height);
             const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, "image/jpeg", 0.92));
-            if (!blob) throw new Error("Unable to capture a face image");
+            if (!blob) throw new Error("Không thể chụp ảnh khuôn mặt");
 
             const body = new FormData();
             body.append("email", email);
             body.append("image", new File([blob], "face-login.jpg", { type: "image/jpeg" }));
             const response = await fetch("/api/face-login", { method: "POST", body });
-            const data = await response.json();
-            if (!response.ok) throw new Error(data.error ?? "Face login failed");
-            toast.success("Face verified successfully.");
+            const data = await readApiResponse<{ ok?: boolean; error?: string; redirectUrl?: string }>(response);
+            if (!response.ok) throw new Error(data.error ?? "Đăng nhập bằng khuôn mặt thất bại");
+            toast.success("Xác thực khuôn mặt thành công!");
             stopFaceCamera();
             router.push(data.redirectUrl ?? "/dashboard");
             router.refresh();
         } catch (error) {
-            toast.error(error instanceof Error ? error.message : "Face login failed");
+            toast.error(error instanceof Error ? error.message : "Đăng nhập bằng khuôn mặt thất bại");
         } finally {
             setIsFaceBusy(false);
         }
     }
 
+    // --- Face Registration functions ---
+    async function startRegCamera() {
+        setRegCameraOn(true);
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" }, audio: false });
+            regStreamRef.current = stream;
+            if (regVideoRef.current) regVideoRef.current.srcObject = stream;
+        } catch {
+            toast.error("Không thể mở camera. Vui lòng cho phép truy cập camera.");
+        }
+    }
+
+    function stopRegCamera() {
+        regStreamRef.current?.getTracks().forEach((track) => track.stop());
+        regStreamRef.current = null;
+        setRegCameraOn(false);
+    }
+
+    function closeFaceRegister() {
+        stopRegCamera();
+        regCaptures.forEach((c) => c && URL.revokeObjectURL(c.url));
+        setRegCaptures(REG_ANGLES.map(() => null));
+        setRegActiveAngle(0);
+        setFaceMode(null);
+    }
+
+    async function captureRegAngle() {
+        const video = regVideoRef.current;
+        const canvas = regCanvasRef.current;
+        if (!video || !canvas || video.videoWidth === 0) return toast.error("Camera chưa sẵn sàng");
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        canvas.getContext("2d")?.drawImage(video, 0, 0, canvas.width, canvas.height);
+        const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, "image/jpeg", 0.92));
+        if (!blob) return toast.error("Không thể chụp ảnh khuôn mặt");
+        const file = new File([blob], `face-reg-${regActiveAngle + 1}.jpg`, { type: "image/jpeg" });
+        setRegCaptures((current) => {
+            if (current[regActiveAngle]) URL.revokeObjectURL(current[regActiveAngle]!.url);
+            const next = [...current];
+            next[regActiveAngle] = { file, url: URL.createObjectURL(file) };
+            return next;
+        });
+        const nextEmpty = regCaptures.findIndex((c, i) => i > regActiveAngle && !c);
+        if (nextEmpty !== -1) setRegActiveAngle(nextEmpty);
+    }
+
+    async function submitFaceRegistration() {
+        const email = getValues("email")?.trim();
+        const password = getValues("password");
+        if (!email) {
+            toast.error("Nhập email trước khi đăng ký khuôn mặt.");
+            return;
+        }
+        if (regCaptures.some((c) => !c)) {
+            toast.error("Vui lòng chụp đủ 6 góc khuôn mặt.");
+            return;
+        }
+        setIsRegBusy(true);
+        try {
+            const body = new FormData();
+            body.append("email", email);
+            if (password) body.append("password", password);
+            regCaptures.forEach((c) => body.append("images", c!.file));
+            const response = await fetch("/api/face-register", { method: "POST", body });
+            const data = await readApiResponse<{ ok?: boolean; error?: string; message?: string }>(response);
+            if (!response.ok) throw new Error(data.error ?? "Đăng ký khuôn mặt thất bại");
+            toast.success(data.message ?? "Đăng ký khuôn mặt thành công!");
+            closeFaceRegister();
+        } catch (error) {
+            toast.error(error instanceof Error ? error.message : "Đăng ký khuôn mặt thất bại");
+        } finally {
+            setIsRegBusy(false);
+        }
+    }
+
     useEffect(() => () => {
         streamRef.current?.getTracks().forEach((track) => track.stop());
+        regStreamRef.current?.getTracks().forEach((track) => track.stop());
     }, []);
 
     return (
@@ -316,31 +406,111 @@ export default function LoginPage() {
                             </Button>
                         </form>
 
+                        {/* Face Login & Registration Section */}
                         <div className="mt-5 border-t border-white/10 pt-5">
-                            {!isFaceLoginOpen ? (
-                                <Button
-                                    type="button"
-                                    variant="outline"
-                                    className="w-full h-12 rounded-[1rem] border-white/10 bg-[#1B253B]/40 text-[#ECF0F7] hover:bg-[#24304A]"
-                                    onClick={startFaceCamera}
-                                >
-                                    <Fingerprint className="mr-2 h-4 w-4" />
-                                    Sign in with Face ID
-                                </Button>
-                            ) : (
+                            {faceMode === null && !isFaceLoginOpen && (
+                                <div className="grid grid-cols-2 gap-2">
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        className="h-12 rounded-[1rem] border-white/10 bg-[#1B253B]/40 text-[#ECF0F7] hover:bg-[#24304A]"
+                                        onClick={() => { setFaceMode("login"); startFaceCamera(); }}
+                                    >
+                                        <Fingerprint className="mr-2 h-4 w-4" />
+                                        Đăng nhập
+                                    </Button>
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        className="h-12 rounded-[1rem] border-white/10 bg-[#1B253B]/40 text-[#ECF0F7] hover:bg-[#24304A]"
+                                        onClick={() => setFaceMode("register")}
+                                    >
+                                        <ScanFace className="mr-2 h-4 w-4" />
+                                        Đăng ký khuôn mặt
+                                    </Button>
+                                </div>
+                            )}
+
+                            {/* Face Login Mode */}
+                            {(faceMode === "login" || isFaceLoginOpen) && faceMode !== "register" && (
                                 <div className="space-y-3 rounded-[1rem] border border-white/10 bg-[#0B1220]/70 p-3">
+                                    <p className="text-center text-xs text-[#8B99B0]">Nhìn thẳng vào camera rồi chụp để đăng nhập.</p>
                                     <div className="overflow-hidden rounded-xl bg-black aspect-video">
                                         <video ref={videoRef} autoPlay muted playsInline className="h-full w-full -scale-x-100 object-cover" />
                                         <canvas ref={canvasRef} className="hidden" />
                                     </div>
                                     <div className="grid grid-cols-2 gap-2">
                                         <Button type="button" disabled={isFaceBusy} onClick={captureFaceLogin}>
-                                            {isFaceBusy ? <Loader2 className="animate-spin" /> : "Capture & sign in"}
+                                            {isFaceBusy ? <Loader2 className="animate-spin" /> : "Chụp & đăng nhập"}
                                         </Button>
-                                        <Button type="button" variant="outline" disabled={isFaceBusy} onClick={stopFaceCamera}>
-                                            Cancel
+                                        <Button type="button" variant="outline" disabled={isFaceBusy} onClick={() => { stopFaceCamera(); setFaceMode(null); }}>
+                                            Hủy
                                         </Button>
                                     </div>
+                                </div>
+                            )}
+
+                            {/* Face Registration Mode */}
+                            {faceMode === "register" && (
+                                <div className="space-y-3 rounded-[1rem] border border-[#36DDAB]/30 bg-[#0B1220]/70 p-3">
+                                    <div className="flex items-center justify-between">
+                                        <p className="text-sm font-medium text-[#36DDAB]">Đăng ký khuôn mặt — chụp 6 góc</p>
+                                        <button type="button" onClick={closeFaceRegister} className="rounded p-1 hover:bg-white/10">
+                                            <X className="size-4 text-[#8B99B0]" />
+                                        </button>
+                                    </div>
+                                    <p className="text-xs text-[#8B99B0]">Nhập email (và mật khẩu nếu cần), sau đó chụp 6 góc khuôn mặt để đăng ký.</p>
+
+                                    {/* Camera preview */}
+                                    <div className="overflow-hidden rounded-xl bg-black aspect-video">
+                                        <video ref={regVideoRef} autoPlay muted playsInline className="h-full w-full -scale-x-100 object-cover" />
+                                        <canvas ref={regCanvasRef} className="hidden" />
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-2">
+                                        {!regCameraOn ? (
+                                            <Button type="button" size="sm" onClick={startRegCamera}>
+                                                <Camera className="mr-1 size-3.5" /> Mở Camera
+                                            </Button>
+                                        ) : (
+                                            <Button type="button" size="sm" variant="outline" onClick={stopRegCamera}>
+                                                Tắt Camera
+                                            </Button>
+                                        )}
+                                        <Button type="button" size="sm" disabled={!regCameraOn} onClick={captureRegAngle}>
+                                            <Camera className="mr-1 size-3.5" /> Chụp {REG_ANGLES[regActiveAngle]}
+                                        </Button>
+                                    </div>
+
+                                    {/* Angle thumbnails */}
+                                    <div className="grid grid-cols-3 gap-2">
+                                        {REG_ANGLES.map((angle, index) => (
+                                            <button
+                                                key={angle}
+                                                type="button"
+                                                className={`relative block aspect-video w-full rounded-lg overflow-hidden border ${regActiveAngle === index ? "border-[#5B6CF0]" : "border-white/10"} bg-[#0B1220]`}
+                                                onClick={() => setRegActiveAngle(index)}
+                                            >
+                                                {regCaptures[index] ? (
+                                                    <Image src={regCaptures[index].url} alt={angle} fill unoptimized sizes="120px" className="object-cover" />
+                                                ) : (
+                                                    <ScanFace className="absolute inset-0 m-auto size-5 text-[#56627A]" />
+                                                )}
+                                                {regCaptures[index] && <Check className="absolute right-1 top-1 size-3.5 rounded-full bg-[#36DDAB] p-0.5 text-[#0B1220]" />}
+                                                <span className="absolute bottom-0 inset-x-0 bg-black/60 text-[9px] text-center text-[#8B99B0] py-0.5">{index + 1}. {angle}</span>
+                                            </button>
+                                        ))}
+                                    </div>
+
+                                    {/* Submit registration */}
+                                    <Button
+                                        type="button"
+                                        className="w-full"
+                                        disabled={isRegBusy || regCaptures.some((c) => !c)}
+                                        onClick={submitFaceRegistration}
+                                    >
+                                        {isRegBusy ? <Loader2 className="animate-spin mr-2" /> : <ScanFace className="mr-2 size-4" />}
+                                        Đăng ký khuôn mặt ({regCaptures.filter(Boolean).length}/6)
+                                    </Button>
                                 </div>
                             )}
                         </div>

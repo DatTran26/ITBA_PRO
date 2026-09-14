@@ -123,3 +123,63 @@ def test_delete_enrollment_removes_local_images(tmp_path: Path):
         response = client.delete("/api/face/enroll/user-1")
     assert response.status_code == 200
     assert not user_dir.exists()
+
+
+def test_storage_config_endpoints(tmp_path: Path):
+    with patch("app.main.FACE_DATA_DIR", tmp_path):
+        res = client.get("/api/face/storage-config")
+        assert res.status_code == 200
+        assert "storagePath" in res.json()
+        assert res.json()["totalUsers"] == 0
+
+    new_dir = tmp_path / "custom_faces"
+    with (
+        patch("app.config.VISION_CONTROLLER_CONFIG_FILE", tmp_path / "cfg.json"),
+        patch("app.config.FACE_STORAGE_CONFIG_FILE", tmp_path / "cfg.json"),
+    ):
+        res_update = client.post("/api/face/storage-config", data={"storagePath": str(new_dir)})
+        assert res_update.status_code == 200
+        assert res_update.json()["ok"] is True
+        assert new_dir.exists()
+
+        # Test controller endpoints
+        res_ctrl = client.get("/api/vision/controller/config")
+        assert res_ctrl.status_code == 200
+        assert res_ctrl.json()["config"]["faceMatchThreshold"] == 0.75
+
+        res_ctrl_update = client.post(
+            "/api/vision/controller/config",
+            json={"faceMatchThreshold": 0.82, "behaviorConfidence": 0.35},
+        )
+        assert res_ctrl_update.status_code == 200
+        assert res_ctrl_update.json()["config"]["faceMatchThreshold"] == 0.82
+        assert res_ctrl_update.json()["config"]["behaviorConfidence"] == 0.35
+
+        res_ctrl_models = client.post(
+            "/api/vision/controller/config",
+            json={
+                "behaviorModels": [
+                    {
+                        "id": "smoke_detection",
+                        "name": "Smoke",
+                        "modelPath": "models/smoke.pt",
+                        "confidence": 0.6,
+                        "iouThreshold": 0.5,
+                        "labels": ["smoke"],
+                    },
+                    {
+                        "id": "seat_occupancy",
+                        "name": "Seat",
+                        "modelPath": "models/seat.pt",
+                        "confidence": 0.3,
+                        "iouThreshold": 0.4,
+                        "labels": ["empty_seat"],
+                    },
+                ]
+            },
+        )
+        assert res_ctrl_models.status_code == 200
+        saved_models = res_ctrl_models.json()["config"]["behaviorModels"]
+        assert len(saved_models) == 2
+        assert saved_models[0]["iouThreshold"] == 0.5
+        assert saved_models[1]["iouThreshold"] == 0.4
