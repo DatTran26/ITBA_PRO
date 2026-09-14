@@ -1,223 +1,266 @@
 "use client";
 
-import { useState } from "react";
-import Link from "next/link";
-import { motion } from "framer-motion";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import {
-  BarChart3, TrendingUp, Users, Clock,
-  Sparkles, Download, ArrowLeft, Construction,
-  Zap, Target, FileBarChart, Loader2
+  AlertTriangle,
+  BarChart3,
+  CheckCircle2,
+  Clock3,
+  Download,
+  FileBarChart,
+  Filter,
+  Loader2,
+  RefreshCw,
+  ShieldCheck,
+  TrendingUp,
+  Users,
 } from "lucide-react";
+import {
+  formatReportQuery,
+  getStatusLabel,
+  PIPELINE_STATUSES,
+  type ReportSnapshot,
+  type ReportScope,
+} from "@/lib/recruitment/report";
 
-const PLANNED_FEATURES = [
-  { icon: BarChart3,   label: "Analytics & KPI tuyển dụng",     color: "#7C8FFF", progress: 35 },
-  { icon: TrendingUp,  label: "Pipeline & Conversion Reports",   color: "#B48EFF", progress: 22 },
-  { icon: Users,       label: "Hiệu suất phỏng vấn viên",       color: "#36DDAB", progress: 15 },
-  { icon: Clock,       label: "Time-to-Hire & SLA Metrics",      color: "#FFB547", progress: 10 },
-  { icon: Sparkles,    label: "Phân tích điểm AI ứng viên",      color: "#06B6D4", progress: 40 },
-  { icon: Download,    label: "Xuất báo cáo PDF / Excel",        color: "#FF6B82", progress: 8  },
-];
+interface JobDescriptionOption {
+  id: string;
+  title: string;
+  department: string | null;
+}
 
-const FLOAT_DOTS = [
-  { x: "8%",  y: "20%", size: 3,  delay: 0,    color: "#7C8FFF" },
-  { x: "92%", y: "15%", size: 5,  delay: 0.6,  color: "#B48EFF" },
-  { x: "15%", y: "75%", size: 4,  delay: 1.2,  color: "#36DDAB" },
-  { x: "85%", y: "70%", size: 3,  delay: 0.3,  color: "#FFB547" },
-  { x: "50%", y: "8%",  size: 6,  delay: 0.9,  color: "#06B6D4" },
-  { x: "5%",  y: "50%", size: 2,  delay: 1.5,  color: "#7C8FFF" },
-  { x: "95%", y: "45%", size: 4,  delay: 0.5,  color: "#36DDAB" },
-  { x: "25%", y: "88%", size: 3,  delay: 1.1,  color: "#B48EFF" },
-];
+function localDateValue(date: Date): string {
+  const parts = new Intl.DateTimeFormat("en-US", {
+    timeZone: "Asia/Ho_Chi_Minh",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).formatToParts(date);
+  const values = Object.fromEntries(parts.map((part) => [part.type, part.value]));
+  return `${values.year}-${values.month}-${values.day}`;
+}
+
+function shiftDate(value: string, days: number): string {
+  const date = new Date(`${value}T00:00:00Z`);
+  date.setUTCDate(date.getUTCDate() + days);
+  return date.toISOString().slice(0, 10);
+}
+
+function initialRange() {
+  const today = localDateValue(new Date());
+  return { from: shiftDate(today, -29), to: today };
+}
+
+function formatNumber(value: number | null | undefined): string {
+  return value === null || value === undefined ? "—" : new Intl.NumberFormat("vi-VN").format(value);
+}
+
+function formatPercent(value: number): string {
+  return `${value.toLocaleString("vi-VN", { maximumFractionDigits: 1 })}%`;
+}
+
+function formatDays(value: number | null): string {
+  return value === null ? "—" : `${value.toLocaleString("vi-VN", { maximumFractionDigits: 1 })} ngày`;
+}
+
+function StatCard({ label, value, icon: Icon, accent }: { label: string; value: string; icon: typeof Users; accent: string }) {
+  return (
+    <div className="rounded-2xl border border-white/10 bg-[#111B2F] p-4 shadow-lg shadow-black/10">
+      <div className="mb-3 flex items-center justify-between gap-2">
+        <span className="text-[10px] font-bold uppercase tracking-[0.16em] text-[#8B99B0]">{label}</span>
+        <Icon size={16} style={{ color: accent }} />
+      </div>
+      <p className="text-2xl font-semibold text-[#ECF0F7]">{value}</p>
+    </div>
+  );
+}
 
 export default function ReportComingSoonClient() {
+  const range = useMemo(initialRange, []);
+  const [from, setFrom] = useState(range.from);
+  const [to, setTo] = useState(range.to);
+  const [jdId, setJdId] = useState("");
+  const [department, setDepartment] = useState("");
+  const [jobDescriptions, setJobDescriptions] = useState<JobDescriptionOption[]>([]);
+  const [snapshot, setSnapshot] = useState<ReportSnapshot | null>(null);
+  const [loading, setLoading] = useState(true);
   const [exporting, setExporting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  async function handleExportExcel() {
+  const scope = useMemo<ReportScope>(() => ({
+    from: `${from}T00:00:00+07:00`,
+    to: `${to}T23:59:59.999+07:00`,
+    jdId: jdId || null,
+    department: department || null,
+  }), [from, to, jdId, department]);
+  const query = useMemo(() => formatReportQuery(scope), [scope]);
+
+  useEffect(() => {
+    let active = true;
+    fetch("/api/recruitment/job-descriptions", { cache: "no-store" })
+      .then(async (response) => {
+        if (!response.ok) throw new Error("Không thể tải danh sách JD.");
+        return response.json() as Promise<{ jobDescriptions?: JobDescriptionOption[] }>;
+      })
+      .then((data) => {
+        if (active) setJobDescriptions(data.jobDescriptions ?? []);
+      })
+      .catch((reason: unknown) => {
+        if (active) console.error("[RecruitmentReport] job descriptions:", reason);
+      });
+    return () => { active = false; };
+  }, []);
+
+  const loadReport = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await fetch(`/api/recruitment/report?${query}`, { cache: "no-store" });
+      const data = await response.json() as ReportSnapshot & { error?: string };
+      if (!response.ok) throw new Error(data.error ?? "Không thể tải báo cáo.");
+      setSnapshot(data);
+    } catch (reason) {
+      const message = reason instanceof Error ? reason.message : "Không thể tải báo cáo.";
+      setError(message);
+      setSnapshot(null);
+    } finally {
+      setLoading(false);
+    }
+  }, [query]);
+
+  useEffect(() => { void loadReport(); }, [loadReport]);
+
+  async function handleExport() {
     setExporting(true);
     try {
-      const res = await fetch("/api/recruitment/report/export");
-      if (!res.ok) throw new Error("Export failed");
-      const blob = await res.blob();
+      const response = await fetch(`/api/recruitment/report/export?${query}`, { cache: "no-store" });
+      if (!response.ok) {
+        const data = await response.json().catch(() => null) as { error?: string } | null;
+        throw new Error(data?.error ?? "Không thể xuất báo cáo.");
+      }
+      const blob = await response.blob();
       const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `bao-cao-tuyen-dung-${new Date().toISOString().slice(0, 10)}.xlsx`;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
+      const anchor = document.createElement("a");
+      anchor.href = url;
+      anchor.download = `bao-cao-tuyen-dung-${to}.xlsx`;
+      document.body.appendChild(anchor);
+      anchor.click();
+      anchor.remove();
       URL.revokeObjectURL(url);
-    } catch (err) {
-      console.error("[ReportComingSoonClient] export:", err);
-      toast.error("Không thể xuất báo cáo Excel. Vui lòng thử lại.");
+      toast.success("Đã xuất báo cáo Excel.");
+    } catch (reason) {
+      console.error("[RecruitmentReport] export:", reason);
+      toast.error(reason instanceof Error ? reason.message : "Không thể xuất báo cáo.");
     } finally {
       setExporting(false);
     }
   }
 
+  const departments = useMemo(
+    () => Array.from(new Set(jobDescriptions.map((item) => item.department).filter((value): value is string => Boolean(value)))).sort(),
+    [jobDescriptions],
+  );
+  const maxStageCount = snapshot ? Math.max(...PIPELINE_STATUSES.map((status) => snapshot.metrics.byStatus[status] ?? 0), 1) : 1;
+  const previewActions = snapshot?.actions.slice(0, 40) ?? [];
+
   return (
-    <div className="relative min-h-[calc(100vh-7rem)] flex flex-col items-center justify-start pb-16 overflow-hidden">
-
-      {/* Background grid */}
-      <div className="pointer-events-none absolute inset-0 opacity-[0.025]"
-        style={{ backgroundImage: "linear-gradient(#7C8FFF 1px, transparent 1px), linear-gradient(90deg, #7C8FFF 1px, transparent 1px)", backgroundSize: "40px 40px" }}
-      />
-
-      {/* Ambient glows */}
-      <div className="pointer-events-none absolute -top-32 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-[#7C8FFF]/6 rounded-full blur-[120px]" />
-      <div className="pointer-events-none absolute bottom-0 left-1/4 w-80 h-80 bg-[#36DDAB]/5 rounded-full blur-[100px]" />
-      <div className="pointer-events-none absolute bottom-0 right-1/4 w-80 h-80 bg-[#B48EFF]/5 rounded-full blur-[100px]" />
-
-      {/* Floating dots */}
-      {FLOAT_DOTS.map((dot, i) => (
-        <motion.div
-          key={i}
-          className="pointer-events-none absolute rounded-full"
-          style={{ left: dot.x, top: dot.y, width: dot.size, height: dot.size, backgroundColor: dot.color }}
-          animate={{ y: [0, -12, 0], opacity: [0.3, 0.7, 0.3] }}
-          transition={{ duration: 3 + i * 0.4, delay: dot.delay, repeat: Infinity, ease: "easeInOut" }}
-        />
-      ))}
-
-      {/* ── Hero ── */}
-      <motion.div
-        initial={{ opacity: 0, y: 30 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-        className="relative z-10 mt-10 flex flex-col items-center text-center max-w-2xl mx-auto px-4"
-      >
-        {/* Orbital icon */}
-        <div className="relative w-32 h-32 flex items-center justify-center mb-8">
-          {/* Rings */}
-          <motion.div
-            className="absolute inset-0 rounded-full border border-[#7C8FFF]/20"
-            animate={{ rotate: 360 }}
-            transition={{ duration: 18, repeat: Infinity, ease: "linear" }}
-          >
-            <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-2 h-2 rounded-full bg-[#7C8FFF] shadow-[0_0_8px_#7C8FFF]" />
-          </motion.div>
-          <motion.div
-            className="absolute inset-3 rounded-full border border-[#B48EFF]/15"
-            animate={{ rotate: -360 }}
-            transition={{ duration: 26, repeat: Infinity, ease: "linear" }}
-          >
-            <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-[#B48EFF] shadow-[0_0_6px_#B48EFF]" />
-          </motion.div>
-          {/* Core */}
-          <div className="relative z-10 w-16 h-16 rounded-2xl bg-gradient-to-br from-[#1B253B] to-[#121A2E] border border-white/10 flex items-center justify-center shadow-2xl">
-            <motion.div
-              animate={{ scale: [1, 1.08, 1] }}
-              transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
-            >
-              <FileBarChart className="w-8 h-8 text-[#7C8FFF]" style={{ filter: "drop-shadow(0 0 10px #7C8FFF80)" }} />
-            </motion.div>
+    <div className="relative z-10 flex flex-col gap-6 pb-16 pt-6">
+      <div className="flex flex-col gap-4 xl:flex-row xl:items-end xl:justify-between">
+        <div>
+          <div className="mb-2 flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.18em] text-[#36DDAB]">
+            <ShieldCheck size={13} /> Báo cáo theo phạm vi quyền
           </div>
+          <h1 className="flex items-center gap-3 text-3xl font-semibold tracking-tight text-[#ECF0F7]">
+            <FileBarChart className="text-[#7C8FFF]" size={28} /> Recruitment Report
+          </h1>
+          <p className="mt-2 max-w-2xl text-sm leading-relaxed text-[#8B99B0]">
+            Theo dõi hiệu quả pipeline, thời gian tuyển dụng và các hồ sơ cần xử lý tiếp theo.
+          </p>
         </div>
-
-        {/* Badges */}
-        <div className="flex items-center gap-2 mb-5">
-          <span className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#FFB547]/10 border border-[#FFB547]/20 text-[10px] font-bold text-[#FFB547] uppercase tracking-widest">
-            <Construction size={10} />
-            Đang Phát Triển
-          </span>
-          <span className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#36DDAB]/10 border border-[#36DDAB]/20 text-[10px] font-bold text-[#36DDAB] uppercase tracking-widest">
-            <Zap size={10} />
-            AI-Powered
-          </span>
-        </div>
-
-        <h1 className="text-4xl md:text-5xl font-black font-display text-[#ECF0F7] tracking-tight mb-4">
-          Recruitment{" "}
-          <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#7C8FFF] to-[#B48EFF]">Reports</span>
-        </h1>
-
-        <p className="text-[#5A6882] text-base leading-relaxed mb-6 max-w-lg">
-          Hệ thống báo cáo tuyển dụng đang được xây dựng — phân tích chuyên sâu, theo dõi hiệu suất và xuất dữ liệu sắp ra mắt.
-        </p>
-
-        <div className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#1B253B] border border-white/5 text-xs text-[#8B99B0]">
-          <Target size={12} className="text-[#7C8FFF]" />
-          Dự kiến ra mắt: <span className="text-[#ECF0F7] font-semibold ml-1">Q3 2026</span>
-        </div>
-
-        <button
-          onClick={handleExportExcel}
-          disabled={exporting}
-          className="group mt-5 flex items-center gap-2.5 px-6 py-3 rounded-xl bg-gradient-to-r from-[#7C8FFF] to-[#B48EFF] text-white text-sm font-semibold shadow-lg shadow-[#7C8FFF]/20 hover:shadow-[#7C8FFF]/30 transition-shadow disabled:opacity-60 disabled:cursor-not-allowed"
-        >
-          {exporting ? (
-            <Loader2 size={16} className="animate-spin" />
-          ) : (
-            <Download size={16} className="group-hover:translate-y-0.5 transition-transform" />
-          )}
-          {exporting ? "Đang tạo báo cáo…" : "Xuất báo cáo Excel"}
-        </button>
-      </motion.div>
-
-      {/* ── Features Grid ── */}
-      <div className="relative z-10 mt-14 w-full max-w-4xl mx-auto px-4">
-        <p className="text-[10px] font-bold text-[#5A6882] uppercase tracking-[0.2em] text-center mb-6">
-          Tính năng dự kiến
-        </p>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {PLANNED_FEATURES.map((feat, i) => {
-            const Icon = feat.icon;
-            return (
-              <motion.div
-                key={feat.label}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.3 + i * 0.08, duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-                className="group relative bg-[#1B253B] border border-[#8B99B0]/10 rounded-2xl p-5 overflow-hidden hover:border-white/10 transition-colors"
-              >
-                <div className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"
-                  style={{ boxShadow: `inset 0 0 0 1px ${feat.color}20` }} />
-
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"
-                    style={{ backgroundColor: `${feat.color}15` }}>
-                    <Icon size={16} style={{ color: feat.color }} />
-                  </div>
-                  <p className="text-[13px] font-semibold text-[#8B99B0] group-hover:text-[#ECF0F7] transition-colors leading-snug">
-                    {feat.label}
-                  </p>
-                </div>
-
-                <div className="space-y-1.5">
-                  <div className="flex justify-between items-center">
-                    <span className="text-[10px] font-bold text-[#5A6882] uppercase tracking-wider">Tiến độ</span>
-                    <span className="text-[10px] font-mono font-bold" style={{ color: feat.color }}>{feat.progress}%</span>
-                  </div>
-                  <div className="h-1.5 w-full bg-[#121A2E] rounded-full overflow-hidden border border-white/5">
-                    <motion.div
-                      className="h-full rounded-full"
-                      style={{ backgroundColor: feat.color }}
-                      initial={{ width: 0 }}
-                      animate={{ width: `${feat.progress}%` }}
-                      transition={{ delay: 0.6 + i * 0.08, duration: 1.2, ease: [0.22, 1, 0.36, 1] }}
-                    />
-                  </div>
-                </div>
-              </motion.div>
-            );
-          })}
+        <div className="flex flex-wrap items-center gap-2 rounded-2xl border border-white/10 bg-[#111B2F] p-3">
+          <Filter size={15} className="text-[#7C8FFF]" />
+          <input aria-label="Từ ngày" type="date" value={from} onChange={(event) => setFrom(event.target.value)} className="rounded-lg border border-white/10 bg-[#0A1120] px-2 py-1.5 text-sm text-[#ECF0F7]" />
+          <span className="text-[#5A6882]">→</span>
+          <input aria-label="Đến ngày" type="date" value={to} onChange={(event) => setTo(event.target.value)} className="rounded-lg border border-white/10 bg-[#0A1120] px-2 py-1.5 text-sm text-[#ECF0F7]" />
+          <select aria-label="Lọc theo JD" value={jdId} onChange={(event) => setJdId(event.target.value)} className="max-w-52 rounded-lg border border-white/10 bg-[#0A1120] px-2 py-1.5 text-sm text-[#ECF0F7]">
+            <option value="">Tất cả JD</option>
+            {jobDescriptions.map((item) => <option key={item.id} value={item.id}>{item.title}</option>)}
+          </select>
+          <select aria-label="Lọc theo phòng ban" value={department} onChange={(event) => setDepartment(event.target.value)} className="rounded-lg border border-white/10 bg-[#0A1120] px-2 py-1.5 text-sm text-[#ECF0F7]">
+            <option value="">Tất cả phòng ban</option>
+            {departments.map((item) => <option key={item} value={item}>{item}</option>)}
+          </select>
+          <button type="button" onClick={() => void loadReport()} disabled={loading} className="inline-flex items-center gap-2 rounded-lg border border-white/10 px-3 py-1.5 text-sm font-medium text-[#ECF0F7] transition hover:border-[#7C8FFF]/50 disabled:cursor-not-allowed disabled:opacity-50">
+            <RefreshCw size={14} className={loading ? "animate-spin" : ""} /> Làm mới
+          </button>
+          <button type="button" onClick={() => void handleExport()} disabled={exporting || loading} className="inline-flex items-center gap-2 rounded-lg bg-gradient-to-r from-[#7C8FFF] to-[#B48EFF] px-3 py-1.5 text-sm font-semibold text-white shadow-lg shadow-[#7C8FFF]/20 disabled:cursor-not-allowed disabled:opacity-50">
+            {exporting ? <Loader2 size={14} className="animate-spin" /> : <Download size={14} />}
+            {exporting ? "Đang tạo…" : "Xuất Excel"}
+          </button>
         </div>
       </div>
 
-      {/* ── CTA ── */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 1.2 }}
-        className="relative z-10 mt-12"
-      >
-        <Link href="/dashboard/recruitment">
-          <button className="group flex items-center gap-2.5 px-6 py-3 rounded-xl bg-[#1B253B] border border-[#8B99B0]/15 text-[#8B99B0] hover:text-[#ECF0F7] hover:border-[#7C8FFF]/30 transition-all text-sm font-semibold">
-            <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" />
-            Quay lại Recruitment
-          </button>
-        </Link>
-      </motion.div>
+      {snapshot && (
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 rounded-xl border border-[#7C8FFF]/15 bg-[#7C8FFF]/5 px-4 py-3 text-xs text-[#8B99B0]">
+          <span>Kỳ: <b className="text-[#ECF0F7]">{from} → {to}</b></span>
+          <span>Phạm vi: <b className="text-[#ECF0F7]">{snapshot.roleScope === "own" ? "Hồ sơ do bạn tạo" : "Toàn bộ recruitment"}</b></span>
+          <span>Chi tiết: <b className="text-[#ECF0F7]">{formatNumber(snapshot.applications.length)}/{formatNumber(snapshot.totalMatchingApplications)}</b></span>
+          {snapshot.detailTruncated && <span className="inline-flex items-center gap-1 font-medium text-[#FFB547]"><AlertTriangle size={13} /> Đã giới hạn 5.000 dòng chi tiết</span>}
+        </div>
+      )}
+
+      {loading ? (
+        <div className="flex min-h-72 items-center justify-center rounded-2xl border border-white/10 bg-[#111B2F]"><Loader2 className="animate-spin text-[#7C8FFF]" size={28} /></div>
+      ) : error ? (
+        <div className="rounded-2xl border border-[#FF6B82]/25 bg-[#FF6B82]/5 p-8 text-center"><AlertTriangle className="mx-auto mb-3 text-[#FF6B82]" size={26} /><p className="text-sm text-[#FFB7C2]">{error}</p><button type="button" onClick={() => void loadReport()} className="mt-4 rounded-lg border border-[#FF6B82]/30 px-4 py-2 text-sm text-[#FFB7C2]">Thử lại</button></div>
+      ) : !snapshot ? null : snapshot.metrics.totalApplications === 0 ? (
+        <div className="rounded-2xl border border-white/10 bg-[#111B2F] p-12 text-center"><BarChart3 className="mx-auto mb-3 text-[#7C8FFF]" size={30} /><p className="text-sm text-[#8B99B0]">Không có dữ liệu trong phạm vi đã chọn.</p></div>
+      ) : (
+        <>
+          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 xl:grid-cols-6">
+            <StatCard label="Applications" value={formatNumber(snapshot.metrics.totalApplications)} icon={Users} accent="#7C8FFF" />
+            <StatCard label="CV đã nhận" value={formatNumber(snapshot.metrics.totalCvsUploaded)} icon={FileBarChart} accent="#B48EFF" />
+            <StatCard label="Đã sàng lọc" value={formatNumber(snapshot.metrics.screenedApplications)} icon={Filter} accent="#06B6D4" />
+            <StatCard label="Đã phỏng vấn" value={formatNumber(snapshot.metrics.interviewedApplications)} icon={CheckCircle2} accent="#FFB547" />
+            <StatCard label="Đã onboard" value={formatNumber(snapshot.metrics.onboardedApplications)} icon={TrendingUp} accent="#36DDAB" />
+            <StatCard label="Cần hành động" value={formatNumber(snapshot.actions.length)} icon={AlertTriangle} accent="#FF6B82" />
+          </div>
+
+          <div className="grid grid-cols-1 gap-5 xl:grid-cols-[1.15fr_0.85fr]">
+            <section className="rounded-2xl border border-white/10 bg-[#111B2F] p-5">
+              <div className="mb-5 flex items-center justify-between"><div><h2 className="text-base font-semibold text-[#ECF0F7]">Pipeline hiện tại</h2><p className="mt-1 text-xs text-[#5A6882]">Phân bổ current status trong kỳ báo cáo</p></div><BarChart3 size={18} className="text-[#7C8FFF]" /></div>
+              <div className="space-y-3">
+                {PIPELINE_STATUSES.map((status) => { const count = snapshot.metrics.byStatus[status] ?? 0; return <div key={status}><div className="mb-1 flex items-center justify-between text-xs"><span className="text-[#8B99B0]">{getStatusLabel(status)}</span><span className="font-mono text-[#ECF0F7]">{formatNumber(count)}</span></div><div className="h-2 overflow-hidden rounded-full bg-[#0A1120]"><div className="h-full rounded-full bg-gradient-to-r from-[#7C8FFF] to-[#B48EFF]" style={{ width: `${(count / maxStageCount) * 100}%` }} /></div></div>; })}
+              </div>
+            </section>
+
+            <section className="rounded-2xl border border-white/10 bg-[#111B2F] p-5">
+              <div className="mb-5 flex items-center justify-between"><div><h2 className="text-base font-semibold text-[#ECF0F7]">KPI chất lượng & thời gian</h2><p className="mt-1 text-xs text-[#5A6882]">Định nghĩa theo current status và status history</p></div><Clock3 size={18} className="text-[#FFB547]" /></div>
+              <div className="space-y-3 text-sm">
+                <div className="flex items-center justify-between border-b border-white/5 pb-3"><span className="text-[#8B99B0]">Pass rate</span><b className="text-[#36DDAB]">{formatPercent(snapshot.metrics.passRate)}</b></div>
+                <div className="flex items-center justify-between border-b border-white/5 pb-3"><span className="text-[#8B99B0]">Offer acceptance</span><b className="text-[#B48EFF]">{formatPercent(snapshot.metrics.offerAcceptanceRate)}</b></div>
+                <div className="flex items-center justify-between border-b border-white/5 pb-3"><span className="text-[#8B99B0]">Thời gian tuyển dụng TB</span><b className="text-[#ECF0F7]">{formatDays(snapshot.metrics.avgTimeToHireDays)}</b></div>
+                <div className="flex items-center justify-between border-b border-white/5 pb-3"><span className="text-[#8B99B0]">Thời gian tuyển dụng median</span><b className="text-[#ECF0F7]">{formatDays(snapshot.metrics.medianTimeToHireDays)}</b></div>
+                <div className="flex items-center justify-between"><span className="text-[#8B99B0]">Điểm AI trung bình</span><b className="text-[#7C8FFF]">{formatNumber(snapshot.metrics.avgAiScore)}/100</b></div>
+              </div>
+            </section>
+          </div>
+
+          <section className="rounded-2xl border border-white/10 bg-[#111B2F] p-5">
+            <div className="mb-4 flex items-center justify-between"><div><h2 className="text-base font-semibold text-[#ECF0F7]">Theo JD & phòng ban</h2><p className="mt-1 text-xs text-[#5A6882]">So sánh khối lượng và kết quả giữa các vị trí</p></div><TrendingUp size={18} className="text-[#36DDAB]" /></div>
+            <div className="overflow-x-auto"><table className="w-full min-w-[760px] text-left text-xs"><thead><tr className="border-b border-white/10 text-[#5A6882]"><th className="px-3 py-3 font-semibold">Vị trí</th><th className="px-3 py-3 font-semibold">Phòng ban</th><th className="px-3 py-3 text-right font-semibold">Applications</th><th className="px-3 py-3 text-right font-semibold">Sàng lọc</th><th className="px-3 py-3 text-right font-semibold">Phỏng vấn</th><th className="px-3 py-3 text-right font-semibold">Onboard</th><th className="px-3 py-3 text-right font-semibold">Pass rate</th><th className="px-3 py-3 text-right font-semibold">TGT TB</th></tr></thead><tbody>{snapshot.breakdowns.map((row) => <tr key={`${row.jobDescriptionId ?? "none"}-${row.department}`} className="border-b border-white/5 text-[#8B99B0]"><td className="px-3 py-3 font-medium text-[#ECF0F7]">{row.jobTitle}</td><td className="px-3 py-3">{row.department}</td><td className="px-3 py-3 text-right font-mono">{formatNumber(row.applications)}</td><td className="px-3 py-3 text-right font-mono">{formatNumber(row.screened)}</td><td className="px-3 py-3 text-right font-mono">{formatNumber(row.interviewed)}</td><td className="px-3 py-3 text-right font-mono">{formatNumber(row.onboarded)}</td><td className="px-3 py-3 text-right font-mono text-[#36DDAB]">{formatPercent(row.passRate)}</td><td className="px-3 py-3 text-right">{formatDays(row.avgTimeToHireDays)}</td></tr>)}</tbody></table></div>
+          </section>
+
+          {snapshot.trend.length > 0 && <section className="rounded-2xl border border-white/10 bg-[#111B2F] p-5"><div className="mb-4 flex items-center justify-between"><div><h2 className="text-base font-semibold text-[#ECF0F7]">Xu hướng theo tháng</h2><p className="mt-1 text-xs text-[#5A6882]">Số hồ sơ tạo mới và trạng thái đã đạt trong từng tháng</p></div><TrendingUp size={18} className="text-[#7C8FFF]" /></div><div className="overflow-x-auto"><table className="w-full min-w-[560px] text-left text-xs"><thead><tr className="border-b border-white/10 text-[#5A6882]"><th className="px-3 py-3 font-semibold">Tháng</th><th className="px-3 py-3 text-right font-semibold">Applications</th><th className="px-3 py-3 text-right font-semibold">Sàng lọc</th><th className="px-3 py-3 text-right font-semibold">Phỏng vấn</th><th className="px-3 py-3 text-right font-semibold">Onboard</th></tr></thead><tbody>{snapshot.trend.map((row) => <tr key={row.month} className="border-b border-white/5 text-[#8B99B0]"><td className="px-3 py-3 font-medium text-[#ECF0F7]">{row.month}</td><td className="px-3 py-3 text-right font-mono">{formatNumber(row.applications)}</td><td className="px-3 py-3 text-right font-mono">{formatNumber(row.screened)}</td><td className="px-3 py-3 text-right font-mono">{formatNumber(row.interviewed)}</td><td className="px-3 py-3 text-right font-mono text-[#36DDAB]">{formatNumber(row.onboarded)}</td></tr>)}</tbody></table></div></section>}
+
+          <section className="rounded-2xl border border-white/10 bg-[#111B2F] p-5">
+            <div className="mb-4 flex items-center justify-between"><div><h2 className="text-base font-semibold text-[#ECF0F7]">Cần hành động</h2><p className="mt-1 text-xs text-[#5A6882]">Tối đa 40 dòng hiển thị trên màn hình; Excel giữ toàn bộ action theo detail limit</p></div><AlertTriangle size={18} className="text-[#FF6B82]" /></div>
+            <div className="overflow-x-auto"><table className="w-full min-w-[820px] text-left text-xs"><thead><tr className="border-b border-white/10 text-[#5A6882]"><th className="px-3 py-3 font-semibold">Ưu tiên</th><th className="px-3 py-3 font-semibold">Loại</th><th className="px-3 py-3 font-semibold">Ứng viên</th><th className="px-3 py-3 font-semibold">Vị trí</th><th className="px-3 py-3 font-semibold">Trạng thái</th><th className="px-3 py-3 text-right font-semibold">Tuổi</th><th className="px-3 py-3 font-semibold">Đề xuất</th></tr></thead><tbody>{previewActions.length === 0 ? <tr><td colSpan={7} className="px-3 py-8 text-center text-[#5A6882]">Không có hồ sơ cần hành động.</td></tr> : previewActions.map((action, index) => <tr key={`${action.applicationId}-${action.type}-${index}`} className="border-b border-white/5 text-[#8B99B0]"><td className={`px-3 py-3 font-semibold ${action.priority === "HIGH" ? "text-[#FF6B82]" : "text-[#FFB547]"}`}>{action.priority}</td><td className="px-3 py-3 font-mono">{action.type}</td><td className="px-3 py-3 text-[#ECF0F7]">{action.candidateName || "—"}</td><td className="px-3 py-3">{action.jobTitle}</td><td className="px-3 py-3">{getStatusLabel(action.pipelineStatus)}</td><td className="px-3 py-3 text-right font-mono">{action.ageDays}d</td><td className="px-3 py-3">{action.nextAction}</td></tr>)}</tbody></table></div>
+            {snapshot.actions.length > previewActions.length && <p className="mt-3 text-right text-xs text-[#5A6882]">+ {formatNumber(snapshot.actions.length - previewActions.length)} action khác trong file Excel</p>}
+          </section>
+        </>
+      )}
     </div>
   );
 }

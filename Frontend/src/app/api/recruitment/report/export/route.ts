@@ -1,120 +1,105 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { GoogleGenAI } from "@google/genai";
 import { getAuthContext, isAuthError } from "@/lib/api/auth-helpers";
-import { createAdminClient } from "@/lib/supabase/admin";
 import {
-  buildRecruitmentReportWorkbook,
-  type ApplicationRow,
-  type DashboardMetrics,
-} from "@/lib/export/excel-report";
+  isReportRole,
+  normalizeReportScope,
+  type ReportAiInsight,
+  type ReportSnapshot,
+} from "@/lib/recruitment/report";
+import { loadRecruitmentReport, ReportDataError } from "@/lib/recruitment/report-data";
+import { buildRecruitmentReportWorkbook } from "@/lib/export/excel-report";
 
-const MAX_EXPORT_ROWS = 5000;
-// MVP has no date/JD filter UI yet — report covers all-time data.
-const ALL_TIME_FROM = "2000-01-01T00:00:00Z";
+const AI_TIMEOUT_MS = 6000;
 
-type PersonRow = { full_name: string | null; email: string | null };
-type JdRow = { title: string | null; department: string | null };
-type ScreeningRow = { final_score: number | null; ai_score: number | null };
+function buildAiEvidence(snapshot: ReportSnapshot): ReportAiInsight["evidence"] {
+  return {
+    "Tổng applications": snapshot.metrics.totalApplications,
+    "Tổng CV": snapshot.metrics.totalCvsUploaded,
+    "Đã sàng lọc": snapshot.metrics.screenedApplications,
+    "Đã phỏng vấn": snapshot.metrics.interviewedApplications,
+    "Đã onboard": snapshot.metrics.onboardedApplications,
+    "Tỷ lệ đạt phỏng vấn (%)": snapshot.metrics.passRate,
+    "Tỷ lệ chấp nhận offer (%)": snapshot.metrics.offerAcceptanceRate,
+    "Thời gian tuyển dụng trung bình (ngày)": snapshot.metrics.avgTimeToHireDays,
+    "Hồ sơ cần xử lý": snapshot.actions.length,
+  };
+}
 
-// Gemini powers only this report's insight sheet — the rest of the app's
-// AI features (jd-parse, cv-extract, ...) still use OpenAI via getAiConfig().
-async function fetchAiInsight(metrics: DashboardMetrics): Promise<string | undefined> {
+async function fetchAiInsight(snapshot: ReportSnapshot): Promise<ReportAiInsight | undefined> {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) return undefined;
 
-  try {
+  const model = process.env.GEMINI_MODEL || "gemini-3.6-flash";
+  const evidence = buildAiEvidence(snapshot);
+  const request = async () => {
     const ai = new GoogleGenAI({ apiKey });
     const response = await ai.models.generateContent({
-      model: process.env.GEMINI_MODEL || "gemini-3.6-flash",
-      contents: JSON.stringify(metrics),
+      model,
+      contents: JSON.stringify({
+        metrics: snapshot.metrics,
+        breakdowns: snapshot.breakdowns,
+        trend: snapshot.trend,
+        evidence,
+      }),
       config: {
         systemInstruction:
-          "Bạn là chuyên gia phân tích tuyển dụng. Dựa trên số liệu JSON được cung cấp, viết 3-5 câu nhận xét ngắn gọn bằng tiếng Việt về xu hướng tuyển dụng hiện tại (điểm mạnh, điểm cần chú ý). Chỉ trả về đoạn văn bản thuần, không markdown, không tiêu đề.",
+          "Bạn là chuyên gia phân tích tuyển dụng. Viết 3-5 câu tiếng Việt, chỉ sử dụng số liệu được cung cấp. Mỗi nhận xét phải nêu rõ tên KPI hoặc JD và giá trị làm căn cứ. Chỉ trả về văn bản thuần, đánh dấu đây là nhận xét tham khảo, không kết luận Pass/Fail hay quyết định tuyển dụng.",
       },
     });
+    const text = response.text?.trim();
+    if (!text) return undefined;
+    return {
+      text,
+      model,
+      generatedAt: new Date().toISOString(),
+      evidence,
+    } satisfies ReportAiInsight;
+  };
 
-    return response.text?.trim() || undefined;
-  } catch (err) {
-    console.error("[report/export] AI insight failed, skipping sheet:", err);
+  try {
+    return await Promise.race([
+      request(),
+      new Promise<undefined>((resolve) => setTimeout(() => resolve(undefined), AI_TIMEOUT_MS)),
+    ]);
+  } catch (error) {
+    console.error("[recruitment/report/export] AI insight skipped:", error);
     return undefined;
   }
 }
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   const ctx = await getAuthContext();
   if (isAuthError(ctx)) return ctx;
-
-  const { isAdmin, isHr } = ctx;
-  if (!isAdmin && !isHr) {
+  if (!isReportRole(ctx)) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
-  const admin = createAdminClient();
-
-  const { data: metrics, error: metricsError } = await admin.rpc("recruitment_dashboard", {
-    from_date: ALL_TIME_FROM,
-    to_date: new Date().toISOString(),
-    p_jd_id: null,
-  });
-
-  if (metricsError) {
-    console.error("[report/export] RPC error:", metricsError.message);
-    return NextResponse.json({ error: "Failed to load report metrics" }, { status: 500 });
+  const parsed = normalizeReportScope(req.nextUrl.searchParams);
+  if (!parsed.ok) {
+    return NextResponse.json({ error: parsed.error }, { status: 400 });
   }
 
-  const { data: applicationRows, error: applicationsError } = await admin
-    .from("job_applications")
-    .select(`
-      created_at, pipeline_status,
-      persons!inner(full_name, email),
-      job_descriptions(title, department),
-      candidate_screenings!fk_current_screening(final_score, ai_score)
-    `)
-    .order("created_at", { ascending: false })
-    .limit(MAX_EXPORT_ROWS);
+  try {
+    const snapshot = await loadRecruitmentReport(parsed.scope, ctx);
+    const aiInsight = await fetchAiInsight(snapshot);
+    const workbook = await buildRecruitmentReportWorkbook(snapshot, aiInsight);
+    const buffer = await workbook.xlsx.writeBuffer();
+    const filename = `bao-cao-tuyen-dung-${parsed.scope.to.slice(0, 10)}.xlsx`;
 
-  if (applicationsError) {
-    console.error("[report/export] applications query error:", applicationsError.message);
-    return NextResponse.json({ error: "Failed to load applications" }, { status: 500 });
+    return new Response(buffer, {
+      status: 200,
+      headers: {
+        "Content-Type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        "Content-Disposition": `attachment; filename="${filename}"`,
+        "Cache-Control": "no-store",
+      },
+    });
+  } catch (error) {
+    if (error instanceof ReportDataError) {
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+    console.error("[recruitment/report/export] unexpected error:", error);
+    return NextResponse.json({ error: "Không thể xuất báo cáo tuyển dụng." }, { status: 500 });
   }
-
-  const applications: ApplicationRow[] = (applicationRows ?? []).map((row) => {
-    const person = Array.isArray(row.persons) ? row.persons[0] : (row.persons as PersonRow | null);
-    const jd = Array.isArray(row.job_descriptions)
-      ? row.job_descriptions[0] ?? null
-      : (row.job_descriptions as JdRow | null);
-    const screening = Array.isArray(row.candidate_screenings)
-      ? row.candidate_screenings[0] ?? null
-      : (row.candidate_screenings as ScreeningRow | null);
-
-    return {
-      createdAt: row.created_at,
-      pipelineStatus: row.pipeline_status,
-      candidateName: person?.full_name ?? "",
-      candidateEmail: person?.email ?? "",
-      jobTitle: jd?.title ?? "",
-      department: jd?.department ?? "",
-      finalScore: screening?.final_score ?? null,
-      aiScore: screening?.ai_score ?? null,
-    };
-  });
-
-  const dashboardMetrics = metrics as DashboardMetrics;
-  const aiInsight = await fetchAiInsight(dashboardMetrics);
-
-  const workbook = await buildRecruitmentReportWorkbook({
-    metrics: dashboardMetrics,
-    applications,
-    aiInsight,
-  });
-  const buffer = await workbook.xlsx.writeBuffer();
-  const filename = `bao-cao-tuyen-dung-${new Date().toISOString().slice(0, 10)}.xlsx`;
-
-  return new Response(buffer, {
-    status: 200,
-    headers: {
-      "Content-Type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-      "Content-Disposition": `attachment; filename="${filename}"`,
-    },
-  });
 }

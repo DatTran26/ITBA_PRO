@@ -7,6 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "test:report": "vitest run src/lib/recruitment/report.test.ts src/lib/export/excel-report.test.ts",
     "version": "node .claude/scripts/version-manager.mjs"
   },
   "dependencies": {
@@ -59,6 +60,7 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.2.2",
+    "vitest": "^3.2.4",
     "tailwindcss": "^4",
     "typescript": "^5"
   }
