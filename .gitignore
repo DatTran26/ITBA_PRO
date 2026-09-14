@@ -17,6 +17,9 @@ Thumbs.db
 *.log
 *.pem
 *.key
+*.db
+*.sqlite
+*.sqlite3
 secrets/
 
 # Scratch & temporary workspace
