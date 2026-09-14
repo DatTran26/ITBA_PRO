@@ -15,16 +15,40 @@ export default async function DashboardPage({
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) redirect("/login");
 
-    const { data: userData } = await supabase
+    let { data: userData } = await supabase
         .from("users")
         .select("*")
         .eq("auth_id", user.id)
         .single();
 
+    if (!userData) {
+        const defaultName = user.user_metadata?.name || user.email?.split("@")[0] || "Admin";
+        const defaultEmail = user.email || "";
+        const { data: insertedUser } = await supabase
+            .from("users")
+            .insert({
+                auth_id: user.id,
+                email: defaultEmail,
+                name: defaultName,
+                role: "super_admin",
+            })
+            .select("*")
+            .single();
+
+        userData = insertedUser || {
+            id: user.id,
+            auth_id: user.id,
+            email: defaultEmail,
+            name: defaultName,
+            role: "super_admin",
+            created_at: new Date().toISOString(),
+        };
+    }
+
     const isAdmin = userData?.role === "admin" || userData?.role === "super_admin";
     const isHr = userData?.role === "hr";
     const isInterviewer = userData?.role === "interviewer";
-    const role = userData?.role as string;
+    const role = (userData?.role as string) || "super_admin";
 
     const roleDefaultMode: Record<string, DashboardMode> = {
         super_admin: "recruitment", admin: "recruitment",
@@ -43,7 +67,9 @@ export default async function DashboardPage({
         ? (modeParam as DashboardMode)
         : (roleDefaultMode[role] ?? "recruitment");
 
-    const dashUser = { name: userData.name, email: userData.email, role: userData.role };
+    const dashUser = userData
+        ? { name: userData.name || user.email?.split("@")[0] || "User", email: userData.email || user.email || "", role: userData.role || "super_admin" }
+        : { name: user.email?.split("@")[0] || "Admin", email: user.email || "", role: "super_admin" };
 
     // HR/Interviewer modes: skip all heavy server fetching — data loaded client-side
     if (mode === "hr" || mode === "interviewer") {

@@ -7,6 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "test:report": "vitest run src/lib/recruitment/report.test.ts src/lib/export/excel-report.test.ts",
     "version": "node .claude/scripts/version-manager.mjs"
   },
   "dependencies": {
@@ -21,6 +22,7 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
+    "exceljs": "^4.4.0",
     "framer-motion": "^12.35.1",
     "isomorphic-dompurify": "^3.12.0",
     "jspdf": "^4.2.1",
@@ -58,6 +60,7 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.2.2",
+    "vitest": "^3.2.4",
     "tailwindcss": "^4",
     "typescript": "^5"
   }

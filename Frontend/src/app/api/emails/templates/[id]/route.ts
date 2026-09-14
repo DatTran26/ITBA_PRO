@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import DOMPurify from "isomorphic-dompurify";
+import { sanitizeEmailHtml } from "@/lib/email/sanitize-html";
 import { findUnknownVariables } from "@/lib/email/template-variables";
 import type { TemplateType } from "@/lib/email/template-variables";
 
@@ -35,9 +35,7 @@ export async function PATCH(
         );
     }
 
-    const sanitized = DOMPurify.sanitize(body_html, {
-        USE_PROFILES: { html: true },
-    });
+    const sanitized = sanitizeEmailHtml(body_html);
 
     const { data: tmpl } = await supabase
         .from("email_templates")
