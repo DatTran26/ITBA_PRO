@@ -73,6 +73,9 @@ nghiệp vụ mang nhãn đề xuất vẫn cần đúng owner xác nhận trư�
   171 câu chưa nhận diện được impact. Các số này dùng để lập backlog review,
   không phải bằng chứng tự động rằng nội dung nghiệp vụ sai.
 - `git diff --check`: không có whitespace error trong các file đã sửa.
+- Đã commit: `b945cdb` (bộ docs/features), `d358a0f` (plans/reports/audit);
+  merge `12e54b5` origin/develop. Verify lại sau commit: `check-erd` 39 file/0
+  lỗi, `final-review-check` 39/39 artifact, 0 lỗi P0.
 
 ## Điều kiện đóng audit
 
