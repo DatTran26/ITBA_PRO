@@ -11,7 +11,7 @@ import { PageTransition, FadeIn } from "@/components/ui/motion-wrapper";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader2, ArrowRight, Fingerprint, ScanFace, Camera, Check, X, UserPlus } from "lucide-react";
+import { Loader2, ArrowRight, Fingerprint, ScanFace, Camera, Check, X, UserPlus, LogIn } from "lucide-react";
 import { Turnstile, type TurnstileInstance } from "@marsidev/react-turnstile";
 import Link from "next/link";
 import Image from "next/image";
@@ -36,12 +36,12 @@ const REG_ANGLES = REG_ANGLES_DETAIL.map((d) => d.name);
 type Capture = { file: File; url: string };
 
 export default function LoginPage() {
+    const [activeTab, setActiveTab] = useState<"signin" | "register">("signin");
     const [isLoading, setIsLoading] = useState(false);
     const [isFaceLoginOpen, setIsFaceLoginOpen] = useState(false);
     const [isFaceBusy, setIsFaceBusy] = useState(false);
     const [faceAttempts, setFaceAttempts] = useState(0);
     const [isFaceAutoScanning, setIsFaceAutoScanning] = useState(false);
-    const [faceMode, setFaceMode] = useState<"login" | "register" | null>(null);
     const [regCaptures, setRegCaptures] = useState<Array<Capture | null>>(() => REG_ANGLES.map(() => null));
     const [regActiveAngle, setRegActiveAngle] = useState(0);
     const [isRegBusy, setIsRegBusy] = useState(false);
@@ -150,7 +150,6 @@ export default function LoginPage() {
             return;
         }
         setIsFaceLoginOpen(true);
-        setFaceMode("login");
         setFaceAttempts(0);
         setIsFaceAutoScanning(true);
 
@@ -214,7 +213,7 @@ export default function LoginPage() {
             setIsFaceAutoScanning(false);
             if (attemptNumber >= 3) {
                 stopFaceCamera();
-                setFaceMode(null);
+                setIsFaceLoginOpen(false);
                 toast.error("Face verification failed three times. Sign in with your password.");
                 document.getElementById("password")?.focus();
             } else {
@@ -246,6 +245,29 @@ export default function LoginPage() {
         setRegCameraOn(false);
     }
 
+    const handleTabChange = (tab: "signin" | "register") => {
+        if (tab === "signin") {
+            stopRegCamera();
+        } else {
+            stopFaceCamera();
+            setIsFaceLoginOpen(false);
+            const currentEmail = getValues("email")?.trim();
+            if (currentEmail && !registrationEmail) {
+                setRegistrationEmail(currentEmail);
+            }
+        }
+        setActiveTab(tab);
+    };
+
+    useEffect(() => {
+        if (typeof window !== "undefined") {
+            const params = new URLSearchParams(window.location.search);
+            if (params.get("tab") === "register") {
+                setActiveTab("register");
+            }
+        }
+    }, []);
+
     function closeFaceRegister() {
         stopAutoCapture();
         stopRegCamera();
@@ -257,7 +279,6 @@ export default function LoginPage() {
         setRegistrationPassword("");
         setRegistrationConfirmPassword("");
         setShowRegPassword(false);
-        setFaceMode(null);
     }
 
     function stopAutoCapture() {
@@ -417,6 +438,7 @@ export default function LoginPage() {
             toast.success(data.message ?? "Account created successfully!");
             setValue("email", email);
             closeFaceRegister();
+            handleTabChange("signin");
         } catch (error) {
             toast.error(error instanceof Error ? error.message : "Account registration failed");
         } finally {
@@ -475,10 +497,10 @@ export default function LoginPage() {
 
             {/* Right: Auth Form */}
             <div className="flex-1 flex items-center justify-center relative p-6">
-                <div className="w-full max-w-md relative z-10">
+                <div className="w-full max-w-lg relative z-10">
 
                     <FadeIn delay={0.1}>
-                        <div className="mb-12 lg:hidden flex justify-center">
+                        <div className="mb-6 lg:hidden flex justify-center">
                             <Link href="/">
                                 <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#5B6CF0] to-[#7C8FFF] flex items-center justify-center text-white font-black text-xl shadow-[0_10px_25px_-5px_rgba(91,108,240,0.5)]">
                                     AI
@@ -486,247 +508,270 @@ export default function LoginPage() {
                             </Link>
                         </div>
 
-                        <div className="mb-10 text-center lg:text-left">
-                            <h2 className="text-4xl font-semibold font-display text-[#ECF0F7] mb-3 tracking-tight">
-                                Establish Link
-                            </h2>
-                            <p className="text-[#8B99B0] text-lg font-light">
-                                Enter your designated credentials to access the recruitment matrix.
-                            </p>
+                        {/* Top Auth Tab Switcher */}
+                        <div className="grid grid-cols-2 p-1.5 bg-[#0B1220]/90 rounded-2xl border border-white/10 mb-6 backdrop-blur-md shadow-inner">
+                            <button
+                                type="button"
+                                onClick={() => handleTabChange("signin")}
+                                className={`flex items-center justify-center gap-2.5 py-3 text-xs font-bold uppercase tracking-[0.12em] rounded-xl transition-all ${
+                                    activeTab === "signin"
+                                        ? "bg-[#5B6CF0] text-white shadow-lg shadow-[#5B6CF0]/25"
+                                        : "text-[#8B99B0] hover:text-white hover:bg-white/5"
+                                }`}
+                            >
+                                <LogIn className="size-4" />
+                                Sign In
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => handleTabChange("register")}
+                                className={`flex items-center justify-center gap-2.5 py-3 text-xs font-bold uppercase tracking-[0.12em] rounded-xl transition-all ${
+                                    activeTab === "register"
+                                        ? "bg-[#36DDAB] text-[#0B1220] shadow-lg shadow-[#36DDAB]/25"
+                                        : "text-[#8B99B0] hover:text-white hover:bg-white/5"
+                                }`}
+                            >
+                                <UserPlus className="size-4" />
+                                Register
+                            </button>
                         </div>
 
-                        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-                            <div className="space-y-2.5 group">
-                                <Label htmlFor="email" className="text-[11px] font-bold text-[#5A6882] uppercase tracking-[0.2em] group-focus-within:text-[#7C8FFF] transition-colors ml-1">Communication Link</Label>
-                                <Input
-                                    id="email"
-                                    type="email"
-                                    placeholder="agent@itba.system"
-                                    className="bg-[#1B253B]/60 border-white/5 hover:border-[#7C8FFF]/30 focus:border-[#7C8FFF]/50 text-[#ECF0F7] placeholder:text-[#5A6882]/50 h-12 rounded-[1rem] transition-all duration-300"
-                                    {...register("email")}
-                                />
-                                {errors.email && (
-                                    <p className="text-xs text-[#FF6B82] mt-1.5 flex items-center gap-1.5 font-medium ml-1">
-                                        <span className="w-1.5 h-1.5 rounded-full bg-[#FF6B82]" />
-                                        {errors.email.message as string}
+                        {/* TAB 1: SIGN IN */}
+                        {activeTab === "signin" && (
+                            <div className="space-y-6 animate-in fade-in duration-300">
+                                <div className="mb-4 text-center lg:text-left">
+                                    <h2 className="text-4xl font-semibold font-display text-[#ECF0F7] mb-2 tracking-tight">
+                                        Establish Link
+                                    </h2>
+                                    <p className="text-[#8B99B0] text-base font-light">
+                                        Enter your designated credentials to access the recruitment matrix.
                                     </p>
-                                )}
-                            </div>
-
-                            <div className="space-y-2.5 group">
-                                <div className="flex items-center justify-between ml-1">
-                                    <Label htmlFor="password" className="text-[11px] font-bold text-[#5A6882] uppercase tracking-[0.2em] group-focus-within:text-[#7C8FFF] transition-colors">Security Passphrase</Label>
-                                    <Link href="#" className="text-[11px] font-bold text-[#7C8FFF]/60 hover:text-[#7C8FFF] transition-colors uppercase tracking-widest">Lost access?</Link>
                                 </div>
-                                <Input
-                                    id="password"
-                                    type="password"
-                                    placeholder="••••••••"
-                                    className="bg-[#1B253B]/60 border-white/5 hover:border-[#7C8FFF]/30 focus:border-[#7C8FFF]/50 text-[#ECF0F7] placeholder:text-[#5A6882]/50 h-12 rounded-[1rem] transition-all duration-300"
-                                    {...register("password")}
-                                />
-                                {errors.password && (
-                                    <p className="text-xs text-[#FF6B82] mt-1.5 flex items-center gap-1.5 font-medium ml-1">
-                                         <span className="w-1.5 h-1.5 rounded-full bg-[#FF6B82]" />
-                                         {errors.password.message as string}
-                                    </p>
-                                )}
-                            </div>
 
-                            {isTurnstileEnabled && (
-                                <div className="py-2">
-                                    {turnstileSiteKey ? (
-                                        <Turnstile
-                                            ref={turnstileRef}
-                                            siteKey={turnstileSiteKey}
-                                            onSuccess={(token) => setCaptchaToken(token)}
-                                            onExpire={() => {
-                                                setCaptchaToken(undefined);
-                                                turnstileRef.current?.reset();
-                                            }}
-                                            onError={() => {
-                                                setCaptchaToken(undefined);
-                                                turnstileRef.current?.reset();
-                                            }}
-                                            options={{ theme: "dark", size: "flexible" }}
+                                <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+                                    <div className="space-y-2 group">
+                                        <Label htmlFor="email" className="text-[11px] font-bold text-[#5A6882] uppercase tracking-[0.2em] group-focus-within:text-[#7C8FFF] transition-colors ml-1">Communication Link</Label>
+                                        <Input
+                                            id="email"
+                                            type="email"
+                                            placeholder="agent@itba.system"
+                                            className="bg-[#1B253B]/60 border-white/5 hover:border-[#7C8FFF]/30 focus:border-[#7C8FFF]/50 text-[#ECF0F7] placeholder:text-[#5A6882]/50 h-12 rounded-[1rem] transition-all duration-300"
+                                            {...register("email")}
                                         />
-                                    ) : (
-                                        <p className="text-sm text-[#FF6B82]" role="alert">
-                                            Captcha protection is not configured. Please contact support.
-                                        </p>
-                                    )}
-                                </div>
-                            )}
+                                        {errors.email && (
+                                            <p className="text-xs text-[#FF6B82] mt-1.5 flex items-center gap-1.5 font-medium ml-1">
+                                                <span className="w-1.5 h-1.5 rounded-full bg-[#FF6B82]" />
+                                                {errors.email.message as string}
+                                            </p>
+                                        )}
+                                    </div>
 
-                            <Button
-                                type="submit"
-                                disabled={isLoading || (isTurnstileEnabled && (!turnstileSiteKey || !captchaToken))}
-                                className="w-full h-14 bg-[#5B6CF0] hover:bg-[#4F5FE0] text-white font-bold text-base border-0 transition-all hover:scale-[1.01] active:scale-[0.99] hover:shadow-[0_15px_30px_-5px_rgba(91,108,240,0.5)] flex items-center justify-center gap-3 group/btn rounded-[1.25rem]"
-                            >
-                                {isLoading ? (
-                                    <>
-                                        <Loader2 className="h-5 w-5 animate-spin" />
-                                        <span>Initiating Handshake...</span>
-                                    </>
-                                ) : (
-                                    <>
-                                        <span>Establish Connection</span>
-                                        <ArrowRight className="w-5 h-5 group-hover/btn:translate-x-1 transition-transform" />
-                                    </>
-                                )}
-                            </Button>
-                        </form>
-
-                        {/* Face sign-in and mandatory biometric account registration */}
-                        <div className="mt-5 border-t border-white/10 pt-5">
-                            {faceMode === null && !isFaceLoginOpen && (
-                                <div className="grid grid-cols-2 gap-2">
-                                    <Button
-                                        type="button"
-                                        variant="outline"
-                                        className="h-12 rounded-[1rem] border-white/10 bg-[#1B253B]/40 text-[#ECF0F7] hover:bg-[#24304A]"
-                                        onClick={() => { setFaceMode("login"); startFaceCamera(); }}
-                                    >
-                                        <ScanFace className="mr-2 h-4 w-4 text-[#36DDAB]" />
-                                        Face ID Sign In
-                                    </Button>
-                                    <Button
-                                        type="button"
-                                        variant="outline"
-                                        className="h-12 rounded-[1rem] border-white/10 bg-[#1B253B]/40 text-[#ECF0F7] hover:bg-[#24304A]"
-                                        onClick={() => {
-                                            const currentEmail = getValues("email")?.trim();
-                                            if (currentEmail) setRegistrationEmail(currentEmail);
-                                            setFaceMode("register");
-                                        }}
-                                    >
-                                        <UserPlus className="mr-2 h-4 w-4 text-[#36DDAB]" />
-                                        Register Account
-                                    </Button>
-                                </div>
-                            )}
-
-                            {/* Face Login Mode */}
-                            {(faceMode === "login" || isFaceLoginOpen) && faceMode !== "register" && (
-                                <div className="space-y-3 rounded-[1rem] border border-[#5B6CF0]/40 bg-[#0B1220]/90 p-3.5 shadow-xl">
-                                    <div className="flex items-center justify-between">
-                                        <div className="flex items-center gap-2">
-                                            <ScanFace className="size-4 text-[#36DDAB]" />
-                                            <p className="text-sm font-semibold text-white">Face ID Sign In</p>
+                                    <div className="space-y-2 group">
+                                        <div className="flex items-center justify-between ml-1">
+                                            <Label htmlFor="password" className="text-[11px] font-bold text-[#5A6882] uppercase tracking-[0.2em] group-focus-within:text-[#7C8FFF] transition-colors">Security Passphrase</Label>
+                                            <Link href="#" className="text-[11px] font-bold text-[#7C8FFF]/60 hover:text-[#7C8FFF] transition-colors uppercase tracking-widest">Lost access?</Link>
                                         </div>
-                                        <span className="text-[11px] font-mono text-[#8B99B0]">
-                                            Attempt: <strong className={faceAttempts >= 2 ? "text-[#FF6B82]" : "text-[#36DDAB]"}>{faceAttempts}/3</strong>
-                                        </span>
-                                    </div>
-
-                                    {/* Video with scanning effect */}
-                                    <div className="relative overflow-hidden rounded-xl bg-black aspect-video border border-white/10">
-                                        <video ref={videoRef} autoPlay muted playsInline className="h-full w-full -scale-x-100 object-cover" />
-                                        <canvas ref={canvasRef} className="hidden" />
-
-                                        {/* Auto-scanning overlay */}
-                                        {isFaceAutoScanning && (
-                                            <div className="absolute inset-0 bg-[#5B6CF0]/10 flex flex-col items-center justify-center backdrop-blur-[1px]">
-                                                <div className="size-16 rounded-full border-2 border-[#5B6CF0] border-t-transparent animate-spin mb-2" />
-                                                <span className="text-xs font-semibold text-white bg-black/60 px-3 py-1 rounded-full border border-white/10">
-                                                    Scanning face automatically...
-                                                </span>
-                                            </div>
+                                        <Input
+                                            id="password"
+                                            type="password"
+                                            placeholder="••••••••"
+                                            className="bg-[#1B253B]/60 border-white/5 hover:border-[#7C8FFF]/30 focus:border-[#7C8FFF]/50 text-[#ECF0F7] placeholder:text-[#5A6882]/50 h-12 rounded-[1rem] transition-all duration-300"
+                                            {...register("password")}
+                                        />
+                                        {errors.password && (
+                                            <p className="text-xs text-[#FF6B82] mt-1.5 flex items-center gap-1.5 font-medium ml-1">
+                                                 <span className="w-1.5 h-1.5 rounded-full bg-[#FF6B82]" />
+                                                 {errors.password.message as string}
+                                            </p>
                                         )}
                                     </div>
 
-                                    <div className="text-center text-xs text-[#8B99B0]">
-                                        {isFaceAutoScanning ? (
-                                             <span className="text-[#36DDAB]">Hold still and look directly into the camera</span>
-                                        ) : faceAttempts > 0 ? (
-                                            <span className="text-[#FF6B82]">
-                                                Face did not match. Select Retry or use your password.
-                                            </span>
-                                        ) : (
-                                            <span>Look directly at the camera to automatically scan and sign in.</span>
-                                        )}
-                                    </div>
-
-                                    <div className="grid grid-cols-2 gap-2">
-                                        <Button
-                                            type="button"
-                                            disabled={isFaceBusy}
-                                            className="bg-[#5B6CF0] hover:bg-[#4F5FE0] text-white text-xs font-semibold h-10"
-                                            onClick={() => triggerAutoFaceLogin(faceAttempts + 1)}
-                                        >
-                                            {isFaceBusy ? (
-                                                <Loader2 className="animate-spin size-4" />
+                                    {isTurnstileEnabled && (
+                                        <div className="py-1">
+                                            {turnstileSiteKey ? (
+                                                <Turnstile
+                                                    ref={turnstileRef}
+                                                    siteKey={turnstileSiteKey}
+                                                    onSuccess={(token) => setCaptchaToken(token)}
+                                                    onExpire={() => {
+                                                        setCaptchaToken(undefined);
+                                                        turnstileRef.current?.reset();
+                                                    }}
+                                                    onError={() => {
+                                                        setCaptchaToken(undefined);
+                                                        turnstileRef.current?.reset();
+                                                    }}
+                                                    options={{ theme: "dark", size: "flexible" }}
+                                                />
                                             ) : (
-                                                `Retry (Attempt ${Math.min(3, faceAttempts + 1)}/3)`
+                                                <p className="text-sm text-[#FF6B82]" role="alert">
+                                                    Captcha protection is not configured. Please contact support.
+                                                </p>
                                             )}
-                                        </Button>
+                                        </div>
+                                    )}
+
+                                    <Button
+                                        type="submit"
+                                        disabled={isLoading || (isTurnstileEnabled && (!turnstileSiteKey || !captchaToken))}
+                                        className="w-full h-12 bg-[#5B6CF0] hover:bg-[#4F5FE0] text-white font-bold text-sm border-0 transition-all hover:scale-[1.01] active:scale-[0.99] hover:shadow-[0_15px_30px_-5px_rgba(91,108,240,0.5)] flex items-center justify-center gap-3 group/btn rounded-[1.25rem]"
+                                    >
+                                        {isLoading ? (
+                                            <>
+                                                <Loader2 className="h-4 w-4 animate-spin" />
+                                                <span>Initiating Handshake...</span>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <span>Establish Connection</span>
+                                                <ArrowRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
+                                            </>
+                                        )}
+                                    </Button>
+                                </form>
+
+                                {/* Face ID Sign In Section */}
+                                <div className="border-t border-white/10 pt-5">
+                                    {!isFaceLoginOpen ? (
                                         <Button
                                             type="button"
                                             variant="outline"
-                                            disabled={isFaceBusy}
-                                            className="border-white/10 bg-[#1B253B]/50 text-xs h-10"
+                                            className="w-full h-12 rounded-[1rem] border-white/10 bg-[#1B253B]/40 text-[#ECF0F7] hover:bg-[#24304A] font-semibold text-xs flex items-center justify-center gap-2"
                                             onClick={() => {
-                                                stopFaceCamera();
-                                                setFaceMode(null);
-                                                document.getElementById("password")?.focus();
+                                                setIsFaceLoginOpen(true);
+                                                startFaceCamera();
                                             }}
                                         >
-                                            Use Password
+                                            <ScanFace className="size-4 text-[#36DDAB]" />
+                                            Face ID Sign In (Instant Scan)
                                         </Button>
-                                    </div>
-                                </div>
-                            )}
-
-                            {/* Face Registration Mode */}
-                            {faceMode === "register" && (
-                                <div className="space-y-3.5 rounded-[1rem] border border-[#36DDAB]/40 bg-[#0B1220]/95 p-4 shadow-2xl max-h-[85vh] overflow-y-auto">
-                                    <div className="flex items-center justify-between border-b border-white/10 pb-3">
-                                        <div className="flex items-center gap-2.5">
-                                            <div className="flex size-8 items-center justify-center rounded-lg bg-[#36DDAB]/10 text-[#36DDAB]">
-                                                <UserPlus className="size-4" />
+                                    ) : (
+                                        <div className="space-y-3 rounded-[1rem] border border-[#5B6CF0]/40 bg-[#0B1220]/95 p-3.5 shadow-xl">
+                                            <div className="flex items-center justify-between">
+                                                <div className="flex items-center gap-2">
+                                                    <ScanFace className="size-4 text-[#36DDAB]" />
+                                                    <p className="text-sm font-semibold text-white">Face ID Sign In</p>
+                                                </div>
+                                                <span className="text-[11px] font-mono text-[#8B99B0]">
+                                                    Attempt: <strong className={faceAttempts >= 2 ? "text-[#FF6B82]" : "text-[#36DDAB]"}>{faceAttempts}/3</strong>
+                                                </span>
                                             </div>
-                                            <div>
-                                                <p className="text-sm font-semibold text-[#ECF0F7]">Create Account</p>
-                                                <p className="text-[11px] text-[#8B99B0]">Biometric-enrolled identity provisioning</p>
+
+                                            <div className="relative overflow-hidden rounded-xl bg-black aspect-video border border-white/10">
+                                                <video ref={videoRef} autoPlay muted playsInline className="h-full w-full -scale-x-100 object-cover" />
+                                                <canvas ref={canvasRef} className="hidden" />
+
+                                                {isFaceAutoScanning && (
+                                                    <div className="absolute inset-0 bg-[#5B6CF0]/10 flex flex-col items-center justify-center backdrop-blur-[1px]">
+                                                        <div className="size-16 rounded-full border-2 border-[#5B6CF0] border-t-transparent animate-spin mb-2" />
+                                                        <span className="text-xs font-semibold text-white bg-black/60 px-3 py-1 rounded-full border border-white/10">
+                                                            Scanning face automatically...
+                                                        </span>
+                                                    </div>
+                                                )}
+                                            </div>
+
+                                            <div className="text-center text-xs text-[#8B99B0]">
+                                                {isFaceAutoScanning ? (
+                                                     <span className="text-[#36DDAB]">Hold still and look directly into the camera</span>
+                                                ) : faceAttempts > 0 ? (
+                                                    <span className="text-[#FF6B82]">
+                                                        Face did not match. Select Retry or use your password.
+                                                    </span>
+                                                ) : (
+                                                    <span>Look directly at the camera to automatically scan and sign in.</span>
+                                                )}
+                                            </div>
+
+                                            <div className="grid grid-cols-2 gap-2">
+                                                <Button
+                                                    type="button"
+                                                    disabled={isFaceBusy}
+                                                    className="bg-[#5B6CF0] hover:bg-[#4F5FE0] text-white text-xs font-semibold h-10"
+                                                    onClick={() => triggerAutoFaceLogin(faceAttempts + 1)}
+                                                >
+                                                    {isFaceBusy ? (
+                                                        <Loader2 className="animate-spin size-4" />
+                                                    ) : (
+                                                        `Retry (Attempt ${Math.min(3, faceAttempts + 1)}/3)`
+                                                    )}
+                                                </Button>
+                                                <Button
+                                                    type="button"
+                                                    variant="outline"
+                                                    disabled={isFaceBusy}
+                                                    className="border-white/10 bg-[#1B253B]/50 text-xs h-10"
+                                                    onClick={() => {
+                                                        stopFaceCamera();
+                                                        setIsFaceLoginOpen(false);
+                                                        document.getElementById("password")?.focus();
+                                                    }}
+                                                >
+                                                    Use Password
+                                                </Button>
                                             </div>
                                         </div>
-                                        <button type="button" onClick={closeFaceRegister} aria-label="Close" className="rounded-lg p-1.5 text-[#8B99B0] hover:bg-white/10 hover:text-white transition-colors">
-                                            <X className="size-4" />
-                                        </button>
-                                    </div>
+                                    )}
+                                </div>
 
-                                    {/* User Account Form Inputs */}
+                                <div className="text-center text-xs text-[#8B99B0] pt-2">
+                                    Don&apos;t have an account yet?{" "}
+                                    <button
+                                        type="button"
+                                        onClick={() => handleTabChange("register")}
+                                        className="text-[#36DDAB] font-semibold hover:underline ml-1"
+                                    >
+                                        Register with Face ID
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* TAB 2: REGISTER */}
+                        {activeTab === "register" && (
+                            <div className="space-y-5 animate-in fade-in duration-300">
+                                <div className="mb-4 text-center lg:text-left">
+                                    <h2 className="text-4xl font-semibold font-display text-[#ECF0F7] mb-2 tracking-tight">
+                                        Create Account
+                                    </h2>
+                                    <p className="text-[#8B99B0] text-base font-light">
+                                        Provision a new biometric-verified user identity.
+                                    </p>
+                                </div>
+
+                                <div className="space-y-4 rounded-2xl border border-[#36DDAB]/30 bg-[#0B1220]/75 p-4 backdrop-blur-md shadow-xl">
+                                    {/* Credentials Inputs */}
                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                         <div className="space-y-1.5 sm:col-span-2">
-                                            <Label htmlFor="registration-name" className="text-[11px] font-bold uppercase tracking-[0.12em] text-[#8B99B0]">
+                                            <Label htmlFor="reg-name" className="text-[11px] font-bold uppercase tracking-[0.12em] text-[#8B99B0]">
                                                 Full Name <span className="text-[#36DDAB]">*</span>
                                             </Label>
                                             <Input
-                                                id="registration-name"
+                                                id="reg-name"
                                                 value={registrationName}
-                                                onChange={(event) => setRegistrationName(event.target.value)}
+                                                onChange={(e) => setRegistrationName(e.target.value)}
                                                 placeholder="e.g. Tran Van A"
-                                                className="h-10 border-white/10 bg-[#1B253B]/60 text-xs text-[#ECF0F7] placeholder:text-[#56627A] focus:border-[#36DDAB]"
+                                                className="h-10 border-white/10 bg-[#1B253B]/60 text-xs text-[#ECF0F7] placeholder:text-[#56627A] focus:border-[#36DDAB] rounded-xl"
                                             />
                                         </div>
 
                                         <div className="space-y-1.5 sm:col-span-2">
-                                            <Label htmlFor="registration-email" className="text-[11px] font-bold uppercase tracking-[0.12em] text-[#8B99B0]">
+                                            <Label htmlFor="reg-email" className="text-[11px] font-bold uppercase tracking-[0.12em] text-[#8B99B0]">
                                                 Email Address <span className="text-[#36DDAB]">*</span>
                                             </Label>
                                             <Input
-                                                id="registration-email"
+                                                id="reg-email"
                                                 type="email"
                                                 value={registrationEmail}
-                                                onChange={(event) => setRegistrationEmail(event.target.value)}
+                                                onChange={(e) => setRegistrationEmail(e.target.value)}
                                                 placeholder="name@company.com"
-                                                className="h-10 border-white/10 bg-[#1B253B]/60 text-xs text-[#ECF0F7] placeholder:text-[#56627A] focus:border-[#36DDAB]"
+                                                className="h-10 border-white/10 bg-[#1B253B]/60 text-xs text-[#ECF0F7] placeholder:text-[#56627A] focus:border-[#36DDAB] rounded-xl"
                                             />
                                         </div>
 
                                         <div className="space-y-1.5">
                                             <div className="flex items-center justify-between">
-                                                <Label htmlFor="registration-password" className="text-[11px] font-bold uppercase tracking-[0.12em] text-[#8B99B0]">
+                                                <Label htmlFor="reg-password" className="text-[11px] font-bold uppercase tracking-[0.12em] text-[#8B99B0]">
                                                     Password <span className="text-[#36DDAB]">*</span>
                                                 </Label>
                                                 <button
@@ -738,26 +783,26 @@ export default function LoginPage() {
                                                 </button>
                                             </div>
                                             <Input
-                                                id="registration-password"
+                                                id="reg-password"
                                                 type={showRegPassword ? "text" : "password"}
                                                 value={registrationPassword}
-                                                onChange={(event) => setRegistrationPassword(event.target.value)}
+                                                onChange={(e) => setRegistrationPassword(e.target.value)}
                                                 placeholder="Min. 6 characters"
-                                                className="h-10 border-white/10 bg-[#1B253B]/60 text-xs text-[#ECF0F7] placeholder:text-[#56627A] focus:border-[#36DDAB]"
+                                                className="h-10 border-white/10 bg-[#1B253B]/60 text-xs text-[#ECF0F7] placeholder:text-[#56627A] focus:border-[#36DDAB] rounded-xl"
                                             />
                                         </div>
 
                                         <div className="space-y-1.5">
-                                            <Label htmlFor="registration-confirm-password" className="text-[11px] font-bold uppercase tracking-[0.12em] text-[#8B99B0]">
+                                            <Label htmlFor="reg-confirm-password" className="text-[11px] font-bold uppercase tracking-[0.12em] text-[#8B99B0]">
                                                 Confirm Password <span className="text-[#36DDAB]">*</span>
                                             </Label>
                                             <Input
-                                                id="registration-confirm-password"
+                                                id="reg-confirm-password"
                                                 type={showRegPassword ? "text" : "password"}
                                                 value={registrationConfirmPassword}
-                                                onChange={(event) => setRegistrationConfirmPassword(event.target.value)}
+                                                onChange={(e) => setRegistrationConfirmPassword(e.target.value)}
                                                 placeholder="Re-enter password"
-                                                className={`h-10 border-white/10 bg-[#1B253B]/60 text-xs text-[#ECF0F7] placeholder:text-[#56627A] focus:border-[#36DDAB] ${
+                                                className={`h-10 border-white/10 bg-[#1B253B]/60 text-xs text-[#ECF0F7] placeholder:text-[#56627A] focus:border-[#36DDAB] rounded-xl ${
                                                     registrationConfirmPassword && registrationPassword !== registrationConfirmPassword
                                                         ? "border-rose-500/60 focus:border-rose-500"
                                                         : ""
@@ -766,21 +811,20 @@ export default function LoginPage() {
                                         </div>
                                     </div>
 
-                                    {/* Face Biometric Enrollment Section */}
+                                    {/* Biometric Face Capture Section */}
                                     <div className="border-t border-white/10 pt-3 space-y-3">
                                         <div className="flex items-center justify-between">
                                             <div>
                                                 <Label className="text-[11px] font-bold uppercase tracking-[0.12em] text-[#36DDAB]">
                                                     Biometric Face Enrollment
                                                 </Label>
-                                                <p className="text-[10px] text-[#8B99B0]">6 distinct facial angles required</p>
+                                                <p className="text-[10px] text-[#8B99B0]">All 6 facial angles mandatory</p>
                                             </div>
-                                            <span className="text-[11px] font-mono font-semibold px-2 py-0.5 rounded bg-[#36DDAB]/10 text-[#36DDAB]">
-                                                {regCaptures.filter(Boolean).length}/6
+                                            <span className="text-[11px] font-mono font-bold px-2.5 py-0.5 rounded-lg bg-[#36DDAB]/10 text-[#36DDAB] border border-[#36DDAB]/20">
+                                                {regCaptures.filter(Boolean).length}/6 Angles
                                             </span>
                                         </div>
 
-                                        {/* 1-Touch 3-Second Auto Capture Action Bar */}
                                         {!isAutoCapturing ? (
                                             <Button
                                                 type="button"
@@ -801,16 +845,13 @@ export default function LoginPage() {
                                             </Button>
                                         )}
 
-                                        {/* Camera preview with countdown overlay */}
                                         <div className="relative overflow-hidden rounded-xl bg-black aspect-video border border-white/10">
                                             <video ref={regVideoRef} autoPlay muted playsInline className="h-full w-full -scale-x-100 object-cover" />
                                             <canvas ref={regCanvasRef} className="hidden" />
 
-                                            {/* Auto-countdown overlay */}
                                             {isAutoCapturing && autoCountdown !== null && (
                                                 <div className="absolute inset-0 bg-black/40 flex flex-col items-center justify-between p-3 pointer-events-none">
-                                                    {/* Top angle label */}
-                                                    <div className="bg-black/75 px-3 py-1.5 rounded-full border border-white/20 text-center">
+                                                    <div className="bg-black/80 px-3.5 py-1.5 rounded-full border border-white/20 text-center">
                                                         <p className="text-xs font-bold text-[#36DDAB]">
                                                             Angle {regActiveAngle + 1}/6: {REG_ANGLES_DETAIL[regActiveAngle]?.name}
                                                         </p>
@@ -819,26 +860,23 @@ export default function LoginPage() {
                                                         </p>
                                                     </div>
 
-                                                    {/* Giant animated countdown circle */}
                                                     <div className="size-16 rounded-full bg-[#36DDAB]/20 border-2 border-[#36DDAB] flex items-center justify-center animate-pulse">
                                                         <span className="font-mono text-3xl font-black text-white">
                                                             {autoCountdown > 0 ? autoCountdown : "📸"}
                                                         </span>
                                                     </div>
 
-                                                    {/* Bottom notice */}
-                                                    <div className="bg-black/70 px-2.5 py-1 rounded-md text-[10px] text-[#8B99B0]">
-                                                        Capturing automatically after three seconds, then moving to the next angle...
+                                                    <div className="bg-black/80 px-3 py-1 rounded-md text-[10px] text-[#8B99B0]">
+                                                        Capturing automatically after 3s, then switching to next angle...
                                                     </div>
                                                 </div>
                                             )}
                                         </div>
 
-                                        {/* Manual controls fallback */}
                                         <div className="flex items-center justify-between gap-2 text-xs">
                                             {!regCameraOn ? (
                                                 <Button type="button" size="sm" variant="outline" className="border-white/10 text-xs h-8" onClick={startRegCamera}>
-                                                    <Camera className="mr-1 size-3.5" /> Open Camera
+                                                    <Camera className="mr-1.5 size-3.5" /> Open Camera
                                                 </Button>
                                             ) : (
                                                 <Button type="button" size="sm" variant="outline" className="border-white/10 text-xs h-8" onClick={stopRegCamera}>
@@ -853,11 +891,10 @@ export default function LoginPage() {
                                                 className="text-xs h-8"
                                                 onClick={captureRegAngle}
                                             >
-                                                <Camera className="mr-1 size-3.5" /> Manual Capture ({REG_ANGLES[regActiveAngle]})
+                                                <Camera className="mr-1.5 size-3.5" /> Manual Capture ({REG_ANGLES[regActiveAngle]})
                                             </Button>
                                         </div>
 
-                                        {/* Angle thumbnails */}
                                         <div className="grid grid-cols-3 gap-2">
                                             {REG_ANGLES.map((angle, index) => (
                                                 <button
@@ -886,10 +923,9 @@ export default function LoginPage() {
                                         </div>
                                     </div>
 
-                                    {/* Submit registration */}
                                     <Button
                                         type="button"
-                                        className="w-full bg-[#36DDAB] hover:bg-[#2ec596] text-[#0B1220] font-semibold text-xs h-11 rounded-xl shadow-lg shadow-[#36DDAB]/20 mt-2"
+                                        className="w-full bg-[#36DDAB] hover:bg-[#2ec596] text-[#0B1220] font-bold text-sm h-12 rounded-xl shadow-lg shadow-[#36DDAB]/25 mt-2"
                                         disabled={
                                             isRegBusy ||
                                             !registrationName.trim() ||
@@ -901,11 +937,22 @@ export default function LoginPage() {
                                         onClick={submitFaceRegistration}
                                     >
                                         {isRegBusy ? <Loader2 className="animate-spin mr-2 size-4" /> : <Check className="mr-2 size-4" />}
-                                        Create Account ({regCaptures.filter(Boolean).length}/6)
+                                        Create Account ({regCaptures.filter(Boolean).length}/6 Angles)
                                     </Button>
                                 </div>
-                            )}
-                        </div>
+
+                                <div className="text-center text-xs text-[#8B99B0] pt-2">
+                                    Already have an account?{" "}
+                                    <button
+                                        type="button"
+                                        onClick={() => handleTabChange("signin")}
+                                        className="text-[#5B6CF0] font-semibold hover:underline ml-1"
+                                    >
+                                        Sign in to your account
+                                    </button>
+                                </div>
+                            </div>
+                        )}
                     </FadeIn>
                 </div>
             </div>
