@@ -1,7 +1,7 @@
 ---
 type: architecture
 status: active
-updated: 2026-08-27
+updated: 2026-09-02
 links:
   - README.md
   - prd.md
@@ -62,6 +62,7 @@ Candidate / Employee / HR / Interviewer / Manager / Admin
 | Shared contracts | [`Frontend/src/types`](../../Frontend/src/types) |
 | Route-level session protection | [`Frontend/src/middleware.ts`](../../Frontend/src/middleware.ts) |
 | Database/RLS/storage evolution | [`Backend/supabase/migrations`](../../Backend/supabase/migrations) |
+| Schema contract vs live/staging | [`Backend/README.md`](../../Backend/README.md) |
 | Edge processing | [`Backend/supabase/functions`](../../Backend/supabase/functions) |
 | Frontend runtime/dependencies | [`Frontend/package.json`](../../Frontend/package.json) |
 | Container artifact | [`Frontend/Dockerfile`](../../Frontend/Dockerfile), [`docker-compose.yml`](../../docker-compose.yml) |

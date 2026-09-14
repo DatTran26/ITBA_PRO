@@ -7,8 +7,8 @@ node_modules
 .history
 .vscode
 .env
-.env.local
-.env.production
+.env.*
+!.env.example
 README.md
 docs
 plans

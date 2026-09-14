@@ -1,7 +1,7 @@
 ---
 type: documentation-index
 status: active
-updated: 2026-08-27
+updated: 2026-09-02
 links:
   - prd.md
   - architecture.md
@@ -9,6 +9,7 @@ links:
   - operations.md
   - security.md
   - ../_reverse/README.md
+  - ../../Backend/README.md
 ---
 
 # Downtown — bộ tài liệu chuẩn của Town Hown
@@ -28,6 +29,7 @@ kỹ thuật.
 | [Vận hành](operations.md) | Build, release, deploy hoặc xử lý incident | Runtime contract, migration, rollback, runbook |
 | [Bảo mật](security.md) | Xử lý quyền, dữ liệu nhạy cảm, AI hoặc sự cố | Trust boundaries và security policy |
 | [SRS tái lập từ code](../_reverse/README.md) | Truy nguyên requirement về source/schema | Reverse drafts, flows, states, ERD, use cases, gaps và evidence |
+| [Schema Backend](../../Backend/README.md) | Đối chiếu bảng/bucket git với live/staging | Inventory object và lệch còn lại (không phải WHY sản phẩm) |
 
 ## Authority
 
@@ -44,6 +46,8 @@ kỹ thuật.
 - `docs/_reverse` là evidence draft sinh từ code, chưa phải baseline business.
   Chỉ sau review/formalization mới đưa feature vào `docs/features` và dùng
   `doc-drift --strict`.
+- [`../../Backend/README.md`](../../Backend/README.md) sở hữu inventory bảng,
+  bucket và lệch git ↔ live/staging; downtown không đếm table.
 
 ## Cách duy trì
 

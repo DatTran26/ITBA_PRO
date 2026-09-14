@@ -1,0 +1,15 @@
+# Cloudflare Origin CA for orange-cloud + Full (strict).
+# Copy to /opt/traefik/dynamic/origin-tls.yml after the PEMs exist:
+#   /opt/traefik/certs/wpcteam.shop.crt
+#   /opt/traefik/certs/wpcteam.shop.key
+# Never commit those PEMs. Requires providers.file in traefik.yml.
+
+tls:
+  stores:
+    default:
+      defaultCertificate:
+        certFile: /etc/traefik/certs/wpcteam.shop.crt
+        keyFile: /etc/traefik/certs/wpcteam.shop.key
+  certificates:
+    - certFile: /etc/traefik/certs/wpcteam.shop.crt
+      keyFile: /etc/traefik/certs/wpcteam.shop.key
