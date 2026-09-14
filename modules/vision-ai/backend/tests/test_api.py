@@ -8,7 +8,7 @@ from fastapi.testclient import TestClient
 from PIL import Image
 
 from app.main import app
-from app.services import verify_face
+from app.services import _resolve_behavior_model_path, verify_face
 
 client = TestClient(app)
 
@@ -76,6 +76,11 @@ def test_behavior_detect_returns_503_when_weights_missing():
     with patch("app.main.detect_behaviors", side_effect=FileNotFoundError("Behavior weights missing")):
         response = client.post("/api/behavior/detect", files={"image": upload()})
     assert response.status_code == 503
+
+
+def test_behavior_model_path_accepts_copied_quotes(tmp_path: Path):
+    model_path = tmp_path / "behavior.pt"
+    assert _resolve_behavior_model_path(f'  "{model_path}"  ') == model_path
 
 
 def test_enroll_rejects_path_traversal():

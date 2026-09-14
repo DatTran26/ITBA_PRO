@@ -65,7 +65,7 @@ def verify_face(
 def _resolve_behavior_model_path(model_path: str | None) -> Path:
     if not model_path:
         return Path(BEHAVIOR_MODEL_PATH)
-    path = Path(os.path.expandvars(model_path)).expanduser()
+    path = Path(os.path.expandvars(model_path.strip().strip('"').strip("'"))).expanduser()
     return path if path.is_absolute() else (SRC_ROOT / path).resolve()
 
 
