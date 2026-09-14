@@ -11,13 +11,20 @@ export async function GET() {
   const ctx = await getAuthContext();
   if (isAuthError(ctx)) return ctx;
   if (!canManageVision(ctx.role)) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-  const { data, error } = await createAdminClient()
-    .from("violation_alerts")
-    .select("*")
-    .order("detected_at", { ascending: false })
-    .limit(100);
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-  return NextResponse.json({ alerts: data ?? [] });
+  try {
+    const { data, error } = await createAdminClient()
+      .from("violation_alerts")
+      .select("*")
+      .order("detected_at", { ascending: false })
+      .limit(100);
+    if (error) throw error;
+    return NextResponse.json({ alerts: data ?? [] });
+  } catch {
+    return NextResponse.json({
+      alerts: [],
+      warning: "Alert history is unavailable until Supabase server credentials are configured",
+    });
+  }
 }
 
 export async function POST(request: Request) {
