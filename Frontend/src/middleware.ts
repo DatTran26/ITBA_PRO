@@ -2,6 +2,11 @@ import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
 export async function middleware(request: NextRequest) {
+    const pathname = request.nextUrl.pathname
+    if (pathname === '/api/health' || pathname === '/api/health/') {
+        return NextResponse.next()
+    }
+
     let supabaseResponse = NextResponse.next({
         request,
     })
@@ -39,8 +44,6 @@ export async function middleware(request: NextRequest) {
     const {
         data: { user },
     } = await supabase.auth.getUser()
-
-    const pathname = request.nextUrl.pathname
 
     // Public routes that don't require authentication
     const publicRoutes = ['/login', '/reset-password', '/test/']

@@ -16,6 +16,7 @@ import {
     Send,
     ScrollText,
     Database,
+    ScanText,
 } from "lucide-react";
 
 /**
@@ -81,6 +82,7 @@ export const NAV_GROUPS: NavGroup[] = [
             { href: "/dashboard/recruitment/report", label: "Report", icon: FileText, allowedRoles: ["hr", "interviewer", "admin", "super_admin"] as UserRole[] },
             { href: "/dashboard/recruitment/settings", label: "Settings", icon: Settings, allowedRoles: ["hr", "interviewer", "admin", "super_admin"] as UserRole[] },
             { href: "/dashboard/question-bank", label: "Question Bank", icon: Database, allowedRoles: ["leader", "admin", "super_admin"] as UserRole[] },
+            { href: "/dashboard/ocr", label: "Vision OCR", icon: ScanText, allowedRoles: ["hr", "interviewer", "leader", "admin", "super_admin"] as UserRole[] },
         ],
         allowedRoles: ["hr", "interviewer", "leader", "admin", "super_admin"],
         accentColor: "#7C8FFF",

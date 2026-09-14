@@ -1,0 +1,25 @@
+# Optional: DNS-only (grey cloud) hosts that need Let's Encrypt on the VPS.
+# Not used for production.wpcteam.shop / staging.wpcteam.shop while they stay
+# Cloudflare-proxied. Same Host() as docker-compose.traefik.yml would clash.
+
+services:
+  web:
+    networks:
+      - default
+      - traefik-public
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=traefik-public
+      - traefik.http.routers.${COMPOSE_PROJECT_NAME}.rule=Host(`${TRAEFIK_HOST}`)
+      - traefik.http.routers.${COMPOSE_PROJECT_NAME}.entrypoints=websecure
+      - traefik.http.routers.${COMPOSE_PROJECT_NAME}.tls.certresolver=letsencrypt
+      - traefik.http.services.${COMPOSE_PROJECT_NAME}.loadbalancer.server.port=3000
+      - traefik.http.routers.${COMPOSE_PROJECT_NAME}-http.rule=Host(`${TRAEFIK_HOST}`)
+      - traefik.http.routers.${COMPOSE_PROJECT_NAME}-http.entrypoints=web
+      - traefik.http.routers.${COMPOSE_PROJECT_NAME}-http.middlewares=${COMPOSE_PROJECT_NAME}-https
+      - traefik.http.middlewares.${COMPOSE_PROJECT_NAME}-https.redirectscheme.scheme=https
+      - traefik.http.middlewares.${COMPOSE_PROJECT_NAME}-https.redirectscheme.permanent=true
+
+networks:
+  traefik-public:
+    external: true

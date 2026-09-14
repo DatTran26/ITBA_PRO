@@ -15,3 +15,5 @@
 - `Backend/supabase/migrations/20260419000000_recruitment_schema.sql:51` — applications.
 - `Backend/supabase/migrations/20260419000000_recruitment_schema.sql:108` — schedules.
 - `Backend/supabase/migrations/20260419000001_recruitment_rls.sql:8` — RLS matrix.
+- `Backend/supabase/migrations/20260506000000_interview_sessions.sql:4` — sessions.
+- `Backend/supabase/migrations/20260508012639_session_level_test_interview_room.sql:9` — session interviewers.
