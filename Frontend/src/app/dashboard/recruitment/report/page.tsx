@@ -12,6 +12,10 @@ export default async function RecruitmentReportPage() {
   const { data: profile } = await supabase
     .from("users").select("name, email, role").eq("auth_id", user.id).single();
 
+  if (!profile || !["hr", "admin", "super_admin"].includes(profile.role ?? "")) {
+    redirect("/dashboard/recruitment");
+  }
+
   return (
     <div className="min-h-screen bg-[#0A1120]">
       <AppNavbar
