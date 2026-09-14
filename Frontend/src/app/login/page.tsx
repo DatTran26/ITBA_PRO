@@ -11,7 +11,7 @@ import { PageTransition, FadeIn } from "@/components/ui/motion-wrapper";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader2, ArrowRight, Fingerprint, ScanFace, Camera, Check, X } from "lucide-react";
+import { Loader2, ArrowRight, Fingerprint, ScanFace, Camera, Check, X, UserPlus } from "lucide-react";
 import { Turnstile, type TurnstileInstance } from "@marsidev/react-turnstile";
 import Link from "next/link";
 import Image from "next/image";
@@ -46,6 +46,7 @@ export default function LoginPage() {
     const [regActiveAngle, setRegActiveAngle] = useState(0);
     const [isRegBusy, setIsRegBusy] = useState(false);
     const [regCameraOn, setRegCameraOn] = useState(false);
+    const [registrationName, setRegistrationName] = useState("");
 
     // 1-touch 3s auto-capture state
     const [isAutoCapturing, setIsAutoCapturing] = useState(false);
@@ -246,6 +247,7 @@ export default function LoginPage() {
         regCaptures.forEach((c) => c && URL.revokeObjectURL(c.url));
         setRegCaptures(REG_ANGLES.map(() => null));
         setRegActiveAngle(0);
+        setRegistrationName("");
         setFaceMode(null);
     }
 
@@ -287,10 +289,7 @@ export default function LoginPage() {
             setIsAutoCapturing(false);
             autoCapturingRef.current = false;
             setAutoCountdown(null);
-            toast.success("All six angles captured. Saving automatically...");
-            window.setTimeout(() => {
-                void submitFaceRegistration();
-            }, 600);
+            toast.success("All six angles captured. Select Create Account to finish.");
             return;
         }
 
@@ -355,10 +354,19 @@ export default function LoginPage() {
     }
 
     async function submitFaceRegistration() {
+        const name = registrationName.trim();
         const email = getValues("email")?.trim();
         const password = getValues("password");
+        if (!name) {
+            toast.error("Enter your full name before registering.");
+            return;
+        }
         if (!email) {
-            toast.error("Enter your email before registering your face.");
+            toast.error("Enter your email before registering.");
+            return;
+        }
+        if (!password || password.length < 6) {
+            toast.error("Enter a password containing at least 6 characters.");
             return;
         }
         if (regCaptures.some((c) => !c)) {
@@ -368,16 +376,17 @@ export default function LoginPage() {
         setIsRegBusy(true);
         try {
             const body = new FormData();
+            body.append("name", name);
             body.append("email", email);
-            if (password) body.append("password", password);
+            body.append("password", password);
             regCaptures.forEach((c) => body.append("images", c!.file));
-            const response = await fetch("/api/face-register", { method: "POST", body });
+            const response = await fetch("/api/register", { method: "POST", body });
             const data = await readApiResponse<{ ok?: boolean; error?: string; message?: string }>(response);
-            if (!response.ok) throw new Error(data.error ?? "Face registration failed");
-            toast.success(data.message ?? "Face registered successfully!");
+            if (!response.ok) throw new Error(data.error ?? "Account registration failed");
+            toast.success(data.message ?? "Account created successfully!");
             closeFaceRegister();
         } catch (error) {
-            toast.error(error instanceof Error ? error.message : "Face registration failed");
+            toast.error(error instanceof Error ? error.message : "Account registration failed");
         } finally {
             setIsRegBusy(false);
         }
@@ -536,7 +545,7 @@ export default function LoginPage() {
                             </Button>
                         </form>
 
-                        {/* Face Login & Registration Section */}
+                        {/* Face sign-in and mandatory biometric account registration */}
                         <div className="mt-5 border-t border-white/10 pt-5">
                             {faceMode === null && !isFaceLoginOpen && (
                                 <div className="grid grid-cols-2 gap-2">
@@ -546,7 +555,7 @@ export default function LoginPage() {
                                         className="h-12 rounded-[1rem] border-white/10 bg-[#1B253B]/40 text-[#ECF0F7] hover:bg-[#24304A]"
                                         onClick={() => { setFaceMode("login"); startFaceCamera(); }}
                                     >
-                                        <Fingerprint className="mr-2 h-4 w-4 text-[#5B6CF0]" />
+                                        <Fingerprint className="mr-2 h-4 w-4 text-[#36DDAB]" />
                                         Face ID Sign In
                                     </Button>
                                     <Button
@@ -555,8 +564,8 @@ export default function LoginPage() {
                                         className="h-12 rounded-[1rem] border-white/10 bg-[#1B253B]/40 text-[#ECF0F7] hover:bg-[#24304A]"
                                         onClick={() => setFaceMode("register")}
                                     >
-                                        <ScanFace className="mr-2 h-4 w-4 text-[#36DDAB]" />
-                                        Register Face
+                                        <UserPlus className="mr-2 h-4 w-4 text-[#36DDAB]" />
+                                        Register Account
                                     </Button>
                                 </div>
                             )}
@@ -637,12 +646,25 @@ export default function LoginPage() {
                                 <div className="space-y-3.5 rounded-[1rem] border border-[#36DDAB]/40 bg-[#0B1220]/90 p-3.5 shadow-xl">
                                     <div className="flex items-center justify-between">
                                         <div className="flex items-center gap-2">
-                                            <ScanFace className="size-4 text-[#36DDAB]" />
-                                            <p className="text-sm font-semibold text-[#36DDAB]">Face Registration - Six Angles</p>
+                                            <UserPlus className="size-4 text-[#36DDAB]" />
+                                            <p className="text-sm font-semibold text-[#36DDAB]">Create Account</p>
                                         </div>
                                         <button type="button" onClick={closeFaceRegister} aria-label="Close" className="rounded p-1 hover:bg-white/10">
                                             <X className="size-4 text-[#8B99B0]" />
                                         </button>
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <Label htmlFor="registration-name" className="text-[11px] font-bold uppercase tracking-[0.15em] text-[#8B99B0]">
+                                            Full Name
+                                        </Label>
+                                        <Input
+                                            id="registration-name"
+                                            value={registrationName}
+                                            onChange={(event) => setRegistrationName(event.target.value)}
+                                            placeholder="Your profile name"
+                                            className="h-10 border-white/10 bg-[#1B253B]/60 text-[#ECF0F7]"
+                                        />
                                     </div>
 
                                     {/* 1-Touch 3-Second Auto Capture Action Bar */}
@@ -758,7 +780,7 @@ export default function LoginPage() {
                                         onClick={submitFaceRegistration}
                                     >
                                         {isRegBusy ? <Loader2 className="animate-spin mr-2 size-4" /> : <Check className="mr-2 size-4" />}
-                                        Complete Face Registration ({regCaptures.filter(Boolean).length}/6)
+                                        Create Account ({regCaptures.filter(Boolean).length}/6)
                                     </Button>
                                 </div>
                             )}

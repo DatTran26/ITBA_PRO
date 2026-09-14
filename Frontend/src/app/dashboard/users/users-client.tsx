@@ -73,6 +73,7 @@ const ROLE_OPTIONS = [
 ] as const;
 
 const ROLE_BADGE_CLASS: Record<string, string> = {
+    user: "bg-slate-500/10 text-slate-300 border-slate-500/20",
     super_admin: "bg-rose-500/10 text-rose-400 border-rose-500/20",
     admin: "bg-[#7C8FFF]/10 text-[#7C8FFF] border-[#7C8FFF]/20",
     leader: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20",
@@ -82,6 +83,7 @@ const ROLE_BADGE_CLASS: Record<string, string> = {
 };
 
 const ROLE_ACCESS_LABEL: Record<string, string> = {
+    user: "Awaiting Role Assignment",
     super_admin: "Root + Version Control",
     admin: "Full Admin",
     leader: "Question Bank + Team Control",
