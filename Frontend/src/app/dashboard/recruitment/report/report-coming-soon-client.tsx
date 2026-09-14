@@ -1,11 +1,13 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
+import { toast } from "sonner";
 import {
   BarChart3, TrendingUp, Users, Clock,
   Sparkles, Download, ArrowLeft, Construction,
-  Zap, Target, FileBarChart
+  Zap, Target, FileBarChart, Loader2
 } from "lucide-react";
 
 const PLANNED_FEATURES = [
@@ -29,6 +31,30 @@ const FLOAT_DOTS = [
 ];
 
 export default function ReportComingSoonClient() {
+  const [exporting, setExporting] = useState(false);
+
+  async function handleExportExcel() {
+    setExporting(true);
+    try {
+      const res = await fetch("/api/recruitment/report/export");
+      if (!res.ok) throw new Error("Export failed");
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `bao-cao-tuyen-dung-${new Date().toISOString().slice(0, 10)}.xlsx`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error("[ReportComingSoonClient] export:", err);
+      toast.error("Không thể xuất báo cáo Excel. Vui lòng thử lại.");
+    } finally {
+      setExporting(false);
+    }
+  }
+
   return (
     <div className="relative min-h-[calc(100vh-7rem)] flex flex-col items-center justify-start pb-16 overflow-hidden">
 
@@ -113,6 +139,19 @@ export default function ReportComingSoonClient() {
           <Target size={12} className="text-[#7C8FFF]" />
           Dự kiến ra mắt: <span className="text-[#ECF0F7] font-semibold ml-1">Q3 2026</span>
         </div>
+
+        <button
+          onClick={handleExportExcel}
+          disabled={exporting}
+          className="group mt-5 flex items-center gap-2.5 px-6 py-3 rounded-xl bg-gradient-to-r from-[#7C8FFF] to-[#B48EFF] text-white text-sm font-semibold shadow-lg shadow-[#7C8FFF]/20 hover:shadow-[#7C8FFF]/30 transition-shadow disabled:opacity-60 disabled:cursor-not-allowed"
+        >
+          {exporting ? (
+            <Loader2 size={16} className="animate-spin" />
+          ) : (
+            <Download size={16} className="group-hover:translate-y-0.5 transition-transform" />
+          )}
+          {exporting ? "Đang tạo báo cáo…" : "Xuất báo cáo Excel"}
+        </button>
       </motion.div>
 
       {/* ── Features Grid ── */}
