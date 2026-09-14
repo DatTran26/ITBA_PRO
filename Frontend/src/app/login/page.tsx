@@ -567,7 +567,7 @@ export default function LoginPage() {
                                     <div className="flex items-center justify-between">
                                         <div className="flex items-center gap-2">
                                             <Fingerprint className="size-4 text-[#7C8FFF]" />
-                                            <p className="text-sm font-semibold text-white">Đăng nhập Face ID</p>
+                                            <p className="text-sm font-semibold text-white">Face ID Sign In</p>
                                         </div>
                                         <span className="text-[11px] font-mono text-[#8B99B0]">
                                             Attempt: <strong className={faceAttempts >= 2 ? "text-[#FF6B82]" : "text-[#36DDAB]"}>{faceAttempts}/3</strong>
@@ -592,13 +592,13 @@ export default function LoginPage() {
 
                                     <div className="text-center text-xs text-[#8B99B0]">
                                         {isFaceAutoScanning ? (
-                                            <span className="text-[#36DDAB]">Giữ nguyên tư thế và nhìn thẳng vào camera</span>
+                                            <span className="text-[#36DDAB]">Hold still and look directly into the camera</span>
                                         ) : faceAttempts > 0 ? (
                                             <span className="text-[#FF6B82]">
                                                 Face did not match. Select Retry or use your password.
                                             </span>
                                         ) : (
-                                            <span>Nhìn thẳng vào camera để hệ thống tự động quét và đăng nhập.</span>
+                                            <span>Look directly at the camera to automatically scan and sign in.</span>
                                         )}
                                     </div>
 

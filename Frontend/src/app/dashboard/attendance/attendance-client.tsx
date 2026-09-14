@@ -113,12 +113,12 @@ export default function AttendanceClient() {
     try {
       const response = await fetch("/api/attendance", { method: "POST", body });
       const data = await readApiResponse<{ error?: string }>(response);
-      if (!response.ok) throw new Error(data.error ?? "Điểm danh không thành công");
-      toast.success(action === "check-in" ? "✓ Điểm danh VÀO (Check-in) thành công!" : "✓ Điểm danh RA (Check-out) thành công!");
+      if (!response.ok) throw new Error(data.error ?? "Attendance request failed");
+      toast.success(action === "check-in" ? "Check-in successful" : "Check-out successful");
       selectImage(null);
       await load();
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Điểm danh thất bại");
+      toast.error(error instanceof Error ? error.message : "Attendance failed");
     } finally {
       setBusy(false);
     }
@@ -134,7 +134,7 @@ export default function AttendanceClient() {
             <h1 className="font-display text-4xl font-light">Attendance</h1>
             <p className="mt-1 text-sm text-[#8B99B0]">Face attendance powered by ArcFace.</p>
           </div>
-          <Button variant="outline" size="icon" title="Làm mới" onClick={() => load()}><RefreshCw className="size-4" /></Button>
+          <Button variant="outline" size="icon" title="Refresh" onClick={() => load()}><RefreshCw className="size-4" /></Button>
         </div>
 
         {/* Sync Info Banner */}
@@ -162,26 +162,26 @@ export default function AttendanceClient() {
               <Input type="file" accept="image/png,image/jpeg,image/webp" capture="user" onChange={(event) => selectImage(event.target.files?.[0] ?? null)} />
               <div className="grid grid-cols-2 gap-2">
                 <Button disabled={(!image && !cameraOn) || busy} className="bg-emerald-600 hover:bg-emerald-500 text-white" onClick={() => record("check-in")}>
-                  <LogIn className="mr-1.5 size-4" /> Điểm danh Vào
+                  <LogIn className="mr-1.5 size-4" /> Check In
                 </Button>
                 <Button variant="outline" disabled={(!image && !cameraOn) || busy} className="border-white/15 hover:bg-white/10" onClick={() => record("check-out")}>
-                  <LogOut className="mr-1.5 size-4" /> Điểm danh Ra
+                  <LogOut className="mr-1.5 size-4" /> Check Out
                 </Button>
               </div>
             </CardContent>
           </Card>
           <Card className="rounded-lg bg-[#10192B]/80">
-            <CardHeader><CardTitle>Lịch sử điểm danh gần đây</CardTitle></CardHeader>
+            <CardHeader><CardTitle>Recent Attendance Sessions</CardTitle></CardHeader>
             <CardContent className="space-y-2">
-              {sessions.length === 0 && <p className="text-sm text-[#8B99B0]">Chưa có phiên điểm danh nào.</p>}
+              {sessions.length === 0 && <p className="text-sm text-[#8B99B0]">No attendance sessions yet.</p>}
               {sessions.map((session) => (
                 <div key={session.id} className="grid gap-2 border-b border-white/10 py-3 sm:grid-cols-[1fr_auto_auto]">
                   <div>
-                    <p className="font-medium">{session.users?.name ?? "Người dùng hiện tại"}</p>
+                    <p className="font-medium">{session.users?.name ?? "Current user"}</p>
                     <p className="text-xs text-[#8B99B0]">{new Date(session.check_in_at).toLocaleString()}</p>
                   </div>
                   <Badge variant={session.check_out_at ? "outline" : "default"}>{session.check_out_at ? "Completed" : "Active"}</Badge>
-                  <p className="text-xs text-[#8B99B0]">Vào: {(session.check_in_similarity * 100).toFixed(1)}%{session.check_out_similarity != null ? ` · Ra: ${(session.check_out_similarity * 100).toFixed(1)}%` : ""}</p>
+                  <p className="text-xs text-[#8B99B0]">In: {(session.check_in_similarity * 100).toFixed(1)}%{session.check_out_similarity != null ? ` · Out: ${(session.check_out_similarity * 100).toFixed(1)}%` : ""}</p>
                 </div>
               ))}
             </CardContent>
