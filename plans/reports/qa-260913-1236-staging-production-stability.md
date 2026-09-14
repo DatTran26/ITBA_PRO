@@ -88,3 +88,13 @@ The dead `kxpunppvqfxfqdwpqpmp` is the **superseded** staging project. The activ
 - Production project ref is `lhvdtmieaplxzqmpmupe` — a separate project, untouched.
 
 **Conclusion:** no restore was required. Staging is functional; blockers 1–5 stand for production only.
+
+## Re-verification 3 (2026-09-14, HEAD `5250e03`)
+
+- OCR module: `vitest run` 32/32 pass.
+- Staging web: `/`, `/login` 200; `/api/health` `{"ok":true}`.
+- Production web: `/` 200; `/api/health` `{"ok":true}`.
+- Anonymous `recruitment_dashboard` RPC against **production** (with anon key, no user session) still returns HTTP 200 with live funnel data — blocker 1 stands until the security migration is promoted.
+- Staging `recruitment_dashboard` keyless → 401 (API-key required); the function-level denial for key-holding anonymous callers was verified 09-13 (`permission denied`) and is unchanged — no new-`ref` anon key exists locally to re-run that variant.
+- **Doc fix:** `docs/downtown/operations.md` still listed the deleted `kxpunppvqfxfqdwpqpmp` as the staging project; updated to `mqwsulanzahqaiecnfwc`.
+- **New finding (local/VPS env drift):** `Frontend/.env.local` and `secrets/staging-wpcteam.env` still point at the deleted staging project, including its `SUPABASE_SERVICE_ROLE_KEY`. Server-side code reads that key at container runtime (`Frontend/src/lib/supabase/admin.ts`), so `/opt/ITBA-OCR/staging/.env` on the VPS should be confirmed updated to `mqwsulanzahqaiecnfwc` credentials — the GitHub `staging` environment is already correct and the deployed bundle works.
