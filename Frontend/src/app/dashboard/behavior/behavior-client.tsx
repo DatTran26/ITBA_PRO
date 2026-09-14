@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { readApiResponse } from "@/lib/api-response";
 
 type Alert = {
   id: string;
@@ -42,7 +43,7 @@ export default function BehaviorClient() {
 
   const load = useCallback(async () => {
     const response = await fetch("/api/behavior", { cache: "no-store" });
-    const data = await response.json();
+    const data = await readApiResponse<{ error?: string; alerts: Alert[] }>(response);
     if (!response.ok) throw new Error(data.error);
     setAlerts(data.alerts);
   }, []);
@@ -101,7 +102,7 @@ export default function BehaviorClient() {
 
     try {
       const response = await fetch("/api/behavior", { method: "POST", body });
-      const data = await response.json();
+      const data = await readApiResponse<{ error?: string; detections?: Detection[]; alerts: Alert[] }>(response);
       if (!response.ok) throw new Error(data.error ?? "Behavior scan failed");
       if (frameSize) setOverlay({ detections: data.detections ?? [], ...frameSize });
       if (!quiet) {
@@ -144,7 +145,7 @@ export default function BehaviorClient() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ decision }),
     });
-    const data = await response.json();
+    const data = await readApiResponse<{ error?: string }>(response);
     if (!response.ok) return toast.error(data.error ?? "Behavior review failed");
     toast.success(decision === "approved" ? "Violation approved" : "Alert rejected");
     await load();

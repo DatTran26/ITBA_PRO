@@ -11,6 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { readApiResponse } from "@/lib/api-response";
 
 type FaceUser = {
   id: string;
@@ -37,7 +38,7 @@ export default function FacesClient() {
 
   const load = useCallback(async () => {
     const response = await fetch("/api/face", { cache: "no-store" });
-    const data = await response.json();
+    const data = await readApiResponse<{ error?: string; users: FaceUser[] }>(response);
     if (!response.ok) throw new Error(data.error ?? "Unable to load face enrollments");
     setUsers(data.users);
   }, []);
@@ -108,7 +109,7 @@ export default function FacesClient() {
     captures.forEach((capture) => body.append("images", capture!.file));
     try {
       const response = await fetch("/api/face", { method: "POST", body });
-      const data = await response.json();
+      const data = await readApiResponse<{ error?: string }>(response);
       if (!response.ok) throw new Error(data.error ?? "Face enrollment failed");
       toast.success("Face enrollment saved");
       clearCaptures();
@@ -124,7 +125,7 @@ export default function FacesClient() {
     setBusy(true);
     try {
       const response = await fetch(`/api/face?userId=${encodeURIComponent(userId)}`, { method: "DELETE" });
-      const data = await response.json();
+      const data = await readApiResponse<{ error?: string }>(response);
       if (!response.ok) throw new Error(data.error ?? "Unable to delete face enrollment");
       toast.success("Face enrollment deleted");
       await load();

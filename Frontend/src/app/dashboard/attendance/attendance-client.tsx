@@ -11,6 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { readApiResponse } from "@/lib/api-response";
 
 type Session = {
   id: string;
@@ -34,7 +35,7 @@ export default function AttendanceClient() {
 
   const load = useCallback(async () => {
     const response = await fetch("/api/attendance", { cache: "no-store" });
-    const data = await response.json();
+    const data = await readApiResponse<{ error?: string; sessions: Session[] }>(response);
     if (!response.ok) throw new Error(data.error);
     setSessions(data.sessions);
   }, []);
@@ -93,7 +94,7 @@ export default function AttendanceClient() {
     body.append("image", image);
     try {
       const response = await fetch("/api/attendance", { method: "POST", body });
-      const data = await response.json();
+      const data = await readApiResponse<{ error?: string }>(response);
       if (!response.ok) throw new Error(data.error ?? "Attendance failed");
       toast.success(action === "check-in" ? "Checked in" : "Checked out");
       selectImage(null);
