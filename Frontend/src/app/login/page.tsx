@@ -555,7 +555,7 @@ export default function LoginPage() {
                                         className="h-12 rounded-[1rem] border-white/10 bg-[#1B253B]/40 text-[#ECF0F7] hover:bg-[#24304A]"
                                         onClick={() => { setFaceMode("login"); startFaceCamera(); }}
                                     >
-                                        <Fingerprint className="mr-2 h-4 w-4 text-[#36DDAB]" />
+                                        <ScanFace className="mr-2 h-4 w-4 text-[#36DDAB]" />
                                         Face ID Sign In
                                     </Button>
                                     <Button
@@ -575,7 +575,7 @@ export default function LoginPage() {
                                 <div className="space-y-3 rounded-[1rem] border border-[#5B6CF0]/40 bg-[#0B1220]/90 p-3.5 shadow-xl">
                                     <div className="flex items-center justify-between">
                                         <div className="flex items-center gap-2">
-                                            <Fingerprint className="size-4 text-[#7C8FFF]" />
+                                            <ScanFace className="size-4 text-[#36DDAB]" />
                                             <p className="text-sm font-semibold text-white">Face ID Sign In</p>
                                         </div>
                                         <span className="text-[11px] font-mono text-[#8B99B0]">
