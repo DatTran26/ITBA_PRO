@@ -227,3 +227,50 @@ erDiagram
   về audit store chung của `org-governance` là Assumption (spec Mục 11).
 - `ZONE` là entity của feature này (khu vực quan sát logic) — khác với đơn
   vị tổ chức `ORG_UNIT` mà nó thuộc về; không trùng khái niệm phòng ban.
+
+## develop-hieu physical tables and files
+
+The implemented behavior-monitoring slice maps to these concrete storage
+objects.
+
+### VIOLATION_RULE
+
+Configures a detectable workplace policy rule.
+
+- `rule_key`: smoking, empty_desk, phone_usage, unauthorized_access, or future
+  model-specific keys.
+- `label_set`: YOLO labels that should count for the rule.
+- `confidence_threshold`, `iou_threshold`: inference thresholds.
+- `enabled`: rule activation flag.
+- `metadata`: model/controller settings.
+
+### VIOLATION_ALERT
+
+Stores a candidate event that requires human review.
+
+- `track_id`: unique event identifier.
+- `rule_id`: references `VIOLATION_RULE`.
+- `user_id` / `profile_name`: monitored profile when configured.
+- `violation_type`, `severity`: normalized alert classification.
+- `camera_location` / `source`: monitor, camera index, or video source label.
+- `evidence_url` / `evidence_path`: saved evidence image path.
+- `detections_json`: bounding boxes, labels, confidence, and model metadata.
+- `status`: pending_review, approved, or rejected.
+- `reviewed_by`, `reviewed_at`, `review_note`: human review result.
+
+### VIOLATION_ACTION_LOG
+
+Stores the manager/admin decision trail for each alert.
+
+- `alert_id`: reviewed alert.
+- `action_by`: reviewer.
+- `action_type`: approve, reject, comment, or reopen.
+- `comment`: review note.
+- `created_at`: action time.
+
+### Local evidence files
+
+Evidence images and sibling metadata JSON files are written below
+`VIOLATION_DATA_DIR/Profile Name__userId/YYYY-MM-DD/`. The local file store is
+the evidence payload store; Supabase/Postgres stores the alert metadata and
+review state.

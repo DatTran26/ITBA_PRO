@@ -215,3 +215,46 @@ erDiagram
 - `WORK_EVENT.person_id` cho phép rỗng vì một số sự kiện quy trình chỉ thuộc
   phạm vi (`unit_id`) chứ không gắn cá nhân — tôn trọng nguyên tắc chỉ thu
   dữ liệu cần thiết.
+
+## develop-hieu physical additions
+
+The face-attendance implementation adds the following concrete tables around
+the generic workforce monitoring model.
+
+### ATTENDANCE_SHIFT
+
+Defines an expected working window.
+
+- `shift_code`, `name`: shift identity.
+- `start_time`, `end_time`: expected hours.
+- `grace_minutes`: late/early tolerance.
+- `is_active`: availability flag.
+
+### ATTENDANCE_SESSION
+
+Stores one biometric work session.
+
+- `user_id`: employee/profile being checked in.
+- `shift_id`: optional assigned shift.
+- `check_in_at`, `check_out_at`: session timestamps.
+- `check_in_method`, `check_out_method`: face or fallback method.
+- `check_in_similarity`, `check_out_similarity`: face verification scores.
+- `status`: open, completed, failed, or corrected.
+- `metadata`: capture/model context without raw image payloads.
+
+### ATTENDANCE_DAILY_SUMMARY
+
+Stores the daily aggregate for reporting.
+
+- `user_id`, `work_date`: summary key.
+- `first_check_in_at`, `last_check_out_at`: day bounds.
+- `worked_minutes`, `late_minutes`, `early_leave_minutes`: totals.
+- `status`: present, late, absent, incomplete, or corrected.
+- `metadata`: correction and calculation details.
+
+### Relationship to face enrollment
+
+`ATTENDANCE_SESSION` verification depends on registered embeddings from
+`USER_FACE_EMBEDDING`. Face enrollment is intentionally separate from
+attendance so a user can refresh biometric data without rewriting historical
+attendance records.
