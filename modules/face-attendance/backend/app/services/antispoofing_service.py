@@ -1,4 +1,4 @@
-import cv2
+﻿import cv2
 import numpy as np
 import logging
 from typing import List, Dict, Any, Tuple, Optional
@@ -7,9 +7,9 @@ logger = logging.getLogger("antispoofing_service")
 
 class AntiSpoofingService:
     """
-    D?ch v? Ch?ng gi? m?o k�p (Dual Anti-Spoofing):
-    1. AI/Texture Liveness: Ph�n t�ch k?t c?u da, vi?n ph?n x? �nh s�ng m�n h�nh/?nh in v� t?n s? pixel.
-    2. Motion & Landmark Liveness: �o ch? s? Eye Aspect Ratio (EAR) d? nh?n di?n ch?p m?t th?t v� vi chuy?n d?ng (Micro-motion).
+    Dịch vụ Chống giả mạo kép (Dual Anti-Spoofing):
+    1. AI/Texture Liveness: Phân tích kết cấu da, viền phản xạ ánh sáng màn hình/ảnh in và tần số pixel.
+    2. Motion & Landmark Liveness: Đo chỉ số Eye Aspect Ratio (EAR) để nhận diện chớp mắt thật và vi chuyển động (Micro-motion).
     """
 
     def __init__(self):
@@ -17,63 +17,63 @@ class AntiSpoofingService:
         self._try_load_onnx_model()
 
     def _try_load_onnx_model(self):
-        """N?u c� s?n file model ONNX (nhu MiniFASNet), kh?i t?o ONNX runtime session"""
+        """Nếu có sẵn file model ONNX (như MiniFASNet), khởi tạo ONNX runtime session"""
         try:
             import os
             import onnxruntime as ort
             model_path = os.getenv("ANTISPOOFING_MODEL_PATH", "models/antispoofing.onnx")
             if os.path.exists(model_path):
                 self.onnx_session = ort.InferenceSession(model_path, providers=["CPUExecutionProvider"])
-                logger.info(f"�� n?p model Anti-spoofing ONNX t? {model_path}")
+                logger.info(f"Đã nạp model Anti-spoofing ONNX từ {model_path}")
         except Exception as e:
-            logger.debug(f"Chua c?u h�nh ONNX model ri�ng ({e}), s? d?ng b? ph�n t�ch d?c trung quang h?c n�ng cao.")
+            logger.debug(f"Chưa cấu hình ONNX model riêng ({e}), sử dụng bộ phân tích đặc trưng quang học nâng cao.")
 
     # =========================================================================
-    # 1. PH�N T�CH TEXTURE & QUANG H?C (SILENT ANTI-SPOOFING)
+    # 1. PHÂN TÍCH TEXTURE & QUANG HỌC (SILENT ANTI-SPOOFING)
     # =========================================================================
     def analyze_texture_liveness(self, face_crop: np.ndarray) -> Dict[str, Any]:
         """
-        Ph�n t�ch t�nh ch?t da ngu?i th?t qua:
-        - Ph? t?n s? Laplacian (?nh in/m�n h�nh thu?ng c� nhi?u h?t scan ho?c v�n moir�)
-        - �? ph�n t�n m�u s?c trong kh�ng gian YCrCb & HSV (m� da ngu?i c� hi?n tu?ng t�n x? du?i da)
-        - �? ch�i ph?n x? d?c trung c?a m�n h�nh di?n t? (specular highlight)
+        Phân tích tính chất da người thật qua:
+        - Phổ tần số Laplacian (ảnh in/màn hình thường có nhiễu hạt scan hoặc vân moiré)
+        - Độ phân tán màu sắc trong không gian YCrCb & HSV (mô da người có hiện tượng tán xạ dưới da)
+        - Độ chói phản xạ đặc trưng của màn hình điện tử (specular highlight)
         """
         if face_crop is None or face_crop.size == 0:
-            return {"score": 0.0, "is_real": False, "reason": "?nh khu�n m?t r?ng."}
+            return {"score": 0.0, "is_real": False, "reason": "Ảnh khuôn mặt rỗng."}
 
-        # 1. Ph�n t�ch d? s?c n�t & v�n moir� qua Laplacian
+        # 1. Phân tích độ sắc nét & vân moiré qua Laplacian
         gray = cv2.cvtColor(face_crop, cv2.COLOR_BGR2GRAY)
         laplacian = cv2.Laplacian(gray, cv2.CV_64F)
         laplacian_var = float(laplacian.var())
 
-        # 2. Ph�n t�ch kh�ng gian m�u YCrCb (do d? phong ph� s?c t? da)
+        # 2. Phân tích không gian màu YCrCb (đo độ phong phú sắc tố da)
         ycrcb = cv2.cvtColor(face_crop, cv2.COLOR_BGR2YCrCb)
         _, cr, cb = cv2.split(ycrcb)
         cr_std = float(np.std(cr))
         cb_std = float(np.std(cb))
         chroma_richness = (cr_std + cb_std) / 2.0
 
-        # 3. Ph�n t�ch ph?n x? d? ch�i m�n h�nh trong HSV
+        # 3. Phân tích phản xạ độ chói màn hình trong HSV
         hsv = cv2.cvtColor(face_crop, cv2.COLOR_BGR2HSV)
         _, s, v = cv2.split(hsv)
         overexposure_ratio = float(np.sum(v > 245)) / float(v.size)
 
-        # T�nh di?m Silent Liveness (0.0 d?n 1.0)
+        # Tính điểm Silent Liveness (0.0 đến 1.0)
         score = 0.60
 
-        # 1. Ph�n t�ch d? n�t: Webcam laptop thu?ng c� d? n�t t? 20 d?n 400
+        # 1. Phân tích độ nét: Webcam laptop thường có độ nét từ 20 đến 400
         if 35 <= laplacian_var <= 600:
             score += 0.20
         elif laplacian_var < 15:
-            score -= 0.25  # Qu� m?
+            score -= 0.25  # Quá mờ
 
-        # 2. S?c th�i da ngu?i th?t trong kh�ng gian YCrCb
+        # 2. Sắc thái da người thật trong không gian YCrCb
         if 4.0 <= chroma_richness <= 35.0:
             score += 0.20
         else:
             score -= 0.15
 
-        # 3. Ph?n chi?u qu� m?c (tr? di?m n?u > 20% pixel b? ch�i l�a m�n h�nh)
+        # 3. Phản chiếu quá mức (trừ điểm nếu > 20% pixel bị chói lóa màn hình)
         if overexposure_ratio > 0.20:
             score -= 0.20
 
@@ -89,11 +89,11 @@ class AntiSpoofingService:
         }
 
     # =========================================================================
-    # 2. PH�N T�CH CHUY?N �?NG & LANDMARKS (MOTION / EAR / BLINK LIVENESS)
+    # 2. PHÂN TÍCH CHUYỂN ĐỘNG & LANDMARKS (MOTION / EAR / BLINK LIVENESS)
     # =========================================================================
     @staticmethod
     def calculate_ear_5pts(landmarks_5: List[List[float]]) -> float:
-        """T�nh x?p x? t? l? m? m?t (EAR) d?a tr�n 5 landmarks co b?n"""
+        """Tính xấp xỉ tỉ lệ mở mắt (EAR) dựa trên 5 landmarks cơ bản"""
         if len(landmarks_5) < 5:
             return 0.3
 
@@ -111,7 +111,7 @@ class AntiSpoofingService:
 
     @staticmethod
     def calculate_ear_106pts(landmarks_106: List[List[float]]) -> float:
-        """T�nh EAR chu?n khi c� 106 facial landmarks t? InsightFace"""
+        """Tính EAR chuẩn khi có 106 facial landmarks từ InsightFace"""
         if not landmarks_106 or len(landmarks_106) < 106:
             return 0.3
 
@@ -132,11 +132,11 @@ class AntiSpoofingService:
             return 0.28
 
     def analyze_sequence_motion(self, frames_data: List[Dict[str, Any]]) -> Dict[str, Any]:
-        """Ph�n t�ch chu?i frames t? camera d? ph�t hi?n chuy?n d?ng t? nhi�n ho?c ?nh tinh gi? m?o"""
+        """Phân tích chuỗi frames từ camera để phát hiện chuyển động tự nhiên hoặc ảnh tĩnh giả mạo"""
         if len(frames_data) < 2:
             return {
                 "motion_verified": True,
-                "reason": "Ch?p nh?n frame camera.",
+                "reason": "Chấp nhận frame camera.",
                 "blink_detected": False,
                 "micro_motion_score": 0.8
             }
@@ -160,7 +160,7 @@ class AntiSpoofingService:
         centers_arr = np.array(centers)
         movement_std = float(np.mean(np.std(centers_arr, axis=0)))
 
-        # Ch? coi l� gi? m?o n?u sai s? t?a d? b?ng d�ng 0.000 (?nh tinh copy-paste ho�n to�n)
+        # Chỉ coi là giả mạo nếu sai số tọa độ bằng đúng 0.000 (ảnh tĩnh copy-paste hoàn toàn)
         is_static_spoof = movement_std < 0.001
 
         blink_detected = False
@@ -182,7 +182,7 @@ class AntiSpoofingService:
         }
 
     # =========================================================================
-    # 3. K?T H?P ��NH GI� T?NG TH? (COMPREHENSIVE VERIFICATION)
+    # 3. KẾT HỢP ĐÁNH GIÁ TỔNG THỂ (COMPREHENSIVE VERIFICATION)
     # =========================================================================
     def evaluate_liveness(
         self,
@@ -191,17 +191,17 @@ class AntiSpoofingService:
         mode: str = "standard"
     ) -> Dict[str, Any]:
         """
-        T?ng h?p k?t qu? d�nh gi�:
-        - mode == 'off': Lu�n cho ph�p (d? test v� ph�ng tru?ng h?p webcam ph�ng t?i)
-        - mode == 'standard': M?c d?nh th?c t?
-        - mode == 'strict': Ch? d? an ninh cao
+        Tổng hợp kết quả đánh giá:
+        - mode == 'off': Luôn cho phép (để test và phòng trường hợp webcam phòng tối)
+        - mode == 'standard': Mặc định thực tế
+        - mode == 'strict': Chế độ an ninh cao
         """
         if mode == "off":
             return {
                 "passed": True,
                 "liveness_score": 0.99,
                 "mode": "off",
-                "details": {"message": "Anti-spoofing dang t?t ? ch? d? th? nghi?m."},
+                "details": {"message": "Anti-spoofing đang tắt ở chế độ thử nghiệm."},
                 "failure_reasons": []
             }
 
@@ -219,9 +219,9 @@ class AntiSpoofingService:
 
         reasons = []
         if not motion_res["motion_verified"]:
-            reasons.append("Ph�t hi?n frame ?nh ho�n to�n b?t d?ng tr�ng l?p.")
+            reasons.append("Phát hiện frame ảnh hoàn toàn bất động trùng lặp.")
         if not texture_res["is_real"]:
-            reasons.append("�nh s�ng ph�ng ho?c webcam c� d? ch�i cao.")
+            reasons.append("Ánh sáng phòng hoặc webcam có độ chói cao.")
 
         return {
             "passed": passed,

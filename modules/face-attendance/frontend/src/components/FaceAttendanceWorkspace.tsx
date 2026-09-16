@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { CameraFeed } from './CameraFeed';
 import { LivenessIndicator } from './LivenessIndicator';
 import { EnrollmentModal } from './EnrollmentModal';
@@ -55,7 +55,7 @@ export const FaceAttendanceWorkspace: React.FC = () => {
       const data = await faceAttendanceService.getSummary();
       setSummary(data);
     } catch (err) {
-      console.warn('L?i t?i summary:', err);
+      console.warn('Lỗi tải summary:', err);
     }
   };
 
@@ -64,7 +64,7 @@ export const FaceAttendanceWorkspace: React.FC = () => {
       const data = await faceAttendanceService.getLivenessChallenge();
       setChallenge(data);
     } catch (err) {
-      console.warn('L?i t?i challenge:', err);
+      console.warn('Lỗi tải challenge:', err);
     }
   };
 
@@ -73,7 +73,7 @@ export const FaceAttendanceWorkspace: React.FC = () => {
       const data = await faceAttendanceService.getEmployees();
       setEmployees(data);
     } catch (err) {
-      console.warn('L?i t?i nh�n vi�n:', err);
+      console.warn('Lỗi tải nhân viên:', err);
     }
   };
 
@@ -82,7 +82,7 @@ export const FaceAttendanceWorkspace: React.FC = () => {
       const data = await faceAttendanceService.getLogs();
       setLogs(data);
     } catch (err) {
-      console.warn('L?i t?i logs:', err);
+      console.warn('Lỗi tải logs:', err);
     }
   };
 
@@ -104,7 +104,7 @@ export const FaceAttendanceWorkspace: React.FC = () => {
       setLastCheckin({
         success: false,
         status: 'NOT_MATCHED',
-        message: err.message || 'L?i x? l� di?m danh t? m�y ch?',
+        message: err.message || 'Lỗi xử lý điểm danh từ máy chủ',
       });
     } finally {
       setIsLoading(false);
@@ -128,7 +128,7 @@ export const FaceAttendanceWorkspace: React.FC = () => {
                 </span>
               </h1>
               <p className="text-xs text-slate-400 mt-0.5">
-                �i?m danh sinh tr?c h?c th?i gian th?c, b�c t�ch ArcFace 512-D v� Dual Anti-Spoofing
+                Điểm danh sinh trắc học thời gian thực, bóc tách ArcFace 512-D và Dual Anti-Spoofing
               </p>
             </div>
           </div>
@@ -141,7 +141,7 @@ export const FaceAttendanceWorkspace: React.FC = () => {
             className="px-4 py-2.5 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-slate-950 font-bold text-xs rounded-xl shadow-lg shadow-emerald-500/20 flex items-center gap-2 transition-all active:scale-95"
           >
             <UserPlus size={18} weight="bold" />
-            �ang K� Nh�n S?
+            Đăng Ký Nhân Sự
           </button>
         </div>
       </div>
@@ -153,7 +153,7 @@ export const FaceAttendanceWorkspace: React.FC = () => {
             <UsersThree size={24} weight="bold" />
           </div>
           <div>
-            <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">T?ng Nh�n S?</p>
+            <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Tổng Nhân Sự</p>
             <p className="text-2xl font-black text-white">{summary.total_employees}</p>
           </div>
         </div>
@@ -163,7 +163,7 @@ export const FaceAttendanceWorkspace: React.FC = () => {
             <UserCheck size={24} weight="bold" />
           </div>
           <div>
-            <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">�� �i?m Danh H�m Nay</p>
+            <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Đã Điểm Danh Hôm Nay</p>
             <p className="text-2xl font-black text-emerald-400">{summary.checked_in_today}</p>
           </div>
         </div>
@@ -173,7 +173,7 @@ export const FaceAttendanceWorkspace: React.FC = () => {
             <UsersThree size={24} weight="bold" />
           </div>
           <div>
-            <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Chua �i?m Danh</p>
+            <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Chưa Điểm Danh</p>
             <p className="text-2xl font-black text-amber-400">{summary.missing_today}</p>
           </div>
         </div>
@@ -183,7 +183,7 @@ export const FaceAttendanceWorkspace: React.FC = () => {
             <ShieldWarning size={24} weight="bold" />
           </div>
           <div>
-            <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Ngan Ch?n Gi? M?o</p>
+            <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Ngăn Chặn Giả Mạo</p>
             <p className="text-2xl font-black text-rose-400">{summary.spoof_attempts_today}</p>
           </div>
         </div>
@@ -200,7 +200,7 @@ export const FaceAttendanceWorkspace: React.FC = () => {
           }`}
         >
           <Camera size={18} />
-          Qu�t �i?m Danh Tr?c Ti?p
+          Quét Điểm Danh Trực Tiếp
         </button>
         <button
           onClick={() => setActiveTab('employees')}
@@ -211,7 +211,7 @@ export const FaceAttendanceWorkspace: React.FC = () => {
           }`}
         >
           <UsersThree size={18} />
-          Danh S�ch Nh�n S? ({employees.length})
+          Danh Sách Nhân Sự ({employees.length})
         </button>
         <button
           onClick={() => setActiveTab('logs')}
@@ -222,7 +222,7 @@ export const FaceAttendanceWorkspace: React.FC = () => {
           }`}
         >
           <ListDashes size={18} />
-          L?ch S? Ch?m C�ng
+          Lịch Sử Chấm Công
         </button>
       </div>
 
@@ -282,12 +282,12 @@ export const FaceAttendanceWorkspace: React.FC = () => {
                         </span>
                         {lastCheckin.similarity_score !== undefined && (
                           <span className="text-xs font-semibold text-slate-300">
-                            Kh?p: {Math.round(lastCheckin.similarity_score * 100)}%
+                            Khớp: {Math.round(lastCheckin.similarity_score * 100)}%
                           </span>
                         )}
                       </div>
                       <h4 className="text-base font-bold text-white mt-1">
-                        {lastCheckin.employee?.full_name || 'Kh�ng x�c d?nh'}
+                        {lastCheckin.employee?.full_name || 'Không xác định'}
                       </h4>
                       {lastCheckin.employee?.department && (
                         <p className="text-xs text-slate-400">{lastCheckin.employee.department}</p>
@@ -308,12 +308,12 @@ export const FaceAttendanceWorkspace: React.FC = () => {
 
               {/* Quick instructions */}
               <div className="bg-slate-900/60 border border-slate-800 rounded-2xl p-5 text-xs text-slate-400 space-y-2">
-                <h4 className="font-bold text-slate-200 uppercase tracking-wider text-[11px]">Quy Tr�nh Chu?n �i?m Danh</h4>
+                <h4 className="font-bold text-slate-200 uppercase tracking-wider text-[11px]">Quy Trình Chuẩn Điểm Danh</h4>
                 <ul className="list-disc list-inside space-y-1 text-slate-400 leading-relaxed">
-                  <li>�?ng d?i di?n camera trong kho?ng c�ch t? 40cm - 90cm.</li>
-                  <li>�?m b?o �nh s�ng khu�n m?t d?ng d?u, kh�ng d?ng ngu?c s�ng.</li>
-                  <li>Th?c hi?n ch?p m?t ho?c c? d?ng nh? theo ch? th? ch?ng gi? m?o.</li>
-                  <li>Nh?n n�t <strong className="text-emerald-400">X�c Nh?n �i?m Danh</strong> d? ho�n t?t trong 0.5s.</li>
+                  <li>Đứng đối diện camera trong khoảng cách từ 40cm - 90cm.</li>
+                  <li>Đảm bảo ánh sáng khuôn mặt đồng đều, không đứng ngược sáng.</li>
+                  <li>Thực hiện chớp mắt hoặc cử động nhẹ theo chỉ thị chống giả mạo.</li>
+                  <li>Nhấn nút <strong className="text-emerald-400">Xác Nhận Điểm Danh</strong> để hoàn tất trong 0.5s.</li>
                 </ul>
               </div>
             </div>
@@ -324,8 +324,8 @@ export const FaceAttendanceWorkspace: React.FC = () => {
           <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-6 shadow-xl">
             <div className="flex items-center justify-between mb-4">
               <div>
-                <h3 className="text-base font-bold text-white">Danh S�ch Nh�n S? �� �ang K� Khu�n M?t</h3>
-                <p className="text-xs text-slate-400">�� tr�ch xu?t v� s? h�a vector ArcFace 512 chi?u</p>
+                <h3 className="text-base font-bold text-white">Danh Sách Nhân Sự Đã Đăng Ký Khuôn Mặt</h3>
+                <p className="text-xs text-slate-400">Đã trích xuất và số hóa vector ArcFace 512 chiều</p>
               </div>
               <button
                 onClick={loadEmployees}

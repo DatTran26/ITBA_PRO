@@ -1,4 +1,4 @@
----
+﻿---
 name: face-attendance
 description: >
   High-speed Biometric Face Attendance & Dual Anti-Spoofing engine specification,
@@ -19,15 +19,15 @@ High-precision Biometric Face Attendance engine utilizing ArcFace 512-D embeddin
 
 ```text
 [Webcam Stream / CV PDF Upload]
-          �
-          ?
+          │
+          ▼
   InsightFace (ArcFace 512-D + RetinaFace)
-          �
-          +--? Dual Anti-Spoofing Pipeline --? Real/Fake Score (0.0 - 1.0)
-          �
-          +--? 1:N Cosine Similarity Engine (SQLite / Qdrant) --? Match Result
-                    �
-                    ?
+          │
+          ├──► Dual Anti-Spoofing Pipeline ──► Real/Fake Score (0.0 - 1.0)
+          │
+          └──► 1:N Cosine Similarity Engine (SQLite / Qdrant) ──► Match Result
+                    │
+                    ▼
           [Attendance Log Recorded (face_attendance.db)]
 ```
 

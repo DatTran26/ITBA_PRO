@@ -1,4 +1,4 @@
-import cv2
+﻿import cv2
 import numpy as np
 import base64
 import logging
@@ -23,34 +23,34 @@ class FaceService:
         self._initialized = True
 
     def _init_app(self):
-        """Kh?i t?o FaceAnalysis v?i buffalo_sc (nh?, nhanh, 512-D ArcFace)"""
+        """Khởi tạo FaceAnalysis với buffalo_sc (nhẹ, nhanh, 512-D ArcFace)"""
         try:
             import insightface
             from insightface.app import FaceAnalysis
 
-            logger.info(f"�ang kh?i t?o InsightFace FaceAnalysis ({settings.INSIGHTFACE_MODEL})...")
+            logger.info(f"Đang khởi tạo InsightFace FaceAnalysis ({settings.INSIGHTFACE_MODEL})...")
             app = FaceAnalysis(name=settings.INSIGHTFACE_MODEL, providers=["CPUExecutionProvider"])
             app.prepare(ctx_id=0, det_size=(640, 640))
             self.app = app
-            logger.info("InsightFace FaceAnalysis kh?i t?o th�nh c�ng.")
+            logger.info("InsightFace FaceAnalysis khởi tạo thành công.")
         except Exception as e:
-            logger.warning(f"Chua th? load InsightFace ngay: {e}. S? th? l?i khi c� request.")
+            logger.warning(f"Chưa thể load InsightFace ngay: {e}. Sẽ thử lại khi có request.")
             self.app = None
 
     def ensure_model_loaded(self):
         if self.app is None:
             self._init_app()
         if self.app is None:
-            raise RuntimeError("InsightFace model chua du?c t?i. H�y d?m b?o d� c�i onnxruntime v� insightface.")
+            raise RuntimeError("InsightFace model chưa được tải. Hãy đảm bảo đã cài onnxruntime và insightface.")
 
     def decode_image_bytes(self, file_bytes: bytes, filename: str) -> np.ndarray:
-        """�?c v� gi?i m� d? li?u ?nh t? buffer, h? tr? c? file PDF (trang 1) v� file ?nh th�ng thu?ng"""
+        """Đọc và giải mã dữ liệu ảnh từ buffer, hỗ trợ cả file PDF (trang 1) và file ảnh thông thường"""
         if filename.lower().endswith(".pdf"):
             try:
                 import fitz  # PyMuPDF
                 doc = fitz.open(stream=file_bytes, filetype="pdf")
                 if len(doc) == 0:
-                    raise ValueError("File PDF r?ng.")
+                    raise ValueError("File PDF rỗng.")
                 page = doc.load_page(0)
                 pix = page.get_pixmap(dpi=150)
                 img = np.frombuffer(pix.samples, dtype=np.uint8).reshape((pix.height, pix.width, pix.n))
@@ -60,8 +60,8 @@ class FaceService:
                     img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
                 return img
             except Exception as err:
-                logger.error(f"L?i d?c file PDF: {err}")
-                raise ValueError(f"Kh�ng th? gi?i m� file PDF: {str(err)}")
+                logger.error(f"Lỗi đọc file PDF: {err}")
+                raise ValueError(f"Không thể giải mã file PDF: {str(err)}")
         else:
             nparr = np.frombuffer(file_bytes, np.uint8)
             img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
@@ -75,25 +75,25 @@ class FaceService:
                         pil_img = pil_img.convert("RGB")
                     img = cv2.cvtColor(np.array(pil_img), cv2.COLOR_RGB2BGR)
                 except Exception as ex:
-                    raise ValueError(f"Kh�ng th? gi?i m� d?nh d?ng ?nh ({ex}).")
+                    raise ValueError(f"Không thể giải mã định dạng ảnh ({ex}).")
             return img
 
     def extract_cv_face(self, file_bytes: bytes, filename: str) -> Dict[str, Any]:
         """
-        Tr�ch xu?t khu�n m?t ch�nh di?n l?n nh?t t? file CV (?nh ho?c PDF).
-        Tr? v? vector 512 chi?u, t?a d? bounding box v� ?nh avatar c?t s?n.
+        Trích xuất khuôn mặt chính diện lớn nhất từ file CV (ảnh hoặc PDF).
+        Trả về vector 512 chiều, tọa độ bounding box và ảnh avatar cắt sẵn.
         """
         self.ensure_model_loaded()
         img = self.decode_image_bytes(file_bytes, filename)
 
         faces = self.app.get(img)
         if not faces or len(faces) == 0:
-            raise ValueError("Kh�ng ph�t hi?n khu�n m?t n�o trong t�i li?u d� t?i l�n.")
+            raise ValueError("Không phát hiện khuôn mặt nào trong tài liệu đã tải lên.")
 
-        # L?y khu�n m?t c� di?n t�ch bbox l?n nh?t
+        # Lấy khuôn mặt có diện tích bbox lớn nhất
         target_face = max(faces, key=lambda f: (f.bbox[2] - f.bbox[0]) * (f.bbox[3] - f.bbox[1]))
 
-        # Chu?n h�a L2 cho embedding 512 chi?u d? t�nh Cosine Similarity
+        # Chuẩn hóa L2 cho embedding 512 chiều để tính Cosine Similarity
         raw_emb = target_face.embedding
         norm = np.linalg.norm(raw_emb)
         normalized_emb = (raw_emb / norm).tolist() if norm > 0 else raw_emb.tolist()
@@ -103,7 +103,7 @@ class FaceService:
         x1, y1, x2, y2 = [int(max(0, v)) for v in target_face.bbox]
         x2, y2 = min(w, x2), min(h, y2)
 
-        # C?t avatar c� vi?n d?m nh? (padding 15%)
+        # Cắt avatar có viền đệm nhẹ (padding 15%)
         pad_x = int((x2 - x1) * 0.15)
         pad_y = int((y2 - y1) * 0.15)
         crop_x1, crop_y1 = max(0, x1 - pad_x), max(0, y1 - pad_y)
@@ -124,7 +124,7 @@ class FaceService:
         }
 
     def extract_face_from_frame(self, img: np.ndarray) -> Optional[Dict[str, Any]]:
-        """Tr�ch xu?t khu�n m?t v� vector t? frame camera th?i gian th?c"""
+        """Trích xuất khuôn mặt và vector từ frame camera thời gian thực"""
         self.ensure_model_loaded()
         faces = self.app.get(img)
         if not faces or len(faces) == 0:
@@ -149,7 +149,7 @@ class FaceService:
 
     @staticmethod
     def compute_similarity(emb1: np.ndarray, emb2: np.ndarray) -> float:
-        """T�nh Cosine Similarity gi?a 2 vector d?c trung d� chu?n h�a L2"""
+        """Tính Cosine Similarity giữa 2 vector đặc trưng đã chuẩn hóa L2"""
         e1 = np.asarray(emb1, dtype=np.float32)
         e2 = np.asarray(emb2, dtype=np.float32)
         return float(np.dot(e1, e2))

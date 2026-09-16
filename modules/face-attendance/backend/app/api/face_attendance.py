@@ -1,4 +1,4 @@
-from fastapi import APIRouter, UploadFile, File, Form, HTTPException, Query
+﻿from fastapi import APIRouter, UploadFile, File, Form, HTTPException, Query
 from typing import List, Optional
 import cv2
 import numpy as np
@@ -15,20 +15,20 @@ router = APIRouter(prefix="/api/face", tags=["Face Attendance"])
 ACTIVE_CHALLENGES = {}
 
 # ============================================================================
-# 1. �ANG K� H? SO T? CV (PDF HO?C ?NH)
+# 1. ĐĂNG KÝ HỒ SƠ TỪ CV (PDF HOẶC ẢNH)
 # ============================================================================
-@router.post("/register-cv", summary="�ang k� khu�n m?t t? file CV (PDF/?nh)")
+@router.post("/register-cv", summary="Đăng ký khuôn mặt từ file CV (PDF/Ảnh)")
 async def register_from_cv(
-    employee_code: str = Form(..., description="M� nh�n vi�n (duy nh?t)"),
-    full_name: str = Form(..., description="H? v� t�n nh�n vi�n"),
-    department: str = Form("H�nh ch�nh Nh�n s?", description="Ph�ng ban"),
-    email: str = Form("", description="Email li�n h?"),
-    file: UploadFile = File(..., description="File CV d?nh d?ng PDF ho?c h�nh ?nh (PNG, JPG, WebP)")
+    employee_code: str = Form(..., description="Mã nhân viên (duy nhất)"),
+    full_name: str = Form(..., description="Họ và tên nhân viên"),
+    department: str = Form("Hành chính Nhân sự", description="Phòng ban"),
+    email: str = Form("", description="Email liên hệ"),
+    file: UploadFile = File(..., description="File CV định dạng PDF hoặc hình ảnh (PNG, JPG, WebP)")
 ):
     try:
         content = await file.read()
         if not content:
-            raise HTTPException(status_code=400, detail="T?p t?i l�n r?ng.")
+            raise HTTPException(status_code=400, detail="Tệp tải lên rỗng.")
 
         extracted = face_service.extract_cv_face(content, file.filename)
 
@@ -43,7 +43,7 @@ async def register_from_cv(
 
         return {
             "success": True,
-            "message": f"�ang k� khu�n m?t th�nh c�ng cho nh�n vi�n {full_name} ({employee_code}).",
+            "message": f"Đăng ký khuôn mặt thành công cho nhân viên {full_name} ({employee_code}).",
             "data": {
                 "employee": saved,
                 "bbox": extracted["bbox"],
@@ -53,18 +53,18 @@ async def register_from_cv(
     except ValueError as ve:
         raise HTTPException(status_code=400, detail=str(ve))
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"L?i x? l� h? so CV: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Lỗi xử lý hồ sơ CV: {str(e)}")
 
 # ============================================================================
-# 2. KH?I T?O TH? TH�CH CH?NG GI? M?O TUONG T�C
+# 2. KHỞI TẠO THỬ THÁCH CHỐNG GIẢ MẠO TƯƠNG TÁC
 # ============================================================================
-@router.post("/liveness-challenge", summary="T?o th? th�ch c? d?ng (Ch?p m?t / Cu?i / Quay d?u)")
+@router.post("/liveness-challenge", summary="Tạo thử thách cử động (Chớp mắt / Cười / Quay đầu)")
 async def create_liveness_challenge():
     import random
     challenges = [
-        {"action": "blink", "instruction": "Vui l�ng ch?p m?t 1-2 l?n tru?c camera."},
-        {"action": "turn_head", "instruction": "Vui l�ng nghi�ng nh? d?u sang m?t b�n."},
-        {"action": "smile", "instruction": "Vui l�ng m?m cu?i nh? tru?c camera."}
+        {"action": "blink", "instruction": "Vui lòng chớp mắt 1-2 lần trước camera."},
+        {"action": "turn_head", "instruction": "Vui lòng nghiêng nhẹ đầu sang một bên."},
+        {"action": "smile", "instruction": "Vui lòng mỉm cười nhẹ trước camera."}
     ]
     selected = random.choice(challenges)
     challenge_id = str(uuid.uuid4())
@@ -77,17 +77,17 @@ async def create_liveness_challenge():
     }
 
 # ============================================================================
-# 3. �I?M DANH QUA CAMERA (DUAL ANTI-SPOOFING + 1:N MATCHING)
+# 3. ĐIỂM DANH QUA CAMERA (DUAL ANTI-SPOOFING + 1:N MATCHING)
 # ============================================================================
-@router.post("/check-in", summary="�i?m danh khu�n m?t qua Camera c� ki?m tra Anti-Spoofing")
+@router.post("/check-in", summary="Điểm danh khuôn mặt qua Camera có kiểm tra Anti-Spoofing")
 async def check_in(
-    files: List[UploadFile] = File(..., description="M?t ho?c nhi?u frame ?nh g?i t? webcam"),
-    device_id: str = Form("CAM_GATE_01", description="M� thi?t b? / V? tr� qu�t"),
-    threshold: float = Form(None, description="Ngu?ng Cosine Similarity"),
-    liveness_mode: str = Form(None, description="Ch? d? ki?m tra: standard | strict | off")
+    files: List[UploadFile] = File(..., description="Một hoặc nhiều frame ảnh gửi từ webcam"),
+    device_id: str = Form("CAM_GATE_01", description="Mã thiết bị / Vị trí quét"),
+    threshold: float = Form(None, description="Ngưỡng Cosine Similarity"),
+    liveness_mode: str = Form(None, description="Chế độ kiểm tra: standard | strict | off")
 ):
     if not files:
-        raise HTTPException(status_code=400, detail="Kh�ng c� h�nh ?nh n�o du?c g?i l�n.")
+        raise HTTPException(status_code=400, detail="Không có hình ảnh nào được gửi lên.")
 
     use_threshold = threshold if threshold is not None else settings.SIMILARITY_THRESHOLD
     use_liveness_mode = liveness_mode if liveness_mode is not None else settings.DEFAULT_LIVENESS_MODE
@@ -120,23 +120,23 @@ async def check_in(
         return {
             "success": False,
             "status": "NO_FACE",
-            "message": "Kh�ng t�m th?y khu�n m?t r� r�ng trong khung h�nh camera."
+            "message": "Không tìm thấy khuôn mặt rõ ràng trong khung hình camera."
         }
 
-    # 1. So kh?p 1:N v?i co s? d? li?u vector
+    # 1. So khớp 1:N với cơ sở dữ liệu vector
     query_emb = best_face_data["embedding"].tolist()
     match_result = attendance_service.search_face_1_to_n(query_emb, threshold=use_threshold)
 
-    # 2. Ki?m tra Anti-Spoofing
+    # 2. Kiểm tra Anti-Spoofing
     liveness_result = antispoofing_service.evaluate_liveness(face_crops, frames_meta, mode=use_liveness_mode)
     liveness_score = liveness_result.get("liveness_score", 0.0)
 
-    # C?nh b�o n?u ? strict mode v� fail
+    # Cảnh báo nếu ở strict mode và fail
     if use_liveness_mode == "strict" and not liveness_result["passed"]:
         attendance_service.log_attendance(
             employee_id=match_result["id"] if (match_result and match_result.get("id")) else 0,
             employee_code=match_result["employee_code"] if (match_result and match_result.get("employee_code")) else "UNKNOWN",
-            full_name=f"C?nh b�o gi? m?o ({match_result['full_name'] if (match_result and match_result.get('full_name')) else 'Chua r�'})",
+            full_name=f"Cảnh báo giả mạo ({match_result['full_name'] if (match_result and match_result.get('full_name')) else 'Chưa rõ'})",
             similarity_score=match_result.get("similarity", 0.0) if match_result else 0.0,
             liveness_score=liveness_score,
             device_id=device_id,
@@ -145,13 +145,13 @@ async def check_in(
         return {
             "success": False,
             "status": "SPOOF_REJECTED",
-            "message": "X�c th?c th?t b?i: Nghi ng? ?nh in ho?c �nh s�ng m�n h�nh gi? m?o.",
+            "message": "Xác thực thất bại: Nghi ngờ ảnh in hoặc ánh sáng màn hình giả mạo.",
             "similarity_score": match_result.get("similarity", 0.0) if match_result else 0.0,
             "liveness_score": liveness_score,
             "liveness_details": liveness_result
         }
 
-    # 3. Ki?m tra k?t qu? so kh?p khu�n m?t
+    # 3. Kiểm tra kết quả so khớp khuôn mặt
     if not match_result or not match_result.get("id"):
         highest_sim = match_result.get("highest_similarity", 0.0) if match_result else 0.0
         return {
@@ -159,10 +159,10 @@ async def check_in(
             "status": "NOT_MATCHED",
             "similarity_score": highest_sim,
             "liveness_score": liveness_score,
-            "message": f"Khu�n m?t ngu?i th?t ({int(liveness_score*100)}%) nhung chua dang k� ho?c d? tuong d?ng th?p ({int(highest_sim*100)}% < {int(use_threshold*100)}%)."
+            "message": f"Khuôn mặt người thật ({int(liveness_score*100)}%) nhưng chưa đăng ký hoặc độ tương đồng thấp ({int(highest_sim*100)}% < {int(use_threshold*100)}%)."
         }
 
-    # 4. Ghi log di?m danh th�nh c�ng
+    # 4. Ghi log điểm danh thành công
     log_entry = attendance_service.log_attendance(
         employee_id=match_result["id"],
         employee_code=match_result["employee_code"],
@@ -176,7 +176,7 @@ async def check_in(
     return {
         "success": True,
         "status": "SUCCESS",
-        "message": f"�i?m danh th�nh c�ng! Xin ch�o {match_result['full_name']}.",
+        "message": f"Điểm danh thành công! Xin chào {match_result['full_name']}.",
         "employee": {
             "id": match_result["id"],
             "employee_code": match_result["employee_code"],
@@ -190,23 +190,23 @@ async def check_in(
     }
 
 # ============================================================================
-# 4. QU?N L� NH�N S? & B�O C�O TH?NG K�
+# 4. QUẢN LÝ NHÂN SỰ & BÁO CÁO THỐNG KÊ
 # ============================================================================
-@router.get("/employees", summary="L?y danh s�ch nh�n vi�n d� dang k�")
+@router.get("/employees", summary="Lấy danh sách nhân viên đã đăng ký")
 def list_employees():
     return {
         "success": True,
         "employees": attendance_service.get_employees()
     }
 
-@router.get("/logs", summary="L?y l?ch s? di?m danh")
+@router.get("/logs", summary="Lấy lịch sử điểm danh")
 def list_attendance_logs(limit: int = Query(50, ge=1, le=200)):
     return {
         "success": True,
         "logs": attendance_service.get_attendance_logs(limit=limit)
     }
 
-@router.get("/summary", summary="L?y th?ng k� di?m danh h�m nay")
+@router.get("/summary", summary="Lấy thống kê điểm danh hôm nay")
 def get_today_summary():
     return {
         "success": True,

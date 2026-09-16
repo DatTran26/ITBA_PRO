@@ -76,10 +76,6 @@ export default async function DashboardPage({
         ? (modeParam as DashboardMode)
         : (roleDefaultMode[role] ?? "recruitment");
 
-    const dashUser = userData
-        ? { name: userData.name || user?.email?.split("@")[0] || "User", email: userData.email || user?.email || "", role: userData.role || "super_admin" }
-        : { name: user?.email?.split("@")[0] || "Admin", email: user?.email || "", role: "super_admin" };
-
     // HR/Interviewer modes: skip all heavy server fetching — data loaded client-side
     if (mode === "hr" || mode === "interviewer") {
         return (

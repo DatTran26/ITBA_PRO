@@ -1,4 +1,4 @@
-import os
+﻿import os
 import sqlite3
 import json
 import logging
@@ -24,11 +24,11 @@ class AttendanceService:
             os.makedirs(db_dir, exist_ok=True)
 
     def _init_sqlite(self):
-        """Kh?i t?o SQLite DB n?i b? luu tr? nh�n vi�n, vector 512-D v� l?ch s? di?m danh"""
+        """Khởi tạo SQLite DB nội bộ lưu trữ nhân viên, vector 512-D và lịch sử điểm danh"""
         conn = sqlite3.connect(self.db_path)
         cursor = conn.cursor()
 
-        # B?ng nh�n vi�n
+        # Bảng nhân viên
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS employees (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -43,7 +43,7 @@ class AttendanceService:
             );
         """)
 
-        # B?ng l?ch s? di?m danh
+        # Bảng lịch sử điểm danh
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS attendance_logs (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -60,10 +60,10 @@ class AttendanceService:
         """)
         conn.commit()
         conn.close()
-        logger.info(f"�� kh?i t?o co s? d? li?u SQLite t?i {self.db_path}")
+        logger.info(f"Đã khởi tạo cơ sở dữ liệu SQLite tại {self.db_path}")
 
     def _try_init_qdrant(self):
-        """Th? k?t n?i v?i Qdrant Vector DB n?u service dang ch?y"""
+        """Thử kết nối với Qdrant Vector DB nếu service đang chạy"""
         try:
             from qdrant_client import QdrantClient
             from qdrant_client.http.models import Distance, VectorParams
@@ -76,9 +76,9 @@ class AttendanceService:
                     vectors_config=VectorParams(size=512, distance=Distance.COSINE)
                 )
             self.qdrant_client = client
-            logger.info("K?t n?i th�nh c�ng t?i Qdrant Vector DB.")
+            logger.info("Kết nối thành công tới Qdrant Vector DB.")
         except Exception as e:
-            logger.debug(f"Qdrant chua s?n s�ng ({e}). S? d?ng c�ng c? t�nh to�n Vector t�ch h?p s?n SQLite + NumPy.")
+            logger.debug(f"Qdrant chưa sẵn sàng ({e}). Sử dụng công cụ tính toán Vector tích hợp sẵn SQLite + NumPy.")
             self.qdrant_client = None
 
     def save_employee(
@@ -90,7 +90,7 @@ class AttendanceService:
         embedding: List[float],
         avatar_base64: str = ""
     ) -> Dict[str, Any]:
-        """Luu ho?c c?p nh?t th�ng tin nh�n vi�n k�m vector 512 chi?u"""
+        """Lưu hoặc cập nhật thông tin nhân viên kèm vector 512 chiều"""
         now = datetime.now().isoformat()
         emb_json = json.dumps(embedding)
 
@@ -135,7 +135,7 @@ class AttendanceService:
                     ]
                 )
             except Exception as err:
-                logger.warning(f"L?i d?ng b? vector sang Qdrant: {err}")
+                logger.warning(f"Lỗi đồng bộ vector sang Qdrant: {err}")
 
         return {
             "id": emp_id,
@@ -150,12 +150,12 @@ class AttendanceService:
         threshold: float = 0.65
     ) -> Optional[Dict[str, Any]]:
         """
-        T�m ki?m 1:N d?i chi?u khu�n m?t v?i t?t c? nh�n vi�n trong h? th?ng.
-        Tr? v? nh�n vi�n c� d? tuong d?ng Cosine cao nh?t vu?t ngu?ng threshold.
+        Tìm kiếm 1:N đối chiếu khuôn mặt với tất cả nhân viên trong hệ thống.
+        Trả về nhân viên có độ tương đồng Cosine cao nhất vượt ngưỡng threshold.
         """
         query_vec = np.array(query_embedding, dtype=np.float32)
 
-        # 1. T�m ki?m b?ng Qdrant n?u kh? d?ng
+        # 1. Tìm kiếm bằng Qdrant nếu khả dụng
         if self.qdrant_client:
             try:
                 search_result = self.qdrant_client.search(
@@ -174,9 +174,9 @@ class AttendanceService:
                         "similarity": round(float(top_match.score), 4)
                     }
             except Exception as e:
-                logger.warning(f"T�m ki?m Qdrant th?t b?i, chuy?n sang b? t�m ki?m SQLite: {e}")
+                logger.warning(f"Tìm kiếm Qdrant thất bại, chuyển sang bộ tìm kiếm SQLite: {e}")
 
-        # 2. T�m ki?m Cosine Similarity tr?c ti?p b?ng NumPy (si�u t?c, < 2ms)
+        # 2. Tìm kiếm Cosine Similarity trực tiếp bằng NumPy (siêu tốc, < 2ms)
         conn = sqlite3.connect(self.db_path)
         cursor = conn.cursor()
         cursor.execute("SELECT id, employee_code, full_name, department, avatar_base64, embedding_json FROM employees WHERE is_active = 1")
@@ -211,7 +211,7 @@ class AttendanceService:
         return {
             "matched": False,
             "highest_similarity": round(highest_sim, 4) if highest_sim > -1 else 0.0,
-            "message": "Kh�ng t�m th?y khu�n m?t tr�ng kh?p trong danh s�ch nh�n vi�n."
+            "message": "Không tìm thấy khuôn mặt trùng khớp trong danh sách nhân viên."
         } if highest_sim > -1 else None
 
     def log_attendance(
@@ -224,7 +224,7 @@ class AttendanceService:
         device_id: str = "CAM_01",
         status: str = "SUCCESS"
     ) -> Dict[str, Any]:
-        """Ghi nh?n b?n ghi di?m danh v�o co s? d? li?u"""
+        """Ghi nhận bản ghi điểm danh vào cơ sở dữ liệu"""
         now = datetime.now().isoformat()
         conn = sqlite3.connect(self.db_path)
         cursor = conn.cursor()
@@ -247,7 +247,7 @@ class AttendanceService:
         }
 
     def get_employees(self) -> List[Dict[str, Any]]:
-        """L?y danh s�ch t?t c? nh�n vi�n d� dang k� khu�n m?t"""
+        """Lấy danh sách tất cả nhân viên đã đăng ký khuôn mặt"""
         conn = sqlite3.connect(self.db_path)
         cursor = conn.cursor()
         cursor.execute("SELECT id, employee_code, full_name, department, email, avatar_base64, created_at FROM employees WHERE is_active = 1")
@@ -268,7 +268,7 @@ class AttendanceService:
         ]
 
     def get_attendance_logs(self, limit: int = 50) -> List[Dict[str, Any]]:
-        """L?y danh s�ch c�c l?n di?m danh g?n nh?t"""
+        """Lấy danh sách các lần điểm danh gần nhất"""
         conn = sqlite3.connect(self.db_path)
         cursor = conn.cursor()
         cursor.execute("""
@@ -296,7 +296,7 @@ class AttendanceService:
         ]
 
     def get_attendance_summary(self) -> Dict[str, Any]:
-        """Th?ng k� t?ng quan ch?m c�ng trong ng�y"""
+        """Thống kê tổng quan chấm công trong ngày"""
         today_prefix = datetime.now().strftime("%Y-%m-%d")
         conn = sqlite3.connect(self.db_path)
         cursor = conn.cursor()
