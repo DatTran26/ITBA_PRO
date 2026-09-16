@@ -19,18 +19,45 @@ export default async function DashboardPage({
     const devUser = parseDevAuthCookie(cookieStore.get(DEV_AUTH_COOKIE)?.value);
     if (!user && !devUser) redirect("/login");
 
-    const { data: userData } = user
-        ? await supabase
+    let userData = devUser;
+    if (user) {
+        const { data } = await supabase
             .from("users")
             .select("*")
             .eq("auth_id", user.id)
-            .single()
-        : { data: devUser };
+            .single();
+        userData = data;
+    }
+
+    if (!userData && user) {
+        const defaultName = user.user_metadata?.name || user.email?.split("@")[0] || "Admin";
+        const defaultEmail = user.email || "";
+        const { data: insertedUser } = await supabase
+            .from("users")
+            .insert({
+                auth_id: user.id,
+                email: defaultEmail,
+                name: defaultName,
+                role: "super_admin",
+            })
+            .select("*")
+            .single();
+
+        userData = insertedUser || {
+            id: user.id,
+            auth_id: user.id,
+            email: defaultEmail,
+            name: defaultName,
+            role: "super_admin",
+            created_at: new Date().toISOString(),
+        };
+    }
+    if (!userData) redirect("/login");
 
     const isAdmin = userData?.role === "admin" || userData?.role === "super_admin";
     const isHr = userData?.role === "hr";
     const isInterviewer = userData?.role === "interviewer";
-    const role = userData?.role as string;
+    const role = (userData?.role as string) || "super_admin";
 
     const roleDefaultMode: Record<string, DashboardMode> = {
         super_admin: "recruitment", admin: "recruitment",
@@ -49,7 +76,9 @@ export default async function DashboardPage({
         ? (modeParam as DashboardMode)
         : (roleDefaultMode[role] ?? "recruitment");
 
-    const dashUser = { name: userData.name, email: userData.email, role: userData.role };
+    const dashUser = userData
+        ? { name: userData.name || user?.email?.split("@")[0] || "User", email: userData.email || user?.email || "", role: userData.role || "super_admin" }
+        : { name: user?.email?.split("@")[0] || "Admin", email: user?.email || "", role: "super_admin" };
 
     // HR/Interviewer modes: skip all heavy server fetching — data loaded client-side
     if (mode === "hr" || mode === "interviewer") {

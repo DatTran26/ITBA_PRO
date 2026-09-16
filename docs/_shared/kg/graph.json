@@ -4,11 +4,11 @@
     "extractor_version": "1.0.0",
     "generated_at": "1970-01-01T00:00:00.000Z",
     "root": "docs",
-    "node_count": 3,
-    "edge_count": 5,
+    "node_count": 30,
+    "edge_count": 108,
     "coverage": {
-      "docs_total": 2,
-      "docs_parsed": 0,
+      "docs_total": 13,
+      "docs_parsed": 6,
       "unparsed_docs": [
         {
           "path": "docs/README.md",
@@ -16,6 +16,26 @@
         },
         {
           "path": "docs/references/COMMIT.md",
+          "reason": "no-frontmatter-and-no-known-shape"
+        },
+        {
+          "path": "docs/releases/0.1.0.md",
+          "reason": "no-frontmatter-and-no-known-shape"
+        },
+        {
+          "path": "docs/releases/0.2.0.md",
+          "reason": "no-frontmatter-and-no-known-shape"
+        },
+        {
+          "path": "docs/releases/0.2.1.md",
+          "reason": "no-frontmatter-and-no-known-shape"
+        },
+        {
+          "path": "docs/superpowers/plans/2026-08-24-document-ai-evidence-prism.md",
+          "reason": "no-frontmatter-and-no-known-shape"
+        },
+        {
+          "path": "docs/superpowers/specs/2026-08-24-document-ai-workspace-design.md",
           "reason": "no-frontmatter-and-no-known-shape"
         }
       ],
@@ -33,7 +53,7 @@
       "type": "doc",
       "subtype": null,
       "feature": null,
-      "title": "down-town docs",
+      "title": "Tuyến tài liệu Town Hown",
       "status": null,
       "updated": null,
       "source": {
@@ -42,6 +62,314 @@
       },
       "props": {
         "doc_type": "unknown"
+      }
+    },
+    {
+      "key": "docs/downtown/README.md",
+      "type": "doc",
+      "subtype": null,
+      "feature": "downtown",
+      "title": "Downtown — bộ tài liệu chuẩn của Town Hown",
+      "status": "active",
+      "updated": "2026-09-02",
+      "source": {
+        "file": "docs/downtown/README.md",
+        "line": 15
+      },
+      "props": {
+        "doc_type": "documentation-index"
+      }
+    },
+    {
+      "key": "docs/downtown/architecture.md",
+      "type": "doc",
+      "subtype": null,
+      "feature": "downtown",
+      "title": "Kiến trúc Town Hown",
+      "status": "active",
+      "updated": "2026-09-02",
+      "source": {
+        "file": "docs/downtown/architecture.md",
+        "line": 11
+      },
+      "props": {
+        "doc_type": "architecture"
+      }
+    },
+    {
+      "key": "docs/downtown/development.md",
+      "type": "doc",
+      "subtype": null,
+      "feature": "downtown",
+      "title": "Phát triển Town Hown",
+      "status": "active",
+      "updated": "2026-09-02",
+      "source": {
+        "file": "docs/downtown/development.md",
+        "line": 12
+      },
+      "props": {
+        "doc_type": "development-guide"
+      }
+    },
+    {
+      "key": "docs/downtown/operations.md",
+      "type": "doc",
+      "subtype": null,
+      "feature": "downtown",
+      "title": "Vận hành Town Hown",
+      "status": "active",
+      "updated": "2026-09-02",
+      "source": {
+        "file": "docs/downtown/operations.md",
+        "line": 12
+      },
+      "props": {
+        "doc_type": "operations-guide",
+        "authors": [
+          "Tran Tan Dat"
+        ],
+        "last_activity": "2026-09-02"
+      }
+    },
+    {
+      "key": "docs/downtown/prd.md",
+      "type": "doc",
+      "subtype": null,
+      "feature": "downtown",
+      "title": "PRD sản phẩm Town Hown",
+      "status": "in-review",
+      "updated": "2026-09-13",
+      "source": {
+        "file": "docs/downtown/prd.md",
+        "line": 14
+      },
+      "props": {
+        "doc_type": "prd-product"
+      }
+    },
+    {
+      "key": "docs/downtown/prd.md#OQ-1",
+      "type": "open_question",
+      "subtype": null,
+      "feature": "downtown",
+      "title": "Baseline recruitment, onboarding, assessment và task lấy từ đâu?",
+      "status": "open",
+      "updated": "2026-09-13",
+      "source": {
+        "file": "docs/downtown/prd.md",
+        "line": 835
+      },
+      "props": {
+        "oq_id": "OQ-1"
+      }
+    },
+    {
+      "key": "docs/downtown/prd.md#OQ-10",
+      "type": "open_question",
+      "subtype": null,
+      "feature": "downtown",
+      "title": "Email cần SLA, retry, idempotency, bounce và fallback nào?",
+      "status": "open",
+      "updated": "2026-09-13",
+      "source": {
+        "file": "docs/downtown/prd.md",
+        "line": 844
+      },
+      "props": {
+        "oq_id": "OQ-10"
+      }
+    },
+    {
+      "key": "docs/downtown/prd.md#OQ-11",
+      "type": "open_question",
+      "subtype": null,
+      "feature": "downtown",
+      "title": "Ai duyệt taxonomy, level, weight và threshold kỹ năng?",
+      "status": "open",
+      "updated": "2026-09-13",
+      "source": {
+        "file": "docs/downtown/prd.md",
+        "line": 845
+      },
+      "props": {
+        "oq_id": "OQ-11"
+      }
+    },
+    {
+      "key": "docs/downtown/prd.md#OQ-12",
+      "type": "open_question",
+      "subtype": null,
+      "feature": "downtown",
+      "title": "Ai duyệt chính sách công bố khu vực camera, ngưỡng cảnh báo và",
+      "status": "open",
+      "updated": "2026-09-13",
+      "source": {
+        "file": "docs/downtown/prd.md",
+        "line": 846
+      },
+      "props": {
+        "oq_id": "OQ-12"
+      }
+    },
+    {
+      "key": "docs/downtown/prd.md#OQ-13",
+      "type": "open_question",
+      "subtype": null,
+      "feature": "downtown",
+      "title": "Ai duyệt chính sách gửi ảnh giấy tờ chứa dữ liệu nhạy cảm tới",
+      "status": "open",
+      "updated": "2026-09-13",
+      "source": {
+        "file": "docs/downtown/prd.md",
+        "line": 848
+      },
+      "props": {
+        "oq_id": "OQ-13"
+      }
+    },
+    {
+      "key": "docs/downtown/prd.md#OQ-2",
+      "type": "open_question",
+      "subtype": null,
+      "feature": "downtown",
+      "title": "North Star, target 3/6/12 tháng và mốc rollout nào được duyệt?",
+      "status": "open",
+      "updated": "2026-09-13",
+      "source": {
+        "file": "docs/downtown/prd.md",
+        "line": 836
+      },
+      "props": {
+        "oq_id": "OQ-2"
+      }
+    },
+    {
+      "key": "docs/downtown/prd.md#OQ-3",
+      "type": "open_question",
+      "subtype": null,
+      "feature": "downtown",
+      "title": "Thị trường/compliance chính là Việt Nam/PDPA hay còn khu vực khác?",
+      "status": "open",
+      "updated": "2026-09-13",
+      "source": {
+        "file": "docs/downtown/prd.md",
+        "line": 837
+      },
+      "props": {
+        "oq_id": "OQ-3"
+      }
+    },
+    {
+      "key": "docs/downtown/prd.md#OQ-4",
+      "type": "open_question",
+      "subtype": null,
+      "feature": "downtown",
+      "title": "Pricing B2B theo tổ chức, user hay module?",
+      "status": "open",
+      "updated": "2026-09-13",
+      "source": {
+        "file": "docs/downtown/prd.md",
+        "line": 838
+      },
+      "props": {
+        "oq_id": "OQ-4"
+      }
+    },
+    {
+      "key": "docs/downtown/prd.md#OQ-5",
+      "type": "open_question",
+      "subtype": null,
+      "feature": "downtown",
+      "title": "GitHub Actions hay GitLab/VPS là deployment authority?",
+      "status": "open",
+      "updated": "2026-09-13",
+      "source": {
+        "file": "docs/downtown/prd.md",
+        "line": 839
+      },
+      "props": {
+        "oq_id": "OQ-5"
+      }
+    },
+    {
+      "key": "docs/downtown/prd.md#OQ-6",
+      "type": "open_question",
+      "subtype": null,
+      "feature": "downtown",
+      "title": "Retention/consent cho CV, recording, transcript, email và hồ sơ?",
+      "status": "open",
+      "updated": "2026-09-13",
+      "source": {
+        "file": "docs/downtown/prd.md",
+        "line": 840
+      },
+      "props": {
+        "oq_id": "OQ-6"
+      }
+    },
+    {
+      "key": "docs/downtown/prd.md#OQ-7",
+      "type": "open_question",
+      "subtype": null,
+      "feature": "downtown",
+      "title": "Economic buyer, pain, urgency, adoption và willingness-to-pay đã có bằng chứng nào?",
+      "status": "open",
+      "updated": "2026-09-13",
+      "source": {
+        "file": "docs/downtown/prd.md",
+        "line": 841
+      },
+      "props": {
+        "oq_id": "OQ-7"
+      }
+    },
+    {
+      "key": "docs/downtown/prd.md#OQ-8",
+      "type": "open_question",
+      "subtype": null,
+      "feature": "downtown",
+      "title": "Đánh giá nhân viên theo kỳ hay nhu cầu; ai xem và dùng kết quả?",
+      "status": "open",
+      "updated": "2026-09-13",
+      "source": {
+        "file": "docs/downtown/prd.md",
+        "line": 842
+      },
+      "props": {
+        "oq_id": "OQ-8"
+      }
+    },
+    {
+      "key": "docs/downtown/prd.md#OQ-9",
+      "type": "open_question",
+      "subtype": null,
+      "feature": "downtown",
+      "title": "Tài liệu đổi thì tự sync hay owner review trước khi phát hành lại?",
+      "status": "open",
+      "updated": "2026-09-13",
+      "source": {
+        "file": "docs/downtown/prd.md",
+        "line": 843
+      },
+      "props": {
+        "oq_id": "OQ-9"
+      }
+    },
+    {
+      "key": "docs/downtown/security.md",
+      "type": "doc",
+      "subtype": null,
+      "feature": "downtown",
+      "title": "Bảo mật và quyền riêng tư Town Hown",
+      "status": "active",
+      "updated": "2026-09-02",
+      "source": {
+        "file": "docs/downtown/security.md",
+        "line": 12
+      },
+      "props": {
+        "doc_type": "security-policy"
       }
     },
     {
@@ -61,6 +389,104 @@
       }
     },
     {
+      "key": "docs/releases/0.1.0.md",
+      "type": "doc",
+      "subtype": null,
+      "feature": "releases",
+      "title": "down-town 0.1.0",
+      "status": null,
+      "updated": null,
+      "source": {
+        "file": "docs/releases/0.1.0.md",
+        "line": 1
+      },
+      "props": {
+        "doc_type": "unknown"
+      }
+    },
+    {
+      "key": "docs/releases/0.2.0.md",
+      "type": "doc",
+      "subtype": null,
+      "feature": "releases",
+      "title": "down-town 0.2.0",
+      "status": null,
+      "updated": null,
+      "source": {
+        "file": "docs/releases/0.2.0.md",
+        "line": 1
+      },
+      "props": {
+        "doc_type": "unknown"
+      }
+    },
+    {
+      "key": "docs/releases/0.2.1.md",
+      "type": "doc",
+      "subtype": null,
+      "feature": "releases",
+      "title": "down-town 0.2.1",
+      "status": null,
+      "updated": null,
+      "source": {
+        "file": "docs/releases/0.2.1.md",
+        "line": 1
+      },
+      "props": {
+        "doc_type": "unknown",
+        "authors": [
+          "Tran Tan Dat"
+        ],
+        "last_activity": "2026-09-02"
+      }
+    },
+    {
+      "key": "docs/superpowers/plans/2026-08-24-document-ai-evidence-prism.md",
+      "type": "doc",
+      "subtype": null,
+      "feature": "superpowers",
+      "title": "Document AI Evidence Prism Implementation Plan",
+      "status": null,
+      "updated": null,
+      "source": {
+        "file": "docs/superpowers/plans/2026-08-24-document-ai-evidence-prism.md",
+        "line": 1
+      },
+      "props": {
+        "doc_type": "unknown"
+      }
+    },
+    {
+      "key": "docs/superpowers/specs/2026-08-24-document-ai-workspace-design.md",
+      "type": "doc",
+      "subtype": null,
+      "feature": "superpowers",
+      "title": "Document AI Workspace UI/UX Design",
+      "status": null,
+      "updated": null,
+      "source": {
+        "file": "docs/superpowers/specs/2026-08-24-document-ai-workspace-design.md",
+        "line": 1
+      },
+      "props": {
+        "doc_type": "unknown"
+      }
+    },
+    {
+      "key": "feature:downtown",
+      "type": "feature",
+      "subtype": null,
+      "feature": "downtown",
+      "title": "downtown",
+      "status": null,
+      "updated": null,
+      "source": {
+        "file": "docs/downtown/README.md",
+        "line": 1
+      },
+      "props": {}
+    },
+    {
       "key": "feature:references",
       "type": "feature",
       "subtype": null,
@@ -70,6 +496,34 @@
       "updated": null,
       "source": {
         "file": "docs/references/COMMIT.md",
+        "line": 1
+      },
+      "props": {}
+    },
+    {
+      "key": "feature:releases",
+      "type": "feature",
+      "subtype": null,
+      "feature": "releases",
+      "title": "releases",
+      "status": null,
+      "updated": null,
+      "source": {
+        "file": "docs/releases/0.1.0.md",
+        "line": 1
+      },
+      "props": {}
+    },
+    {
+      "key": "feature:superpowers",
+      "type": "feature",
+      "subtype": null,
+      "feature": "superpowers",
+      "title": "superpowers",
+      "status": null,
+      "updated": null,
+      "source": {
+        "file": "docs/superpowers/plans/2026-08-24-document-ai-evidence-prism.md",
         "line": 1
       },
       "props": {}
@@ -83,7 +537,17 @@
       "provenance": "heuristic",
       "source": {
         "file": "docs/README.md",
-        "line": 7
+        "line": 12
+      }
+    },
+    {
+      "from": "docs/README.md",
+      "to": "Backend",
+      "type": "REFERENCES",
+      "provenance": "heuristic",
+      "source": {
+        "file": "docs/README.md",
+        "line": 16
       }
     },
     {
@@ -93,7 +557,47 @@
       "provenance": "heuristic",
       "source": {
         "file": "docs/README.md",
-        "line": 6
+        "line": 13
+      }
+    },
+    {
+      "from": "docs/README.md",
+      "to": "Frontend/package.json",
+      "type": "REFERENCES",
+      "provenance": "heuristic",
+      "source": {
+        "file": "docs/README.md",
+        "line": 15
+      }
+    },
+    {
+      "from": "docs/README.md",
+      "to": "HRMS_He_thong_quan_ly_nhan_su.md",
+      "type": "REFERENCES",
+      "provenance": "heuristic",
+      "source": {
+        "file": "docs/README.md",
+        "line": 22
+      }
+    },
+    {
+      "from": "docs/README.md",
+      "to": "PRODUCT.md",
+      "type": "REFERENCES",
+      "provenance": "heuristic",
+      "source": {
+        "file": "docs/README.md",
+        "line": 10
+      }
+    },
+    {
+      "from": "docs/README.md",
+      "to": "README.md",
+      "type": "REFERENCES",
+      "provenance": "heuristic",
+      "source": {
+        "file": "docs/README.md",
+        "line": 11
       }
     },
     {
@@ -103,7 +607,47 @@
       "provenance": "heuristic",
       "source": {
         "file": "docs/README.md",
-        "line": 8
+        "line": 14
+      }
+    },
+    {
+      "from": "docs/README.md",
+      "to": "docs/_reverse/README.md",
+      "type": "REFERENCES",
+      "provenance": "heuristic",
+      "source": {
+        "file": "docs/README.md",
+        "line": 18
+      }
+    },
+    {
+      "from": "docs/README.md",
+      "to": "docs/archive/itbaai-legacy/",
+      "type": "REFERENCES",
+      "provenance": "heuristic",
+      "source": {
+        "file": "docs/README.md",
+        "line": 30
+      }
+    },
+    {
+      "from": "docs/README.md",
+      "to": "docs/archive/itbaai-legacy/README.md",
+      "type": "REFERENCES",
+      "provenance": "heuristic",
+      "source": {
+        "file": "docs/README.md",
+        "line": 25
+      }
+    },
+    {
+      "from": "docs/README.md",
+      "to": "docs/downtown/README.md",
+      "type": "REFERENCES",
+      "provenance": "heuristic",
+      "source": {
+        "file": "docs/README.md",
+        "line": 17
       }
     },
     {
@@ -113,7 +657,897 @@
       "provenance": "heuristic",
       "source": {
         "file": "docs/README.md",
-        "line": 5
+        "line": 45
+      }
+    },
+    {
+      "from": "docs/README.md",
+      "to": "plans/",
+      "type": "REFERENCES",
+      "provenance": "heuristic",
+      "source": {
+        "file": "docs/README.md",
+        "line": 28
+      }
+    },
+    {
+      "from": "docs/README.md",
+      "to": "plans/archive/itbaai-legacy/",
+      "type": "REFERENCES",
+      "provenance": "heuristic",
+      "source": {
+        "file": "docs/README.md",
+        "line": 27
+      }
+    },
+    {
+      "from": "docs/downtown/README.md",
+      "to": "AGENTS.md",
+      "type": "REFERENCES",
+      "provenance": "heuristic",
+      "source": {
+        "file": "docs/downtown/README.md",
+        "line": 42
+      }
+    },
+    {
+      "from": "docs/downtown/README.md",
+      "to": "Backend/README.md",
+      "type": "REFERENCES",
+      "provenance": "declared",
+      "source": {
+        "file": "docs/downtown/README.md",
+        "line": 12
+      }
+    },
+    {
+      "from": "docs/downtown/README.md",
+      "to": "docs/_reverse/README.md",
+      "type": "REFERENCES",
+      "provenance": "declared",
+      "source": {
+        "file": "docs/downtown/README.md",
+        "line": 11
+      }
+    },
+    {
+      "from": "docs/downtown/README.md",
+      "to": "docs/downtown/architecture.md",
+      "type": "REFERENCES",
+      "provenance": "declared",
+      "source": {
+        "file": "docs/downtown/README.md",
+        "line": 7
+      }
+    },
+    {
+      "from": "docs/downtown/README.md",
+      "to": "docs/downtown/development.md",
+      "type": "REFERENCES",
+      "provenance": "declared",
+      "source": {
+        "file": "docs/downtown/README.md",
+        "line": 8
+      }
+    },
+    {
+      "from": "docs/downtown/README.md",
+      "to": "docs/downtown/operations.md",
+      "type": "REFERENCES",
+      "provenance": "declared",
+      "source": {
+        "file": "docs/downtown/README.md",
+        "line": 9
+      }
+    },
+    {
+      "from": "docs/downtown/README.md",
+      "to": "docs/downtown/prd.md",
+      "type": "REFERENCES",
+      "provenance": "declared",
+      "source": {
+        "file": "docs/downtown/README.md",
+        "line": 6
+      }
+    },
+    {
+      "from": "docs/downtown/README.md",
+      "to": "docs/downtown/security.md",
+      "type": "REFERENCES",
+      "provenance": "declared",
+      "source": {
+        "file": "docs/downtown/README.md",
+        "line": 10
+      }
+    },
+    {
+      "from": "docs/downtown/architecture.md",
+      "to": "Backend",
+      "type": "REFERENCES",
+      "provenance": "heuristic",
+      "source": {
+        "file": "docs/downtown/architecture.md",
+        "line": 19
+      }
+    },
+    {
+      "from": "docs/downtown/architecture.md",
+      "to": "Backend/README.md",
+      "type": "REFERENCES",
+      "provenance": "heuristic",
+      "source": {
+        "file": "docs/downtown/architecture.md",
+        "line": 65
+      }
+    },
+    {
+      "from": "docs/downtown/architecture.md",
+      "to": "Backend/supabase/functions",
+      "type": "REFERENCES",
+      "provenance": "heuristic",
+      "source": {
+        "file": "docs/downtown/architecture.md",
+        "line": 66
+      }
+    },
+    {
+      "from": "docs/downtown/architecture.md",
+      "to": "Backend/supabase/migrations",
+      "type": "REFERENCES",
+      "provenance": "heuristic",
+      "source": {
+        "file": "docs/downtown/architecture.md",
+        "line": 64
+      }
+    },
+    {
+      "from": "docs/downtown/architecture.md",
+      "to": "Frontend",
+      "type": "REFERENCES",
+      "provenance": "heuristic",
+      "source": {
+        "file": "docs/downtown/architecture.md",
+        "line": 19
+      }
+    },
+    {
+      "from": "docs/downtown/architecture.md",
+      "to": "Frontend/Dockerfile",
+      "type": "REFERENCES",
+      "provenance": "heuristic",
+      "source": {
+        "file": "docs/downtown/architecture.md",
+        "line": 68
+      }
+    },
+    {
+      "from": "docs/downtown/architecture.md",
+      "to": "Frontend/next.config.ts",
+      "type": "REFERENCES",
+      "provenance": "heuristic",
+      "source": {
+        "file": "docs/downtown/architecture.md",
+        "line": 192
+      }
+    },
+    {
+      "from": "docs/downtown/architecture.md",
+      "to": "Frontend/package.json",
+      "type": "REFERENCES",
+      "provenance": "heuristic",
+      "source": {
+        "file": "docs/downtown/architecture.md",
+        "line": 67
+      }
+    },
+    {
+      "from": "docs/downtown/architecture.md",
+      "to": "Frontend/src/app",
+      "type": "REFERENCES",
+      "provenance": "heuristic",
+      "source": {
+        "file": "docs/downtown/architecture.md",
+        "line": 58
+      }
+    },
+    {
+      "from": "docs/downtown/architecture.md",
+      "to": "Frontend/src/components",
+      "type": "REFERENCES",
+      "provenance": "heuristic",
+      "source": {
+        "file": "docs/downtown/architecture.md",
+        "line": 59
+      }
+    },
+    {
+      "from": "docs/downtown/architecture.md",
+      "to": "Frontend/src/hooks",
+      "type": "REFERENCES",
+      "provenance": "heuristic",
+      "source": {
+        "file": "docs/downtown/architecture.md",
+        "line": 60
+      }
+    },
+    {
+      "from": "docs/downtown/architecture.md",
+      "to": "Frontend/src/lib",
+      "type": "REFERENCES",
+      "provenance": "heuristic",
+      "source": {
+        "file": "docs/downtown/architecture.md",
+        "line": 61
+      }
+    },
+    {
+      "from": "docs/downtown/architecture.md",
+      "to": "Frontend/src/lib/recruitment/state-machine.ts",
+      "type": "REFERENCES",
+      "provenance": "heuristic",
+      "source": {
+        "file": "docs/downtown/architecture.md",
+        "line": 96
+      }
+    },
+    {
+      "from": "docs/downtown/architecture.md",
+      "to": "Frontend/src/lib/supabase",
+      "type": "REFERENCES",
+      "provenance": "heuristic",
+      "source": {
+        "file": "docs/downtown/architecture.md",
+        "line": 102
+      }
+    },
+    {
+      "from": "docs/downtown/architecture.md",
+      "to": "Frontend/src/middleware.ts",
+      "type": "REFERENCES",
+      "provenance": "heuristic",
+      "source": {
+        "file": "docs/downtown/architecture.md",
+        "line": 63
+      }
+    },
+    {
+      "from": "docs/downtown/architecture.md",
+      "to": "Frontend/src/types",
+      "type": "REFERENCES",
+      "provenance": "heuristic",
+      "source": {
+        "file": "docs/downtown/architecture.md",
+        "line": 62
+      }
+    },
+    {
+      "from": "docs/downtown/architecture.md",
+      "to": "docker-compose.yml",
+      "type": "REFERENCES",
+      "provenance": "heuristic",
+      "source": {
+        "file": "docs/downtown/architecture.md",
+        "line": 68
+      }
+    },
+    {
+      "from": "docs/downtown/architecture.md",
+      "to": "docs/downtown/README.md",
+      "type": "REFERENCES",
+      "provenance": "declared",
+      "source": {
+        "file": "docs/downtown/architecture.md",
+        "line": 6
+      }
+    },
+    {
+      "from": "docs/downtown/architecture.md",
+      "to": "docs/downtown/operations.md",
+      "type": "REFERENCES",
+      "provenance": "heuristic",
+      "source": {
+        "file": "docs/downtown/architecture.md",
+        "line": 196
+      }
+    },
+    {
+      "from": "docs/downtown/architecture.md",
+      "to": "docs/downtown/prd.md",
+      "type": "REFERENCES",
+      "provenance": "declared",
+      "source": {
+        "file": "docs/downtown/architecture.md",
+        "line": 7
+      }
+    },
+    {
+      "from": "docs/downtown/architecture.md",
+      "to": "docs/downtown/security.md",
+      "type": "REFERENCES",
+      "provenance": "declared",
+      "source": {
+        "file": "docs/downtown/architecture.md",
+        "line": 8
+      }
+    },
+    {
+      "from": "docs/downtown/development.md",
+      "to": ".env.example",
+      "type": "REFERENCES",
+      "provenance": "heuristic",
+      "source": {
+        "file": "docs/downtown/development.md",
+        "line": 43
+      }
+    },
+    {
+      "from": "docs/downtown/development.md",
+      "to": "AGENTS.md",
+      "type": "REFERENCES",
+      "provenance": "heuristic",
+      "source": {
+        "file": "docs/downtown/development.md",
+        "line": 20
+      }
+    },
+    {
+      "from": "docs/downtown/development.md",
+      "to": "Backend/.env.example",
+      "type": "REFERENCES",
+      "provenance": "heuristic",
+      "source": {
+        "file": "docs/downtown/development.md",
+        "line": 47
+      }
+    },
+    {
+      "from": "docs/downtown/development.md",
+      "to": "Frontend/.env.example",
+      "type": "REFERENCES",
+      "provenance": "heuristic",
+      "source": {
+        "file": "docs/downtown/development.md",
+        "line": 41
+      }
+    },
+    {
+      "from": "docs/downtown/development.md",
+      "to": "docs/downtown/README.md",
+      "type": "REFERENCES",
+      "provenance": "declared",
+      "source": {
+        "file": "docs/downtown/development.md",
+        "line": 6
+      }
+    },
+    {
+      "from": "docs/downtown/development.md",
+      "to": "docs/downtown/architecture.md",
+      "type": "REFERENCES",
+      "provenance": "declared",
+      "source": {
+        "file": "docs/downtown/development.md",
+        "line": 7
+      }
+    },
+    {
+      "from": "docs/downtown/development.md",
+      "to": "docs/downtown/operations.md",
+      "type": "REFERENCES",
+      "provenance": "declared",
+      "source": {
+        "file": "docs/downtown/development.md",
+        "line": 8
+      }
+    },
+    {
+      "from": "docs/downtown/development.md",
+      "to": "docs/downtown/security.md",
+      "type": "REFERENCES",
+      "provenance": "declared",
+      "source": {
+        "file": "docs/downtown/development.md",
+        "line": 9
+      }
+    },
+    {
+      "from": "docs/downtown/operations.md",
+      "to": ".env.example",
+      "type": "REFERENCES",
+      "provenance": "heuristic",
+      "source": {
+        "file": "docs/downtown/operations.md",
+        "line": 153
+      }
+    },
+    {
+      "from": "docs/downtown/operations.md",
+      "to": ".github/workflows",
+      "type": "REFERENCES",
+      "provenance": "heuristic",
+      "source": {
+        "file": "docs/downtown/operations.md",
+        "line": 132
+      }
+    },
+    {
+      "from": "docs/downtown/operations.md",
+      "to": ".github/workflows/docker-publish.yml",
+      "type": "REFERENCES",
+      "provenance": "heuristic",
+      "source": {
+        "file": "docs/downtown/operations.md",
+        "line": 131
+      }
+    },
+    {
+      "from": "docs/downtown/operations.md",
+      "to": "Backend/README.md",
+      "type": "REFERENCES",
+      "provenance": "heuristic",
+      "source": {
+        "file": "docs/downtown/operations.md",
+        "line": 134
+      }
+    },
+    {
+      "from": "docs/downtown/operations.md",
+      "to": "Backend/supabase/migrations",
+      "type": "REFERENCES",
+      "provenance": "heuristic",
+      "source": {
+        "file": "docs/downtown/operations.md",
+        "line": 133
+      }
+    },
+    {
+      "from": "docs/downtown/operations.md",
+      "to": "Frontend/.env.example",
+      "type": "REFERENCES",
+      "provenance": "heuristic",
+      "source": {
+        "file": "docs/downtown/operations.md",
+        "line": 152
+      }
+    },
+    {
+      "from": "docs/downtown/operations.md",
+      "to": "Frontend/Dockerfile",
+      "type": "REFERENCES",
+      "provenance": "heuristic",
+      "source": {
+        "file": "docs/downtown/operations.md",
+        "line": 30
+      }
+    },
+    {
+      "from": "docs/downtown/operations.md",
+      "to": "Frontend/next.config.ts",
+      "type": "REFERENCES",
+      "provenance": "heuristic",
+      "source": {
+        "file": "docs/downtown/operations.md",
+        "line": 128
+      }
+    },
+    {
+      "from": "docs/downtown/operations.md",
+      "to": "Frontend/package.json",
+      "type": "REFERENCES",
+      "provenance": "heuristic",
+      "source": {
+        "file": "docs/downtown/operations.md",
+        "line": 127
+      }
+    },
+    {
+      "from": "docs/downtown/operations.md",
+      "to": "deploy/vps/README.md",
+      "type": "REFERENCES",
+      "provenance": "heuristic",
+      "source": {
+        "file": "docs/downtown/operations.md",
+        "line": 279
+      }
+    },
+    {
+      "from": "docs/downtown/operations.md",
+      "to": "docker-compose.yml",
+      "type": "REFERENCES",
+      "provenance": "heuristic",
+      "source": {
+        "file": "docs/downtown/operations.md",
+        "line": 28
+      }
+    },
+    {
+      "from": "docs/downtown/operations.md",
+      "to": "docs/downtown/README.md",
+      "type": "REFERENCES",
+      "provenance": "declared",
+      "source": {
+        "file": "docs/downtown/operations.md",
+        "line": 6
+      }
+    },
+    {
+      "from": "docs/downtown/operations.md",
+      "to": "docs/downtown/architecture.md",
+      "type": "REFERENCES",
+      "provenance": "declared",
+      "source": {
+        "file": "docs/downtown/operations.md",
+        "line": 7
+      }
+    },
+    {
+      "from": "docs/downtown/operations.md",
+      "to": "docs/downtown/development.md",
+      "type": "REFERENCES",
+      "provenance": "declared",
+      "source": {
+        "file": "docs/downtown/operations.md",
+        "line": 8
+      }
+    },
+    {
+      "from": "docs/downtown/operations.md",
+      "to": "docs/downtown/security.md",
+      "type": "REFERENCES",
+      "provenance": "declared",
+      "source": {
+        "file": "docs/downtown/operations.md",
+        "line": 9
+      }
+    },
+    {
+      "from": "docs/downtown/prd.md",
+      "to": "docs/downtown/prd.md#OQ-1",
+      "type": "CONTAINS",
+      "provenance": "declared",
+      "source": {
+        "file": "docs/downtown/prd.md",
+        "line": 835
+      }
+    },
+    {
+      "from": "docs/downtown/prd.md",
+      "to": "docs/downtown/prd.md#OQ-10",
+      "type": "CONTAINS",
+      "provenance": "declared",
+      "source": {
+        "file": "docs/downtown/prd.md",
+        "line": 844
+      }
+    },
+    {
+      "from": "docs/downtown/prd.md",
+      "to": "docs/downtown/prd.md#OQ-11",
+      "type": "CONTAINS",
+      "provenance": "declared",
+      "source": {
+        "file": "docs/downtown/prd.md",
+        "line": 845
+      }
+    },
+    {
+      "from": "docs/downtown/prd.md",
+      "to": "docs/downtown/prd.md#OQ-12",
+      "type": "CONTAINS",
+      "provenance": "declared",
+      "source": {
+        "file": "docs/downtown/prd.md",
+        "line": 846
+      }
+    },
+    {
+      "from": "docs/downtown/prd.md",
+      "to": "docs/downtown/prd.md#OQ-13",
+      "type": "CONTAINS",
+      "provenance": "declared",
+      "source": {
+        "file": "docs/downtown/prd.md",
+        "line": 848
+      }
+    },
+    {
+      "from": "docs/downtown/prd.md",
+      "to": "docs/downtown/prd.md#OQ-2",
+      "type": "CONTAINS",
+      "provenance": "declared",
+      "source": {
+        "file": "docs/downtown/prd.md",
+        "line": 836
+      }
+    },
+    {
+      "from": "docs/downtown/prd.md",
+      "to": "docs/downtown/prd.md#OQ-3",
+      "type": "CONTAINS",
+      "provenance": "declared",
+      "source": {
+        "file": "docs/downtown/prd.md",
+        "line": 837
+      }
+    },
+    {
+      "from": "docs/downtown/prd.md",
+      "to": "docs/downtown/prd.md#OQ-4",
+      "type": "CONTAINS",
+      "provenance": "declared",
+      "source": {
+        "file": "docs/downtown/prd.md",
+        "line": 838
+      }
+    },
+    {
+      "from": "docs/downtown/prd.md",
+      "to": "docs/downtown/prd.md#OQ-5",
+      "type": "CONTAINS",
+      "provenance": "declared",
+      "source": {
+        "file": "docs/downtown/prd.md",
+        "line": 839
+      }
+    },
+    {
+      "from": "docs/downtown/prd.md",
+      "to": "docs/downtown/prd.md#OQ-6",
+      "type": "CONTAINS",
+      "provenance": "declared",
+      "source": {
+        "file": "docs/downtown/prd.md",
+        "line": 840
+      }
+    },
+    {
+      "from": "docs/downtown/prd.md",
+      "to": "docs/downtown/prd.md#OQ-7",
+      "type": "CONTAINS",
+      "provenance": "declared",
+      "source": {
+        "file": "docs/downtown/prd.md",
+        "line": 841
+      }
+    },
+    {
+      "from": "docs/downtown/prd.md",
+      "to": "docs/downtown/prd.md#OQ-8",
+      "type": "CONTAINS",
+      "provenance": "declared",
+      "source": {
+        "file": "docs/downtown/prd.md",
+        "line": 842
+      }
+    },
+    {
+      "from": "docs/downtown/prd.md",
+      "to": "docs/downtown/prd.md#OQ-9",
+      "type": "CONTAINS",
+      "provenance": "declared",
+      "source": {
+        "file": "docs/downtown/prd.md",
+        "line": 843
+      }
+    },
+    {
+      "from": "docs/downtown/prd.md",
+      "to": "docs/_reverse/README.md",
+      "type": "REFERENCES",
+      "provenance": "declared",
+      "source": {
+        "file": "docs/downtown/prd.md",
+        "line": 11
+      }
+    },
+    {
+      "from": "docs/downtown/prd.md",
+      "to": "docs/archive/itbaai-legacy/README.md",
+      "type": "REFERENCES",
+      "provenance": "declared",
+      "source": {
+        "file": "docs/downtown/prd.md",
+        "line": 10
+      }
+    },
+    {
+      "from": "docs/downtown/prd.md",
+      "to": "docs/downtown/README.md",
+      "type": "REFERENCES",
+      "provenance": "declared",
+      "source": {
+        "file": "docs/downtown/prd.md",
+        "line": 6
+      }
+    },
+    {
+      "from": "docs/downtown/prd.md",
+      "to": "docs/downtown/architecture.md",
+      "type": "REFERENCES",
+      "provenance": "declared",
+      "source": {
+        "file": "docs/downtown/prd.md",
+        "line": 7
+      }
+    },
+    {
+      "from": "docs/downtown/prd.md",
+      "to": "docs/downtown/security.md",
+      "type": "REFERENCES",
+      "provenance": "declared",
+      "source": {
+        "file": "docs/downtown/prd.md",
+        "line": 8
+      }
+    },
+    {
+      "from": "docs/downtown/prd.md",
+      "to": "plans/archive/itbaai-legacy/imported-requirements/hitek-testhub/hitek-testhub-requirements.md",
+      "type": "REFERENCES",
+      "provenance": "declared",
+      "source": {
+        "file": "docs/downtown/prd.md",
+        "line": 9
+      }
+    },
+    {
+      "from": "docs/downtown/security.md",
+      "to": "docs/_reverse/recruitment-and-interviews/gaps.md",
+      "type": "REFERENCES",
+      "provenance": "heuristic",
+      "source": {
+        "file": "docs/downtown/security.md",
+        "line": 141
+      }
+    },
+    {
+      "from": "docs/downtown/security.md",
+      "to": "docs/downtown/README.md",
+      "type": "REFERENCES",
+      "provenance": "declared",
+      "source": {
+        "file": "docs/downtown/security.md",
+        "line": 6
+      }
+    },
+    {
+      "from": "docs/downtown/security.md",
+      "to": "docs/downtown/architecture.md",
+      "type": "REFERENCES",
+      "provenance": "declared",
+      "source": {
+        "file": "docs/downtown/security.md",
+        "line": 8
+      }
+    },
+    {
+      "from": "docs/downtown/security.md",
+      "to": "docs/downtown/operations.md",
+      "type": "REFERENCES",
+      "provenance": "declared",
+      "source": {
+        "file": "docs/downtown/security.md",
+        "line": 9
+      }
+    },
+    {
+      "from": "docs/downtown/security.md",
+      "to": "docs/downtown/prd.md",
+      "type": "REFERENCES",
+      "provenance": "declared",
+      "source": {
+        "file": "docs/downtown/security.md",
+        "line": 7
+      }
+    },
+    {
+      "from": "docs/releases/0.1.0.md",
+      "to": "modules/vision-ocr/README.md",
+      "type": "REFERENCES",
+      "provenance": "heuristic",
+      "source": {
+        "file": "docs/releases/0.1.0.md",
+        "line": 22
+      }
+    },
+    {
+      "from": "docs/releases/0.2.0.md",
+      "to": "deploy/vps/README.md",
+      "type": "REFERENCES",
+      "provenance": "heuristic",
+      "source": {
+        "file": "docs/releases/0.2.0.md",
+        "line": 21
+      }
+    },
+    {
+      "from": "docs/releases/0.2.0.md",
+      "to": "docs/downtown/operations.md",
+      "type": "REFERENCES",
+      "provenance": "heuristic",
+      "source": {
+        "file": "docs/releases/0.2.0.md",
+        "line": 21
+      }
+    },
+    {
+      "from": "docs/releases/0.2.1.md",
+      "to": "deploy/vps/README.md",
+      "type": "REFERENCES",
+      "provenance": "heuristic",
+      "source": {
+        "file": "docs/releases/0.2.1.md",
+        "line": 18
+      }
+    },
+    {
+      "from": "docs/releases/0.2.1.md",
+      "to": "docs/downtown/operations.md",
+      "type": "REFERENCES",
+      "provenance": "heuristic",
+      "source": {
+        "file": "docs/releases/0.2.1.md",
+        "line": 18
+      }
+    },
+    {
+      "from": "feature:downtown",
+      "to": "docs/downtown/README.md",
+      "type": "CONTAINS",
+      "provenance": "heuristic",
+      "source": {
+        "file": "docs/downtown/README.md",
+        "line": 1
+      }
+    },
+    {
+      "from": "feature:downtown",
+      "to": "docs/downtown/architecture.md",
+      "type": "CONTAINS",
+      "provenance": "heuristic",
+      "source": {
+        "file": "docs/downtown/architecture.md",
+        "line": 1
+      }
+    },
+    {
+      "from": "feature:downtown",
+      "to": "docs/downtown/development.md",
+      "type": "CONTAINS",
+      "provenance": "heuristic",
+      "source": {
+        "file": "docs/downtown/development.md",
+        "line": 1
+      }
+    },
+    {
+      "from": "feature:downtown",
+      "to": "docs/downtown/operations.md",
+      "type": "CONTAINS",
+      "provenance": "heuristic",
+      "source": {
+        "file": "docs/downtown/operations.md",
+        "line": 1
+      }
+    },
+    {
+      "from": "feature:downtown",
+      "to": "docs/downtown/prd.md",
+      "type": "CONTAINS",
+      "provenance": "heuristic",
+      "source": {
+        "file": "docs/downtown/prd.md",
+        "line": 1
+      }
+    },
+    {
+      "from": "feature:downtown",
+      "to": "docs/downtown/security.md",
+      "type": "CONTAINS",
+      "provenance": "heuristic",
+      "source": {
+        "file": "docs/downtown/security.md",
+        "line": 1
       }
     },
     {
@@ -123,6 +1557,56 @@
       "provenance": "heuristic",
       "source": {
         "file": "docs/references/COMMIT.md",
+        "line": 1
+      }
+    },
+    {
+      "from": "feature:releases",
+      "to": "docs/releases/0.1.0.md",
+      "type": "CONTAINS",
+      "provenance": "heuristic",
+      "source": {
+        "file": "docs/releases/0.1.0.md",
+        "line": 1
+      }
+    },
+    {
+      "from": "feature:releases",
+      "to": "docs/releases/0.2.0.md",
+      "type": "CONTAINS",
+      "provenance": "heuristic",
+      "source": {
+        "file": "docs/releases/0.2.0.md",
+        "line": 1
+      }
+    },
+    {
+      "from": "feature:releases",
+      "to": "docs/releases/0.2.1.md",
+      "type": "CONTAINS",
+      "provenance": "heuristic",
+      "source": {
+        "file": "docs/releases/0.2.1.md",
+        "line": 1
+      }
+    },
+    {
+      "from": "feature:superpowers",
+      "to": "docs/superpowers/plans/2026-08-24-document-ai-evidence-prism.md",
+      "type": "CONTAINS",
+      "provenance": "heuristic",
+      "source": {
+        "file": "docs/superpowers/plans/2026-08-24-document-ai-evidence-prism.md",
+        "line": 1
+      }
+    },
+    {
+      "from": "feature:superpowers",
+      "to": "docs/superpowers/specs/2026-08-24-document-ai-workspace-design.md",
+      "type": "CONTAINS",
+      "provenance": "heuristic",
+      "source": {
+        "file": "docs/superpowers/specs/2026-08-24-document-ai-workspace-design.md",
         "line": 1
       }
     }

@@ -86,8 +86,8 @@
 }
 
 .dark {
-  /* Deep Intelligence palette — canonical premium hex (source of truth:
-   * docs/design-system-overview.html). Token NAMES kept (shadcn) so all
+  /* Deep Intelligence palette — runtime values for the design contract in
+   * docs/downtown/design-guidelines.md. Token NAMES kept (shadcn) so all
    * bg-card / bg-primary / text-muted-foreground utilities resolve to the
    * shipped indigo/navy palette. */
   --background: #121A2E;                       /* canvas / app shell */

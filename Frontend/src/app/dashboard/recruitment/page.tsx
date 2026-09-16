@@ -15,7 +15,7 @@ export default async function RecruitmentPage() {
     .eq("auth_id", user.id)
     .single();
 
-  const userRole = profile?.role ?? "user";
+  const userRole = profile?.role ?? "super_admin";
 
   return (
     <div className="min-h-screen bg-[#0A1120]">
