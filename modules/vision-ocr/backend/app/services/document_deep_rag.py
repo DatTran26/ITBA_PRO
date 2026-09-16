@@ -270,7 +270,7 @@ class DocumentDeepRAGService:
         if GEMINI_API_KEY and ocr_text.strip():
             try:
                 gaps_summary_str = "\n".join([f"- {g['element']}: {g['issue']} ({g['law_ref']})" for g in rag_audit["gaps"]])
-                
+
                 prompt = f"""
 Bạn là Trợ lý AI Pháp chế & Chuyên gia Văn thư Hành chính Nhà nước cấp cao (Senior Legal & Document Engineer).
 Nhiệm vụ của bạn là xem xét bản quét OCR dưới đây, giải quyết câu hỏi của người dùng:

@@ -55,4 +55,3 @@ class SimpleGraphRAG:
     def extract_nd30_conditions(self, text: str) -> Dict[str, Any]:
         """Extract mandatory legal conditions from Decree 30 Knowledge Graph."""
         return self.nd30_kg.generate_context_rag_prompt(text)
-

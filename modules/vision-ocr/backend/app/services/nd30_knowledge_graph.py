@@ -180,7 +180,7 @@ class ND30KnowledgeGraph:
         ]
         if any(kw in t or kw in tn for kw in list_kw):
             return "DANH SÁCH VĂN BẢN"
-        
+
         # 3. Check for BẢN TƯỜNG TRÌNH (accident, report, loss, damage)
         tuong_trinh_kw = [
             "tường trình", "tuong trinh",

@@ -141,7 +141,7 @@ export default function AIDraftingCopilot({
 
     return (
         <div className="rounded-2xl border border-indigo-500/30 bg-gradient-to-b from-[#111827] via-[#0F172A] to-[#0A0E1A] p-4 shadow-xl shadow-indigo-500/10 animate-in slide-in-from-bottom-3 duration-200 mb-4">
-            
+
             {/* Header */}
             <div className="flex items-center justify-between border-b border-white/[0.08] pb-3 mb-3">
                 <div className="flex items-center gap-2.5">

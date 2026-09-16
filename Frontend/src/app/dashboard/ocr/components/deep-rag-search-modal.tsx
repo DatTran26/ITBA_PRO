@@ -190,7 +190,7 @@ export default function DeepRAGSearchModal({
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 p-4 backdrop-blur-md animate-in fade-in duration-200">
             <div className="flex flex-col h-[92vh] w-full max-w-6xl rounded-2xl border border-white/10 bg-[#0B0F19] shadow-2xl overflow-hidden">
-                
+
                 {/* Header */}
                 <div className="flex items-center justify-between border-b border-white/10 px-6 py-4 bg-gradient-to-r from-[#111827] via-[#1E1B4B] to-[#0F172A]">
                     <div className="flex items-center gap-3">
@@ -285,8 +285,8 @@ export default function DeepRAGSearchModal({
                         <span>2. Đối soát RAG & Thiếu sót</span>
                         {result?.rag_audit_local && (
                             <span className={`rounded px-1.5 py-0.2 text-[10px] ${
-                                result.rag_audit_local.gap_count > 0 
-                                    ? "bg-amber-500/20 text-amber-300 border border-amber-500/30" 
+                                result.rag_audit_local.gap_count > 0
+                                    ? "bg-amber-500/20 text-amber-300 border border-amber-500/30"
                                     : "bg-emerald-500/20 text-emerald-300"
                             }`}>
                                 {result.rag_audit_local.gap_count} thiếu sót
@@ -388,17 +388,17 @@ export default function DeepRAGSearchModal({
                                                 </span>
                                                 <div className="flex items-center gap-4 pt-1">
                                                     <div className={`text-4xl font-black ${
-                                                        result.rag_audit_local.compliance_score >= 80 
-                                                            ? "text-emerald-400" 
-                                                            : result.rag_audit_local.compliance_score >= 50 
-                                                            ? "text-amber-400" 
+                                                        result.rag_audit_local.compliance_score >= 80
+                                                            ? "text-emerald-400"
+                                                            : result.rag_audit_local.compliance_score >= 50
+                                                            ? "text-amber-400"
                                                             : "text-rose-400"
                                                     }`}>
                                                         {result.rag_audit_local.compliance_score}/100
                                                     </div>
                                                     <div className="text-xs text-[#94A3B8]">
-                                                        {result.rag_audit_local.gap_count > 0 
-                                                            ? `Phát hiện ${result.rag_audit_local.gap_count} điểm thiếu sót thể thức cần hoàn thiện.` 
+                                                        {result.rag_audit_local.gap_count > 0
+                                                            ? `Phát hiện ${result.rag_audit_local.gap_count} điểm thiếu sót thể thức cần hoàn thiện.`
                                                             : "Văn bản đạt thể thức cơ bản."}
                                                     </div>
                                                 </div>

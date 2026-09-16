@@ -77,7 +77,7 @@ async def extract_text_from_image(
                 type(paddle_exc).__name__,
             )
             try:
-                text = _tesseract_fallback(image_bytes)
+                text = _local_ocr_fallback(image_bytes)
             except Exception as local_exc:
                 logger.error(
                     "All OCR engines failed (Gemini: %s; Paddle: %s; Tesseract: %s)",
@@ -209,3 +209,8 @@ def _tesseract_fallback(image_bytes: bytes) -> str:
     except Exception as exc:
         logger.error("Tesseract OCR failed (%s)", type(exc).__name__)
         raise RuntimeError("Local OCR failed") from exc
+
+
+def _local_ocr_fallback(image_bytes: bytes) -> str:
+    """Backward-compatible local OCR fallback used by existing tests/callers."""
+    return _tesseract_fallback(image_bytes)
