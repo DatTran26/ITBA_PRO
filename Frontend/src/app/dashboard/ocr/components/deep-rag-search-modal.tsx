@@ -346,7 +346,7 @@ export default function DeepRAGSearchModal({
                         <div className="flex flex-col items-center justify-center h-full text-center py-16 text-[#94A3B8]">
                             <HelpCircle className="h-12 w-12 text-[#475569] mb-3" />
                             <p className="text-sm font-medium">Chưa có kết quả phân tích.</p>
-                            <p className="text-xs text-[#64748B] mt-1">Bấm nút "Chạy lại phân tích" ở trên để bắt đầu.</p>
+                            <p className="text-xs text-[#64748B] mt-1">Bấm nút &quot;Chạy lại phân tích&quot; ở trên để bắt đầu.</p>
                         </div>
                     ) : (
                         <div className="space-y-6">

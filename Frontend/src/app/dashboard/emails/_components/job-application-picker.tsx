@@ -43,7 +43,10 @@ export default function JobApplicationPicker({ value, onChange, className = "" }
     }, []);
 
     useEffect(() => {
-        if (query.length < 2) { setResults([]); return; }
+        if (query.length < 2) {
+            queueMicrotask(() => setResults([]));
+            return;
+        }
         if (timer.current) clearTimeout(timer.current);
         timer.current = setTimeout(async () => {
             const res = await fetch(`/api/emails/job-applications?q=${encodeURIComponent(query)}`);

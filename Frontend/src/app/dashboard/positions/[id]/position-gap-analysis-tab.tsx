@@ -32,13 +32,10 @@ interface Props {
 export default function PositionGapAnalysisTab({ persons, requirements }: Props) {
   const [gaps, setGaps] = useState<GapEntry[]>([]);
   const [loading, setLoading] = useState(true);
+  const hasAnalysisInput = persons.length > 0 && requirements.length > 0;
 
   useEffect(() => {
-    if (!persons.length || !requirements.length) {
-      setGaps([]);
-      setLoading(false);
-      return;
-    }
+    if (!hasAnalysisInput) return;
 
     async function analyze() {
       /* Fetch person_skills for all assigned persons */
@@ -82,9 +79,9 @@ export default function PositionGapAnalysisTab({ persons, requirements }: Props)
     }
 
     analyze();
-  }, [persons, requirements]);
+  }, [hasAnalysisInput, persons, requirements]);
 
-  if (loading) {
+  if (loading && hasAnalysisInput) {
     return (
       <Card className="bg-[#1B253B] border-[#8B99B0]/10 p-6">
         <div className="animate-pulse space-y-3">

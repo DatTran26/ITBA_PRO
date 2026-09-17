@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { GoogleGenAI } from "@google/genai";
+import { getAiConfig } from "@/lib/get-ai-config";
+import { completeChat } from "@/lib/ai-complete";
 import { getAuthContext, isAuthError } from "@/lib/api/auth-helpers";
 import {
   isReportRole,
@@ -27,31 +28,35 @@ function buildAiEvidence(snapshot: ReportSnapshot): ReportAiInsight["evidence"] 
 }
 
 async function fetchAiInsight(snapshot: ReportSnapshot): Promise<ReportAiInsight | undefined> {
-  const apiKey = process.env.GEMINI_API_KEY;
-  if (!apiKey) return undefined;
+  const config = await getAiConfig();
+  if (!config.apiKey) return undefined;
 
-  const model = process.env.GEMINI_MODEL || "gemini-3.6-flash";
   const evidence = buildAiEvidence(snapshot);
   const request = async () => {
-    const ai = new GoogleGenAI({ apiKey });
-    const response = await ai.models.generateContent({
-      model,
-      contents: JSON.stringify({
-        metrics: snapshot.metrics,
-        breakdowns: snapshot.breakdowns,
-        trend: snapshot.trend,
-        evidence,
-      }),
-      config: {
-        systemInstruction:
-          "Bạn là chuyên gia phân tích tuyển dụng. Viết 3-5 câu tiếng Việt, chỉ sử dụng số liệu được cung cấp. Mỗi nhận xét phải nêu rõ tên KPI hoặc JD và giá trị làm căn cứ. Chỉ trả về văn bản thuần, đánh dấu đây là nhận xét tham khảo, không kết luận Pass/Fail hay quyết định tuyển dụng.",
-      },
+    const response = await completeChat({
+      messages: [
+        {
+          role: "system",
+          content:
+            "Bạn là chuyên gia phân tích tuyển dụng. Viết 3-5 câu tiếng Việt, chỉ sử dụng số liệu được cung cấp. Mỗi nhận xét phải nêu rõ tên KPI hoặc JD và giá trị làm căn cứ. Chỉ trả về văn bản thuần, đánh dấu đây là nhận xét tham khảo, không kết luận Pass/Fail hay quyết định tuyển dụng.",
+        },
+        {
+          role: "user",
+          content: JSON.stringify({
+            metrics: snapshot.metrics,
+            breakdowns: snapshot.breakdowns,
+            trend: snapshot.trend,
+            evidence,
+          }),
+        },
+      ],
+      timeoutMs: AI_TIMEOUT_MS,
     });
-    const text = response.text?.trim();
+    const text = response.content.trim();
     if (!text) return undefined;
     return {
       text,
-      model,
+      model: response.model,
       generatedAt: new Date().toISOString(),
       evidence,
     } satisfies ReportAiInsight;

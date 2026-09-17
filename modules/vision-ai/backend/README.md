@@ -31,3 +31,15 @@ Next BFF: `VISION_AI_URL=http://localhost:8001` in `Frontend/.env.local`.
 
 Compose is optional. If you use it, it still injects container paths (`/data/faces`, `/models/behavior.pt`).
 
+## Windows launcher
+
+`Backend/scripts/run-local.cmd` starts the Next.js app, Vision AI on port 8001,
+and OCR on port 8000. Before running it, create the local Vision AI environment
+at `modules/vision-ai/backend/.venv` and configure `.env` with the path to the
+approved YOLO `.pt` weights. The starter path is
+`models/vision-ai/behavior.pt` relative to the repository root.
+
+The supplied behavior models must contain the labels configured in
+`BEHAVIOR_LABELS`; generic COCO weights are not sufficient for workplace
+smoking or empty-seat detection.
+

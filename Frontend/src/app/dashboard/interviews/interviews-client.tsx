@@ -286,13 +286,13 @@ function InterviewCard({ item, userRole, onResultSubmitted }: { item: InterviewI
                 <span className={`text-xs font-medium px-3 py-1.5 rounded-lg border ${existingResult.result === "pass" ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" : "bg-rose-500/10 text-rose-400 border-rose-500/20"}`}>
                   {existingResult.result === "pass" ? "✓ Đạt" : "✗ Không đạt"}
                 </span>
-                {existingResult.note && <span className="text-xs text-[#8B99B0] italic bg-black/20 px-3 py-1.5 rounded-md border border-white/5">"{existingResult.note}"</span>}
+                {existingResult.note && <span className="text-xs text-[#8B99B0] italic bg-black/20 px-3 py-1.5 rounded-md border border-white/5">&quot;{existingResult.note}&quot;</span>}
               </div>
             )}
 
             {/* Recruiter note */}
             {item.recruiter_note && (
-              <p className="text-xs text-[#8B99B0] italic border-l-2 border-white/10 pl-3">"{item.recruiter_note}"</p>
+              <p className="text-xs text-[#8B99B0] italic border-l-2 border-white/10 pl-3">&quot;{item.recruiter_note}&quot;</p>
             )}
 
             {/* Interviewer: pending actions */}
@@ -315,7 +315,7 @@ function InterviewCard({ item, userRole, onResultSubmitted }: { item: InterviewI
                   </div>
                 )}
                 {item.interviewer_note && (
-                  <p className="text-xs text-[#8B99B0] italic bg-black/10 p-2 rounded-md border border-white/5">"{item.interviewer_note}"</p>
+                  <p className="text-xs text-[#8B99B0] italic bg-black/10 p-2 rounded-md border border-white/5">&quot;{item.interviewer_note}&quot;</p>
                 )}
                 <a
                   href={`/dashboard/recruitment/sessions?preselect=${item.job_applications?.id}`}

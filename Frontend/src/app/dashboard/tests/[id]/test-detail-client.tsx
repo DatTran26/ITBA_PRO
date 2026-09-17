@@ -1098,7 +1098,7 @@ export default function TestDetailClient({
                             </div>
                             <h3 className="text-xl font-medium text-[#ECF0F7] mb-2 font-display">Delete Assessment?</h3>
                             <p className="text-[#8B99B0] text-sm leading-relaxed mb-8">
-                                This action cannot be undone. All questions, results, and candidate data associated with <span className="text-rose-400 font-medium">"{displayTitle}"</span> will be permanently removed.
+                                This action cannot be undone. All questions, results, and candidate data associated with <span className="text-rose-400 font-medium">&quot;{displayTitle}&quot;</span> will be permanently removed.
                             </p>
                             <div className="flex flex-col w-full gap-2">
                                 <button

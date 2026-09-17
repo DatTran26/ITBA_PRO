@@ -148,3 +148,8 @@
 | 2026-09-14 | /urd | Tran Tan Dat | `docs/features/workforce-monitoring/workforce-monitoring-urd.md` | pipeline PRD feature map 260914 |
 | 2026-09-14 | /brainstorm | Tran Tan Dat | `docs/features/assessment-templates/brainstorms/assessment-template-lifecycle.md` | pipeline PRD feature map 260914 |
 | 2026-09-14 | /brainstorm | Tran Tan Dat | `docs/features/contextual-notifications/brainstorms/unified-notification-center.md` | pipeline PRD feature map 260914 |
+| 2026-09-17 | manual | Tran Tan Dat | `docs/project-overview-pdr.md` | manual edit |
+| 2026-09-17 | manual | Tran Tan Dat | `docs/code-standards.md` | manual edit |
+| 2026-09-17 | manual | Tran Tan Dat | `docs/codebase-summary.md` | manual edit |
+| 2026-09-17 | manual | Tran Tan Dat | `docs/design-guidelines.md` | manual edit |
+| 2026-09-17 | manual | Tran Tan Dat | `docs/deployment-guide.md` | manual edit |

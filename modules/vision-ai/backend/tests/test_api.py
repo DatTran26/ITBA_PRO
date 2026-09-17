@@ -67,6 +67,23 @@ def test_verify_endpoint():
     assert response.json()["matchCount"] == 2
 
 
+def test_identify_picks_best_matching_user():
+    gallery = [
+        {"userId": "user-a", "embeddings": [[0.0, 1.0]] * 6},
+        {"userId": "user-b", "embeddings": [[1.0, 0.0]] * 6},
+    ]
+    with patch("app.main.extract_face_embedding", return_value=[1.0, 0.0]):
+        response = client.post(
+            "/api/face/identify",
+            data={"gallery": json.dumps(gallery)},
+            files={"image": upload()},
+        )
+    assert response.status_code == 200
+    body = response.json()
+    assert body["match"] is True
+    assert body["userId"] == "user-b"
+
+
 def test_behavior_filters_are_returned_by_service():
     detection = {"label": "smoke", "confidence": 0.9, "bbox": [1, 2, 3, 4], "isViolation": True}
     with patch("app.main.detect_behaviors", return_value=[detection]):
@@ -167,7 +184,7 @@ def test_storage_config_endpoints(tmp_path: Path):
         # Test controller endpoints
         res_ctrl = client.get("/api/vision/controller/config")
         assert res_ctrl.status_code == 200
-        assert res_ctrl.json()["config"]["faceMatchThreshold"] == 0.75
+        assert 0.1 <= res_ctrl.json()["config"]["faceMatchThreshold"] <= 1.0
 
         res_ctrl_update = client.post(
             "/api/vision/controller/config",

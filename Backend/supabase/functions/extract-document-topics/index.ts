@@ -1,6 +1,8 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { extractTextFromFile, extractTextFromUrl } from "./text-extractor.ts";
 import { extractTopics } from "./topic-extractor.ts";
+import { resolveAiConfig } from "../_shared/ai-settings.ts";
+import { jsonError, requireInternalCaller } from "../_shared/edge-auth.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -17,6 +19,8 @@ Deno.serve(async (req) => {
   const supabase = createClient(supabaseUrl, serviceRoleKey, {
     auth: { persistSession: false },
   });
+  const caller = await requireInternalCaller(req, supabase, ["leader", "admin", "super_admin"]);
+  if (caller instanceof Response) return new Response(caller.body, { status: caller.status, headers: { ...corsHeaders, "Content-Type": "application/json" } });
 
   let documentId: string | undefined;
 
@@ -34,11 +38,14 @@ Deno.serve(async (req) => {
     // Fetch document
     const { data: doc, error: docErr } = await supabase
       .from("document_sources")
-      .select("id, file_name, file_url, format, source_url, status, document_id")
+      .select("id, file_name, file_url, format, source_url, status, document_id, created_by")
       .eq("id", documentId)
       .single();
 
     if (docErr || !doc) throw new Error("Document not found");
+    if (caller.role !== "admin" && caller.role !== "super_admin" && doc.created_by !== caller.id) {
+      return jsonError("Forbidden", 403, corsHeaders);
+    }
 
     if (doc.status === "extracting_topics") {
       return new Response(JSON.stringify({ skipped: true, status: doc.status }), {
@@ -56,15 +63,10 @@ Deno.serve(async (req) => {
     const { data: aiSettings } = await supabase
       .from("system_settings")
       .select("key, value")
-      .in("key", ["openai_api_key", "ai_model"]);
+      .in("key", ["ai_provider", "openai_api_key", "gemini_api_key", "ai_model"]);
 
-    const aiMap = new Map(
-      (aiSettings ?? []).map((s: { key: string; value: unknown }) => [s.key, s.value as string])
-    );
-    const openaiApiKey = aiMap.get("openai_api_key") || Deno.env.get("OPENAI_API_KEY") || "";
-    // Topic extraction uses the configured analysis model (PDF text extraction stays gpt-4o, see text-extractor.ts)
-    const aiModel = aiMap.get("ai_model") || Deno.env.get("OPENAI_MODEL") || "gpt-4o";
-    if (!openaiApiKey) throw new Error("OpenAI API key not configured");
+    const aiConfig = resolveAiConfig(aiSettings ?? [], Deno.env);
+    if (!aiConfig.apiKey) throw new Error("Missing AI API key. Set it in Settings (system_settings).");
 
     // Extract text — prefer pre-extracted sources to avoid re-downloading
     let text: string | null = body.preExtractedText ?? null;
@@ -95,7 +97,7 @@ Deno.serve(async (req) => {
         if (!fileRes.ok) throw new Error(`Failed to download file: ${fileRes.status}`);
 
         const bytes = new Uint8Array(await fileRes.arrayBuffer());
-        text = await extractTextFromFile(bytes, doc.format, doc.file_name ?? "document", openaiApiKey);
+        text = await extractTextFromFile(bytes, doc.format, doc.file_name ?? "document", aiConfig);
       }
     }
 
@@ -108,7 +110,7 @@ Deno.serve(async (req) => {
       .eq("id", documentId);
 
     // Extract topics via AI
-    const topics = await extractTopics(text!, openaiApiKey, aiModel);
+    const topics = await extractTopics(text!, aiConfig);
 
     if (topics.length === 0) throw new Error("No topics could be extracted from the document");
 

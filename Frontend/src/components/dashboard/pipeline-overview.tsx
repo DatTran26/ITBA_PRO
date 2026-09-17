@@ -12,13 +12,15 @@ function DonutChart({ stages, size = 160 }: { stages: PipelineStage[]; size?: nu
     const circumference = 2 * Math.PI * radius;
     const center = size / 2;
 
-    let cumOffset = 0;
-    const segments = stages.filter((s) => s.count > 0).map((stage) => {
-        const dash = total > 0 ? (stage.count / total) * circumference : 0;
-        const offset = -cumOffset;
-        cumOffset += dash;
-        return { ...stage, dashArray: `${dash} ${circumference - dash}`, offset };
-    });
+    const segments = stages.filter((s) => s.count > 0).reduce<Array<PipelineStage & { dashArray: string; offset: number }>>(
+        (acc, stage) => {
+            const dash = total > 0 ? (stage.count / total) * circumference : 0;
+            const previousDash = acc.reduce((sum, segment) => sum + Number(segment.dashArray.split(" ")[0]), 0);
+            acc.push({ ...stage, dashArray: `${dash} ${circumference - dash}`, offset: -previousDash });
+            return acc;
+        },
+        []
+    );
 
     return (
         <div className="relative shrink-0 flex items-center justify-center group" style={{ width: size, height: size }}>

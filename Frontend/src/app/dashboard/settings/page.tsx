@@ -1,5 +1,7 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
+import { maskSensitiveSettings } from "@/lib/settings/sensitive";
 import SettingsClient from "./settings-client";
 
 export const metadata = { title: "System Settings — ITBA" };
@@ -38,14 +40,18 @@ export default async function SettingsPage() {
     const isAdmin = userData.role === "admin" || userData.role === "super_admin";
     if (!isAdmin) redirect("/dashboard");
 
-    const { data: settings } = await supabase
+    // Service role: RLS hides openai_api_key from the user session on purpose.
+    const admin = createAdminClient();
+    const { data: settings } = await admin
         .from("system_settings")
         .select("id, key, value, category, label, description, input_type, options")
         .order("category")
         .order("key");
 
+    const masked = maskSensitiveSettings((settings ?? []) as SystemSetting[]);
+
     const categories: Record<string, SystemSetting[]> = {};
-    for (const s of (settings ?? []) as SystemSetting[]) {
+    for (const s of masked) {
         const cat = s.category ?? "general";
         if (!categories[cat]) categories[cat] = [];
         categories[cat].push(s);

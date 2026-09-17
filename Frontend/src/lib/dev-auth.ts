@@ -21,6 +21,22 @@ export function isLocalDevHost(hostname: string | null | undefined) {
     return host === "localhost" || host === "127.0.0.1" || host === "[::1]" || host === "::1";
 }
 
+export function isFaceLoginHostAllowed(hostname: string | null | undefined) {
+    const host = (hostname ?? "").split(":")[0].toLowerCase();
+    if (isLocalDevHost(host)) return true;
+    if (host === "staging.wpcteam.shop") return true;
+    if (process.env.FACE_LOGIN_ENABLED === "true") return true;
+
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL;
+    if (!appUrl) return false;
+    try {
+        const appHost = new URL(appUrl).hostname.toLowerCase();
+        return appHost === host && appHost !== "production.wpcteam.shop";
+    } catch {
+        return false;
+    }
+}
+
 export function isDevAuthCookieValue(value?: string) {
     return !!parseDevAuthCookie(value);
 }

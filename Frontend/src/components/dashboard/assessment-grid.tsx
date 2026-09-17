@@ -220,7 +220,7 @@ export default function AssessmentGrid({ tests, onToggleStatus, onDelete }: Prop
                         </div>
                         <div className="space-y-1">
                             <h3 className="text-lg font-bold text-[#ECF0F7]">Missing something?</h3>
-                            <p className="text-[#8B99B0] text-sm">We couldn't find any assessments matching these filters.</p>
+                            <p className="text-[#8B99B0] text-sm">We couldn&apos;t find any assessments matching these filters.</p>
                         </div>
                         <Button variant="link" onClick={clearFilters} className="text-[#7C8FFF] font-bold hover:no-underline">Clear all filters</Button>
                     </motion.div>

@@ -35,14 +35,12 @@ export default function CustomSelectDropdown({
     }, []);
 
     // reset query when closing
-    useEffect(() => { if (!open) setQuery(""); }, [open]);
-
     const filtered = options.filter((o) =>
         !query || o.label.toLowerCase().includes(query.toLowerCase())
     );
     const displayLabel = value ? (options.find((o) => o.value === value)?.label ?? value) : "";
 
-    function select(val: string) { onChange(val); setOpen(false); }
+    function select(val: string) { onChange(val); setQuery(""); setOpen(false); }
 
     return (
         <div ref={containerRef} className={`relative ${className}`}>

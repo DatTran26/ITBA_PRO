@@ -9,6 +9,15 @@ export const runtime = "nodejs";
 export const maxDuration = 300;
 
 export async function POST(request: Request) {
+  const host = request.headers.get("host") ?? "";
+  const allowPublicRegister = isDevAuthEnabled() && isLocalDevHost(host);
+  if (!allowPublicRegister) {
+    return NextResponse.json(
+      { error: "Internal accounts are provisioned by an administrator" },
+      { status: 403 }
+    );
+  }
+
   const form = await request.formData().catch(() => null);
   if (!form) return NextResponse.json({ error: "Invalid request data" }, { status: 400 });
 

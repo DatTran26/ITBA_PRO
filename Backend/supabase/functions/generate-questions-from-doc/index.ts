@@ -1,11 +1,19 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { generateQuestionsFromTopicsBatch } from "./question-generator.ts";
 import type { TopicInput } from "./question-generator.ts";
+import { resolveAiConfig } from "../_shared/ai-settings.ts";
+import { jsonError, requireInternalCaller } from "../_shared/edge-auth.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
+
+const VALID_QUESTION_TYPES = new Set([
+  "single_choice", "multiple_choice", "true_false", "matching", "fill_blank",
+  "scenario", "ordering", "reading_comprehension", "priority_severity",
+  "short_case_study", "image_diagram", "communication_response", "short_answer", "sql_logic_code",
+]);
 
 // deno-lint-ignore no-explicit-any
 declare const EdgeRuntime: { waitUntil: (p: Promise<unknown>) => void } | undefined;
@@ -42,20 +50,14 @@ async function runGeneration(
     const { data: aiSettings } = await supabase
       .from("system_settings")
       .select("key, value")
-      .in("key", ["openai_api_key", "ai_model"]);
+      .in("key", ["ai_provider", "openai_api_key", "gemini_api_key", "ai_model"]);
 
-    const aiMap = new Map(
-      (aiSettings ?? []).map((s: { key: string; value: unknown }) => [s.key, s.value as string]),
-    );
-    const openaiApiKey = aiMap.get("openai_api_key") || Deno.env.get("OPENAI_API_KEY") || "";
-    const aiModel = aiMap.get("ai_model") || Deno.env.get("OPENAI_MODEL") || "gpt-4o-mini";
-
-    if (!openaiApiKey) throw new Error("OpenAI API key not configured");
+    const aiConfig = resolveAiConfig(aiSettings ?? [], Deno.env);
+    if (!aiConfig.apiKey) throw new Error("Missing AI API key. Set it in Settings (system_settings).");
 
     const allQuestions = await generateQuestionsFromTopicsBatch(
       topics as TopicInput[],
-      openaiApiKey,
-      aiModel,
+      aiConfig,
       documentText,
       perTopicCounts,
       levelRatio,
@@ -170,6 +172,8 @@ Deno.serve(async (req) => {
     Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
     { auth: { persistSession: false } },
   );
+  const caller = await requireInternalCaller(req, supabase, ["leader", "admin", "super_admin"]);
+  if (caller instanceof Response) return new Response(caller.body, { status: caller.status, headers: { ...corsHeaders, "Content-Type": "application/json" } });
 
   try {
     const body = await req.json() as {
@@ -182,15 +186,47 @@ Deno.serve(async (req) => {
 
     const documentId = body.documentId;
     const approvedTopicIds: string[] = body.approvedTopicIds ?? [];
-    const perTopicCounts = body.perTopicCounts;
-    const levelRatio = body.levelRatio;
-    const questionTypes = body.questionTypes;
+    if (!approvedTopicIds.every((id) => typeof id === "string" && id.length > 0)) {
+      return jsonError("Invalid approvedTopicIds", 400, corsHeaders);
+    }
+    const perTopicCounts: Record<string, number> = {};
+    for (const topicId of approvedTopicIds) {
+      const count = body.perTopicCounts?.[topicId] ?? 5;
+      if (!Number.isInteger(count) || count < 1 || count > 20) {
+        return jsonError("Each topic count must be between 1 and 20", 400, corsHeaders);
+      }
+      perTopicCounts[topicId] = count;
+    }
+    if (approvedTopicIds.reduce((total, topicId) => total + perTopicCounts[topicId], 0) > 120) {
+      return jsonError("Total requested questions exceed server limit of 120", 400, corsHeaders);
+    }
+    const levelRatio = body.levelRatio ?? { junior: 40, middle: 40, senior: 20 };
+    if (
+      typeof levelRatio.junior !== "number" || levelRatio.junior < 0 ||
+      typeof levelRatio.middle !== "number" || levelRatio.middle < 0 ||
+      typeof levelRatio.senior !== "number" || levelRatio.senior < 0 ||
+      Math.abs(levelRatio.junior + levelRatio.middle + levelRatio.senior - 100) > 0.01
+    ) return jsonError("Level ratio junior, middle, senior must sum to 100%", 400, corsHeaders);
+    const questionTypes = body.questionTypes ?? ["multiple_choice"];
+    if (!Array.isArray(questionTypes) || questionTypes.length === 0 || questionTypes.some((type) => !VALID_QUESTION_TYPES.has(type))) {
+      return jsonError("Invalid question types", 400, corsHeaders);
+    }
 
     if (!documentId || approvedTopicIds.length === 0) {
       return new Response(JSON.stringify({ error: "Missing documentId or approvedTopicIds" }), {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
+    }
+
+    const { data: document, error: documentError } = await supabase
+      .from("document_sources")
+      .select("id, created_by")
+      .eq("id", documentId)
+      .maybeSingle();
+    if (documentError || !document) return jsonError("Document not found", 404, corsHeaders);
+    if (caller.role !== "admin" && caller.role !== "super_admin" && document.created_by !== caller.id) {
+      return jsonError("Forbidden", 403, corsHeaders);
     }
 
     const { data: job, error: jobErr } = await supabase

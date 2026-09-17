@@ -1,9 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
-import OpenAI from "openai";
-import { logAiUsage } from "@/lib/ai-usage-logger";
-import { getAiConfig } from "@/lib/get-ai-config";
-import { getChatParams } from "@/lib/ai-params";
+import { completeChat } from "@/lib/ai-complete";
 
 interface GeneratedQuestion {
     question_text: string;
@@ -281,13 +278,6 @@ async function generateQuestions(options: GenerateOptions): Promise<GeneratedQue
         existingContext,
     } = options;
 
-    const { apiKey, model } = await getAiConfig();
-
-    if (!apiKey || apiKey === "YOUR_OPENAI_API_KEY_HERE") {
-        throw new Error("OpenAI API Key is not configured. Check system settings.");
-    }
-
-    const openai = new OpenAI({ apiKey, timeout: 300_000 });
 
     let systemPrompt = "";
 
@@ -352,34 +342,21 @@ Return ONLY a JSON object with a single property 'questions' containing an array
     }
 
     try {
-        const actualModel = ["gpt-5", "gpt-4.1", "gpt-4o"].includes(model) ? "gpt-4o" : model;
-
-        // Standard Chat Completions API with JSON mode
-        const chatParams = getChatParams(actualModel, {
+        const response = await completeChat({
             messages: [{ role: "system", content: systemPrompt }],
-            max_tokens: 4000,
-            response_format: { type: "json_object" },
+            maxTokens: 4000,
+            json: true,
+            timeoutMs: 300_000,
+            feature: "regenerate",
         });
-
-        const response = await openai.chat.completions.create(chatParams);
-
-        if (response.usage) {
-            logAiUsage({
-                feature: "regenerate",
-                model: actualModel,
-                tokensIn: response.usage.prompt_tokens,
-                tokensOut: response.usage.completion_tokens,
-            });
-        }
-
-        const content = response.choices[0].message.content || "{}";
-        const parsed = JSON.parse(content);
+        const parsed = JSON.parse(response.content || "{}");
         if (!parsed.questions || !Array.isArray(parsed.questions)) {
             throw new Error("Invalid AI response format");
         }
         return parsed.questions;
-    } catch (apiErr: any) {
-        console.error("OpenAI API error in regeneration:", apiErr);
-        throw new Error(`OpenAI Regeneration Failed: ${apiErr.message || "Unknown error"}. Check API configuration.`);
+    } catch (apiErr: unknown) {
+        console.error("AI error in regeneration:", apiErr);
+        const message = apiErr instanceof Error ? apiErr.message : "Unknown error";
+        throw new Error(`AI regeneration failed: ${message}. Check API configuration.`);
     }
 }

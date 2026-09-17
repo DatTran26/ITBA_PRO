@@ -10,6 +10,13 @@ import { PageTransition } from "@/components/ui/motion-wrapper";
 import { SettingRow, type SystemSetting } from "./setting-row";
 import UiLayoutToggle from "./ui-layout-toggle";
 import type { UiLayout } from "@/lib/settings/ui-layout";
+import {
+    AI_SETTING_ORDER,
+    DEFAULT_MODEL,
+    modelsFor,
+    resolveProvider,
+    type AiProvider,
+} from "@/lib/ai-providers";
 
 const APPEARANCE_CATEGORY = "appearance";
 
@@ -32,6 +39,8 @@ export default function SettingsClient({
     const pendingRef = useRef<Record<string, unknown>>({});
     const timerRef  = useRef<ReturnType<typeof setTimeout> | null>(null);
     const [saveState, setSaveState] = useState<SaveState>("idle");
+    const initialProvider = resolveProvider(String(categories.ai?.find((s) => s.key === "ai_provider")?.value ?? "openai"));
+    const [provider, setProvider] = useState<AiProvider>(initialProvider);
 
     const scheduleFlush = useCallback(() => {
         if (timerRef.current) clearTimeout(timerRef.current);
@@ -62,7 +71,24 @@ export default function SettingsClient({
 
     function handleChange(key: string, value: unknown) {
         pendingRef.current[key] = value;
+        if (key === "ai_provider") {
+            const next = resolveProvider(String(value));
+            setProvider(next);
+            const currentModel = String(categories.ai?.find((s) => s.key === "ai_model")?.value ?? "");
+            if (!modelsFor(next).includes(currentModel)) {
+                pendingRef.current.ai_model = DEFAULT_MODEL[next];
+            }
+        }
         scheduleFlush();
+    }
+
+    function orderedSettings(cat: string, rows: SystemSetting[]): SystemSetting[] {
+        if (cat !== "ai") return rows;
+        return [...rows].sort((a, b) => {
+            const ia = AI_SETTING_ORDER.indexOf(a.key);
+            const ib = AI_SETTING_ORDER.indexOf(b.key);
+            return (ia === -1 ? 99 : ia) - (ib === -1 ? 99 : ib);
+        });
     }
 
     const isSuperAdmin = user.role === "super_admin";
@@ -148,11 +174,17 @@ export default function SettingsClient({
                                     <UiLayoutToggle currentValue={currentUiLayout} />
                                 ) : (
                                     <div className="px-1 py-1">
-                                        {categories[cat].map((setting) => (
+                                        {orderedSettings(cat, categories[cat]).map((setting) => (
                                             <SettingRow
                                                 key={setting.key}
-                                                setting={setting}
+                                                setting={
+                                                    setting.key === "ai_model"
+                                                        ? { ...setting, options: [...modelsFor(provider)] }
+                                                        : setting
+                                                }
                                                 onChange={handleChange}
+                                                showTester={setting.key === "ai_provider"}
+                                                testerModels={[...modelsFor(provider)]}
                                             />
                                         ))}
                                     </div>
