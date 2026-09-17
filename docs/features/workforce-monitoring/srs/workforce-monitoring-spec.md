@@ -209,3 +209,29 @@ __Assumptions (tin là đúng — nêu hệ quả nếu sai):__
   workload 15 task, đứng 7 ngày, SLA 3 ngày — chờ Product owner/Head of HR.
 - [x] OQ-5: Có tổng hợp ngược dữ liệu trước policy? — Resolved: không.
 - [~] OQ-6: Export dữ liệu theo dõi? — Out of scope v1 (P1 theo quyền policy).
+
+## 13. develop-hieu implemented slice: face attendance
+
+This branch adds a concrete biometric attendance flow inside the existing
+workforce monitoring area.
+
+- `/dashboard/attendance` captures a webcam image for check-in/check-out,
+  supports retake, and keeps file upload as a fallback.
+- The browser sends the capture to a Next.js BFF route. The BFF verifies the
+  face by calling the Python Vision AI service and comparing against stored
+  ArcFace embeddings.
+- Attendance uses the local face-store/`user_face_embeddings` data as the
+  biometric source of truth. The six-angle registration flow must exist before
+  reliable attendance can run.
+- Check-in creates or opens an `attendance_sessions` record. Check-out closes
+  the active session and feeds the daily summary flow.
+- `attendance_shifts` define the expected work window. `attendance_daily_summary`
+  stores day-level totals and status.
+- Local development can use the face-store fallback when Supabase service-role
+  credentials are absent; production keeps Supabase/Postgres metadata as the
+  durable system of record.
+
+Boundaries for this slice:
+
+- This is biometric check-in/check-out, not a full HR policy tracking engine.
+- Production-grade liveness and payroll approval workflows remain future work.

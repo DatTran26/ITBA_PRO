@@ -71,10 +71,10 @@ async def nd30_auto_generate(payload: dict):
     """
     ocr_text = payload.get("ocr_text", "")
     instruction = payload.get("instruction", "")
-    
+
     draft = _nd30_ai_generator.generate_draft(ocr_text, instruction)
     report = _nd30_validator.validate(draft, ocr_text)
-    
+
     return {
         "draft": draft,
         "report": report

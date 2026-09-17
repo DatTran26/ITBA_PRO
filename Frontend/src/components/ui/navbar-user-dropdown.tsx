@@ -36,6 +36,8 @@ export default function NavbarUserDropdown({ user, variant = "topnav" }: NavbarU
         setIsLoggingOut(true);
         const supabase = createClient();
         await supabase.auth.signOut();
+        // Also clear dev auth cookie (face-login / dev-login sessions)
+        await fetch("/api/dev-logout", { method: "POST" }).catch(() => {});
         router.push("/login");
         router.refresh();
     }

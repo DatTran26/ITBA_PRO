@@ -1,8 +1,8 @@
 ﻿---
 name: face-attendance
 description: >
-  High-speed Biometric Face Attendance & Dual Anti-Spoofing engine specification, 
-  ArcFace 512-D vector extraction, and FastAPI + React implementation guide for 
+  High-speed Biometric Face Attendance & Dual Anti-Spoofing engine specification,
+  ArcFace 512-D vector extraction, and FastAPI + React implementation guide for
   real-time webcam verification, fake prevention (print/screen replay), and HRMS integration.
 ---
 

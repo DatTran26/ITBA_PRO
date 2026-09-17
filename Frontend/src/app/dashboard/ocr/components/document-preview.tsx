@@ -284,4 +284,3 @@ export default function DocumentPreview({ job, onSelectBlock }: DocumentPreviewP
         </div>
     );
 }
-

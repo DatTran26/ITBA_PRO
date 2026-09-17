@@ -24,7 +24,7 @@ class ValidationReport(BaseModel):
 
 class ND30Validator:
     """
-    Validator kiểm tra thể thức văn bản hành chính theo Nghị định số 30/2020/NĐ-CP 
+    Validator kiểm tra thể thức văn bản hành chính theo Nghị định số 30/2020/NĐ-CP
     của Chính phủ về công tác văn thư (Phụ lục I: Thể thức, kỹ thuật trình bày văn bản hành chính).
     """
 

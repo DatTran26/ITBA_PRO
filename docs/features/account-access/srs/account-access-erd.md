@@ -98,3 +98,39 @@ erDiagram
   hiện (suspend/deactivate/gửi lại lời mời).
 - Retention của `SESSION`/`ACCESS_EVENT`: đề xuất 12 tháng rolling, chờ
   DPO duyệt (OQ-5 spec, liên quan OQ-6 PRD).
+
+## develop-hieu physical additions
+
+The biometric account-access slice adds these physical structures around the
+base account model.
+
+### USER_FACE_EMBEDDING
+
+Stores ArcFace enrollment data for one user and one capture angle.
+
+- `user_id`: references the application user/profile.
+- `profile_name`: display name used for human-readable local storage folders.
+- `angle_label` / `angle_index`: capture slot, including the six registration
+  angles used by the implemented flow.
+- `embedding`: 512-dimension ArcFace vector stored as JSON/array data.
+- `storage_path`: local face image path under `FACE_DATA_DIR`.
+- `model_name` / `model_version`: face model metadata.
+- `created_at`, `updated_at`: audit timestamps.
+
+### FACE_AUDIT_LOG
+
+Records biometric account events without storing raw passwords or secrets.
+
+- `user_id`: affected user.
+- `action`: enroll, update, delete, login_match, login_mismatch, check_in, or
+  check_out.
+- `result`: success/failure outcome.
+- `similarity`: optional face similarity score.
+- `metadata`: model, route, or local fallback context.
+- `created_at`: event time.
+
+### Local face-store registry
+
+Local development can persist fallback user/profile metadata in the face-store
+registry when Supabase service-role credentials are absent. It is a development
+fallback only; production account identity remains Supabase-backed.

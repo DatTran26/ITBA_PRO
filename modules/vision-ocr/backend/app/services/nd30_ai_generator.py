@@ -8,7 +8,7 @@ from app.core.config import GEMINI_API_KEY, GEMINI_API_URL
 
 class ND30AIGenerator:
     """
-    AI Generator: Tự động trích xuất và kiến tạo văn bản hành chính 
+    AI Generator: Tự động trích xuất và kiến tạo văn bản hành chính
     chuẩn Nghị định 30/2020/NĐ-CP từ dữ liệu OCR hoặc thông tin kịch bản HR.
     """
 
@@ -103,7 +103,7 @@ BẮT BUỘC trả về duy nhất 1 đối tượng JSON theo cấu trúc sau (
     def _fallback_rule_generator(self, ocr_text: str, date_str: str) -> Dict[str, Any]:
         """Bộ trích xuất thông minh bằng Regex và Logic tri thức NĐ 30."""
         text_lower = ocr_text.lower()
-        
+
         doc_type = "QUYẾT ĐỊNH"
         if "thông báo" in text_lower:
             doc_type = "THÔNG BÁO"
@@ -191,7 +191,7 @@ BẮT BUỘC trả về duy nhất 1 đối tượng JSON theo cấu trúc sau (
         s_title = data.get("signer_title") or data.get("signatory_title") or "TỔNG GIÁM ĐỐC"
         s_name = data.get("signer_name") or data.get("signatory_name") or "Nguyễn Văn An"
         bases = data.get("legal_bases") or data.get("bases") or ["Căn cứ Điều lệ tổ chức và hoạt động Công ty;"]
-        
+
         data["organ_name"] = organ
         data["company_name"] = organ
         data["doc_code"] = code

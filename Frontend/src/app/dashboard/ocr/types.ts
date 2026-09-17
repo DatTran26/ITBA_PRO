@@ -69,4 +69,3 @@ export type OCRQueueAction =
     | { type: "removed"; id: string }
     | { type: "clear_all" }
     | { type: "validation_error_set"; message: string | null };
-
