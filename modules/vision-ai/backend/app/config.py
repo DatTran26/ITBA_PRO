@@ -3,7 +3,14 @@ from pathlib import Path
 import json
 
 BACKEND_DIR = Path(__file__).resolve().parents[1]
-SRC_ROOT = Path(__file__).resolve().parents[4]
+
+
+def repo_root(file_path: Path | None = None) -> Path:
+    parents = (file_path or Path(__file__)).resolve().parents
+    return parents[4] if len(parents) > 4 else parents[-1]
+
+
+SRC_ROOT = repo_root()
 
 
 def _load_env_file(path: Path) -> None:

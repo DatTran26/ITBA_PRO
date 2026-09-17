@@ -8,6 +8,7 @@ import numpy as np
 from fastapi.testclient import TestClient
 from PIL import Image
 
+from app.config import repo_root
 from app.main import app
 from app.services import _resolve_behavior_model_path, detect_behaviors, verify_face
 
@@ -26,6 +27,11 @@ def upload(name: str = "face.png"):
 
 def test_health():
     assert client.get("/health").json() == {"status": "ok"}
+
+
+def test_repo_root_handles_short_container_path():
+    path = Path("/app/app/config.py")
+    assert repo_root(path) == path.resolve().parents[-1]
 
 
 def test_verify_requires_two_matching_embeddings():
