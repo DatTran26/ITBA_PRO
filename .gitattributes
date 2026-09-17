@@ -1,1 +1,2 @@
 public/fonts/*.ttf binary
+*.sh text eol=lf
