@@ -2,6 +2,7 @@ name: ${COMPOSE_PROJECT_NAME:-town-hown}
 
 services:
   vision-ai-api:
+    image: ${VISION_AI_IMAGE:-ghcr.io/dattran26/down-town-vision-ai:local}
     build:
       context: ./modules/vision-ai/backend
       dockerfile: Dockerfile
@@ -9,6 +10,9 @@ services:
     environment:
       FACE_DATA_DIR: /data/faces
       VIOLATION_DATA_DIR: /data/violations
+      INSIGHTFACE_ROOT: /data/insightface
+      VISION_AI_MODELS_DIR: /models
+      VISION_CONTROLLER_CONFIG_FILE: /data/config/vision_controller_config.json
       FACE_MODEL_NAME: ${FACE_MODEL_NAME:-buffalo_l}
       FACE_MATCH_THRESHOLD: ${FACE_MATCH_THRESHOLD:-0.75}
       BEHAVIOR_MODEL_PATH: ${BEHAVIOR_MODEL_PATH:-/models/behavior.pt}
@@ -17,6 +21,8 @@ services:
     volumes:
       - ${FACE_DATA_HOST_DIR:-./data/vision-ai/faces}:/data/faces
       - ${VIOLATION_DATA_HOST_DIR:-./data/vision-ai/violations}:/data/violations
+      - ${INSIGHTFACE_HOST_DIR:-./data/vision-ai/insightface}:/data/insightface
+      - ${VISION_AI_CONFIG_HOST_DIR:-./data/vision-ai/config}:/data/config
       - ${VISION_AI_MODEL_HOST_DIR:-./models/vision-ai}:/models:ro
     expose:
       - "8000"
@@ -32,9 +38,10 @@ services:
       interval: 30s
       timeout: 5s
       retries: 3
-      start_period: 20s
+      start_period: 40s
 
   vision-ocr-api:
+    image: ${VISION_OCR_IMAGE:-ghcr.io/dattran26/down-town-vision-ocr:local}
     build:
       context: ./modules/vision-ocr/backend
       dockerfile: Dockerfile
@@ -89,14 +96,16 @@ services:
       DATABASE_URL: ${DATABASE_URL:-}
       OPENAI_API_KEY: ${OPENAI_API_KEY:-}
       OPENAI_MODEL: ${OPENAI_MODEL:-gpt-4o}
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      GEMINI_MODEL: ${GEMINI_MODEL:-gemini-3.6-flash}
       VISION_OCR_URL: ${VISION_OCR_URL:-http://vision-ocr-api:8000}
       VISION_AI_URL: ${VISION_AI_URL:-http://vision-ai-api:8000}
       SMTP_PASSWORD_ENCRYPTION_KEY: ${SMTP_PASSWORD_ENCRYPTION_KEY:-}
     depends_on:
       vision-ai-api:
-        condition: service_healthy
+        condition: service_started
       vision-ocr-api:
-        condition: service_healthy
+        condition: service_started
     restart: unless-stopped
     healthcheck:
       test:

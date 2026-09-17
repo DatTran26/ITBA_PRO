@@ -16,25 +16,67 @@ export function isDevAuthEnabled() {
     return process.env.NEXT_PUBLIC_DEV_AUTH_BYPASS === "true";
 }
 
+const KNOWN_FACE_LOGIN_HOSTS = new Set(["staging.wpcteam.shop", "production.wpcteam.shop"]);
+
+function normalizeHostname(hostname: string | null | undefined) {
+    const raw = (hostname ?? "").split(",")[0]?.trim().toLowerCase() ?? "";
+    if (!raw) return "";
+    if (raw.startsWith("[")) {
+        const end = raw.indexOf("]");
+        if (end !== -1) return raw.slice(0, end + 1);
+    }
+    const [name, port] = raw.split(":");
+    if (port !== undefined && raw.split(":").length === 2 && /^\d+$/.test(port)) {
+        return name;
+    }
+    return raw;
+}
+
 export function isLocalDevHost(hostname: string | null | undefined) {
-    const host = (hostname ?? "").split(":")[0].toLowerCase();
+    const host = normalizeHostname(hostname);
     return host === "localhost" || host === "127.0.0.1" || host === "[::1]" || host === "::1";
 }
 
+function isComposeInternalHost(host: string) {
+    return host === "web" || host.startsWith("itba-ocr-") || host.endsWith(".local");
+}
+
+export function resolveRequestHostname(request: {
+    headers: { get(name: string): string | null };
+    nextUrl: { hostname: string };
+}) {
+    const rawHost = request.headers.get("host") ?? request.nextUrl.hostname;
+    const host = normalizeHostname(rawHost);
+    if (KNOWN_FACE_LOGIN_HOSTS.has(host) || isLocalDevHost(host)) {
+        return rawHost;
+    }
+    const forwardedRaw = request.headers.get("x-forwarded-host");
+    if (forwardedRaw && isComposeInternalHost(host)) {
+        return forwardedRaw;
+    }
+    return rawHost;
+}
+
 export function isFaceLoginHostAllowed(hostname: string | null | undefined) {
-    const host = (hostname ?? "").split(":")[0].toLowerCase();
+    const host = normalizeHostname(hostname);
+    if (!host) return false;
     if (isLocalDevHost(host)) return true;
-    if (host === "staging.wpcteam.shop") return true;
+    if (KNOWN_FACE_LOGIN_HOSTS.has(host)) return true;
     if (process.env.FACE_LOGIN_ENABLED === "true") return true;
 
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL;
-    if (!appUrl) return false;
-    try {
-        const appHost = new URL(appUrl).hostname.toLowerCase();
-        return appHost === host && appHost !== "production.wpcteam.shop";
-    } catch {
-        return false;
+    const configured = [process.env.TRAEFIK_HOST, process.env.NEXT_PUBLIC_APP_URL];
+    for (const value of configured) {
+        if (!value) continue;
+        try {
+            const configuredHost = value.includes("://")
+                ? new URL(value).hostname.toLowerCase()
+                : normalizeHostname(value);
+            if (configuredHost && configuredHost === host) return true;
+        } catch {
+            continue;
+        }
     }
+    return false;
 }
 
 export function isDevAuthCookieValue(value?: string) {

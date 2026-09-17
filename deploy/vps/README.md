@@ -30,12 +30,27 @@ Runtime secrets stay in those `.env` files (mode `600`, owner `root`).
 
 `.github/workflows/docker-publish.yml`:
 
-1. Build `linux/amd64` and push `ghcr.io/dattran26/down-town` (`:staging` from
-   `develop`, `:latest` from `main`, plus `:sha-<7>`).
+1. Build `linux/amd64` and push three GHCR images, each with `:staging` /
+   `:latest` / `:sha-<7>` as appropriate:
+   - `ghcr.io/dattran26/down-town` (Next.js `web`)
+   - `ghcr.io/dattran26/down-town-vision-ai` (Face ID + YOLO)
+   - `ghcr.io/dattran26/down-town-vision-ocr` (Gemini OCR + Tesseract + NĐ 30)
 2. rsync compose files (never `.env`) to `VPS_DEPLOY_PATH`.
 3. SSH as **`root`** and run `deploy/vps/remote-up.sh` (flock, GHCR pull,
-   `compose up --no-deps web`, health). Vision sidecar images are local-only;
-   VPS stacks recreate the published `web` service without building them.
+   `compose up` for `web` + Vision sidecars, health).
+
+Vision weights are **not** in git. After the first sidecar deploy, copy YOLO
+`.pt` or `.onnx` files onto the host (names below) and add `GEMINI_API_KEY` to
+the runtime `.env`. CI never overwrites `.env`.
+
+```text
+/opt/ITBA-OCR/<env>/models/vision-ai/smoking.pt   # or smoking.onnx / behavior.pt
+/opt/ITBA-OCR/<env>/models/vision-ai/leaving.pt   # or leaving.onnx
+```
+
+InsightFace `buffalo_l` downloads into `data/vision-ai/insightface` on the first
+Face ID request (needs outbound HTTPS to GitHub). Face enrollments persist in
+`data/vision-ai/faces`.
 
 Environment vars (not secrets): `VPS_HOST`, `VPS_USER`, `VPS_DEPLOY_PATH`.
 Environment secrets: `SSH_PRIVATE_KEY`, `SSH_KNOWN_HOSTS`.

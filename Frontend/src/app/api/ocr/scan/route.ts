@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getAuthContext, isAuthError } from "@/lib/api/auth-helpers";
 import { getAiConfig } from "@/lib/get-ai-config";
+import { callVisionOcr } from "@/lib/vision-ocr";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 60; // 60s timeout for vision OCR
@@ -66,17 +67,15 @@ export async function POST(request: Request) {
         const b64Str = buffer.toString("base64");
         const imageB64 = `data:${mimeType};base64,${b64Str}`;
 
-        // Attempt 1: Local FastAPI Python OCR Backend (Has PaddleOCR Visual Grounding + Multi-engine)
+        // Attempt 1: Vision OCR sidecar (Gemini + Tesseract, grounded blocks)
         try {
-            const fastApiRes = await fetch("http://localhost:8000/api/ocr/scan", {
+            const pyForm = new FormData();
+            const blob = new Blob([buffer], { type: mimeType });
+            pyForm.append("file", blob, file.name);
+            const fastApiRes = await callVisionOcr("/api/ocr/scan", {
                 method: "POST",
-                body: (() => {
-                    const pyForm = new FormData();
-                    const blob = new Blob([buffer], { type: mimeType });
-                    pyForm.append("file", blob, file.name);
-                    return pyForm;
-                })(),
-                signal: AbortSignal.timeout(15_000),
+                body: pyForm,
+                signal: AbortSignal.timeout(45_000),
             });
             if (fastApiRes.ok) {
                 const pyData = await fastApiRes.json();
@@ -115,7 +114,7 @@ export async function POST(request: Request) {
 
         return NextResponse.json(
             {
-                error: "No OCR service available. Configure the AI provider API key in System Settings or start the local OCR backend.",
+                error: "No OCR service available. Configure the AI provider API key in System Settings or set VISION_OCR_URL.",
             },
             { status: 503 }
         );

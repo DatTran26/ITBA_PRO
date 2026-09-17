@@ -1,7 +1,7 @@
-__pycache__/
-.pytest_cache/
-tests/
+.venv
+__pycache__
+.pytest_cache
 .env
-data/
-models/
-
+*.json
+tests
+*.md

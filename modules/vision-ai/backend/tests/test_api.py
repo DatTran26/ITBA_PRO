@@ -8,6 +8,7 @@ import numpy as np
 from fastapi.testclient import TestClient
 from PIL import Image
 
+from app.config import repo_root
 from app.main import app
 from app.services import _resolve_behavior_model_path, detect_behaviors, verify_face
 
@@ -26,6 +27,11 @@ def upload(name: str = "face.png"):
 
 def test_health():
     assert client.get("/health").json() == {"status": "ok"}
+
+
+def test_repo_root_handles_short_container_path():
+    path = Path("/app/app/config.py")
+    assert repo_root(path) == path.resolve().parents[-1]
 
 
 def test_verify_requires_two_matching_embeddings():
@@ -142,6 +148,14 @@ def test_behavior_returns_non_violation_boxes_for_overlay():
 def test_behavior_model_path_accepts_copied_quotes(tmp_path: Path):
     model_path = tmp_path / "behavior.pt"
     assert _resolve_behavior_model_path(f'  "{model_path}"  ') == model_path
+
+
+def test_behavior_model_path_uses_models_dir_basename(tmp_path: Path, monkeypatch):
+    weight = tmp_path / "smoking.onnx"
+    weight.write_bytes(b"onnx")
+    monkeypatch.setenv("VISION_AI_MODELS_DIR", str(tmp_path))
+    missing = Path(r"D:\missing\weights\smoking.onnx")
+    assert _resolve_behavior_model_path(str(missing)) == weight
 
 
 def test_enroll_rejects_path_traversal():

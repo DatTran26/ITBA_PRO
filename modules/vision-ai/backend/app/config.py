@@ -3,7 +3,14 @@ from pathlib import Path
 import json
 
 BACKEND_DIR = Path(__file__).resolve().parents[1]
-SRC_ROOT = Path(__file__).resolve().parents[4]
+
+
+def repo_root(file_path: Path | None = None) -> Path:
+    parents = (file_path or Path(__file__)).resolve().parents
+    return parents[4] if len(parents) > 4 else parents[-1]
+
+
+SRC_ROOT = repo_root()
 
 
 def _load_env_file(path: Path) -> None:
@@ -19,12 +26,39 @@ def _load_env_file(path: Path) -> None:
             os.environ[key] = value.strip().strip('"').strip("'")
 
 
+def models_dir() -> Path:
+    env_dir = os.getenv("VISION_AI_MODELS_DIR", "").strip()
+    if env_dir:
+        return Path(os.path.expandvars(env_dir)).expanduser().resolve()
+    container = Path("/models")
+    if container.is_dir():
+        return container
+    return SRC_ROOT / "models" / "vision-ai"
+
+
+def find_weight(*names: str) -> Path:
+    directory = models_dir()
+    for name in names:
+        candidate = directory / name
+        if candidate.is_file():
+            return candidate
+    return directory / names[0]
+
+
 def _resolve_path(value: str, default: Path) -> Path:
     if not value:
         return default
     path = Path(os.path.expandvars(value.strip().strip('"').strip("'"))).expanduser()
+    if path.exists():
+        return path.resolve() if path.is_absolute() else path
     if path.is_absolute():
+        by_name = models_dir() / path.name
+        if by_name.exists():
+            return by_name
         return path
+    from_models = models_dir() / path.name
+    if from_models.exists():
+        return from_models
     from_backend = (BACKEND_DIR / path).resolve()
     if from_backend.exists():
         return from_backend
@@ -33,8 +67,16 @@ def _resolve_path(value: str, default: Path) -> Path:
 
 _load_env_file(BACKEND_DIR / ".env")
 
-VISION_CONTROLLER_CONFIG_FILE = BACKEND_DIR / "vision_controller_config.json"
+VISION_CONTROLLER_CONFIG_FILE = Path(
+    os.getenv(
+        "VISION_CONTROLLER_CONFIG_FILE",
+        str(BACKEND_DIR / "vision_controller_config.json"),
+    )
+)
 FACE_STORAGE_CONFIG_FILE = VISION_CONTROLLER_CONFIG_FILE
+INSIGHTFACE_ROOT = Path(
+    os.getenv("INSIGHTFACE_ROOT", str(Path.home() / ".insightface"))
+)
 
 
 def _load_vision_configs() -> dict:
@@ -62,22 +104,27 @@ FACE_MATCH_THRESHOLD = float(_saved_configs.get("faceMatchThreshold") or os.gete
 
 # Behavior multi-model configuration
 _saved_behavior_models = _saved_configs.get("behaviorModels")
-_env_behavior_model_path = os.getenv("BEHAVIOR_MODEL_PATH", "").strip()
 
-_default_smoke_path = (
-    _saved_configs.get("behaviorModelPath")
-    or _env_behavior_model_path
-    or (
-        "D:\\WEB\\model_trained\\ML\\Model_trained\\rc_v1_yolov8\\train_yolov8n_200ep\\weights\\best.pt"
-        if Path("D:\\WEB\\model_trained\\ML\\Model_trained\\rc_v1_yolov8\\train_yolov8n_200ep\\weights\\best.pt").is_file()
-        else str(SRC_ROOT / "models" / "vision-ai" / "smoking.pt")
+_windows_smoke = Path(
+    r"D:\WEB\model_trained\ML\Model_trained\rc_v1_yolov8\train_yolov8n_200ep\weights\best.pt"
+)
+_default_smoke_path = _saved_configs.get("behaviorModelPath") or (
+    str(_windows_smoke)
+    if _windows_smoke.is_file()
+    else str(
+        find_weight(
+            "smoking.pt",
+            "smoking.onnx",
+            "behavior.pt",
+            "behavior.onnx",
+            "best.pt",
+            "best.onnx",
+        )
     )
 )
 
-_default_seat_path = (
-    str(SRC_ROOT / "models" / "vision-ai" / "leaving.pt")
-    if (SRC_ROOT / "models" / "vision-ai" / "leaving.pt").is_file()
-    else str(SRC_ROOT / "models" / "vision-ai" / "behavior.pt")
+_default_seat_path = str(
+    find_weight("leaving.pt", "leaving.onnx", "behavior.pt", "behavior.onnx")
 )
 
 DEFAULT_BEHAVIOR_MODELS = [
@@ -119,7 +166,7 @@ first_model = BEHAVIOR_MODELS[0] if BEHAVIOR_MODELS else DEFAULT_BEHAVIOR_MODELS
 BEHAVIOR_MODEL_PATH = str(
     _resolve_path(
         first_model.get("modelPath") or _saved_configs.get("behaviorModelPath") or os.getenv("BEHAVIOR_MODEL_PATH", ""),
-        SRC_ROOT / "models" / "vision-ai" / "behavior.pt",
+        find_weight("behavior.pt", "behavior.onnx", "smoking.pt", "smoking.onnx"),
     )
 )
 BEHAVIOR_CONFIDENCE = float(first_model.get("confidence") or _saved_configs.get("behaviorConfidence") or os.getenv("BEHAVIOR_CONFIDENCE", "0.25"))
@@ -154,7 +201,7 @@ def get_vision_config() -> dict:
     models_info = []
     for m in BEHAVIOR_MODELS:
         m_path_str = str(m.get("modelPath", "")).strip()
-        resolved_path = _resolve_path(m_path_str, SRC_ROOT / "models" / "vision-ai" / "behavior.pt")
+        resolved_path = _resolve_path(m_path_str, find_weight("behavior.pt", "behavior.onnx"))
         models_info.append({
             "id": m.get("id") or "custom_model",
             "name": m.get("name") or "Behavior model",
@@ -221,7 +268,7 @@ def update_vision_config(updates: dict) -> dict:
             m_desc = str(item.get("description") or "").strip()
             m_enabled = bool(item.get("enabled", True))
             m_path = str(item.get("modelPath") or "").strip()
-            resolved_pt = str(_resolve_path(m_path, SRC_ROOT / "models" / "vision-ai" / "behavior.pt"))
+            resolved_pt = str(_resolve_path(m_path, find_weight("behavior.pt", "behavior.onnx")))
 
             conf = 0.25
             try:
@@ -268,7 +315,7 @@ def update_vision_config(updates: dict) -> dict:
     # Legacy support if updating behaviorModelPath directly
     if "behaviorModelPath" in updates and str(updates["behaviorModelPath"]).strip():
         BEHAVIOR_MODEL_PATH = str(
-            _resolve_path(str(updates["behaviorModelPath"]).strip(), SRC_ROOT / "models" / "vision-ai" / "behavior.pt")
+            _resolve_path(str(updates["behaviorModelPath"]).strip(), find_weight("behavior.pt", "behavior.onnx"))
         )
         if BEHAVIOR_MODELS:
             BEHAVIOR_MODELS[0]["modelPath"] = BEHAVIOR_MODEL_PATH
@@ -304,6 +351,7 @@ def update_vision_config(updates: dict) -> dict:
     }
 
     try:
+        VISION_CONTROLLER_CONFIG_FILE.parent.mkdir(parents=True, exist_ok=True)
         VISION_CONTROLLER_CONFIG_FILE.write_text(
             json.dumps(current, ensure_ascii=False, indent=2),
             encoding="utf-8",
