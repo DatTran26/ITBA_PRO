@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { callVisionOcr } from "@/lib/vision-ocr";
 
 export async function POST(req: NextRequest) {
     try {
@@ -14,12 +15,13 @@ export async function POST(req: NextRequest) {
 
         const payload = await req.json();
 
-        const fastApiRes = await fetch("http://localhost:8000/api/ocr/export-nd30", {
+        const fastApiRes = await callVisionOcr("/api/ocr/export-nd30", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
             },
             body: JSON.stringify(payload),
+            signal: AbortSignal.timeout(45_000),
         });
 
         if (!fastApiRes.ok) {

@@ -1,6 +1,12 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
-import { DEV_AUTH_COOKIE, isDevAuthEnabled, isFaceLoginHostAllowed, isLocalDevHost } from "@/lib/dev-auth";
+import {
+  DEV_AUTH_COOKIE,
+  isDevAuthEnabled,
+  isFaceLoginHostAllowed,
+  isLocalDevHost,
+  resolveRequestHostname,
+} from "@/lib/dev-auth";
 import { listActiveFaceEnrollments } from "@/lib/face-store";
 import { userRequiresFaceReauth } from "@/lib/face-reauth";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -89,7 +95,7 @@ async function attachSupabaseSession(request: NextRequest, response: NextRespons
 
 export async function POST(request: NextRequest) {
   try {
-    const host = request.headers.get("host") ?? request.nextUrl.hostname;
+    const host = resolveRequestHostname(request);
     if (!isFaceLoginHostAllowed(host)) {
       return NextResponse.json(
         { error: "Face ID sign-in is not enabled for this environment" },

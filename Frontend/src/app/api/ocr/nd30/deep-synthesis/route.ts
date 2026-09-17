@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { callVisionOcr } from "@/lib/vision-ocr";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 120;
@@ -18,7 +19,7 @@ export async function POST(req: NextRequest) {
 
         const payload = await req.json();
 
-        const fastApiRes = await fetch("http://localhost:8000/api/ocr/nd30/deep-synthesis", {
+        const fastApiRes = await callVisionOcr("/api/ocr/nd30/deep-synthesis", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(payload),

@@ -2,6 +2,25 @@
 
 All notable changes to this project are documented in this file.
 
+## [0.2.3] - 2026-09-17
+
+### Added
+
+- GHCR images for Vision AI and Vision OCR; VPS deploy starts those sidecars with `web`.
+- Town Hown logo on the landing page, login, and dashboard navbar.
+
+### Changed
+
+- Next.js OCR and NĐ 30 BFF routes call `VISION_OCR_URL` (compose DNS) instead of `localhost:8000`.
+- Vision AI resolves YOLO weights from the `/models` volume and keeps InsightFace cache on disk.
+- Face ID sign-in allowlists staging and production public hosts and prefers `x-forwarded-host` behind Traefik.
+
+### Fixed
+
+- VPS workplace Vision (Face ID, behavior, OCR studio) can run without a local Docker build of the Python APIs.
+
+[0.2.3]: https://github.com/DatTran26/down-town/compare/v0.2.2...v0.2.3
+
 ## [0.2.2] - 2026-09-17
 
 ### Added

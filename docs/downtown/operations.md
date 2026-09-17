@@ -26,10 +26,13 @@ Runtime `.env` trên VPS không đi qua GitHub. Deploy key nằm ở
 `/root/.ssh/authorized_keys`.
 
 - Local/VPS runtime owner: [`docker-compose.yml`](../../docker-compose.yml)
-  (service `web`).
-- Image owner: [`Frontend/Dockerfile`](../../Frontend/Dockerfile).
+  (services `web`, `vision-ai-api`, `vision-ocr-api`).
+- Image owner: [`Frontend/Dockerfile`](../../Frontend/Dockerfile),
+  [`modules/vision-ai/backend/Dockerfile`](../../modules/vision-ai/backend/Dockerfile),
+  [`modules/vision-ocr/backend/Dockerfile`](../../modules/vision-ocr/backend/Dockerfile).
 - Publish: push `develop` → `:staging` + sha; push `main` → `:latest` + sha;
-  git tag `v*` → `:x.y.z` + `:latest` + sha.
+  git tag `v*` → `:x.y.z` + `:latest` + sha. The same tags are applied to
+  `down-town`, `down-town-vision-ai`, and `down-town-vision-ocr`.
 
 Tracking (GitHub, không chứa secret):
 
@@ -126,7 +129,7 @@ Ngày 2026-08-27:
 | --- | --- |
 | Build scripts/dependencies | [`Frontend/package.json`](../../Frontend/package.json) |
 | Standalone output | [`Frontend/next.config.ts`](../../Frontend/next.config.ts) |
-| Container image | [`Frontend/Dockerfile`](../../Frontend/Dockerfile) |
+| Container image | [`Frontend/Dockerfile`](../../Frontend/Dockerfile), Vision AI/OCR Dockerfiles under `modules/` |
 | Runtime service/port | [`docker-compose.yml`](../../docker-compose.yml) |
 | GHCR publish | [`.github/workflows/docker-publish.yml`](../../.github/workflows/docker-publish.yml) |
 | GitHub CI | [`.github/workflows`](../../.github/workflows) |
@@ -191,6 +194,7 @@ container `unhealthy`; recover bằng recreate/rollback.
 Smoke checklist:
 
 - Container `web` healthy, không restart loop.
+- Containers `vision-ai-api` và `vision-ocr-api` healthy trên cùng compose project.
 - `/api/health` 200.
 - Homepage trả expected response.
 - Login/session refresh hoạt động.
@@ -209,7 +213,9 @@ Pin tag hoặc digest, không dùng `:latest` làm pin production.
 ```bash
 # First cutover from the old itba-ai service name:
 docker compose down
-export DOCKER_IMAGE=ghcr.io/dattran26/down-town:staging   # or :0.1.0 or @sha256:…
+export DOCKER_IMAGE=ghcr.io/dattran26/down-town:staging
+export VISION_AI_IMAGE=ghcr.io/dattran26/down-town-vision-ai:staging
+export VISION_OCR_IMAGE=ghcr.io/dattran26/down-town-vision-ocr:staging
 docker compose pull
 docker compose up -d --remove-orphans
 docker compose ps

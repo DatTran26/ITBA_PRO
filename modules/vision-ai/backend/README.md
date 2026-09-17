@@ -15,7 +15,14 @@ Face verification uses cosine similarity `>= FACE_MATCH_THRESHOLD` and succeeds 
 
 Enrollment images are written to `FACE_DATA_DIR/{userId}/`. In Compose, the default host directory is `./data/vision-ai/faces`.
 
-Put behavior weights at `./models/vision-ai/behavior.pt`, or configure `BEHAVIOR_MODEL_PATH`. The YOLO weights must contain one or more configured classes from `BEHAVIOR_LABELS`; stock COCO weights do not provide these application-specific labels.
+Put behavior weights at `./models/vision-ai/behavior.pt`, or configure `BEHAVIOR_MODEL_PATH`. On Compose/VPS the same files are mounted at `/models`. Accepted names:
+
+- smoking: `smoking.pt`, `smoking.onnx`, `behavior.pt`, `behavior.onnx`, `best.pt`, `best.onnx`
+- empty seat: `leaving.pt`, `leaving.onnx`, then the behavior fallback
+
+The YOLO weights must contain one or more configured classes from `BEHAVIOR_LABELS`; stock COCO weights do not provide these application-specific labels.
+
+VPS operators copy those files to `/opt/ITBA-OCR/<env>/models/vision-ai/` after deploy. Do not commit `.pt` or `.onnx` files. The first Face ID call downloads InsightFace `buffalo_l` into the InsightFace volume.
 
 ## Run (local, no Docker)
 

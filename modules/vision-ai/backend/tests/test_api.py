@@ -144,6 +144,14 @@ def test_behavior_model_path_accepts_copied_quotes(tmp_path: Path):
     assert _resolve_behavior_model_path(f'  "{model_path}"  ') == model_path
 
 
+def test_behavior_model_path_uses_models_dir_basename(tmp_path: Path, monkeypatch):
+    weight = tmp_path / "smoking.onnx"
+    weight.write_bytes(b"onnx")
+    monkeypatch.setenv("VISION_AI_MODELS_DIR", str(tmp_path))
+    missing = Path(r"D:\missing\weights\smoking.onnx")
+    assert _resolve_behavior_model_path(str(missing)) == weight
+
+
 def test_enroll_rejects_path_traversal():
     response = client.post(
         "/api/face/enroll",

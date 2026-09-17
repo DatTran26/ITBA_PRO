@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   ArrowRight,
@@ -76,9 +77,14 @@ export default function LandingPage() {
         className="fixed left-1/2 -translate-x-1/2 z-50 max-w-7xl px-12 border border-black/[0.03] rounded-[2.5rem] shadow-[0_20px_50px_-20px_rgba(0,0,0,0.05)] flex justify-between items-center transition-all duration-700 ease-[cubic-bezier(0.23,1,0.32,1)] backdrop-blur-xl"
       >
         <Link href="/" className="flex items-center gap-4 group">
-          <div className="w-10 h-10 rounded-xl bg-slate-900 flex items-center justify-center text-white font-black text-[12px] shadow-2xl group-hover:scale-105 transition-transform duration-500">
-            AI
-          </div>
+          <Image
+            src="/logo.png"
+            alt="Town Hown"
+            width={545}
+            height={398}
+            className="h-10 w-auto object-contain group-hover:scale-105 transition-transform duration-500"
+            priority
+          />
           <span className="text-2xl font-black tracking-tighter uppercase text-slate-900">
             ITBA.CORE
           </span>
@@ -267,9 +273,13 @@ export default function LandingPage() {
           <div className="flex flex-col lg:flex-row items-start justify-between gap-20 mb-32">
             <div className="space-y-10 max-w-sm">
               <Link href="/" className="inline-flex items-center gap-4 group">
-                <div className="w-12 h-12 rounded-xl bg-slate-900 flex items-center justify-center text-white font-black text-xl shadow-2xl transition-transform duration-700">
-                  AI
-                </div>
+                <Image
+                  src="/logo.png"
+                  alt="Town Hown"
+                  width={545}
+                  height={398}
+                  className="h-12 w-auto object-contain"
+                />
                 <span className="text-2xl font-black tracking-tighter silver-silk-text uppercase">
                   ITBA.CORE
                 </span>
