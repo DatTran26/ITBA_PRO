@@ -495,10 +495,14 @@ export default function LoginPage() {
 
                 <div className="relative z-10 p-16 max-w-xl">
                     <Link href="/" className="inline-flex items-center gap-4 group cursor-pointer mb-20 animate-in fade-in slide-in-from-left duration-700">
-                        <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#5B6CF0] to-[#7C8FFF] flex items-center justify-center text-white font-black text-lg shadow-[0_10px_25px_-5px_rgba(91,108,240,0.5)] group-hover:scale-110 transition-all duration-500 overflow-hidden relative">
-                            <div className="absolute inset-0 bg-gradient-to-tr from-white/0 via-white/20 to-white/0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-in-out" />
-                            AI
-                        </div>
+                        <Image
+                            src="/logo.png"
+                            alt="Town Hown"
+                            width={545}
+                            height={398}
+                            className="h-14 w-auto object-contain group-hover:scale-105 transition-transform duration-500"
+                            priority
+                        />
                         <span className="text-2xl font-bold tracking-tighter text-[#ECF0F7] group-hover:text-white transition-colors font-display uppercase italic">
                             ITBA<span className="text-[#7C8FFF]">.CORE</span>
                         </span>
@@ -530,9 +534,14 @@ export default function LoginPage() {
                     <FadeIn delay={0.1}>
                         <div className="mb-6 lg:hidden flex justify-center">
                             <Link href="/">
-                                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#5B6CF0] to-[#7C8FFF] flex items-center justify-center text-white font-black text-xl shadow-[0_10px_25px_-5px_rgba(91,108,240,0.5)]">
-                                    AI
-                                </div>
+                                <Image
+                                    src="/logo.png"
+                                    alt="Town Hown"
+                                    width={545}
+                                    height={398}
+                                    className="h-16 w-auto object-contain"
+                                    priority
+                                />
                             </Link>
                         </div>
 

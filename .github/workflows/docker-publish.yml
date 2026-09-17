@@ -101,8 +101,56 @@ jobs:
             NEXT_PUBLIC_ENABLE_TURNSTILE=${{ vars.NEXT_PUBLIC_ENABLE_TURNSTILE }}
             NEXT_PUBLIC_TURNSTILE_SITE_KEY=${{ vars.NEXT_PUBLIC_TURNSTILE_SITE_KEY }}
 
+  build-sidecars:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        sidecar:
+          - name: vision-ai
+            context: modules/vision-ai/backend
+            file: modules/vision-ai/backend/Dockerfile
+            image: ghcr.io/dattran26/down-town-vision-ai
+          - name: vision-ocr
+            context: modules/vision-ocr/backend
+            file: modules/vision-ocr/backend/Dockerfile
+            image: ghcr.io/dattran26/down-town-vision-ocr
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3.12.0
+
+      - uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # v3.7.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - id: meta
+        uses: docker/metadata-action@c299e40c65443455700f0fdfc63efafe5b349051 # v5.10.0
+        with:
+          images: ${{ matrix.sidecar.image }}
+          tags: |
+            type=raw,value=staging,enable=${{ github.ref == 'refs/heads/develop' || (github.event_name == 'workflow_dispatch' && github.event.inputs.target == 'staging') }}
+            type=semver,pattern={{version}},enable=${{ startsWith(github.ref, 'refs/tags/v') }}
+            type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v') || (github.event_name == 'workflow_dispatch' && github.event.inputs.target == 'production') }}
+            type=sha,prefix=sha-
+
+      - uses: docker/build-push-action@10e90e3645eae34f1e60eeb005ba3a3d33f178e8 # v6.19.2
+        with:
+          context: ${{ matrix.sidecar.context }}
+          file: ${{ matrix.sidecar.file }}
+          platforms: linux/amd64
+          push: true
+          provenance: false
+          sbom: false
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha,scope=${{ matrix.sidecar.name }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.sidecar.name }}
+
   deploy:
-    needs: build
+    needs: [build, build-sidecars]
     if: needs.build.outputs.should_deploy == 'true'
     runs-on: ubuntu-latest
     environment: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.target || (github.ref == 'refs/heads/develop' && 'staging' || 'production') }}
@@ -127,6 +175,9 @@ jobs:
           test -n "${VPS_USER}"
           test -n "${DEPLOY_PATH}"
           test -n "${DOCKER_IMAGE}"
+          SHA7="${GITHUB_SHA::7}"
+          VISION_AI_IMAGE="ghcr.io/dattran26/down-town-vision-ai:sha-${SHA7}"
+          VISION_OCR_IMAGE="ghcr.io/dattran26/down-town-vision-ocr:sha-${SHA7}"
           install -d -m 700 ~/.ssh
           printf '%s\n' "${SSH_KNOWN_HOSTS}" > ~/.ssh/known_hosts
           chmod 644 ~/.ssh/known_hosts
@@ -143,5 +194,5 @@ jobs:
           TOKEN_FILE="${DEPLOY_PATH}/.ghcr-token.tmp"
           printf '%s' "${GHCR_TOKEN}" | "${SSH[@]}" "${VPS_USER}@${VPS_HOST}" "cat > '${TOKEN_FILE}' && chmod 600 '${TOKEN_FILE}'"
           "${SSH[@]}" "${VPS_USER}@${VPS_HOST}" \
-            "DEPLOY_PATH='${DEPLOY_PATH}' DOCKER_IMAGE='${DOCKER_IMAGE}' GHCR_USER='${GHCR_USER}' GHCR_TOKEN_FILE='${TOKEN_FILE}' bash '${DEPLOY_PATH}/deploy/vps/remote-up.sh'"
+            "DEPLOY_PATH='${DEPLOY_PATH}' DOCKER_IMAGE='${DOCKER_IMAGE}' VISION_AI_IMAGE='${VISION_AI_IMAGE}' VISION_OCR_IMAGE='${VISION_OCR_IMAGE}' GHCR_USER='${GHCR_USER}' GHCR_TOKEN_FILE='${TOKEN_FILE}' bash '${DEPLOY_PATH}/deploy/vps/remote-up.sh'"
           shred -u ~/.ssh/id_ed25519 || rm -f ~/.ssh/id_ed25519

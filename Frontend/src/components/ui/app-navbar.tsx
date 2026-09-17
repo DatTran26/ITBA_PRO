@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { Search, HelpCircle, ChevronDown, GitBranch } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
@@ -41,9 +42,14 @@ interface AppNavbarProps {
 export function AppLogo({ showText = true }: { showText?: boolean }) {
     return (
         <Link href="/dashboard" className="flex items-center gap-3 group shrink-0">
-            <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-[#5B6CF0] via-[#7C8FFF] to-[#B48EFF] flex items-center justify-center text-white font-black text-[12px] shadow-lg shadow-[#7C8FFF]/20 ring-2 ring-white/10 shrink-0">
-                AI
-            </div>
+            <Image
+                src="/logo.png"
+                alt="Town Hown"
+                width={545}
+                height={398}
+                className="h-9 w-auto object-contain shrink-0"
+                priority
+            />
             {showText && (
                 <div className="flex flex-col">
                     <span className="text-lg font-bold tracking-tight text-[#ECF0F7] leading-none font-display">

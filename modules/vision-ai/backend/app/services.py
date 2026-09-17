@@ -21,7 +21,12 @@ def decode_image(content: bytes) -> np.ndarray:
 def get_face_model():
     from insightface.app import FaceAnalysis
 
-    model = FaceAnalysis(name=cfg.FACE_MODEL_NAME, providers=["CPUExecutionProvider"])
+    cfg.INSIGHTFACE_ROOT.mkdir(parents=True, exist_ok=True)
+    model = FaceAnalysis(
+        name=cfg.FACE_MODEL_NAME,
+        root=str(cfg.INSIGHTFACE_ROOT),
+        providers=["CPUExecutionProvider"],
+    )
     model.prepare(ctx_id=-1, det_size=(640, 640))
     return model
 
@@ -60,7 +65,17 @@ def _resolve_behavior_model_path(model_path: str | None) -> Path:
     if not model_path:
         return Path(cfg.BEHAVIOR_MODEL_PATH)
     path = Path(os.path.expandvars(model_path.strip().strip('"').strip("'"))).expanduser()
-    return path if path.is_absolute() else (SRC_ROOT / path).resolve()
+    if path.is_file():
+        return path.resolve()
+    if path.is_absolute():
+        by_name = cfg.models_dir() / path.name
+        if by_name.is_file():
+            return by_name
+        return path
+    from_models = cfg.models_dir() / path.name
+    if from_models.is_file():
+        return from_models
+    return (SRC_ROOT / path).resolve()
 
 
 @lru_cache(maxsize=4)
