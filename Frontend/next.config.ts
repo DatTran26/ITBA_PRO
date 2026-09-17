@@ -19,6 +19,9 @@ const nextConfig: NextConfig = {
     output: "standalone",
     allowedDevOrigins: [
         "bunch-assessments-era-front.trycloudflare.com",
+        "26.245.221.224",
+        "127.0.0.1",
+        "localhost",
     ],
 };
 

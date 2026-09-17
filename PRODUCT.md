@@ -9,9 +9,12 @@
 ## Quan hệ giữa tầm nhìn và ứng dụng hiện có
 
 - Town Hown là HRMS bao trùm tài khoản, nhân sự, tuyển dụng, họp, công việc,
-  báo cáo, tích hợp, Document AI và đánh giá năng lực.
-- `Frontend` và `Backend` hiện thực phần tuyển dụng, kiểm tra/đánh giá,
-  question bank, Document AI, email và một phần quản lý năng lực.
+  báo cáo, tích hợp, Document AI, đánh giá năng lực, chấm công sinh trắc học và giám sát thị giác máy tính (Computer Vision).
+- `Frontend`, `Backend` và các module Vision AI (`modules/vision-ai/backend`, `modules/face-attendance`) hiện thực phần:
+  - Tuyển dụng, kiểm tra/đánh giá, question bank, Document AI, email và quản lý năng lực.
+  - Xác thực sinh trắc học khuôn mặt (Face Biometric Authentication / Face ID Sign In - Register - Dev Logout) và quản lý khuôn mặt nhân viên (`/dashboard/faces`, `/dashboard/my-face`).
+  - Điểm danh, chấm công bằng nhận diện khuôn mặt (`/dashboard/attendance`), quản lý ca làm việc và tổng hợp công hàng ngày.
+  - Giám sát phát hiện hành vi vi phạm tại nơi làm việc (`/dashboard/behavior`), bảng điều khiển đa màn hình (Dual Video Monitors) với live bounding box overlay, nhật ký runtime và quản trị mô hình AI (`/dashboard/model-controller`).
 - Tính năng trong tài liệu này là **mục tiêu sản phẩm** cho đến khi có source,
   migration và validation tương ứng trong ứng dụng.
 - AI chỉ hỗ trợ đề xuất và phân tích; người có thẩm quyền vẫn chịu trách nhiệm
@@ -19,11 +22,57 @@
 
 ## 1. Module tài khoản, tổ chức và phân quyền
 
-- Đăng nhập, đăng xuất và quản lý tài khoản.
+- Đăng nhập, đăng xuất và quản lý tài khoản người dùng.
 - Quản lý công ty, chi nhánh, phòng ban, chức danh và sơ đồ tổ chức.
-- Phân quyền theo vai trò: quản trị viên, HR, lãnh đạo, quản lý, nhân viên và ứng viên.
+- Phân quyền theo vai trò: quản trị viên (admin, super_admin), HR, lãnh đạo, quản lý, nhân viên và ứng viên.
 - Giới hạn phạm vi dữ liệu theo phòng ban và cấp quản lý.
-- Lưu nhật ký đăng nhập, truy cập và thay đổi dữ liệu.
+- Lưu nhật ký đăng nhập, truy cập và thay đổi dữ liệu (`activity-logs`, `face_audit_logs`).
+
+### Xác thực sinh trắc học khuôn mặt (Face Biometric Authentication)
+
+- **Đăng ký tài khoản (Sign Up) tích hợp Face Enrollment bắt buộc:**
+  - Quy trình đăng ký tài khoản người dùng gắn liền với việc thu thập và đăng ký sinh trắc học khuôn mặt.
+  - Thu thập đủ **6 góc độ khuôn mặt chuẩn hóa**:
+    1. Nhìn thẳng (`Front` — nhìn trực diện vào camera).
+    2. Quay trái (`Left` — xoay mặt 15–30 độ sang trái).
+    3. Quay phải (`Right` — xoay mặt 15–30 độ sang phải).
+    4. Hơi ngước cằm (`Looking up` — nâng cằm nhẹ).
+    5. Hơi cúi đầu (`Looking down` — hạ đầu nhẹ).
+    6. Biểu cảm tự nhiên / mỉm cười (`Natural / Smile` — mỉm cười hoặc thả lỏng tự nhiên).
+  - Hỗ trợ 2 chế độ chụp tiện lợi qua webcam:
+    - *Chế độ tự động 1 chạm (1-touch auto capture):* Tự động đếm ngược 3 giây cho mỗi góc mặt, chuyển góc tiếp theo sau khi chụp thành công.
+    - *Chế độ chụp thủ công:* Cho phép chụp lại hoặc tải lên tệp ảnh từng góc riêng biệt.
+  - Kiểm tra tính hợp lệ của ảnh đầu vào (định dạng JPEG/PNG/WebP, kích thước hợp lệ, đảm bảo phát hiện được khuôn mặt rõ nét).
+  - Trích xuất 6 vector đặc trưng 512 chiều chuẩn hóa L2 bằng mô hình ArcFace (InsightFace).
+  - **Cơ chế Rollback an toàn:** Nếu bước trích xuất embedding hoặc lưu trữ dữ liệu khuôn mặt gặp sự cố, tài khoản vừa tạo trên Supabase Auth/database sẽ tự động bị xóa bỏ (rollback hoàn toàn), đảm bảo không tồn tại tài khoản chưa hoàn tất đăng ký sinh trắc học.
+  - Hỗ trợ lưu trữ kép: Vector đặc trưng được mã hóa lưu trữ trên cơ sở dữ liệu (`user_face_embeddings`) và đồng thời sao lưu trên thư mục lưu trữ cục bộ (`data/vision-ai/faces/{profileName}__{userId}/`).
+
+- **Đăng nhập bằng nhận diện khuôn mặt (Face ID Sign In):**
+  - Xác thực nhanh chóng, không chạm qua webcam tại trang đăng nhập (`/login`).
+  - Chụp ảnh khuôn mặt trực tiếp, gửi về Python Vision AI để trích xuất vector đặc trưng probe.
+  - So khớp Cosine Similarity với 6 vector đặc trưng đã đăng ký của tài khoản:
+    - Đạt chuẩn xác thực khi có ít nhất 2 góc mặt vượt qua ngưỡng khớp quy định (`faceMatchThreshold`, mặc định `0.75`).
+  - Hỗ trợ tính năng tự động quét lại (Auto-scan retry) tối đa 3 lần nếu lần đầu chưa đạt ngưỡng do góc nghiêng hoặc ánh sáng.
+  - **Cơ chế dự phòng (Fallback):** Khi webcam không khả dụng hoặc xác thực khuôn mặt không thành công sau các lần thử, người dùng có thể linh hoạt chuyển sang đăng nhập bằng email & mật khẩu truyền thống kết hợp bảo vệ Turnstile Captcha.
+
+- **Quản lý dữ liệu khuôn mặt nhân viên (`/dashboard/faces` & `/dashboard/my-face`):**
+  - *Quản lý tập trung dành cho Admin/HR (`/dashboard/faces`):*
+    - Xem danh sách toàn bộ nhân sự, trạng thái đã đăng ký (Enrolled) hoặc chưa đăng ký khuôn mặt.
+    - Xem chi tiết số lượng ảnh đã lưu, tình trạng vector embeddings, tổng dung lượng lưu trữ trên hệ thống.
+    - Cho phép quản trị viên đăng ký bổ sung, cập nhật hoặc xóa dữ liệu khuôn mặt của nhân viên khi có yêu cầu hợp lệ.
+  - *Quản lý khuôn mặt cá nhân (`/dashboard/my-face`):*
+    - Nhân viên chủ động theo dõi trạng thái sinh trắc học của tài khoản mình.
+    - Cho phép tự cập nhật lại bộ ảnh 6 góc mặt (Self-enrollment) khi có thay đổi ngoại hình hoặc muốn cải thiện độ chính xác nhận diện.
+
+- **Cơ chế Dev Authentication & Quản lý phiên an toàn:**
+  - Hỗ trợ đăng nhập tắt an toàn cho môi trường phát triển cục bộ (`/api/dev-login`).
+  - Đăng xuất an toàn Dev Logout (`/api/dev-logout`): Xóa sạch cookie phiên `dev_user`, vô hiệu hóa trạng thái đăng nhập, đảm bảo an toàn dữ liệu trên môi trường test.
+
+### Chức năng AI
+
+- Trích xuất vector đặc trưng 512 chiều (512-dim embedding) bằng mạng nơ-ron sâu ArcFace (InsightFace `buffalo_l`).
+- Thuật toán so khớp cosine similarity đa vector với ngưỡng động, đảm bảo độ trễ xác thực dưới 500ms.
+- Tự động định vị và crop khuôn mặt lớn nhất trong khung hình, loại bỏ nhiễu nền xung quanh.
 
 ## 2. Module quản lý nhân sự
 
@@ -33,8 +82,43 @@
 - Lưu trữ tài liệu nhân sự theo quyền truy cập.
 - Tra cứu danh bạ nhân viên trong doanh nghiệp.
 
+### Quản lý chấm công bằng khuôn mặt (Facial Recognition Attendance)
+
+- **Quy trình Check-in / Check-out tự động qua nhận diện khuôn mặt:**
+  - Nhân viên truy cập giao diện chấm công (`/dashboard/attendance`) và kích hoạt webcam hoặc camera giám sát tại nơi làm việc.
+  - Hệ thống tự động phát hiện khuôn mặt probe, trích xuất vector đặc trưng và gửi tới backend so khớp với dữ liệu khuôn mặt đã đăng ký (Single Source of Truth từ Face Store / `user_face_embeddings`).
+  - So khớp Cosine Similarity thời gian thực với độ tin cậy cao; chỉ chấp nhận điểm danh khi khuôn mặt trùng khớp với tài khoản đăng nhập.
+  - **Kiểm soát logic phiên làm việc (Session Integrity):**
+    - Ngăn chặn check-in trùng lặp nếu nhân viên đang có phiên hoạt động chưa check-out.
+    - Bắt buộc phải có phiên check-in hợp lệ trước khi thực hiện check-out.
+- **Quản lý ca làm việc (Attendance Shifts):**
+  - Cấu hình các ca làm việc linh hoạt theo nhu cầu doanh nghiệp (`attendance_shifts`):
+    - *STANDARD:* Ca hành chính tiêu chuẩn (08:30 – 17:30, thời gian ân hạn 15 phút).
+    - *MORNING:* Ca sáng linh hoạt (07:30 – 11:30, thời gian ân hạn 10 phút).
+    - *AFTERNOON:* Ca chiều linh hoạt (13:00 – 17:00, thời gian ân hạn 10 phút).
+  - Cấu hình thời gian ân hạn (grace period) trước khi hệ thống đánh dấu đi muộn.
+- **Ghi nhận lịch sử và bằng chứng điểm danh (`attendance_sessions`):**
+  - Ghi nhận chính xác mốc thời gian `check_in_at` và `check_out_at`.
+  - Lưu trữ độ tin cậy nhận diện của từng lượt: `check_in_similarity` và `check_out_similarity`.
+  - Lưu ảnh chụp bằng chứng (snapshot) tại thời điểm check-in và check-out phục vụ đối soát, kiểm tra khi cần.
+  - Tự động tính toán tổng thời gian làm việc thực tế trong phiên (`work_duration_minutes`).
+  - Ghi nhận trạng thái phiên (`status`: valid, manual_override, disputed) và vị trí camera/thiết bị (`location`).
+- **Tự động tổng hợp dữ liệu công hàng ngày (`attendance_daily_summary`):**
+  - Tự động tổng hợp giờ vào đầu tiên (`first_check_in`) và giờ ra cuối cùng (`last_check_out`) trong ngày làm việc.
+  - Tính tổng số giờ làm việc thực tế (`total_working_hours`).
+  - Tự động đối chiếu với ca làm việc để gắn cờ đi muộn (`is_late`) hoặc về sớm (`is_early_leave`).
+  - Ghi nhận trạng thái công trong ngày (`daily_status`: present, late, early_leave, absent, excused).
+- **Cơ chế dự phòng lưu trữ cục bộ (Local Fallback Resilience):**
+  - Khi hệ thống cơ sở dữ liệu Supabase tạm thời gián đoạn kết nối, hệ thống tự động chuyển sang lưu trữ phiên chấm công vào tệp JSON cục bộ (`data/vision-ai/attendance-sessions.json`), đảm bảo trải nghiệm điểm danh của nhân viên luôn thông suốt 100%.
+- **Giao diện Dashboard quản lý chấm công (`/dashboard/attendance`):**
+  - Khung quan sát webcam trực tiếp kèm các nút thao tác nhanh: Bật/Tắt camera, Chụp ảnh, Check-in, Check-out.
+  - Bảng nhật ký phiên chấm công trực quan: hiển thị họ tên nhân viên, thời gian vào/ra, điểm số tương đồng cosine similarity (%), trạng thái hợp lệ.
+  - Phân quyền dữ liệu chặt chẽ: Nhân viên thông thường chỉ xem lịch sử chấm công của bản thân; Quản trị viên và Quản lý HR được xem và xuất báo cáo toàn bộ nhân sự.
+
 ### Chức năng AI
 
+- Nhận diện danh tính khuôn mặt thời gian thực qua ArcFace (InsightFace), tốc độ so khớp < 500ms.
+- Tự động phát hiện khuôn mặt hợp lệ, cảnh báo khi hình ảnh quá tối, quá mờ hoặc có nhiều người trong khung hình.
 - Trích xuất thông tin từ hồ sơ và giấy tờ để đề xuất điền biểu mẫu.
 - Phát hiện dữ liệu còn thiếu hoặc có dấu hiệu không nhất quán.
 - Hỗ trợ tìm kiếm hồ sơ bằng câu hỏi ngôn ngữ tự nhiên theo quyền của người dùng.
@@ -125,6 +209,8 @@
 - Theo dõi việc sắp đến hạn, quá hạn và chờ phê duyệt.
 - Theo dõi công việc được tạo từ từng cuộc họp.
 - Báo cáo tuyển dụng, onboarding và biến động nhân sự.
+- Thống kê dữ liệu chấm công, thời lượng làm việc, tỷ lệ đi muộn/về sớm theo phòng ban và nhân sự.
+- Thống kê các sự kiện vi phạm nội quy nơi làm việc (hút thuốc, rời vị trí) theo phòng ban, vị trí camera và trạng thái phê duyệt.
 - Theo dõi tổng số CV, tỷ lệ vượt qua từng vòng và tỷ lệ tuyển thành công.
 - Theo dõi thời gian tuyển dụng trung bình và tỷ lệ chuyển đổi giữa các trạng thái.
 - Theo dõi kết quả bài kiểm tra theo vị trí, phòng ban, chủ đề và trình độ.
@@ -452,87 +538,108 @@ Camera trong phòng → Python CV Backend riêng → frame sampling/compression
 - Tạo sự kiện khi hành vi vượt ngưỡng thời gian hoặc confidence đã cấu hình.
 - Trả về bounding box, loại hành vi, confidence, camera, thời điểm và bằng chứng liên quan.
 
-### Phát hiện hút thuốc trong khu vực làm việc
+### Phát hiện hút thuốc trong khu vực làm việc (Smoking Detection)
 
-- Phát hiện hành vi hoặc vật thể liên quan đến hút thuốc trong vùng quan sát.
-- Cho phép cấu hình khu vực cấm hút thuốc theo từng camera hoặc phòng.
-- Cho phép thiết lập ngưỡng confidence tối thiểu và số frame/giây liên tục trước khi tạo cảnh báo.
-- Cho phép lưu ảnh bằng chứng hoặc đoạn video ngắn khi phát hiện sự kiện.
-- Cho phép manager xác nhận sự kiện là đúng, sai hoặc cần kiểm tra thêm, kèm ghi chú kết quả xử lý.
-- Cho phép bỏ qua cảnh báo sai để phục vụ thống kê chất lượng model.
-
-#### Chức năng AI/Computer Vision
-
-- Nhận diện người có dấu hiệu hút thuốc; nhận diện vật thể nghi vấn như điếu thuốc hoặc khói nếu model hỗ trợ.
-- Kết hợp nhiều frame liên tiếp để giảm false positive.
-- Đánh dấu vùng ảnh liên quan đến cảnh báo và trả confidence cho từng sự kiện.
-- Không tự kết luận nhân viên vi phạm nếu chưa có manager xác nhận.
-
-### Phát hiện rời vị trí quá lâu
-
-- Cho phép admin cấu hình vị trí làm việc hoặc vùng quan sát cho từng camera.
-- Cho phép đánh dấu vùng ghế ngồi, bàn làm việc hoặc khu vực cần có nhân sự.
-- Theo dõi trạng thái có người/không có người trong vùng quan sát.
-- Cho phép cấu hình thời gian rời vị trí tối thiểu trước khi cảnh báo và khung giờ áp dụng theo ca làm việc.
-- Không cảnh báo ngoài giờ làm việc, giờ nghỉ hoặc khoảng thời gian đã cấu hình.
-- Cho phép manager xem lịch sử rời vị trí theo phòng, camera hoặc khung giờ.
-- Cho phép xác nhận cảnh báo là hợp lệ, không hợp lệ hoặc có lý do chính đáng.
+- Nhận diện hành vi hút thuốc theo thời gian thực tại nơi làm việc bằng mô hình thị giác máy tính YOLOv8 (`rc_v1_yolov8` hoặc `models/vision-ai/smoking.pt`).
+- Đối tượng phát hiện bao gồm khói (`smoke`), điếu thuốc (`cigarette`) và hành vi đưa tay hút thuốc tại bàn làm việc hoặc khu vực cấm.
+- Thiết lập ngưỡng tin cậy phát hiện mặc định (`confidence: 0.50`, `iouThreshold: 0.45`), có thể tinh chỉnh linh hoạt theo từng camera hoặc phòng.
+- Kết hợp theo dõi liên tục qua nhiều khung hình (frame tracking) để loại bỏ hiện tượng cảnh báo giả (false positive) do đồ vật có hình dáng tương tự (bút, ống hút).
+- Khi phát hiện vi phạm, hệ thống tự động lưu frame ảnh bằng chứng độ phân giải cao và trích xuất thông tin bounding box.
+- Cho phép người quản lý kiểm tra, xác nhận vi phạm (`approved`) hoặc bác bỏ cảnh báo sai (`rejected`) trực tiếp trên dashboard kèm ghi chú xử lý.
 
 #### Chức năng AI/Computer Vision
 
-- Phát hiện người trong vùng quan sát và theo dõi sự hiện diện theo thời gian.
-- Phân biệt rời vị trí ngắn hạn và rời vị trí quá ngưỡng.
-- Ghi nhận thời điểm bắt đầu vắng mặt, thời điểm quay lại và tổng thời gian rời vị trí trong phiên quan sát.
-- Tạo cảnh báo khi thời gian vắng mặt vượt ngưỡng.
-- Không tự đánh giá thái độ, năng suất hoặc phẩm chất cá nhân của nhân viên.
+- Nhận diện và phân loại nhãn `smoke`, `cigarette` với độ chính xác cao dựa trên kiến trúc YOLOv8.
+- Trả về tọa độ bounding box chính xác `[x1, y1, x2, y2]`, nhãn vi phạm, điểm số tin cậy (confidence score) và thời gian suy luận (processing latency tính bằng mili-giây).
+- Không tự động kết luận vi phạm chính thức nếu chưa có sự phê duyệt của người quản lý có thẩm quyền.
 
-### Giao diện quan sát realtime cho quản lý
+### Phát hiện rời vị trí quá lâu (Prolonged Absence / Away-from-Desk / Seat Occupancy)
 
-- Manager xem danh sách phòng hoặc camera được cấp quyền.
-- Hiển thị stream realtime hoặc preview đã tối ưu từ camera.
-- Hiển thị trạng thái từng camera: online, offline, đang xử lý, có cảnh báo.
-- Hiển thị cảnh báo realtime khi có sự kiện nghi vấn kèm ảnh hoặc đoạn video bằng chứng.
-- Cho phép manager xác nhận, từ chối hoặc đánh dấu cần kiểm tra thêm, kèm ghi chú.
-- Cho phép lọc sự kiện theo camera, phòng, loại vi phạm, thời gian và trạng thái xử lý.
-- Chỉ hiển thị camera và sự kiện thuộc phạm vi quản lý được phân quyền.
+- Theo dõi trạng thái hiện diện của nhân viên tại bàn làm việc hoặc khu vực được chỉ định bằng mô hình YOLO (`models/vision-ai/leaving.pt` hoặc `behavior.pt`).
+- Phát hiện các trạng thái vi phạm: ghế trống (`empty_seat`), bàn làm việc không người (`un-occupied_desk`) với ngưỡng tin cậy mặc định (`confidence: 0.25`, `iouThreshold: 0.45`).
+- Cho phép quản trị viên cấu hình vị trí bàn làm việc, vùng quan sát (ROI) và gán hồ sơ nhân viên được theo dõi (`monitored profile`).
+- Thiết lập ngưỡng thời gian vắng mặt tối đa cho phép trước khi kích hoạt cảnh báo (ví dụ: quá 15 phút ngoài khung giờ giải lao/nghỉ trưa).
+- Tự động bỏ qua giám sát ngoài giờ làm việc, ngày nghỉ hoặc trong các khung giờ nghỉ đã được cấu hình trước.
+- Manager dễ dàng tra cứu lịch sử rời vị trí, tổng thời gian vắng mặt trong ca và xem xét các trường hợp có lý do chính đáng (họp nội bộ, công tác, việc khẩn cấp).
 
 #### Chức năng AI/Computer Vision
 
-- Overlay bounding box hoặc vùng phát hiện lên khung hình khi có cảnh báo.
-- Hiển thị confidence của model và thời lượng hành vi.
-- Cảnh báo khi model không đủ chắc chắn và cần người xem xác minh.
-- Không tự động chuyển sự kiện thành kết luận vi phạm chính thức.
+- Phát hiện người, ghế ngồi và bàn làm việc trong vùng quan sát; theo dõi sự hiện diện liên tục theo chuỗi thời gian.
+- Phân biệt giữa việc rời bàn ngắn hạn (vài phút) và rời vị trí kéo dài vượt ngưỡng cho phép.
+- Ghi nhận chính xác mốc thời gian bắt đầu vắng mặt, thời điểm quay trở lại và tổng thời lượng rời vị trí.
+- Tuyệt đối không tự động đánh giá thái độ, năng suất hay phẩm chất cá nhân của nhân sự.
 
-### Cấu hình hệ thống cho quản trị viên
+### Giao diện giám sát đa màn hình thời gian thực (Dual Video Monitors Dashboard — `/dashboard/behavior`)
 
-- Admin quản lý camera, phòng, vùng quan sát và model sử dụng.
-- Cho phép chọn model phát hiện hút thuốc và model phát hiện rời vị trí cho từng camera.
-- Cho phép cấu hình confidence threshold và thời gian tối thiểu để tạo cảnh báo.
-- Cho phép cấu hình FPS xử lý, độ phân giải frame và số lượng frame lấy mẫu.
-- Cho phép cấu hình thời lượng video bằng chứng trước và sau sự kiện.
-- Cho phép bật/tắt từng loại phát hiện theo từng camera và kiểm tra thử model trước khi áp dụng chính thức.
-- Cho phép xem log lỗi model, lỗi stream và lỗi gửi sự kiện lên HRMS.
+- Hỗ trợ bảng điều khiển giám sát đa màn hình đồng thời, hiển thị song song 2 monitor trực quan:
+  - **Smoking Monitor:** Giám sát chuyên dụng phát hiện hành vi hút thuốc.
+  - **Away-from-Desk Monitor:** Giám sát chuyên dụng phát hiện vắng mặt / rời bàn làm việc.
+- Hỗ trợ nguồn phát linh hoạt cho từng monitor:
+  - *Camera trực tiếp:* Kết nối trực tiếp webcam/camera giám sát qua WebRTC/getUserMedia, cho phép chọn camera cụ thể theo danh sách thiết bị (`deviceId`).
+  - *Tệp video mẫu:* Hỗ trợ tải lên video thử nghiệm (`MP4`, `WebM`, `QuickTime`) phục vụ kiểm thử và mô phỏng trước khi triển khai thực tế.
+- Gắn hồ sơ nhân viên được theo dõi (`monitored profile`): liên kết camera/màn hình với một nhân sự cụ thể trong hệ thống để tự động định danh đối tượng khi có vi phạm.
+- **Lớp phủ nhận diện trực tiếp (Realtime Live Bounding Box Overlay):**
+  - Hiển thị bounding box vẽ trực tiếp bằng SVG đè lên khung hình video stream đang phát.
+  - Phân loại màu sắc nhận diện trực quan:
+    - *Màu đỏ (`#F87171`):* Phát hiện vi phạm nghiêm trọng (Hút thuốc, điếu thuốc).
+    - *Màu vàng (`#FBBF24`):* Cảnh báo vi phạm rời bàn làm việc / ghế trống.
+    - *Màu xanh ngọc (`#36DDAB`):* Trạng thái an toàn, không có vi phạm.
+  - Hiển thị nhãn phát hiện kèm phần trăm tin cậy sắc nét ngay trên đỉnh bounding box.
+- **Nhật ký runtime tốc độ cao theo từng monitor (Fast Per-Monitor Runtime Logs):**
+  - Bảng log cuộn thời gian thực độc lập cho từng monitor, ghi nhận chi tiết: mốc thời gian (hh:mm:ss), số lượng bounding box phát hiện, độ trễ mạng API (ms), thời gian suy luận AI (`processingMs`), danh sách nhãn phát hiện.
+- **Cơ chế quét linh hoạt (Scan Control):**
+  - Điều khiển Start / Pause / Resume / Stop cho từng monitor riêng biệt.
+  - Chu kỳ quét tự động mỗi 1 giây (`1000ms`) khi đang phát trực tiếp.
+  - Hỗ trợ nút quét thủ công tức thì (`Scan Now`) để lấy kết quả ngay tại thời điểm quan sát.
 
-#### Chức năng AI/Computer Vision
+### Cơ chế lưu trữ bằng chứng & Cooldown chống quá tải (Evidence Storage & Anti-Spam Cooldown)
 
-- Cho phép kiểm thử model với ảnh hoặc video mẫu.
-- Hiển thị số lượng cảnh báo đúng/sai sau khi manager xác nhận và tỷ lệ false positive theo camera, model.
-- Đề xuất điều chỉnh ngưỡng nếu một camera tạo quá nhiều cảnh báo sai.
-- Không tự động thay đổi cấu hình model nếu chưa có admin xác nhận.
+- Khi phát hiện vi phạm (`isViolation = true`), Python backend tự động lưu frame ảnh bằng chứng vào thư mục phân cấp theo tên hồ sơ và ngày tháng: `data/vision-ai/violations/{profileName}__{userId}/{YYYY-MM-DD}/{HHMMSS_ffffff}.jpg`.
+- Lưu kèm file metadata JSON mô tả chi tiết danh sách đối tượng vi phạm, nhãn, tọa độ bounding box và độ tin cậy.
+- **Cơ chế khóa Cooldown 10 giây (`EVIDENCE_COOLDOWN_SECONDS = 10`):** Giới hạn tối thiểu 10 giây giữa 2 lần lưu ảnh bằng chứng liên tiếp cho cùng một nhân viên và mô hình, ngăn chặn việc ghi đĩa ồ ạt và tránh tạo hàng loạt bản ghi trùng lặp cho cùng một hành vi liên tục.
 
-### Quản lý sự kiện vi phạm
+### Quản lý và kiểm duyệt sự kiện vi phạm (Violation Lifecycle Management)
 
-- Mỗi sự kiện được lưu dưới dạng bản ghi riêng: loại sự kiện, camera, phòng, thời điểm, duration, confidence và trạng thái xử lý.
-- Lưu ảnh minh chứng hoặc video ngắn nếu chính sách cho phép.
-- Gắn sự kiện với phòng, camera và ca làm việc nếu có dữ liệu.
-- Cho phép manager xác nhận hoặc loại bỏ sự kiện kèm lý do.
-- Cho phép chuyển sự kiện thành nhiệm vụ kiểm tra trên Kanban nếu cần.
-- Cho phép gửi thông báo cho quản lý phụ trách.
-- Cho phép xuất báo cáo sự kiện theo thời gian, phòng hoặc loại cảnh báo.
-- Lưu lịch sử toàn bộ thao tác xem, xác nhận, chỉnh sửa và xử lý sự kiện.
+- Mỗi sự kiện vi phạm được ghi nhận thành một bản ghi trong bảng `violation_alerts`:
+  - `track_id`: Mã định danh duy nhất của sự kiện vi phạm.
+  - `rule_id`: Khóa ngoại liên kết tới danh mục quy tắc nội quy (`violation_rules`).
+  - `user_id`: Khóa ngoại liên kết tới nhân sự bị phát hiện vi phạm.
+  - `violation_type`: Loại vi phạm (`smoking`, `empty_desk`, `phone_usage`, `unauthorized_access`).
+  - `severity`: Mức độ nghiêm trọng (`Critical`, `High`, `Medium`, `Low`).
+  - `camera_location`: Tên camera và vị trí quan sát (ví dụ: `Smoking Monitor / Camera 0`).
+  - `evidence_url`: Đường dẫn tệp ảnh bằng chứng trên hệ thống lưu trữ.
+  - `detections_json`: Chi tiết bounding box, nhãn, điểm số tin cậy, tên hồ sơ được theo dõi.
+  - `status`: Trạng thái kiểm duyệt (`pending_review`, `approved`, `rejected`).
+- **Quy trình kiểm duyệt trực tiếp trên giao diện Dashboard:**
+  - Danh sách vi phạm chờ duyệt hiển thị ngay dưới các màn hình giám sát tại `/dashboard/behavior`.
+  - Quản lý xem xét hình ảnh, thông tin phát hiện và đưa ra quyết định bằng 1 cú nhấp chuột:
+    - Nhấn **Approve** để phê duyệt vi phạm chính thức (chuyển trạng thái sang `approved`).
+    - Nhấn **Reject** để bác bỏ cảnh báo sai (chuyển trạng thái sang `rejected`).
+  - Ghi nhận nhật ký phê duyệt vào bảng `violation_action_logs` (`action_by`, `action_type`, `comment`, `created_at`).
 
-Trạng thái sự kiện: `Detected` → `Pending Review` → `Confirmed` / `False Positive` /
-`Need More Context` → `Resolved` / `Dismissed`.
+### Module Quản trị Model Controller (`/dashboard/model-controller`)
+
+- Giao diện quản trị cao cấp dành riêng cho Super Admin, cho phép cấu hình và điều khiển toàn bộ tham số AI thời gian thực mà không cần khởi động lại dịch vụ backend:
+- **Cấu hình mô hình khuôn mặt ArcFace (InsightFace):**
+  - Lựa chọn phiên bản mô hình trích xuất đặc trưng:
+    - `buffalo_l`: Mô hình khuyến nghị, độ chính xác nhận diện 512 chiều cao nhất.
+    - `buffalo_m`: Cân bằng tối ưu giữa tốc độ CPU và độ chính xác.
+    - `buffalo_s`: Phiên bản gọn nhẹ, tốc độ xử lý nhanh.
+    - `buffalo_sc`: Biến thể siêu nhỏ gọn cho thiết bị phần cứng hạn chế.
+  - Cấu hình ngưỡng so khớp khuôn mặt `faceMatchThreshold` (mặc định `0.75`, dải tùy chỉnh 0.10 – 1.00).
+- **Quản trị Multi-Model YOLO phát hiện hành vi:**
+  - Quản lý danh sách mô hình hành vi hoạt động đồng thời trong hệ thống.
+  - Cấu hình đường dẫn tệp trọng số mô hình (`modelPath`), hỗ trợ cơ chế chuẩn hóa đường dẫn thông minh (tự động loại bỏ dấu ngoặc kép thừa, chuyển đổi dấu gạch chéo Windows/Linux).
+  - Tự động kiểm tra tính hợp lệ và trạng thái tồn tại của tệp trọng số trên ổ đĩa (`modelExists`), hiển thị chỉ báo trực quan.
+  - Bật / tắt hoạt động của từng mô hình thông qua nút gạt (`enabled`).
+  - Tinh chỉnh tham số suy luận: Ngưỡng tin cậy `confidence` (0.00 – 1.00) và ngưỡng giao thoa `iouThreshold`.
+  - Tùy chỉnh danh sách nhãn nhận diện mục tiêu (`labels`) cấu thành hành vi vi phạm.
+  - **Thư viện cấu hình mẫu (Model Templates) tích hợp sẵn:**
+    - *Phone Usage Detection:* Cấu hình phát hiện sử dụng điện thoại di động trong khu vực làm việc (nhãn: `phone`, `cell phone`, `phone_use`, ngưỡng confidence `0.40`).
+    - *Sleeping / Inactivity Detection:* Cấu hình phát hiện ngủ gật hoặc bất động kéo dài tại bàn làm việc (nhãn: `sleeping`, `head_down`, `inattentive`, ngưỡng confidence `0.35`).
+- **Quản lý đường dẫn lưu trữ và giám sát dung lượng (Storage Governance):**
+  - Cấu hình linh hoạt đường dẫn thư mục lưu trữ khuôn mặt (`faceStoragePath`) và thư mục lưu trữ bằng chứng vi phạm (`violationStoragePath`).
+  - Bảng thống kê tài nguyên thời gian thực: trạng thái thư mục, tổng số nhân sự đã đăng ký sinh trắc học, tổng số lượng tệp ảnh, tổng dung lượng lưu trữ trên đĩa (Bytes, KB, MB).
 
 ### Đồng bộ dữ liệu lên website HRMS
 
@@ -589,9 +696,9 @@ Dữ liệu sự kiện gửi về HRMS:
 
 | Nhóm | Chức năng |
 | --- | --- |
-| MVP | Quản lý camera theo phòng; cấu hình vùng quan sát ROI; threshold/confidence tuning; cooldown cảnh báo; evidence snapshot/clip; human review; đồng bộ event lên HRMS; dashboard sự kiện; log model version/config |
-| Phase 2 | Nhận diện PPE (mũ, áo bảo hộ); phát hiện điện thoại trong khu vực cấm; phát hiện xâm nhập khu vực hạn chế; đếm người trong phòng; heatmap khu vực thường vi phạm; active learning từ cảnh báo sai |
-| Không đưa vào | Nhận diện danh tính nhân viên bằng mặt; theo dõi cảm xúc/khuôn mặt; chấm điểm năng suất qua camera; theo dõi liên tục từng cá nhân; tự động kỷ luật khi phát hiện |
+| **Đã hoàn thiện (MVP / P0)** | • Xác thực sinh trắc học khuôn mặt ArcFace 512-D (Đăng ký tài khoản bắt buộc 6 góc mặt; Đăng nhập Face ID qua webcam; Cơ chế Dev Logout an toàn; Quản lý khuôn mặt `/dashboard/faces` và `/dashboard/my-face`).<br>• Chấm công bằng nhận diện khuôn mặt (`/dashboard/attendance`: Check-in / Check-out tự động, quản lý ca làm việc, tính công hàng ngày, dự phòng lưu trữ ngoại tuyến).<br>• Giám sát phát hiện hành vi vi phạm nơi làm việc bằng YOLO (Hút thuốc, Rời vị trí làm việc quá lâu).<br>• Giao diện giám sát đa màn hình Dual Video Monitors (`/dashboard/behavior`): live video streaming, overlay bounding box màu sắc thời gian thực, bảng runtime log chi tiết theo từng monitor, chu kỳ quét tự động và thủ công.<br>• Cơ chế lưu trữ bằng chứng vi phạm và khóa Cooldown 10s chống ghi đĩa ồ ạt.<br>• Quy trình kiểm duyệt vi phạm (Pending Review → Approve / Reject) kèm nhật ký hành động.<br>• Module Model Controller (`/dashboard/model-controller`): quản trị tham số AI thời gian thực, cấu hình ArcFace & Multi-Model YOLO, kiểm tra weights, template mô hình mới, quản trị dung lượng lưu trữ. |
+| **Phase 2 (Mở rộng)** | • Phát hiện sử dụng điện thoại trong giờ làm việc (`phone_usage`).<br>• Phát hiện ngủ gật hoặc bất động kéo dài tại bàn làm việc (`sleeping_detection`).<br>• Nhận diện trang bị bảo hộ lao động PPE (mũ, áo phản quang, khẩu trang).<br>• Phát hiện xâm nhập khu vực hạn chế hoặc phòng máy chủ trái phép.<br>• Đếm mật độ người trong phòng và tạo bản đồ nhiệt (Heatmap) khu vực thường xuyên phát sinh vi phạm.<br>• Cơ chế Active Learning: tự động tinh chỉnh và huấn luyện lại mô hình từ dữ liệu các cảnh báo bị bác bỏ (rejected alerts). |
+| **Không đưa vào** | • Nhận diện khuôn mặt bí mật ngoài phạm vi đã công bố và không có sự đồng thuận của nhân viên.<br>• Theo dõi cảm xúc, biểu cảm hoặc phân tích tâm lý của nhân viên qua camera.<br>• Tự động chấm điểm phẩm chất cá nhân hoặc đánh giá năng suất lao động hoàn toàn qua camera.<br>• Theo dõi liên tục từng cá nhân ngoài giờ làm việc hoặc ngoài phạm vi khu vực được phân công.<br>• Tự động kỷ luật, trừ lương hoặc sa thải nhân viên mà không có sự kiểm tra, xác minh và phê duyệt của con người. |
 
 ### Ràng buộc kỹ thuật của module
 
@@ -616,13 +723,14 @@ Dữ liệu sự kiện gửi về HRMS:
 ### Ràng buộc về quyền riêng tư và giám sát
 
 - Doanh nghiệp phải công khai loại dữ liệu được thu thập, mục đích sử dụng, người được xem và thời hạn lưu giữ.
+- Dữ liệu sinh trắc học khuôn mặt chỉ được thu thập khi có sự đồng thuận, tự nguyện của nhân viên phục vụ xác thực đăng nhập tài khoản và điểm danh chấm công; nhân viên có quyền yêu cầu xóa bỏ hoặc đăng ký lại dữ liệu sinh trắc học của mình.
 - Không ghi phím, chụp màn hình bí mật, theo dõi thiết bị hoặc vị trí cá nhân ngoài phạm vi đã được thông báo và cho phép.
 - Không phân tích đời tư hoặc dữ liệu không liên quan đến công việc.
 - Không dùng AI để tự động kỷ luật, sa thải hoặc đưa ra kết luận bất lợi về nhân viên.
 - Khu vực có camera phải được công khai kèm mục đích sử dụng dữ liệu; không quan sát ngoài phạm vi đã công bố.
-- Không nhận diện danh tính, phân tích cảm xúc/phẩm chất hoặc theo dõi liên tục từng cá nhân qua camera.
+- Nhận diện danh tính bằng sinh trắc học khuôn mặt chỉ áp dụng cho mục đích xác thực tài khoản và điểm danh chấm công với sự đồng thuận của nhân viên. Đối với camera giám sát hành vi tại nơi làm việc, hệ thống gắn profile giám sát theo phân công khu vực/bàn làm việc được cấu hình trước; tuyệt đối không quét khuôn mặt bí mật để theo dõi liên tục từng cá nhân, không phân tích cảm xúc hoặc chấm điểm phẩm chất nhân viên.
 - Sự kiện do mô hình Computer Vision phát hiện chỉ là cảnh báo; phải có người quản lý xác nhận trước khi ghi nhận.
-- Chỉ lưu dữ liệu camera cần thiết cho mục đích đã công bố; ưu tiên sự kiện và clip ngắn thay vì video liên tục.
+- Chỉ lưu dữ liệu camera cần thiết cho mục đích đã công bố; ưu tiên sự kiện và ảnh bằng chứng thay vì video liên tục.
 - Nhân viên cần có cơ chế phản hồi hoặc yêu cầu đính chính dữ liệu khi phù hợp.
 
 ### Ràng buộc về dữ liệu và bảo mật
@@ -677,5 +785,8 @@ Dữ liệu sự kiện gửi về HRMS:
 - Kết quả phải hỗ trợ tổng điểm và phân tích theo level, chủ đề hoặc kỹ năng.
 - Thay đổi điểm, Pass/Fail hoặc trạng thái tuyển dụng phải lưu người thực hiện, thời điểm và lý do khi cần.
 - Kết quả đánh giá nhân viên chỉ là dữ liệu tham khảo; không được tự động quyết định KPI, lương, thăng chức hoặc kỷ luật.
+- Quá trình đăng ký tài khoản bắt buộc phải hoàn tất thu thập đủ 6 góc mặt chuẩn hóa và trích xuất thành công vector đặc trưng; trường hợp lỗi phải tự động hủy tạo tài khoản (rollback) để bảo toàn tính toàn vẹn dữ liệu.
+- Điểm danh chấm công bằng khuôn mặt yêu cầu điểm tương đồng Cosine Similarity đạt ngưỡng tối thiểu được cấu hình; phiên check-in phải hoàn tất trước khi check-out và hệ thống phải tự động tổng hợp bảng công hàng ngày.
+- Bằng chứng hình ảnh vi phạm thị giác máy tính phải áp dụng cơ chế khóa cooldown (10 giây) để tránh ghi đĩa ồ ạt; cảnh báo chỉ được chuyển thành vi phạm chính thức sau khi được người quản lý có thẩm quyền phê duyệt (Approve).
 - Chỉ metadata và bằng chứng ngắn được gửi từ CV Backend về HRMS khi có sự kiện; không truyền toàn bộ video realtime.
 - Sự kiện gửi từ CV Backend thất bại phải được thử lại có giới hạn; không tạo sự kiện trùng cho cùng một hành vi liên tục.

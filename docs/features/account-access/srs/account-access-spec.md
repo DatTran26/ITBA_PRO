@@ -204,3 +204,36 @@ __Assumptions (tin là đúng — nêu hệ quả nếu sai):__
   duy nhất trong phạm vi một tổ chức; cùng email ở tổ chức khác là tài
   khoản khác với mật khẩu độc lập, bám mô hình B2B multi-tenant — chờ
   Product owner xác nhận.
+
+## 13. develop-hieu implemented slice: biometric account access
+
+This branch adds the implemented Face ID account-access slice on top of the
+base account lifecycle.
+
+- `/login` keeps the normal email/password sign-in flow and adds Face ID Sign
+  In through a webcam capture.
+- `/login` also exposes the Register tab. New account registration requires
+  full name, email, password, password confirmation, and six normalized face
+  captures before the account is created.
+- New registered users default to role `user`. Admins and super admins grant
+  the final system role later from user management.
+- The browser only talks to Next.js BFF routes. Next.js calls the Python Vision
+  AI service through `VISION_AI_URL`; the browser never calls Python directly
+  and never receives server secrets.
+- Face enrollment and verification use ArcFace/InsightFace embeddings produced
+  by the Vision AI service. Face data is stored on local disk under
+  `FACE_DATA_DIR`, using profile-named folders such as
+  `Profile Name__userId`.
+- `/dashboard/my-face` lets an authenticated user register, refresh, or delete
+  their own biometric profile.
+- `/dashboard/faces` remains the admin-facing face management surface.
+- Local development can fall back to the face-store registry when
+  `SUPABASE_SERVICE_ROLE_KEY` is not configured. Production keeps Supabase
+  auth/admin as the source of account creation.
+
+Boundaries for this slice:
+
+- Face ID sign-in is a local biometric convenience flow, not a replacement for
+  production Supabase session hardening.
+- Liveness and anti-spoofing beyond the current capture/embedding flow remain
+  future work.

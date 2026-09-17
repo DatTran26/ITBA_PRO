@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useReducer, useEffect, useRef } from "react";
+import React, { useReducer, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import {
     ScanText,
@@ -9,6 +9,8 @@ import {
     Clock,
     FileText,
     AlertTriangle,
+    Network,
+    Globe,
 } from "lucide-react";
 import { ocrQueueReducer, initialQueueState } from "./ocr-queue-reducer";
 import type { OCRJob } from "./types";
@@ -16,9 +18,13 @@ import UploadLauncher from "./components/upload-launcher";
 import OCRJobQueue from "./components/ocr-job-queue";
 import DocumentPreview from "./components/document-preview";
 import ReviewWorkspace from "./components/review-workspace";
+import ND30GraphRagModal from "./components/nd30-graph-rag-modal";
+import DeepRAGSearchModal from "./components/deep-rag-search-modal";
 
 export default function OCRClient() {
     const [state, dispatch] = useReducer(ocrQueueReducer, initialQueueState);
+    const [showGraphRagModal, setShowGraphRagModal] = useState(false);
+    const [showDeepRagModal, setShowDeepRagModal] = useState(false);
     const isProcessingRef = useRef(false);
 
     // Sequential Queue Processing Engine
@@ -57,6 +63,7 @@ export default function OCRClient() {
                         id: nextJob.id,
                         text: data.text || "",
                         engine: data.engine,
+                        blocks: data.blocks || [],
                     });
                     toast.success(`Đã quét xong: ${nextJob.file.name}`);
                 }
@@ -87,6 +94,11 @@ export default function OCRClient() {
         state.jobs[0] ??
         null;
 
+    const handleSelectBlock = (blockId: string | null) => {
+        if (!selectedJob) return;
+        dispatch({ type: "block_selected", id: selectedJob.id, blockId });
+    };
+
     // Summary statistics
     const stats = {
         total: state.jobs.length,
@@ -108,11 +120,11 @@ export default function OCRClient() {
                             <h1 className="text-2xl font-bold tracking-tight text-[#ECF0F7] flex items-center gap-2">
                                 Vision OCR Studio
                                 <span className="rounded-full bg-[#5B6CF0]/20 border border-[#5B6CF0]/30 px-2.5 py-0.5 text-xs font-semibold text-[#7C8FFF]">
-                                    AI Engine
+                                    AI Engine & Grounding
                                 </span>
                             </h1>
                             <p className="text-xs sm:text-sm text-[#94A3B8] mt-0.5">
-                                Trích xuất nội dung văn bản in, chữ viết tay và bảng biểu từ hình ảnh với Google Gemini Vision VLM
+                                Trích xuất nội dung văn bản, Visual Grounding khoanh vùng tài liệu và Xuất văn bản chuẩn Nghị định 30 (.docx)
                             </p>
                         </div>
                     </div>
@@ -137,10 +149,36 @@ export default function OCRClient() {
                         <span className="text-xs text-[#94A3B8]">Đã duyệt:</span>
                         <span className="text-sm font-bold text-[#36DDAB]">{stats.confirmed}</span>
                     </div>
+
+                    {/* Graph RAG Decree 30 Button */}
+                    <button
+                        onClick={() => setShowGraphRagModal(true)}
+                        className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-[#6366F1] to-[#8B5CF6] px-3.5 py-2 text-xs font-bold text-white shadow-lg shadow-[#6366F1]/25 hover:opacity-95 hover:scale-[1.02] active:scale-[0.98] transition-all border border-white/15"
+                        title="Xem Đồ thị tri thức Graph RAG Nghị định 30/2020/NĐ-CP (DemoT3)"
+                    >
+                        <Network className="h-4 w-4" />
+                        <span>🕸️ Graph RAG NĐ 30</span>
+                        <span className="rounded-full bg-white/20 px-1.5 py-0.5 text-[9px] font-extrabold text-white">
+                            DemoT3
+                        </span>
+                    </button>
+
+                    {/* AI Deep RAG + Web Search Grounding Button */}
+                    <button
+                        onClick={() => setShowDeepRagModal(true)}
+                        className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 px-3.5 py-2 text-xs font-bold text-white shadow-lg shadow-purple-500/25 hover:opacity-95 hover:scale-[1.02] active:scale-[0.98] transition-all border border-pink-400/30"
+                        title="Phân tích chuyên sâu RAG + Web Search Grounding: Hiểu văn bản là gì, thiếu sót gì và tổng hợp văn bản hoàn thiện"
+                    >
+                        <Globe className="h-4 w-4 text-sky-300 animate-pulse" />
+                        <span>✨ AI Deep RAG & Web</span>
+                        <span className="rounded-full bg-white/20 px-1.5 py-0.5 text-[9px] font-black text-pink-200">
+                            PRO
+                        </span>
+                    </button>
                 </div>
             </div>
 
-            {/* Top Area: Upload Launcher */}
+            {/* Upload Zone */}
             <UploadLauncher
                 onFilesSelected={handleFilesSelected}
                 onError={handleValidationError}
@@ -161,13 +199,16 @@ export default function OCRClient() {
                             onClearAll={() => dispatch({ type: "clear_all" })}
                         />
 
-                        <div className="h-[480px]">
-                            <DocumentPreview job={selectedJob} />
+                        <div className="h-[520px]">
+                            <DocumentPreview
+                                job={selectedJob}
+                                onSelectBlock={handleSelectBlock}
+                            />
                         </div>
                     </div>
 
                     {/* Right Column: Review & Text Workspace */}
-                    <div className="lg:col-span-7 h-[780px]">
+                    <div className="lg:col-span-7 h-[820px]">
                         <ReviewWorkspace
                             job={selectedJob}
                             onTextChange={(id, text) => dispatch({ type: "text_edited", id, text })}
@@ -179,9 +220,31 @@ export default function OCRClient() {
                                 dispatch({ type: "reopened", id });
                                 toast.info("Đã mở lại để chỉnh sửa");
                             }}
+                            onSelectBlock={handleSelectBlock}
+                            onOpenGraphRag={() => setShowGraphRagModal(true)}
                         />
                     </div>
                 </div>
+            )}
+
+            {/* ND30 Graph RAG Knowledge Graph Visualizer Modal */}
+            <ND30GraphRagModal
+                isOpen={showGraphRagModal}
+                onClose={() => setShowGraphRagModal(false)}
+            />
+
+            {/* AI Deep RAG + Web Search Grounding Modal */}
+            {showDeepRagModal && (
+                <DeepRAGSearchModal
+                    isOpen={showDeepRagModal}
+                    onClose={() => setShowDeepRagModal(false)}
+                    ocrText={selectedJob?.editedText || selectedJob?.originalText || "CÔNG TY CỔ PHẦN CÔNG NGHỆ\nQUYẾT ĐỊNH\nVề việc tiếp nhận và bổ nhiệm Trưởng phòng Kỹ thuật\nĐiều 1: Tiếp nhận và bổ nhiệm ông Nguyễn Văn A giữ chức Trưởng phòng Kỹ thuật kể từ ngày 01/04/2026.\nĐiều 2: Các bộ phận liên quan chịu trách nhiệm thi hành.\nTổng Giám đốc ký tên."}
+                    onApplyToWorkspace={(newText) => {
+                        if (selectedJob) {
+                            dispatch({ type: "text_edited", id: selectedJob.id, text: newText });
+                        }
+                    }}
+                />
             )}
         </div>
     );

@@ -27,7 +27,7 @@ class AttendanceService:
         """Khởi tạo SQLite DB nội bộ lưu trữ nhân viên, vector 512-D và lịch sử điểm danh"""
         conn = sqlite3.connect(self.db_path)
         cursor = conn.cursor()
-        
+
         # Bảng nhân viên
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS employees (
@@ -68,7 +68,7 @@ class AttendanceService:
             from qdrant_client import QdrantClient
             from qdrant_client.http.models import Distance, VectorParams
             client = QdrantClient(url=settings.QDRANT_URL, timeout=2.0)
-            
+
             collections = [c.name for c in client.get_collections().collections]
             if self.collection_name not in collections:
                 client.create_collection(
@@ -96,14 +96,14 @@ class AttendanceService:
 
         conn = sqlite3.connect(self.db_path)
         cursor = conn.cursor()
-        
+
         cursor.execute("SELECT id FROM employees WHERE employee_code = ?", (employee_code,))
         row = cursor.fetchone()
-        
+
         if row:
             emp_id = row[0]
             cursor.execute("""
-                UPDATE employees 
+                UPDATE employees
                 SET full_name = ?, department = ?, email = ?, avatar_base64 = ?, embedding_json = ?, is_active = 1
                 WHERE id = ?
             """, (full_name, department, email, avatar_base64, emb_json, emp_id))
@@ -113,7 +113,7 @@ class AttendanceService:
                 VALUES (?, ?, ?, ?, ?, ?, 1, ?)
             """, (employee_code, full_name, department, email, avatar_base64, emb_json, now))
             emp_id = cursor.lastrowid
-            
+
         conn.commit()
         conn.close()
 
@@ -193,7 +193,7 @@ class AttendanceService:
             emp_id, emp_code, full_name, dept, avatar_b64, emb_str = r
             emp_vec = np.array(json.loads(emb_str), dtype=np.float32)
             sim = float(np.dot(query_vec, emp_vec))
-            
+
             if sim > highest_sim:
                 highest_sim = sim
                 best_match = {
@@ -300,20 +300,20 @@ class AttendanceService:
         today_prefix = datetime.now().strftime("%Y-%m-%d")
         conn = sqlite3.connect(self.db_path)
         cursor = conn.cursor()
-        
+
         cursor.execute("SELECT COUNT(*) FROM employees WHERE is_active = 1")
         total_employees = cursor.fetchone()[0]
-        
+
         cursor.execute("""
-            SELECT COUNT(DISTINCT employee_id) 
-            FROM attendance_logs 
+            SELECT COUNT(DISTINCT employee_id)
+            FROM attendance_logs
             WHERE checkin_time LIKE ? AND status = 'SUCCESS'
         """, (f"{today_prefix}%",))
         checked_in_today = cursor.fetchone()[0]
 
         cursor.execute("""
-            SELECT COUNT(*) 
-            FROM attendance_logs 
+            SELECT COUNT(*)
+            FROM attendance_logs
             WHERE checkin_time LIKE ? AND status = 'SPOOF_DETECTED'
         """, (f"{today_prefix}%",))
         spoof_attempts_today = cursor.fetchone()[0]

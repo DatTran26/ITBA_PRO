@@ -52,7 +52,21 @@ export function ocrQueueReducer(
                               originalText: action.text,
                               editedText: action.text,
                               engine: action.engine || null,
+                              blocks: action.blocks || [],
+                              activeBlockId: null,
                               errorMessage: null,
+                          }
+                        : j
+                ),
+            };
+        case "block_selected":
+            return {
+                ...state,
+                jobs: state.jobs.map((j) =>
+                    j.id === action.id
+                        ? {
+                              ...j,
+                              activeBlockId: action.blockId,
                           }
                         : j
                 ),

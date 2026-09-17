@@ -1,4 +1,4 @@
-import { useEffect, useReducer, useRef } from "react";
+import { useCallback, useEffect, useReducer, useRef } from "react";
 import type { OCRJob, OCRQueueState } from "../../types/ocr";
 import {
   OCRServiceError,
@@ -19,6 +19,8 @@ export interface OCRQueueController {
   addFiles(files: FileList | File[]): void;
   selectJob(id: string): void;
   editText(id: string, text: string): void;
+  selectBlock(jobId: string, blockId: string | null): void;
+  setHRField(jobId: string, field: string, value: string): void;
   confirmJob(id: string): void;
   reopenJob(id: string): void;
   retryJob(id: string): void;
@@ -66,7 +68,12 @@ export function useOCRQueue(scanner: ScanImage = scanImage): OCRQueueController 
       .then((response) => {
         if (!isMounted.current) return;
         inFlightId.current = null;
-        dispatch({ type: "completed", id: nextJob.id, text: response.text });
+        dispatch({
+          type: "completed",
+          id: nextJob.id,
+          text: response.text,
+          blocks: response.blocks ?? [],
+        });
       })
       .catch((error: unknown) => {
         if (!isMounted.current) return;
@@ -107,6 +114,14 @@ export function useOCRQueue(scanner: ScanImage = scanImage): OCRQueueController 
     dispatch({ type: "text_edited", id, text });
   }
 
+  const selectBlock = useCallback((jobId: string, blockId: string | null): void => {
+    dispatch({ type: "block_selected", id: jobId, blockId });
+  }, []);
+
+  const setHRField = useCallback((jobId: string, field: string, value: string): void => {
+    dispatch({ type: "hr_field_set", id: jobId, field, value });
+  }, []);
+
   function confirmJob(id: string): void {
     dispatch({ type: "confirmed", id });
   }
@@ -138,6 +153,8 @@ export function useOCRQueue(scanner: ScanImage = scanImage): OCRQueueController 
     addFiles,
     selectJob,
     editText,
+    selectBlock,
+    setHRField,
     confirmJob,
     reopenJob,
     retryJob,

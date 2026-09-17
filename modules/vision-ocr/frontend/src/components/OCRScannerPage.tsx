@@ -92,6 +92,7 @@ export function OCRScannerPage({ scanner }: OCRScannerPageProps) {
             onConfirm={queue.confirmJob}
             onReopen={queue.reopenJob}
             onRetry={queue.retryJob}
+            onSelectBlock={queue.selectBlock}
           />
         </div>
       </div>

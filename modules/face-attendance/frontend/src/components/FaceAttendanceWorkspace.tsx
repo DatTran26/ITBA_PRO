@@ -4,25 +4,25 @@ import { LivenessIndicator } from './LivenessIndicator';
 import { EnrollmentModal } from './EnrollmentModal';
 import { AttendanceLogsTable } from './AttendanceLogsTable';
 import { faceAttendanceService } from '../services/faceAttendanceService';
-import { 
-  Employee, 
-  AttendanceLog, 
-  AttendanceSummary, 
-  LivenessChallenge, 
-  CheckInResponse, 
-  LivenessMode 
+import {
+  Employee,
+  AttendanceLog,
+  AttendanceSummary,
+  LivenessChallenge,
+  CheckInResponse,
+  LivenessMode
 } from '../types/faceAttendance';
-import { 
-  UserCheck, 
-  UsersThree, 
-  ShieldCheck, 
-  ShieldWarning, 
-  UserPlus, 
-  ArrowsClockwise, 
-  CheckCircle, 
-  WarningCircle, 
-  ListDashes, 
-  Camera 
+import {
+  UserCheck,
+  UsersThree,
+  ShieldCheck,
+  ShieldWarning,
+  UserPlus,
+  ArrowsClockwise,
+  CheckCircle,
+  WarningCircle,
+  ListDashes,
+  Camera
 } from '@phosphor-icons/react';
 
 export const FaceAttendanceWorkspace: React.FC = () => {

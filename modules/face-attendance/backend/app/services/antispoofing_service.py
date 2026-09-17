@@ -60,13 +60,13 @@ class AntiSpoofingService:
 
         # Tính điểm Silent Liveness (0.0 đến 1.0)
         score = 0.60
-        
+
         # 1. Phân tích độ nét: Webcam laptop thường có độ nét từ 20 đến 400
         if 35 <= laplacian_var <= 600:
             score += 0.20
         elif laplacian_var < 15:
             score -= 0.25  # Quá mờ
-            
+
         # 2. Sắc thái da người thật trong không gian YCrCb
         if 4.0 <= chroma_richness <= 35.0:
             score += 0.20
@@ -96,7 +96,7 @@ class AntiSpoofingService:
         """Tính xấp xỉ tỉ lệ mở mắt (EAR) dựa trên 5 landmarks cơ bản"""
         if len(landmarks_5) < 5:
             return 0.3
-        
+
         left_eye = np.array(landmarks_5[0])
         right_eye = np.array(landmarks_5[1])
         nose = np.array(landmarks_5[2])
@@ -114,7 +114,7 @@ class AntiSpoofingService:
         """Tính EAR chuẩn khi có 106 facial landmarks từ InsightFace"""
         if not landmarks_106 or len(landmarks_106) < 106:
             return 0.3
-        
+
         pts = np.array(landmarks_106)
         def get_single_ear(idx_horizontal, idx_vertical_pairs):
             p_h1, p_h2 = pts[idx_horizontal[0]], pts[idx_horizontal[1]]
@@ -159,7 +159,7 @@ class AntiSpoofingService:
 
         centers_arr = np.array(centers)
         movement_std = float(np.mean(np.std(centers_arr, axis=0)))
-        
+
         # Chỉ coi là giả mạo nếu sai số tọa độ bằng đúng 0.000 (ảnh tĩnh copy-paste hoàn toàn)
         is_static_spoof = movement_std < 0.001
 

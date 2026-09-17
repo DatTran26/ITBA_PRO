@@ -31,7 +31,7 @@ async def register_from_cv(
             raise HTTPException(status_code=400, detail="Tệp tải lên rỗng.")
 
         extracted = face_service.extract_cv_face(content, file.filename)
-        
+
         saved = attendance_service.save_employee(
             employee_code=employee_code.strip(),
             full_name=full_name.strip(),
@@ -69,7 +69,7 @@ async def create_liveness_challenge():
     selected = random.choice(challenges)
     challenge_id = str(uuid.uuid4())
     ACTIVE_CHALLENGES[challenge_id] = selected["action"]
-    
+
     return {
         "challenge_id": challenge_id,
         "action": selected["action"],
@@ -110,7 +110,7 @@ async def check_in(
             x1, y1 = max(0, x1), max(0, y1)
             x2, y2 = min(w, x2), min(h, y2)
             face_crop = img[y1:y2, x1:x2]
-            
+
             face_crops.append(face_crop)
             frames_meta.append(extracted)
             if best_face_data is None:

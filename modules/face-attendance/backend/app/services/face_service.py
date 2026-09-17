@@ -85,7 +85,7 @@ class FaceService:
         """
         self.ensure_model_loaded()
         img = self.decode_image_bytes(file_bytes, filename)
-        
+
         faces = self.app.get(img)
         if not faces or len(faces) == 0:
             raise ValueError("Không phát hiện khuôn mặt nào trong tài liệu đã tải lên.")
@@ -108,7 +108,7 @@ class FaceService:
         pad_y = int((y2 - y1) * 0.15)
         crop_x1, crop_y1 = max(0, x1 - pad_x), max(0, y1 - pad_y)
         crop_x2, crop_y2 = min(w, x2 + pad_x), min(h, y2 + pad_y)
-        
+
         face_crop = img[crop_y1:crop_y2, crop_x1:crop_x2]
         _, buffer = cv2.imencode(".jpg", face_crop, [int(cv2.IMWRITE_JPEG_QUALITY), 90])
         avatar_b64 = base64.b64encode(buffer).decode("utf-8")
@@ -131,7 +131,7 @@ class FaceService:
             return None
 
         main_face = max(faces, key=lambda f: (f.bbox[2] - f.bbox[0]) * (f.bbox[3] - f.bbox[1]))
-        
+
         raw_emb = main_face.embedding
         norm = np.linalg.norm(raw_emb)
         normalized_emb = raw_emb / norm if norm > 0 else raw_emb

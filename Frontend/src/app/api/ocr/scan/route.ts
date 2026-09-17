@@ -65,7 +65,33 @@ export async function POST(request: Request) {
         const b64Str = buffer.toString("base64");
         const imageB64 = `data:${mimeType};base64,${b64Str}`;
 
-        // Attempt 1: Gemini Vision API (process.env.GEMINI_API_KEY or system_settings)
+        // Attempt 1: Local FastAPI Python OCR Backend (Has PaddleOCR Visual Grounding + Multi-engine)
+        try {
+            const fastApiRes = await fetch("http://localhost:8000/api/ocr/scan", {
+                method: "POST",
+                body: (() => {
+                    const pyForm = new FormData();
+                    const blob = new Blob([buffer], { type: mimeType });
+                    pyForm.append("file", blob, file.name);
+                    return pyForm;
+                })(),
+                signal: AbortSignal.timeout(15_000),
+            });
+            if (fastApiRes.ok) {
+                const pyData = await fastApiRes.json();
+                return NextResponse.json({
+                    text: pyData.text,
+                    image_b64: pyData.image_b64 || imageB64,
+                    blocks: pyData.blocks || [],
+                    status: "success",
+                    engine: pyData.engine || "fastapi-grounded",
+                });
+            }
+        } catch {
+            // FastAPI backend not running or timed out — proceed to direct Gemini fallback
+        }
+
+        // Attempt 2: Gemini Vision API direct fallback (process.env.GEMINI_API_KEY or system_settings)
         let geminiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_GENAI_API_KEY || "";
         if (!geminiKey) {
             const { data: setting } = await ctx.supabase
@@ -85,6 +111,7 @@ export async function POST(request: Request) {
                     return NextResponse.json({
                         text,
                         image_b64: imageB64,
+                        blocks: [],
                         status: "success",
                         engine: "gemini-vision",
                     });
@@ -92,31 +119,6 @@ export async function POST(request: Request) {
             } catch (geminiErr) {
                 console.warn("[OCR] Gemini Vision failed, attempting fallbacks:", geminiErr);
             }
-        }
-
-        // Attempt 2: Local FastAPI Python OCR Backend if reachable
-        try {
-            const fastApiRes = await fetch("http://localhost:8000/api/ocr/scan", {
-                method: "POST",
-                body: (() => {
-                    const pyForm = new FormData();
-                    const blob = new Blob([buffer], { type: mimeType });
-                    pyForm.append("file", blob, file.name);
-                    return pyForm;
-                })(),
-                signal: AbortSignal.timeout(10_000),
-            });
-            if (fastApiRes.ok) {
-                const pyData = await fastApiRes.json();
-                return NextResponse.json({
-                    text: pyData.text,
-                    image_b64: pyData.image_b64 || imageB64,
-                    status: "success",
-                    engine: "fastapi-local",
-                });
-            }
-        } catch {
-            // FastAPI backend not running or timed out — proceed to OpenAI fallback
         }
 
         // Attempt 3: OpenAI GPT-4o Vision fallback

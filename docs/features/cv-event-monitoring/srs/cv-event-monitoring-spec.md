@@ -238,3 +238,37 @@ __Assumptions (tin là đúng — nêu hệ quả nếu sai):__
   chờ DPO/legal.
 - [~] OQ-9: Loại phase 2 (PPE, xâm nhập, đếm người)? — Out of scope v1 —
   phase 2 CV service.
+
+## 13. develop-hieu implemented slice: workplace behavior monitoring
+
+This branch implements the first workplace behavior monitoring slice in the
+existing Next.js dashboard with Python used only as the inference service.
+
+- `/dashboard/behavior` provides two live monitor boxes for workplace
+  detection. Each monitor can be configured with a model path, source/camera
+  selection, confidence settings, and per-monitor runtime logs.
+- Current P0 input is browser camera/video frame capture through the dashboard.
+  RTSP/WebRTC ingest from network cameras remains out of scope.
+- Next.js BFF routes call the Python Vision AI service through `VISION_AI_URL`.
+  The browser never calls the FastAPI service directly.
+- The Python service runs YOLO with local weights such as `behavior.pt`,
+  `smoking.pt`, or `leaving.pt`. Model files are local runtime assets and are
+  not committed to git.
+- The implemented labels include smoking/cigarette-style detections and empty
+  seat/unoccupied desk detections. The API returns bounding boxes, labels,
+  confidence, and processing metadata.
+- The UI renders live bounding boxes over the video frame, shows label and
+  confidence, and writes scan/log output separately for each monitor.
+- Detected events are created as `pending_review`. A manager/admin must approve
+  or reject the alert; AI output never auto-punishes an employee.
+- Evidence images and metadata are stored under
+  `VIOLATION_DATA_DIR/Profile Name__userId/YYYY-MM-DD/`.
+- Evidence capture applies a cooldown to avoid duplicated evidence for the
+  same continuous behavior.
+- `/dashboard/model-controller` lets privileged users tune model paths,
+  confidence, IOU threshold, enabled labels, and storage paths.
+
+Still outside this slice:
+
+- RTSP/WebRTC camera ingest, Telegram notifications, dwell/background workers,
+  automatic discipline, and production active-learning retraining.
