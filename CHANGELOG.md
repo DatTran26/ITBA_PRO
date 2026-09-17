@@ -2,6 +2,27 @@
 
 All notable changes to this project are documented in this file.
 
+## [0.2.2-beta.1] - 2026-09-17
+
+### Added
+
+- OpenAI and Gemini provider routing from System Settings, with masked API keys.
+- Face ID re-authentication links, claim-before-process enrollment, and an active-request guard.
+- Internal-user role guard used by settings RLS and privileged Edge Functions.
+
+### Changed
+
+- AI routes and Edge Functions read provider/model/key from `system_settings`, with env as fallback.
+- Vision AI controller tests accept a persisted match threshold.
+
+### Fixed
+
+- Privileged Edge Functions require an internal JWT/role before using the service-role client.
+- Face ID sign-in is rate-limited and cannot clear a block with a revoked token.
+- Gemini Vision calls send the API key in `x-goog-api-key` instead of the query string.
+
+[0.2.2-beta.1]: https://github.com/DatTran26/down-town/compare/v0.2.1...develop
+
 ## [0.2.1] - 2026-09-02
 
 ### Added
