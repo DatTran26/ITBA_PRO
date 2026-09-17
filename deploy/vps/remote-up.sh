@@ -41,9 +41,9 @@ if [[ -n "${DOCKER_IMAGE:-}" ]]; then
     docker logout ghcr.io >/dev/null 2>&1 || true
     exit 1
   fi
-  "${COMPOSE[@]}" up -d --remove-orphans --no-build web
+  "${COMPOSE[@]}" up -d --remove-orphans --no-deps --no-build web
 else
-  "${COMPOSE[@]}" up -d --remove-orphans --no-build web
+  "${COMPOSE[@]}" up -d --remove-orphans --no-deps --no-build web
 fi
 
 APP_PORT="$(awk -F= '/^APP_PORT=/{print $2; exit}' .env | tr -d '\r')"

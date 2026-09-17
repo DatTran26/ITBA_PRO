@@ -2,18 +2,22 @@
 
 All notable changes to this project are documented in this file.
 
-## [0.2.2-beta.1] - 2026-09-17
+## [0.2.2] - 2026-09-17
 
 ### Added
 
 - OpenAI and Gemini provider routing from System Settings, with masked API keys.
 - Face ID re-authentication links, claim-before-process enrollment, and an active-request guard.
 - Internal-user role guard used by settings RLS and privileged Edge Functions.
+- Workplace Vision: Face ID attendance, behavior monitors, and OCR studio on the dashboard.
+- Recruitment management report with KPI snapshot and Excel export.
+- HRMS feature documentation set (PRD feature map 39/39).
 
 ### Changed
 
 - AI routes and Edge Functions read provider/model/key from `system_settings`, with env as fallback.
 - Vision AI controller tests accept a persisted match threshold.
+- VPS `remote-up.sh` recreates only the GHCR `web` service (`--no-deps`) so missing local Vision images do not block deploy.
 
 ### Fixed
 
@@ -21,7 +25,7 @@ All notable changes to this project are documented in this file.
 - Face ID sign-in is rate-limited and cannot clear a block with a revoked token.
 - Gemini Vision calls send the API key in `x-goog-api-key` instead of the query string.
 
-[0.2.2-beta.1]: https://github.com/DatTran26/down-town/compare/v0.2.1...develop
+[0.2.2]: https://github.com/DatTran26/down-town/compare/v0.2.1...v0.2.2
 
 ## [0.2.1] - 2026-09-02
 
