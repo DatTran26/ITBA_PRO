@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 import { getAuthContext, isAuthError } from "@/lib/api/auth-helpers";
 import { callVisionAi, validateImage } from "@/lib/vision-ai";
-import { getAllFaceUsers, getFaceEnrollment, saveFaceEnrollment, deleteFaceEnrollment } from "@/lib/face-store";
+import { getAllFaceUsers, getFaceEnrollment, saveFaceEnrollment } from "@/lib/face-store";
+import { completeFaceReauthForUser, getPendingFaceReauth, userRequiresFaceReauth } from "@/lib/face-reauth";
 
 export const runtime = "nodejs";
 export const maxDuration = 300;
@@ -12,9 +13,13 @@ export async function GET() {
 
   try {
     const enrollment = await getFaceEnrollment(ctx.userId);
+    const pending = await getPendingFaceReauth(ctx.userId);
+    const reauthRequired = Boolean(pending) || (await userRequiresFaceReauth(ctx.userId));
     return NextResponse.json({
       enrolled: !!enrollment,
       enrollment: enrollment ?? null,
+      reauthRequired,
+      canSelfEnroll: Boolean(pending),
     });
   } catch (error) {
     return NextResponse.json(
@@ -27,6 +32,14 @@ export async function GET() {
 export async function POST(request: Request) {
   const ctx = await getAuthContext();
   if (isAuthError(ctx)) return ctx;
+
+  const pending = await getPendingFaceReauth(ctx.userId);
+  if (!pending) {
+    return NextResponse.json(
+      { error: "An administrator must send a face verification link before you can update your face" },
+      { status: 403 }
+    );
+  }
 
   const incoming = await request.formData().catch(() => null);
   if (!incoming) {
@@ -64,6 +77,7 @@ export async function POST(request: Request) {
     }
 
     await saveFaceEnrollment(profile, result.embeddings);
+    await completeFaceReauthForUser(ctx.userId, pending.id);
 
     return NextResponse.json({
       ok: true,
@@ -84,14 +98,8 @@ export async function POST(request: Request) {
 export async function DELETE() {
   const ctx = await getAuthContext();
   if (isAuthError(ctx)) return ctx;
-
-  try {
-    await deleteFaceEnrollment(ctx.userId);
-    return NextResponse.json({ deleted: true });
-  } catch (error) {
-    return NextResponse.json(
-      { error: error instanceof Error ? error.message : "Unable to delete face enrollment" },
-      { status: 500 }
-    );
-  }
+  return NextResponse.json(
+    { error: "Only an administrator can delete a face enrollment from Face Management" },
+    { status: 403 }
+  );
 }

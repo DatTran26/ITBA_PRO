@@ -116,7 +116,8 @@ export default function InterviewEventDetail({ item, anchorRect, userRole, onClo
       ? Math.max(8, anchorRect.left - POPUP_W - 12)
       : anchorRect.right + 12;
     const top = Math.min(Math.max(8, anchorRect.top - 8), vh - 400);
-    setPos({ left, top });
+    const frame = requestAnimationFrame(() => setPos({ left, top }));
+    return () => cancelAnimationFrame(frame);
   }, [anchorRect]);
 
   useEffect(() => {
@@ -207,7 +208,7 @@ export default function InterviewEventDetail({ item, anchorRect, userRole, onClo
                 <ShieldAlert className="w-3.5 h-3.5" /> Interviewer đề xuất đổi slot
               </div>
               {item.interviewer_note && (
-                <p className="text-xs text-[#8B99B0] italic">"{item.interviewer_note}"</p>
+                <p className="text-xs text-[#8B99B0] italic">&quot;{item.interviewer_note}&quot;</p>
               )}
             </div>
           )}

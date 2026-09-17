@@ -1,10 +1,8 @@
 import { NextResponse } from "next/server";
 import { getAuthContext, isAuthError } from "@/lib/api/auth-helpers";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { getAiConfig } from "@/lib/get-ai-config";
-import OpenAI from "openai";
+import { completeChat, transcribeAudio } from "@/lib/ai-complete";
 import { logAiUsage } from "@/lib/ai-usage-logger";
-import { getChatParams } from "@/lib/ai-params";
 
 export async function POST(
   request: Request,
@@ -62,53 +60,40 @@ export async function POST(
       return NextResponse.json({ error: "Failed to download recording file from storage", detail: downloadError?.message }, { status: 500 });
     }
 
-    // 3. Get AI config
-    const { apiKey, model } = await getAiConfig();
-    if (!apiKey || apiKey === "YOUR_OPENAI_API_KEY_HERE") {
-      return NextResponse.json({ error: "OpenAI API key is not configured in settings." }, { status: 400 });
-    }
-
-    const openai = new OpenAI({ apiKey, timeout: 300_000 }); // 5 minutes timeout for large files
-
-    // 4. Run transcription via Whisper
     const arrayBuffer = await audioBlob.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
-
-    // Guess file extension from recording URL
-    const fileExtension = session.recording_url.split('.').pop() || 'webm';
+    const fileExtension = session.recording_url.split(".").pop() || "webm";
     const filename = `recording.${fileExtension}`;
     const contentType = audioBlob.type || "audio/webm";
 
-    const whisperFile = await OpenAI.toFile(buffer, filename, { type: contentType });
-
-    const transcription = await openai.audio.transcriptions.create({
-      file: whisperFile,
-      model: "whisper-1",
+    const transcription = await transcribeAudio({
+      bytes: buffer,
+      filename,
+      mimeType: contentType,
     });
-
     const transcript = transcription.text;
     if (!transcript) {
       return NextResponse.json({ error: "Failed to transcribe audio or audio is silent." }, { status: 500 });
     }
 
-    // Log Whisper usage (estimate cost/time, 0 tokens)
     logAiUsage({
       userId: ctx.userId,
       feature: "interview_transcription",
-      model: "whisper-1",
+      model: transcription.model,
       tokensIn: 0,
       tokensOut: 0,
-      metadata: { sessionId, recordingUrl: session.recording_url, audioSize: audioBlob.size }
+      metadata: { sessionId, recordingUrl: session.recording_url, audioSize: audioBlob.size, provider: transcription.provider },
     });
 
-    // 5. Generate summary via GPT-4o
     const jdInfo = session.job_descriptions as any;
     const jdTitle = jdInfo?.title || "Không rõ vị trí";
     const jdSeniority = jdInfo?.seniority || "Không rõ level";
     const jdSkills = jdInfo?.required_skills ? (Array.isArray(jdInfo.required_skills) ? jdInfo.required_skills.join(", ") : String(jdInfo.required_skills)) : "Không rõ";
     const jdFullText = jdInfo?.full_text || "Không có JD chi tiết";
 
-    const chatParams = getChatParams(model, {
+    const summary = await completeChat({
+      userId: ctx.userId,
+      feature: "interview_summary",
       messages: [
         {
           role: "system",
@@ -127,29 +112,16 @@ Hãy phân tích transcript và trả về kết quả bằng định dạng Mar
 4. **Đánh giá mức độ phù hợp (JD Fit Assessment)**: Phân tích xem ứng viên có đáp ứng được yêu cầu của vị trí phỏng vấn hay không, cho điểm phù hợp (trên thang điểm 10) kèm theo giải thích chi tiết.
 5. **Gợi ý câu hỏi hoặc bước tiếp theo**: Gợi ý các bước tiếp theo hoặc các câu hỏi cần làm rõ thêm (nếu có).
 
-Yêu cầu định dạng: Viết trực tiếp bằng tiếng Việt, ngôn ngữ trang trọng, mạch lạc, dễ đọc. Tránh sử dụng các ký tự đặc biệt không cần thiết.`
+Yêu cầu định dạng: Viết trực tiếp bằng tiếng Việt, ngôn ngữ trang trọng, mạch lạc, dễ đọc. Tránh sử dụng các ký tự đặc biệt không cần thiết.`,
         },
         {
           role: "user",
-          content: `Bản ghi cuộc phỏng vấn (Transcript):\n\n${transcript}`
-        }
-      ]
+          content: `Bản ghi cuộc phỏng vấn (Transcript):\n\n${transcript}`,
+        },
+      ],
     });
 
-    const response = await openai.chat.completions.create(chatParams);
-
-    if (response.usage) {
-      logAiUsage({
-        userId: ctx.userId,
-        feature: "interview_summary",
-        model: response.model || model,
-        tokensIn: response.usage.prompt_tokens,
-        tokensOut: response.usage.completion_tokens,
-        metadata: { sessionId }
-      });
-    }
-
-    const aiSummary = response.choices[0].message.content || "";
+    const aiSummary = summary.content || "";
 
     // 6. Save transcript and ai_summary back to the session
     const { data: updatedSession, error: updateError } = await admin

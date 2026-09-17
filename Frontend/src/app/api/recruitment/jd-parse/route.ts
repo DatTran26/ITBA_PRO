@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import { getAuthContext, isAuthError } from "@/lib/api/auth-helpers";
-import { getAiConfig } from "@/lib/get-ai-config";
-import OpenAI from "openai";
+import { completeChat } from "@/lib/ai-complete";
 
 export async function POST(request: Request) {
     const ctx = await getAuthContext();
@@ -17,13 +16,10 @@ export async function POST(request: Request) {
             );
         }
 
-        const { apiKey, model } = await getAiConfig();
-        const openai = new OpenAI({ apiKey });
-
         const SENIORITY_VALUES = ["intern", "junior", "mid", "senior", "lead", "manager"];
 
-        const completion = await openai.chat.completions.create({
-            model,
+        const completion = await completeChat({
+            json: true,
             messages: [
                 {
                     role: "system",
@@ -60,7 +56,7 @@ No explanations. No markdown. Just the JSON object.`,
             ],
         });
 
-        const raw = completion.choices[0]?.message?.content?.trim() ?? "{}";
+        const raw = completion.content.trim() || "{}";
 
         // Parse JSON, handle possible markdown wrapping
         let parsed: { title?: string; seniority?: string; cleanedJd?: string };

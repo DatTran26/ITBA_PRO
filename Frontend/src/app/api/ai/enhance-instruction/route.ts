@@ -1,8 +1,5 @@
 import { NextResponse } from "next/server";
-import OpenAI from "openai";
-import { logAiUsage } from "@/lib/ai-usage-logger";
-import { getAiConfig } from "@/lib/get-ai-config";
-import { getChatParams } from "@/lib/ai-params";
+import { completeChat } from "@/lib/ai-complete";
 
 export const maxDuration = 120;
 
@@ -14,15 +11,8 @@ export async function POST(request: Request) {
         return NextResponse.json({ error: "Missing instruction" }, { status: 400 });
     }
 
-    const { apiKey, model } = await getAiConfig();
-
-    if (!apiKey || apiKey === "YOUR_OPENAI_API_KEY_HERE") {
-        return NextResponse.json({ enhanced: `Please focus strongly on: ${instruction}, evaluating the candidate thoroughly.` });
-    }
-
     try {
-        const openai = new OpenAI({ apiKey, timeout: 120_000 });
-        const chatParams = getChatParams(model, {
+        const response = await completeChat({
             messages: [
                 {
                     role: "system",
@@ -36,39 +26,24 @@ Respond ONLY with a JSON object in this format:
 {
   "enhanced": "The rewritten instruction...",
   "preset": "balanced" | "optimized" | "practical"
-}`
+}`,
                 },
-                {
-                    role: "user",
-                    content: instruction
-                }
+                { role: "user", content: instruction },
             ],
-            response_format: { type: "json_object" },
-            max_tokens: 1000,
+            json: true,
+            maxTokens: 1000,
+            feature: "enhance-instruction",
         });
 
-        const response = await openai.chat.completions.create(chatParams);
-
-        if (response.usage) {
-            logAiUsage({
-                feature: "enhance-instruction",
-                model: response.model || "gpt-4o",
-                tokensIn: response.usage.prompt_tokens,
-                tokensOut: response.usage.completion_tokens,
-            });
-        }
-
-        const content = response.choices[0]?.message?.content?.trim();
-        if (!content) throw new Error("Empty response");
-
-        const parsed = JSON.parse(content);
-
+        const parsed = JSON.parse(response.content.trim() || "{}");
         return NextResponse.json({
             enhanced: parsed.enhanced || instruction,
-            preset: parsed.preset || "balanced"
+            preset: parsed.preset || "balanced",
         });
     } catch (err) {
-        console.error("OpenAI API error:", err);
-        return NextResponse.json({ error: "Enhancement failed" }, { status: 500 });
+        console.error("AI enhance-instruction error:", err);
+        return NextResponse.json({
+            enhanced: `Please focus strongly on: ${instruction}, evaluating the candidate thoroughly.`,
+        });
     }
 }

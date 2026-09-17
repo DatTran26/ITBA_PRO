@@ -13,6 +13,7 @@ import {
   RefreshCw,
   ScanFace,
   Square,
+  Link2,
   Trash2,
   Upload,
   X,
@@ -41,6 +42,12 @@ type FaceUser = {
   } | null;
 };
 
+type PendingReauth = {
+  id: string;
+  userId: string;
+  expiresAt: string;
+};
+
 type StorageConfig = {
   storagePath: string;
   exists: boolean;
@@ -63,11 +70,13 @@ type Capture = { file: File; url: string };
 
 interface FacesClientProps {
   isSuperAdmin?: boolean;
+  canIssueReauth?: boolean;
   currentUserRole?: string;
 }
 
-export default function FacesClient({ isSuperAdmin = false }: FacesClientProps) {
+export default function FacesClient({ isSuperAdmin = false, canIssueReauth = false }: FacesClientProps) {
   const [users, setUsers] = useState<FaceUser[]>([]);
+  const [pendingReauth, setPendingReauth] = useState<Record<string, PendingReauth>>({});
   const [selectedUser, setSelectedUser] = useState("");
   const [captures, setCaptures] = useState<Array<Capture | null>>(() => ANGLES.map(() => null));
   const [activeAngle, setActiveAngle] = useState(0);
@@ -108,10 +117,19 @@ export default function FacesClient({ isSuperAdmin = false }: FacesClientProps) 
     const data = await readApiResponse<{ error?: string; users: FaceUser[] }>(response);
     if (!response.ok) throw new Error(data.error ?? "Unable to load face enrollments");
     setUsers(data.users);
+    if (canIssueReauth) {
+      const reauthResponse = await fetch("/api/face/reauth-requests", { cache: "no-store" });
+      const reauthData = await readApiResponse<{ requests?: PendingReauth[]; error?: string }>(reauthResponse);
+      if (reauthResponse.ok) {
+        const map: Record<string, PendingReauth> = {};
+        for (const row of reauthData.requests ?? []) map[row.userId] = row;
+        setPendingReauth(map);
+      }
+    }
     if (isSuperAdmin) {
       await loadStorageConfig();
     }
-  }, [isSuperAdmin, loadStorageConfig]);
+  }, [canIssueReauth, isSuperAdmin, loadStorageConfig]);
 
   useEffect(() => {
     load().catch((error) => toast.error(error.message));
@@ -294,6 +312,46 @@ export default function FacesClient({ isSuperAdmin = false }: FacesClientProps) 
     }
   }
 
+  async function requestFaceReauth(user: FaceUser) {
+    setBusy(true);
+    try {
+      const response = await fetch("/api/face/reauth-requests", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId: user.id, email: user.email }),
+      });
+      const data = await readApiResponse<{ url?: string; request?: { url?: string }; error?: string }>(response);
+      if (!response.ok) throw new Error(data.error ?? "Unable to create re-auth request");
+      const url = data.request?.url ?? data.url;
+      if (url) {
+        await navigator.clipboard.writeText(url);
+        toast.success(`Re-auth link copied for ${user.name}`);
+      } else {
+        toast.success("Re-auth request created");
+      }
+      await load();
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Unable to create re-auth request");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function revokeFaceReauth(userId: string) {
+    setBusy(true);
+    try {
+      const response = await fetch(`/api/face/reauth-requests?userId=${encodeURIComponent(userId)}`, { method: "DELETE" });
+      const data = await readApiResponse<{ error?: string }>(response);
+      if (!response.ok) throw new Error(data.error ?? "Unable to revoke re-auth request");
+      toast.success("Re-auth request revoked");
+      await load();
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Unable to revoke re-auth request");
+    } finally {
+      setBusy(false);
+    }
+  }
+
   async function handleUpdateStoragePath() {
     if (!customPathInput.trim()) {
       toast.error("Enter a storage directory path");
@@ -325,7 +383,9 @@ export default function FacesClient({ isSuperAdmin = false }: FacesClientProps) 
         <div className="mb-8 flex items-end justify-between gap-4">
           <div>
             <h1 className="font-display text-4xl font-light">Face Management</h1>
-            <p className="mt-1 text-sm text-[#8B99B0]">Enroll and manage six-angle face recognition data.</p>
+            <p className="mt-1 text-sm text-[#8B99B0]">
+              Enroll a person in person here. {canIssueReauth ? "Administrators can also issue a one-time face verification link." : "Face verification links are issued by an administrator."}
+            </p>
           </div>
           <div className="flex items-center gap-2">
             {isSuperAdmin && (
@@ -536,6 +596,11 @@ export default function FacesClient({ isSuperAdmin = false }: FacesClientProps) 
                     <p className="truncate text-xs text-[#8B99B0]">{user.email} · {user.role}</p>
                   </div>
                   <div className="flex items-center gap-2">
+                    {pendingReauth[user.id] && (
+                      <Badge variant="outline" className="border-amber-400/40 text-amber-300">
+                        Re-auth pending
+                      </Badge>
+                    )}
                     <Badge variant={user.enrollment ? "default" : "outline"}>
                       {user.enrollment ? (
                         user.enrollment.imageCount ? `Enrolled (${user.enrollment.imageCount} images)` : "Enrolled"
@@ -543,6 +608,29 @@ export default function FacesClient({ isSuperAdmin = false }: FacesClientProps) 
                         "Not enrolled"
                       )}
                     </Badge>
+                    {canIssueReauth && (
+                      pendingReauth[user.id] ? (
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          title="Revoke re-auth request"
+                          disabled={busy}
+                          onClick={() => revokeFaceReauth(user.id)}
+                        >
+                          <X />
+                        </Button>
+                      ) : (
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          title="Create face re-auth link"
+                          disabled={busy}
+                          onClick={() => requestFaceReauth(user)}
+                        >
+                          <Link2 />
+                        </Button>
+                      )
+                    )}
                     {user.enrollment && (
                       <Button variant="destructive" size="icon" title="Delete enrollment" disabled={busy} onClick={() => remove(user.id)}>
                         <Trash2 />

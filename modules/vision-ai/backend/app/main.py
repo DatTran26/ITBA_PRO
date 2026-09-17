@@ -276,6 +276,54 @@ async def verify_face_image(
     }
 
 
+@app.post("/api/face/identify")
+async def identify_face_image(
+    image: Annotated[UploadFile, File()],
+    gallery: Annotated[str, Form()],
+):
+    try:
+        parsed = json.loads(gallery)
+        if not isinstance(parsed, list) or not parsed:
+            raise ValueError("A gallery of enrolled faces is required")
+        probe = extract_face_embedding(await read_image(image))
+        best: dict | None = None
+        for item in parsed:
+            if not isinstance(item, dict):
+                continue
+            user_id = item.get("userId")
+            stored = item.get("embeddings")
+            if not isinstance(user_id, str) or not user_id:
+                continue
+            if not isinstance(stored, list) or len(stored) not in {4, 6}:
+                continue
+            match, match_count, scores = verify_face(probe, stored)
+            if not match or not scores:
+                continue
+            score = max(scores)
+            if best is None or score > float(best["score"]):
+                best = {
+                    "match": True,
+                    "userId": user_id,
+                    "matchCount": match_count,
+                    "score": score,
+                    "similarities": scores,
+                    "threshold": get_vision_config()["faceMatchThreshold"],
+                }
+    except (json.JSONDecodeError, TypeError, ValueError) as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+
+    if not best:
+        return {
+            "match": False,
+            "userId": None,
+            "matchCount": 0,
+            "score": 0,
+            "similarities": [],
+            "threshold": get_vision_config()["faceMatchThreshold"],
+        }
+    return best
+
+
 @app.post("/api/behavior/detect")
 async def detect_behavior(
     image: Annotated[UploadFile, File()],

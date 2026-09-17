@@ -164,8 +164,6 @@ export default function AppNavbar({
     /* Self-suppress in sidebar layout — NavShell renders sidebar chrome.
      * Outside dashboard (no provider), useUiLayout returns "topnav" so
      * standalone usage (login pages, etc.) keeps current behavior. */
-    if (layout === "sidebar") return null;
-
     /* Fetch user data client-side if not provided via props */
     useEffect(() => {
         if (userProp !== undefined) return;
@@ -183,8 +181,10 @@ export default function AppNavbar({
 
     /* Sync when parent updates user prop */
     useEffect(() => {
-        if (userProp !== undefined) setUser(userProp);
+        if (userProp !== undefined) queueMicrotask(() => setUser(userProp));
     }, [userProp]);
+
+    if (layout === "sidebar") return null;
 
     return (
         <div className="fixed top-4 left-4 right-4 z-50">

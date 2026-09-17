@@ -13,7 +13,7 @@ const QUICK_PROMPTS = [
     { label: "Vietnamese", prompt: "Tráº£ lá»i báº±ng tiáº¿ng Viá»‡t: Há»‡ thá»‘ng AI Ä‘ang hoáº¡t Ä‘á»™ng tá»‘t." },
 ];
 
-const MODEL_OPTIONS = ["gpt-5", "gpt-5-mini", "gpt-4.1", "gpt-4o", "gpt-4o-mini", "gpt-4-turbo", "gemini-2.0-flash"];
+import { OPENAI_MODELS } from "@/lib/ai-providers";
 
 interface TestResult {
     success: boolean;
@@ -25,7 +25,8 @@ interface TestResult {
     error?: string;
 }
 
-export function AiApiTesterModal() {
+export function AiApiTesterModal({ models }: { models?: string[] }) {
+    const modelOptions = models?.length ? models : [...OPENAI_MODELS];
     const [prompt, setPrompt] = useState(QUICK_PROMPTS[0].prompt);
     const [model, setModel] = useState("");
     const [result, setResult] = useState<TestResult | null>(null);
@@ -167,7 +168,7 @@ export function AiApiTesterModal() {
                                     className="w-full h-9 appearance-none rounded-lg px-3 pr-8 text-sm text-[#ECF0F7] bg-[#0C1220] border border-[#8B99B0]/15 outline-none focus:border-[#7C8FFF]/40 focus:ring-1 focus:ring-[#7C8FFF]/20 transition-all cursor-pointer"
                                 >
                                     <option value="">- Use configured model -</option>
-                                    {MODEL_OPTIONS.map((m) => (
+                                    {modelOptions.map((m) => (
                                         <option key={m} value={m}>{m}</option>
                                     ))}
                                 </select>

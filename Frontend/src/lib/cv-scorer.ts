@@ -1,3 +1,5 @@
+import { completeChat } from "@/lib/ai-complete";
+
 export interface ScreeningResult {
     ai_score: number;
     skill_match_score: number;
@@ -132,36 +134,21 @@ QUAN TRỌNG:
 
         const userPrompt = `=== MÔ TẢ CÔNG VIỆC (JD) ===\n${jdText}\n\n=== CV ỨNG VIÊN ===\n${cvText}`;
 
-        const res = await fetch("https://api.openai.com/v1/chat/completions", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${this.apiKey}`,
-            },
-            body: JSON.stringify({
-                model: this.model,
-                response_format: { type: "json_object" },
-                messages: [
-                    { role: "system", content: systemPrompt },
-                    { role: "user", content: userPrompt },
-                ],
-            }),
+        const data = await completeChat({
+            messages: [
+                { role: "system", content: systemPrompt },
+                { role: "user", content: userPrompt },
+            ],
+            json: true,
+            temperature: 0.2,
         });
 
-        if (!res.ok) {
-            const err = await res.text();
-            throw new Error(`OpenAI API error: ${err}`);
+        if (this.onUsage) {
+            this.onUsage(data.tokensIn, data.tokensOut);
         }
 
-        const data = await res.json();
-        const usage = data.usage as { prompt_tokens: number; completion_tokens: number } | undefined;
-
-        if (usage && this.onUsage) {
-            this.onUsage(usage.prompt_tokens, usage.completion_tokens);
-        }
-
-        const content = data.choices?.[0]?.message?.content;
-        if (!content) throw new Error("Empty response from OpenAI");
+        const content = data.content;
+        if (!content) throw new Error("Empty response from AI");
 
         const parsed = JSON.parse(content) as Record<string, unknown>;
 
@@ -190,8 +177,8 @@ QUAN TRỌNG:
             key_highlights: Array.isArray(parsed.key_highlights) ? parsed.key_highlights as string[] : [],
             missing_requirements: Array.isArray(parsed.missing_requirements) ? parsed.missing_requirements as string[] : [],
             parsed_cv: (parsed.parsed_cv as ScreeningResult["parsed_cv"]) ?? {},
-            ai_provider: "openai",
-            ai_model: this.model,
+            ai_provider: data.provider,
+            ai_model: data.model,
             prompt_version: "v2",
         };
     }

@@ -1,9 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
-import OpenAI from "openai";
-import { logAiUsage } from "@/lib/ai-usage-logger";
-import { getAiConfig } from "@/lib/get-ai-config";
-import { getChatParams } from "@/lib/ai-params";
+import { completeChat } from "@/lib/ai-complete";
 
 interface FollowUpQuestion {
     question_text: string;
@@ -179,14 +176,6 @@ interface GenerateFollowUpOptions {
 }
 
 async function generateFollowUp(options: GenerateFollowUpOptions): Promise<FollowUpQuestion[]> {
-    const { apiKey, model } = await getAiConfig();
-
-    if (!apiKey || apiKey === "YOUR_OPENAI_API_KEY_HERE") {
-        return generateFallback(options);
-    }
-
-    const openai = new OpenAI({ apiKey, timeout: 120_000 });
-
     const systemPrompt = `You are a senior technical interviewer crafting targeted follow-up questions for a SPECIFIC candidate based on their actual test performance. Your goal is to uncover the candidate's REAL capability — validating strengths, probing weaknesses, and finding hidden knowledge gaps.
 
 ## CANDIDATE PROFILE
@@ -245,31 +234,21 @@ Return ONLY valid JSON:
   ]
 }`;
 
-    const chatParams = getChatParams(model, {
-        messages: [{ role: "system", content: systemPrompt }],
-        max_tokens: 4000,
-        response_format: { type: "json_object" },
-    });
-
-    const response = await openai.chat.completions.create(chatParams);
-
-    if (response.usage) {
-        logAiUsage({
+    try {
+        const response = await completeChat({
+            messages: [{ role: "system", content: systemPrompt }],
+            maxTokens: 4000,
+            json: true,
             feature: "generate-followup",
-            model: response.model || "gpt-4o",
-            tokensIn: response.usage.prompt_tokens,
-            tokensOut: response.usage.completion_tokens,
         });
+        const parsed = JSON.parse(response.content || "{}");
+        if (!parsed.questions || !Array.isArray(parsed.questions)) {
+            throw new Error("Invalid AI response format");
+        }
+        return parsed.questions;
+    } catch {
+        return generateFallback(options);
     }
-
-    const content = response.choices[0].message.content || "{}";
-    const parsed = JSON.parse(content);
-
-    if (!parsed.questions || !Array.isArray(parsed.questions)) {
-        throw new Error("Invalid AI response format");
-    }
-
-    return parsed.questions;
 }
 
 function generateFallback(options: GenerateFollowUpOptions): FollowUpQuestion[] {

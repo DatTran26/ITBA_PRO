@@ -62,12 +62,16 @@ FACE_MATCH_THRESHOLD = float(_saved_configs.get("faceMatchThreshold") or os.gete
 
 # Behavior multi-model configuration
 _saved_behavior_models = _saved_configs.get("behaviorModels")
+_env_behavior_model_path = os.getenv("BEHAVIOR_MODEL_PATH", "").strip()
 
 _default_smoke_path = (
     _saved_configs.get("behaviorModelPath")
-    or "D:\\WEB\\model_trained\\ML\\Model_trained\\rc_v1_yolov8\\train_yolov8n_200ep\\weights\\best.pt"
-    if Path("D:\\WEB\\model_trained\\ML\\Model_trained\\rc_v1_yolov8\\train_yolov8n_200ep\\weights\\best.pt").is_file()
-    else str(SRC_ROOT / "models" / "vision-ai" / "smoking.pt")
+    or _env_behavior_model_path
+    or (
+        "D:\\WEB\\model_trained\\ML\\Model_trained\\rc_v1_yolov8\\train_yolov8n_200ep\\weights\\best.pt"
+        if Path("D:\\WEB\\model_trained\\ML\\Model_trained\\rc_v1_yolov8\\train_yolov8n_200ep\\weights\\best.pt").is_file()
+        else str(SRC_ROOT / "models" / "vision-ai" / "smoking.pt")
+    )
 )
 
 _default_seat_path = (
