@@ -4,10 +4,6 @@ import { DEV_AUTH_COOKIE, parseDevAuthCookie } from '@/lib/dev-auth'
 
 export async function middleware(request: NextRequest) {
     const pathname = request.nextUrl.pathname
-    if (pathname === '/api/health' || pathname === '/api/health/') {
-        return NextResponse.next()
-    }
-
     const publicRoutes = ['/login', '/register', '/reset-password', '/test/']
     const isPublicRoute = pathname === '/' || publicRoutes.some(r => pathname.startsWith(r))
     const isApiRoute = pathname.startsWith('/api/')
@@ -104,6 +100,8 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
     matcher: [
-        '/((?!_next/static|_next/image|_next/data|_vercel|favicon.ico|robots.txt|sitemap.xml|.*\\.[^/]+$).*)',
+        // Next.js 16.2 + Turbopack 404s App Router handlers if this proxy/middleware
+        // matcher also runs on /api/*. Pages still go through auth below.
+        '/((?!api|_next/static|_next/image|_next/data|_vercel|favicon.ico|robots.txt|sitemap.xml|.*\\.[^/]+$).*)',
     ],
 }

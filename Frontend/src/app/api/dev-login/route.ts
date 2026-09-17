@@ -1,4 +1,4 @@
-import { DEV_AUTH_COOKIE, DEV_AUTH_COOKIE_VALUE, isDevAuthEnabled, isLocalDevHost } from "@/lib/dev-auth";
+import { DEV_AUTH_COOKIE, DEV_AUTH_COOKIE_VALUE, isDevAuthEnabled } from "@/lib/dev-auth";
 import { NextResponse, type NextRequest } from "next/server";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
@@ -24,8 +24,7 @@ function findSuperAdminPasswords(fileText: string, email: string) {
 }
 
 export async function POST(request: NextRequest) {
-    const host = request.headers.get("host") ?? request.nextUrl.hostname;
-    if (!isDevAuthEnabled() || !isLocalDevHost(host)) {
+    if (!isDevAuthEnabled()) {
         return NextResponse.json({ error: "Dev login is disabled" }, { status: 403 });
     }
 
