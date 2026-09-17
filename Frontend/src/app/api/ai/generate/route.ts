@@ -1,9 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
-import OpenAI from "openai";
-import { logAiUsage } from "@/lib/ai-usage-logger";
-import { getAiConfig } from "@/lib/get-ai-config";
-import { getChatParams } from "@/lib/ai-params";
+import { completeChat } from "@/lib/ai-complete";
 
 // Allow up to 120 seconds for AI generation
 export const maxDuration = 300;
@@ -37,8 +34,6 @@ Required Skills: ${skills || 'None specified'}\n`;
         }
     }
 
-    const { apiKey, model } = await getAiConfig();
-
     let questions: Array<{
         question_text: string;
         options: string[];
@@ -48,17 +43,7 @@ Required Skills: ${skills || 'None specified'}\n`;
         explanation: string;
     }>;
 
-    if (!apiKey || apiKey === "YOUR_OPENAI_API_KEY_HERE") {
-        return NextResponse.json({
-            error: "OpenAI API Key is not configured. Please check your system settings or .env file."
-        }, { status: 500 });
-    }
         try {
-            const openai = new OpenAI({ apiKey, timeout: 300_000 });
-
-            // Map speculative or exotic models to known working ones
-            const actualModel = ["gpt-5", "gpt-4.1", "gpt-4o"].includes(model) ? "gpt-4o" : model;
-
             let systemPrompt = `You are an expert IT interviewer. Generate exactly ${question_count} sophisticated Multiple Choice questions (4 options A, B, C, D) for a ${level} ${job_role} candidate.
 
 ${positionContext ? `${positionContext}\nCRITICAL: Questions MUST assess the required skills listed above at the specified proficiency levels.\n` : ""}${job_description ? `Based on the following Job Description:\nJD: """\n${job_description}\n"""\nCRITICAL: You MUST ensure that the generated questions heavily align with the specific technologies, skills, and context mentioned in the Job Description above.\n` : ""}
@@ -84,34 +69,24 @@ Return ONLY a JSON object with a single property 'questions' containing the arra
   ]
 }`;
 
-            // Standard Chat Completions API with JSON mode
-            const chatParams = getChatParams(actualModel, {
+            const response = await completeChat({
                 messages: [{ role: "system", content: systemPrompt }],
-                max_tokens: 4000,
-                response_format: { type: "json_object" },
+                maxTokens: 4000,
+                json: true,
+                timeoutMs: 300_000,
+                feature: "generate",
             });
 
-            const response = await openai.chat.completions.create(chatParams);
-
-            if (response.usage) {
-                logAiUsage({
-                    feature: "generate",
-                    model: actualModel,
-                    tokensIn: response.usage.prompt_tokens,
-                    tokensOut: response.usage.completion_tokens,
-                });
-            }
-
-            const content = response.choices[0].message.content || "{}";
-            const parsed = JSON.parse(content);
+            const parsed = JSON.parse(response.content || "{}");
             if (!parsed.questions || !Array.isArray(parsed.questions)) {
                 throw new Error("Invalid AI response format");
             }
             questions = parsed.questions;
-        } catch (err: any) {
-            console.error("OpenAI API error:", err);
+        } catch (err: unknown) {
+            console.error("AI generate error:", err);
+            const message = err instanceof Error ? err.message : "Unknown error";
             return NextResponse.json({
-                error: `OpenAI Generation Failed: ${err.message || "Unknown error"}. Please check your API Quota and Key settings.`
+                error: `AI generation failed: ${message}. Check the provider API key in System Settings.`
             }, { status: 500 });
         }
 

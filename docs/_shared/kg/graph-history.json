@@ -1,0 +1,69 @@
+{
+  "meta": {
+    "schema_version": 2,
+    "generated_at": "2026-09-13T08:42:50.546Z",
+    "root": "docs",
+    "node_count": 2,
+    "edge_count": 2,
+    "coverage": {
+      "activity_lines_total": 2,
+      "activity_lines_parsed": 2,
+      "skipped_lines": [],
+      "dangling_targets": [],
+      "cr_records_total": 0,
+      "cr_records_parsed": 0,
+      "dangling_amends": [],
+      "skipped_cr": [],
+      "revisions_total": 0,
+      "requirements_with_history": 0,
+      "git_available": true,
+      "notes": [
+        "Không tìm thấy docs/cr; bỏ qua nguồn CR."
+      ]
+    }
+  },
+  "nodes": [
+    {
+      "key": "event:1",
+      "type": "change_event",
+      "date": "2026-09-02",
+      "skill": "manual",
+      "author": "Tran Tan Dat",
+      "note": "manual edit",
+      "file": "docs/downtown/operations.md",
+      "sequence": 1
+    },
+    {
+      "key": "event:2",
+      "type": "change_event",
+      "date": "2026-09-02",
+      "skill": "manual",
+      "author": "Tran Tan Dat",
+      "note": "manual edit",
+      "file": "docs/releases/0.2.1.md",
+      "sequence": 2
+    }
+  ],
+  "edges": [
+    {
+      "from": "event:1",
+      "to": "docs/downtown/operations.md",
+      "type": "CHANGED",
+      "provenance": "activity-log",
+      "source": {
+        "file": "docs/_shared/changelog.md",
+        "line": 1
+      }
+    },
+    {
+      "from": "event:2",
+      "to": "docs/releases/0.2.1.md",
+      "type": "CHANGED",
+      "provenance": "activity-log",
+      "source": {
+        "file": "docs/_shared/changelog.md",
+        "line": 2
+      }
+    }
+  ]
+}

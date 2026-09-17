@@ -4,6 +4,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { extractText } from "@/lib/cv-extractor";
 import { OpenAIScorer } from "@/lib/cv-scorer";
 import { getAiConfig } from "@/lib/get-ai-config";
+import { completeChat } from "@/lib/ai-complete";
 
 export const maxDuration = 300;
 
@@ -104,7 +105,7 @@ export async function POST(
     const threshold = jdThreshold ?? globalThreshold;
 
     // 6. Get AI config
-    const { apiKey: openaiApiKey, model: aiModel } = await getAiConfig();
+    const { model: aiModel } = await getAiConfig();
 
     // 7. Download CV file from storage
     const { data: fileData, error: fileErr } = await admin.storage
@@ -116,12 +117,12 @@ export async function POST(
     const fileBytes = new Uint8Array(await fileData.arrayBuffer());
 
     // 8. Extract text once, then run scoring + info extraction in parallel
-    const cvText = await extractText(fileBytes, cv.mime_type, cv.original_filename, openaiApiKey);
+    const cvText = await extractText(fileBytes, cv.mime_type, cv.original_filename);
 
     let tokensIn = 0;
     let tokensOut = 0;
 
-    const scorer = new OpenAIScorer(openaiApiKey, aiModel, (ti, to) => {
+    const scorer = new OpenAIScorer("", aiModel, (ti, to) => {
       tokensIn = ti;
       tokensOut = to;
     });
@@ -132,19 +133,12 @@ export async function POST(
     // Task B: Extract structured CV info from extracted text
     const parsedInfoTask = (async () => {
       try {
-        const res = await fetch("https://api.openai.com/v1/chat/completions", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${openaiApiKey}`,
-          },
-          body: JSON.stringify({
-            model: aiModel,
-            response_format: { type: "json_object" },
-            messages: [
-              {
-                role: "system",
-                content: `You are an expert CV/resume parser. Extract ALL core information from the provided CV text.
+        const parsed = await completeChat({
+          json: true,
+          messages: [
+            {
+              role: "system",
+              content: `You are an expert CV/resume parser. Extract ALL core information from the provided CV text.
 Return ONLY valid JSON (no markdown, no explanation):
 {
   "name": "Full Name",
@@ -159,19 +153,14 @@ Return ONLY valid JSON (no markdown, no explanation):
   "links": {"github": "url", "linkedin": "url", "portfolio": "url"}
 }
 Use empty string or empty array if not found. Keep values concise.`,
-              },
-              {
-                role: "user",
-                content: `Extract all core information from this CV:\n\n${cvText}`,
-              },
-            ],
-          }),
+            },
+            {
+              role: "user",
+              content: `Extract all core information from this CV:\n\n${cvText}`,
+            },
+          ],
         });
-
-        if (!res.ok) return null;
-        const json = await res.json();
-        const raw = json.choices?.[0]?.message?.content?.trim() ?? "{}";
-        return JSON.parse(raw);
+        return JSON.parse(parsed.content || "{}");
       } catch (e) {
         console.warn("[cv-analysis] parsedInfo extraction failed:", e);
         return null;
@@ -249,7 +238,7 @@ Use empty string or empty array if not found. Keep values concise.`,
           tokens_in: tokensIn,
           tokens_out: tokensOut,
           cost_estimate: (tokensIn / 1000) * 0.0025 + (tokensOut / 1000) * 0.01,
-          metadata: { application_id: id, cv_id: cv.id },
+          metadata: { application_id: id, cv_id: cv.id, provider: result.ai_provider },
         });
       }
     }

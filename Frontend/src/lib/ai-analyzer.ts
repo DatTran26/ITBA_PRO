@@ -1,7 +1,5 @@
-import OpenAI from "openai";
-import { logAiUsage } from "@/lib/ai-usage-logger";
+import { completeChat } from "@/lib/ai-complete";
 import { getAiConfig } from "@/lib/get-ai-config";
-import { getChatParams } from "@/lib/ai-params";
 
 export interface AnalyzeParams {
     answers: any[];
@@ -44,12 +42,11 @@ export async function performAiAnalysis(params: AnalyzeParams) {
     let analysis;
     let suggestedQuestions;
 
-    const { apiKey, model } = await getAiConfig();
+    const { apiKey } = await getAiConfig();
 
     if (apiKey && apiKey !== "YOUR_OPENAI_API_KEY_HERE") {
         try {
-            const openai = new OpenAI({ apiKey, timeout: 120_000 });
-            const chatParams = getChatParams(model, {
+            const response = await completeChat({
                 messages: [
                     {
                         role: "system",
@@ -74,31 +71,20 @@ Return ONLY valid JSON (no markdown) with this format:
     {"question": "Follow-up question in Vietnamese", "purpose": "Why this question in Vietnamese"},
     {"question": "Follow-up question 2", "purpose": "Why this question"}
   ]
-}`
-                    }
+}`,
+                    },
                 ],
-                response_format: { type: "json_object" },
+                json: true,
+                feature: "analyze",
             });
 
-            const response = await openai.chat.completions.create(chatParams);
-
-            if (response.usage) {
-                logAiUsage({
-                    feature: "analyze",
-                    model: response.model || model,
-                    tokensIn: response.usage.prompt_tokens,
-                    tokensOut: response.usage.completion_tokens,
-                });
-            }
-
-            const content = response.choices[0].message.content || "{}";
-            const parsed = JSON.parse(content);
+            const parsed = JSON.parse(response.content || "{}");
             if (parsed.analysis && parsed.suggested_questions) {
                 analysis = parsed.analysis;
                 suggestedQuestions = parsed.suggested_questions;
             }
         } catch (err) {
-            console.error("[AiAnalyzer] OpenAI Error:", err);
+            console.error("[AiAnalyzer] AI Error:", err);
         }
     }
 

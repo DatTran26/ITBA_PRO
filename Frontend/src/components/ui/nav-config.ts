@@ -16,6 +16,11 @@ import {
     Send,
     ScrollText,
     Database,
+    ScanText,
+    ScanFace,
+    Clock3,
+    ShieldAlert,
+    Cpu,
 } from "lucide-react";
 
 /**
@@ -41,7 +46,7 @@ export interface NavLink {
 }
 
 export interface NavGroup {
-    id: "people" | "recruitment" | "interviews" | "system" | "emails";
+    id: "people" | "workplace" | "recruitment" | "interviews" | "system" | "emails";
     label: string;
     /** Optional icon shown next to the group trigger label (top-nav dropdowns). */
     triggerIcon?: LucideIcon;
@@ -72,15 +77,31 @@ export const NAV_GROUPS: NavGroup[] = [
         accentColor: "#7C8FFF",
     },
     {
+        id: "workplace",
+        label: "Workplace Monitoring",
+        triggerIcon: Clock3,
+        links: [
+            { href: "/dashboard/my-face", label: "My Face", icon: ScanFace },
+            { href: "/dashboard/attendance", label: "Attendance", icon: Clock3 },
+            { href: "/dashboard/faces", label: "Face Management", icon: ScanFace, allowedRoles: ["leader", "admin", "super_admin"] },
+            { href: "/dashboard/behavior", label: "Behavior Review", icon: ShieldAlert, allowedRoles: ["leader", "admin", "super_admin"] },
+            { href: "/dashboard/model-controller", label: "AI Model Configuration", icon: Cpu, allowedRoles: ["super_admin"] },
+        ],
+        allowedRoles: ["hr", "interviewer", "recruiter", "leader", "admin", "super_admin"],
+        accentColor: "#36DDAB",
+    },
+    {
         id: "recruitment",
         label: "Recruitment",
         triggerIcon: ClipboardList,
         links: [
             { href: "/dashboard/recruitment", label: "Candidate CV", icon: Users, allowedRoles: ["hr", "interviewer", "admin", "super_admin"] as UserRole[] },
             { href: "/dashboard/recruitment/sessions", label: "Schedule", icon: CalendarDays, allowedRoles: ["hr", "interviewer", "admin", "super_admin"] as UserRole[] },
-            { href: "/dashboard/recruitment/report", label: "Report", icon: FileText, allowedRoles: ["hr", "interviewer", "admin", "super_admin"] as UserRole[] },
+            { href: "/dashboard/recruitment/report", label: "Report", icon: FileText, allowedRoles: ["hr", "admin", "super_admin"] as UserRole[] },
             { href: "/dashboard/recruitment/settings", label: "Settings", icon: Settings, allowedRoles: ["hr", "interviewer", "admin", "super_admin"] as UserRole[] },
             { href: "/dashboard/question-bank", label: "Question Bank", icon: Database, allowedRoles: ["leader", "admin", "super_admin"] as UserRole[] },
+            { href: "/dashboard/ocr", label: "Vision OCR", icon: ScanText, allowedRoles: ["hr", "interviewer", "leader", "admin", "super_admin"] as UserRole[] },
+            { href: "/dashboard/document-ai/ocr", label: "Document OCR", icon: ScanText, allowedRoles: ["leader", "admin", "super_admin"] as UserRole[] },
         ],
         allowedRoles: ["hr", "interviewer", "leader", "admin", "super_admin"],
         accentColor: "#7C8FFF",

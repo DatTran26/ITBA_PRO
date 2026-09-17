@@ -1,7 +1,7 @@
 ---
 type: prd-product
 status: in-review
-updated: 2026-08-27
+updated: 2026-09-13
 links:
   - README.md
   - architecture.md
@@ -142,7 +142,8 @@ Hitek/ITBA là provenance, không phải chỉ dẫn hay bằng chứng hoàn t�
    `org-governance`).
 2. Tạo nhu cầu/vị trí tuyển dụng (`recruitment-planning`).
 3. Tiếp nhận file, kiểm tra, trích xuất và xác nhận dữ liệu (`document-intake`,
-   `document-review`, `cv-intake`).
+   `document-review`, `cv-intake`); với ảnh giấy tờ cần scan nhanh ngoài
+   pipeline: `vision-ocr`.
 4. Đối chiếu ứng viên với vị trí nếu HR chọn dùng matching
    (`candidate-matching`); application đã review vẫn có thể vào pipeline thủ công.
 5. Điều phối pipeline, assessment và phỏng vấn (`candidate-pipeline`,
@@ -199,43 +200,45 @@ Hitek/ITBA là provenance, không phải chỉ dẫn hay bằng chứng hoàn t�
 
 | # | Tính năng | Slug | Theme | Persona | MoSCoW | Phụ thuộc | Chi tiết hóa |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| 1 | Quản lý tài khoản và truy cập | `account-access` | Identity & Governance | Tất cả | Must | Không | ⬜ chưa |
-| 2 | Quản lý tổ chức, quyền và audit | `org-governance` | Identity & Governance | Admin, quản lý | Must | 1 | ⬜ chưa |
-| 3 | Quản lý hồ sơ nhân viên | `employee-profiles` | Core HR | HR, nhân viên | Should | 2 | ⬜ chưa |
-| 4 | Quản lý vòng đời và tài liệu nhân sự | `employment-lifecycle` | Core HR | HR, quản lý | Could | 3 | ⬜ chưa |
-| 5 | Lập và phê duyệt nhu cầu tuyển dụng | `recruitment-planning` | Recruitment | HR, quản lý | Must | 2 | ⬜ chưa |
-| 6 | Tiếp nhận và chuẩn hóa CV | `cv-intake` | Recruitment | HR, ứng viên | Must | 5, 17, 18 | ⬜ chưa |
-| 7 | Đối chiếu ứng viên với vị trí | `candidate-matching` | Recruitment | HR | Must | 5, 6 | ⬜ chưa |
-| 8 | Điều phối pipeline ứng viên | `candidate-pipeline` | Recruitment | HR | Must | 6 | ⬜ chưa |
-| 9 | Lập lịch và điều phối phỏng vấn | `interview-management` | Recruitment | HR, interviewer | Must | 8 | ⬜ chưa |
-| 10 | Ghi nhận và tổng hợp đánh giá phỏng vấn | `interview-evaluation` | Recruitment | Interviewer, HR | Must | 9 | ⬜ chưa |
-| 11 | Tạo và theo dõi offer | `offer-management` | Recruitment | HR, ứng viên | Should | 8, 10 | ⬜ chưa |
-| 12 | Thực hiện onboarding | `employee-onboarding` | Recruitment | HR, nhân viên | Should | 3, 11 | ⬜ chưa |
-| 13 | Quản lý cuộc họp và transcript | `meeting-records` | Meetings & Work | Nhân viên, quản lý | Should | 1 | ⬜ chưa |
-| 14 | Tạo và xác nhận biên bản bằng AI | `ai-meeting-minutes` | Meetings & Work | Chủ trì | Should | 13 | ⬜ chưa |
-| 15 | Chuyển biên bản thành công việc | `meeting-to-tasks` | Meetings & Work | Chủ trì, assignee | Should | 14, 16 | ⬜ chưa |
-| 16 | Quản lý Kanban và bàn giao công việc | `kanban-workspaces` | Meetings & Work | Nhân viên, quản lý | Should | 2 | ⬜ chưa |
-| 17 | Tiếp nhận và xử lý tài liệu | `document-intake` | Document AI | HR, admin | Must | 2 | ⬜ chưa |
-| 18 | Trích xuất và xác nhận dữ liệu tài liệu | `document-review` | Document AI | HR, reviewer | Must | 17 | ⬜ chưa |
-| 19 | Quản lý ngân hàng câu hỏi | `question-bank` | Assessment & Talent | HR, interviewer | Must | 2 | ⬜ chưa |
-| 20 | Sinh câu hỏi từ tài liệu bằng AI | `ai-question-generation` | Assessment & Talent | HR, interviewer | Should | 17, 18, 19 | ⬜ chưa |
-| 21 | Tạo và phát hành bài đánh giá | `assessment-authoring` | Assessment & Talent | HR, interviewer | Must | 19 | ⬜ chưa |
-| 22 | Thực hiện bài đánh giá | `candidate-assessment` | Assessment & Talent | Ứng viên, nhân viên | Must | 21 | ⬜ chưa |
-| 23 | Chấm điểm và phân tích năng lực | `assessment-grading` | Assessment & Talent | HR, interviewer | Must | 22 | ⬜ chưa |
-| 24 | Ghi âm và tóm tắt phiên phỏng vấn | `interview-recording` | Assessment & Talent | Interviewer | Should | 9, 10 | ⬜ chưa |
-| 25 | Tạo báo cáo và cảnh báo quản trị | `management-reporting` | Insights & Integrations | Quản lý, lãnh đạo | Should | 2, 8, 16, 22, 23 | ⬜ chưa |
-| 26 | Gửi thông báo theo ngữ cảnh | `contextual-notifications` | Insights & Integrations | Tất cả | Must | 1, 2 | ⬜ chưa |
-| 27 | Kết nối lịch, webhook và công cụ ngoài | `external-integrations` | Insights & Integrations | HR, admin | Should | 2 | ⬜ chưa |
-| 28 | Quản lý cấu hình nền tảng | `platform-configuration` | Identity & Governance | Admin | Should | 1, 2 | ⬜ chưa |
-| 29 | Theo dõi vận hành nhân viên minh bạch | `workforce-monitoring` | Insights & Integrations | Quản lý, nhân viên | Could | 2, 16, 25 | ⬜ chưa |
-| 30 | Quản lý thư viện và phiên bản tài liệu | `document-library` | Document AI | HR, content editor | Should | 17, 18 | ⬜ chưa |
-| 31 | Quản lý mẫu bài đánh giá | `assessment-templates` | Assessment & Talent | Admin, HR | Should | 19, 21 | ⬜ chưa |
-| 32 | Quản lý khung kỹ năng và kỳ vọng vị trí | `talent-framework` | Assessment & Talent | HR, quản lý | Should | 2, 3 | ⬜ chưa |
-| 33 | Đánh giá năng lực nhân viên | `employee-evaluation` | Assessment & Talent | Quản lý, nhân viên | Should | 22, 23, 32 | ⬜ chưa |
-| 34 | Phân tích độ phủ và khoảng trống kỹ năng | `skill-gap-analysis` | Assessment & Talent | HR, quản lý | Should | 3, 32, 33 | ⬜ chưa |
-| 35 | Gửi email nghiệp vụ có mẫu và nhật ký | `operational-email` | Insights & Integrations | HR, admin | Should | 2, 26 | ⬜ chưa |
-| 36 | Công bố phiên bản và thông báo thay đổi | `release-announcements` | Identity & Governance | Admin, người dùng | Could | 1, 2, 28 | ⬜ chưa |
-| 37 | Theo dõi mức sử dụng AI | `ai-usage-monitoring` | Identity & Governance | Admin | Should | 2, 28 | ⬜ chưa |
+| 1 | Quản lý tài khoản và truy cập | `account-access` | Identity & Governance | Tất cả | Must | Không | ✅ đã chi tiết |
+| 2 | Quản lý tổ chức, quyền và audit | `org-governance` | Identity & Governance | Admin, quản lý | Must | 1 | ✅ đã chi tiết |
+| 3 | Quản lý hồ sơ nhân viên | `employee-profiles` | Core HR | HR, nhân viên | Should | 2 | ✅ đã chi tiết |
+| 4 | Quản lý vòng đời và tài liệu nhân sự | `employment-lifecycle` | Core HR | HR, quản lý | Could | 3 | ✅ đã chi tiết |
+| 5 | Lập và phê duyệt nhu cầu tuyển dụng | `recruitment-planning` | Recruitment | HR, quản lý | Must | 2 | ✅ đã chi tiết |
+| 6 | Tiếp nhận và chuẩn hóa CV | `cv-intake` | Recruitment | HR, ứng viên | Must | 5, 17, 18 | ✅ đã chi tiết |
+| 7 | Đối chiếu ứng viên với vị trí | `candidate-matching` | Recruitment | HR | Must | 5, 6 | ✅ đã chi tiết |
+| 8 | Điều phối pipeline ứng viên | `candidate-pipeline` | Recruitment | HR | Must | 6 | ✅ đã chi tiết |
+| 9 | Lập lịch và điều phối phỏng vấn | `interview-management` | Recruitment | HR, interviewer | Must | 8 | ✅ đã chi tiết |
+| 10 | Ghi nhận và tổng hợp đánh giá phỏng vấn | `interview-evaluation` | Recruitment | Interviewer, HR | Must | 9 | ✅ đã chi tiết |
+| 11 | Tạo và theo dõi offer | `offer-management` | Recruitment | HR, ứng viên | Should | 8, 10 | ✅ đã chi tiết |
+| 12 | Thực hiện onboarding | `employee-onboarding` | Recruitment | HR, nhân viên | Should | 3, 11 | ✅ đã chi tiết |
+| 13 | Quản lý cuộc họp và transcript | `meeting-records` | Meetings & Work | Nhân viên, quản lý | Should | 1 | ✅ đã chi tiết |
+| 14 | Tạo và xác nhận biên bản bằng AI | `ai-meeting-minutes` | Meetings & Work | Chủ trì | Should | 13 | ✅ đã chi tiết |
+| 15 | Chuyển biên bản thành công việc | `meeting-to-tasks` | Meetings & Work | Chủ trì, assignee | Should | 14, 16 | ✅ đã chi tiết |
+| 16 | Quản lý Kanban và bàn giao công việc | `kanban-workspaces` | Meetings & Work | Nhân viên, quản lý | Should | 2 | ✅ đã chi tiết |
+| 17 | Tiếp nhận và xử lý tài liệu | `document-intake` | Document AI | HR, admin | Must | 2 | ✅ đã chi tiết |
+| 18 | Trích xuất và xác nhận dữ liệu tài liệu | `document-review` | Document AI | HR, reviewer | Must | 17 | ✅ đã chi tiết |
+| 19 | Quản lý ngân hàng câu hỏi | `question-bank` | Assessment & Talent | HR, interviewer | Must | 2 | ✅ đã chi tiết |
+| 20 | Sinh câu hỏi từ tài liệu bằng AI | `ai-question-generation` | Assessment & Talent | HR, interviewer | Should | 17, 18, 19 | ✅ đã chi tiết |
+| 21 | Tạo và phát hành bài đánh giá | `assessment-authoring` | Assessment & Talent | HR, interviewer | Must | 19 | ✅ đã chi tiết |
+| 22 | Thực hiện bài đánh giá | `candidate-assessment` | Assessment & Talent | Ứng viên, nhân viên | Must | 21 | ✅ đã chi tiết |
+| 23 | Chấm điểm và phân tích năng lực | `assessment-grading` | Assessment & Talent | HR, interviewer | Must | 22 | ✅ đã chi tiết |
+| 24 | Ghi âm và tóm tắt phiên phỏng vấn | `interview-recording` | Assessment & Talent | Interviewer | Should | 9, 10 | ✅ đã chi tiết |
+| 25 | Tạo báo cáo và cảnh báo quản trị | `management-reporting` | Insights & Integrations | Quản lý, lãnh đạo | Should | 2, 8, 16, 22, 23 | ✅ đã chi tiết |
+| 26 | Gửi thông báo theo ngữ cảnh | `contextual-notifications` | Insights & Integrations | Tất cả | Must | 1, 2 | ✅ đã chi tiết |
+| 27 | Kết nối lịch, webhook và công cụ ngoài | `external-integrations` | Insights & Integrations | HR, admin | Should | 2 | ✅ đã chi tiết |
+| 28 | Quản lý cấu hình nền tảng | `platform-configuration` | Identity & Governance | Admin | Should | 1, 2 | ✅ đã chi tiết |
+| 29 | Theo dõi vận hành nhân viên minh bạch | `workforce-monitoring` | Insights & Integrations | Quản lý, nhân viên | Could | 2, 16, 25 | ✅ đã chi tiết |
+| 30 | Quản lý thư viện và phiên bản tài liệu | `document-library` | Document AI | HR, content editor | Should | 17, 18 | ✅ đã chi tiết |
+| 31 | Quản lý mẫu bài đánh giá | `assessment-templates` | Assessment & Talent | Admin, HR | Should | 19, 21 | ✅ đã chi tiết |
+| 32 | Quản lý khung kỹ năng và kỳ vọng vị trí | `talent-framework` | Assessment & Talent | HR, quản lý | Should | 2, 3 | ✅ đã chi tiết |
+| 33 | Đánh giá năng lực nhân viên | `employee-evaluation` | Assessment & Talent | Quản lý, nhân viên | Should | 22, 23, 32 | ✅ đã chi tiết |
+| 34 | Phân tích độ phủ và khoảng trống kỹ năng | `skill-gap-analysis` | Assessment & Talent | HR, quản lý | Should | 3, 32, 33 | ✅ đã chi tiết |
+| 35 | Gửi email nghiệp vụ có mẫu và nhật ký | `operational-email` | Insights & Integrations | HR, admin | Should | 2, 26 | ✅ đã chi tiết |
+| 36 | Công bố phiên bản và thông báo thay đổi | `release-announcements` | Identity & Governance | Admin, người dùng | Could | 1, 2, 28 | ✅ đã chi tiết |
+| 37 | Theo dõi mức sử dụng AI | `ai-usage-monitoring` | Identity & Governance | Admin | Should | 2, 28 | ✅ đã chi tiết |
+| 38 | Giám sát sự kiện vi phạm bằng Computer Vision | `cv-event-monitoring` | Insights & Integrations | Quản lý, admin | Could | 2, 16, 25, 26, 27 | ✅ đã chi tiết |
+| 39 | Bóc tách văn bản từ ảnh có con người xác nhận | `vision-ocr` | Document AI | HR | Should | Không | ✅ đã chi tiết |
 
 `Must` là phạm vi pilot v1; `Should`/`Could` không được ngầm kéo vào cam kết chỉ
 vì có mini-brief. Reverse SRS là evidence tái lập từ code, không phải feature
@@ -721,6 +724,59 @@ phát hiện bất thường và quản lý ngân sách mà không biến log th
 - **Đo thành công:** tỷ lệ request AI có usage record hợp lệ và reconcile được.
 - **Nguồn:** ITBA admin/token plans; reverse SRS Platform; source AI usage routes.
 
+### 7.38 Giám sát sự kiện vi phạm bằng Computer Vision — cv-event-monitoring
+
+Một service Computer Vision chạy tách biệt (Python backend riêng) nhận luồng
+camera tại các khu vực đã công bố, phát hiện sự kiện như hút thuốc hoặc rời vị
+trí quá lâu, rồi chỉ gửi sự kiện đã xử lý kèm bằng chứng về HRMS. Website chính
+không xử lý video realtime; nó tiếp nhận sự kiện, hiển thị trên dashboard và
+điều phối việc kiểm tra của manager.
+
+- **Phục vụ job:** `JTBD-MGR-01` (quản lý thấy sự kiện cần kiểm tra trong phạm
+  vi quyền) và `JTBD-ADM-01` (admin cấu hình camera, model và ngưỡng có kiểm
+  chứng).
+- **Phạm vi v1:** tiếp nhận sự kiện từ CV service qua API/webhook có retry, lưu
+  sự kiện và bằng chứng, dashboard theo phòng/camera/loại/trạng thái, thông báo
+  manager và xác nhận/từ chối có lý do.
+- **Chưa làm:** xử lý stream realtime trong HRMS, nhận diện danh tính qua camera,
+  PPE/xâm nhập khu vực (phase 2 của service), tự kết luận vi phạm hay kỷ luật.
+- **Luồng chính:** CV backend phát hiện sự kiện → gửi event và evidence → HRMS
+  lưu và cảnh báo → manager review/xác nhận → dashboard/báo cáo → tạo task xử
+  lý khi cần.
+- **Rủi ro chính:** cảnh báo AI bị dùng như kết luận vi phạm chính thức khi chưa
+  có người xác nhận, hoặc bằng chứng hình ảnh được giữ quá retention đã công bố.
+- **Đo thành công:** tỷ lệ sự kiện được manager xác nhận/từ chối trong SLA và
+  tỷ lệ false positive theo camera; target chờ OQ-12.
+- **Nguồn:** đặc tả đề xuất module Computer Vision (hệ thống ngoài source
+  ITBAAI); ràng buộc privacy kế thừa PRODUCT.md.
+
+### 7.39 Bóc tách văn bản từ ảnh có con người xác nhận — vision-ocr
+
+Module Vision OCR chạy tách biệt (`modules/vision-ocr`, backend FastAPI +
+frontend React riêng) nhận tối đa 5 ảnh (PNG/JPG/WEBP, ≤10 MB mỗi ảnh), bóc
+tách văn bản bằng mô hình thị giác (Gemini Vision, fallback Tesseract nội bộ
+khi provider lỗi), rồi đưa qua workspace cho HR đối chiếu ảnh gốc, sửa và xác
+nhận. Module giữ riêng ba bản text (gốc OCR, đã sửa, đã xác nhận); dữ liệu chỉ
+tồn tại trong phiên, chưa lưu trữ hay đẩy sang module nghiệp vụ.
+
+- **Phục vụ job:** `JTBD-HR-01` — HR có nhanh văn bản đã kiểm chứng từ ảnh
+  giấy tờ (CCCD, biểu mẫu, chứng chỉ) mà không nhập tay; là lát cắt engine và
+  review chạy độc lập trước khi tích hợp `document-intake`/`document-review`.
+- **Phạm vi v1:** upload tối đa 5 ảnh, hàng đợi xử lý tuần tự, OCR chữ in/viết
+  tay/bảng giữ ngôn ngữ gốc, review–sửa–xác nhận từng tài liệu, retry/reopen,
+  dùng kết quả trong phiên.
+- **Chưa làm:** lưu trữ/lịch sử, đăng nhập và phạm vi quyền, trích xuất field
+  có cấu trúc, confidence/vùng nguồn, đẩy kết quả sang hồ sơ nghiệp vụ — các
+  phần này thuộc `document-intake`/`document-review` khi tích hợp.
+- **Luồng chính:** tải ảnh → hàng đợi tuần tự → đối chiếu ảnh gốc với text OCR
+  → sửa → xác nhận → dùng kết quả trong phiên.
+- **Rủi ro chính:** ảnh giấy tờ chứa dữ liệu nhạy cảm được gửi tới AI provider
+  bên ngoài khi chưa có chính sách che/lọc.
+- **Đo thành công:** tỷ lệ tài liệu được xác nhận sau review và mức sửa trung
+  bình; target chờ OQ-2.
+- **Nguồn:** module `modules/vision-ocr` trong repo (standalone, đã có test);
+  ràng buộc Document AI và privacy kế thừa PRODUCT.md Mục 9.
+
 ## 8. Success metrics
 
 **North Star v1:** tỷ lệ application đủ điều kiện đi từ CV đã được HR xác nhận
@@ -745,7 +801,8 @@ SLA, target và source event phải được sponsor duyệt ở OQ-1/OQ-2; khô
 - Supabase, AI, email và external integration là dependency có dữ liệu/quyền riêng.
 - AI output phải parse/review; service credential chỉ ở server boundary.
 - Recording, CV, hồ sơ, email và assessment cần consent, access và retention policy.
-- `Frontend`/`Backend` là nền triển khai; Feature Map không khẳng định đã hoàn tất.
+- `Frontend`/`Backend` là nền triển khai; `modules/` giữ module tách biệt (hiện
+  có `vision-ocr`). Feature Map không khẳng định đã hoàn tất.
 - CI/release automation chưa được xác minh sau khi app được nhập vào single-repo.
 
 Mỗi dependency cần owner, health check, fallback và rollback; không bypass quyền khi lỗi.
@@ -770,6 +827,8 @@ retention/delete, withdrawal, legal hold và audit; OQ-3/OQ-6 mở thì chỉ d�
 | `R-12` Communication | Email lỗi, gửi trùng/sai người hoặc không truy vết được | Operations owner | Delivery/retry/reconciliation fail | Eligibility gate, idempotency, log và manual fallback | Cao |
 | `R-13` Talent | Skill/weight không có business authority nhưng được dùng để kết luận | Head of HR | Gap/level bị tranh chấp | Approval, evidence và human override; đóng OQ-11 | Cao |
 | `R-14` Cost | AI usage thiếu hoặc tăng bất thường | Admin + Product owner | Usage không reconcile hoặc vượt ngân sách | Cảnh báo, quota/policy review; không dùng usage đánh giá nhân sự | Vừa |
+| `R-15` Privacy | Sự kiện CV bị dùng như kết luận vi phạm tự động hoặc bằng chứng hình ảnh giữ quá retention | Product + DPO/legal nominee | Manager bỏ qua review hoặc truy cập evidence vượt phạm vi | Giữ Could; bắt buộc human review, retention/xóa evidence và access audit trước khi bật | Cao |
+| `R-16` Privacy | Ảnh giấy tờ chứa PII gửi tới AI provider bên ngoài khi chưa duyệt che/lọc | Product + DPO/legal nominee | Dùng vision-ocr với dữ liệu thật trước khi masking/provider được duyệt | Giữ Should; chỉ dữ liệu không nhạy cảm/synthetic; masking hoặc provider gate trước dữ liệu thật | Cao |
 
 ## 11. Open Questions
 
@@ -784,8 +843,12 @@ retention/delete, withdrawal, legal hold và audit; OQ-3/OQ-6 mở thì chỉ d�
 - [ ] **OQ-9:** Tài liệu đổi thì tự sync hay owner review trước khi phát hành lại?
 - [ ] **OQ-10:** Email cần SLA, retry, idempotency, bounce và fallback nào?
 - [ ] **OQ-11:** Ai duyệt taxonomy, level, weight và threshold kỹ năng?
+- [ ] **OQ-12:** Ai duyệt chính sách công bố khu vực camera, ngưỡng cảnh báo và
+  retention bằng chứng của CV service?
+- [ ] **OQ-13:** Ai duyệt chính sách gửi ảnh giấy tờ chứa dữ liệu nhạy cảm tới
+  AI provider bên ngoài và mức che/lọc bắt buộc của vision-ocr?
 
-Owner: Product/sponsor (OQ-1/2/4/7/8), DPO/legal (OQ-3/6), Technical/Operations
+Owner: Product/sponsor (OQ-1/2/4/7/8), DPO/legal (OQ-3/6/12/13), Technical/Operations
 (OQ-5/9/10), Head of HR (OQ-11). Các OQ tương ứng chặn roadmap, dữ liệu người
 thật, release automation hoặc commercial launch.
 
@@ -794,6 +857,10 @@ thật, release automation hoặc commercial launch.
 - Human-in-the-loop là invariant cho quyết định nhân sự và AI-generated content.
 - ITBAAI là nền source đang có, không phải product boundary cuối cùng.
 - `workforce-monitoring` là Could, chỉ làm khi policy minh bạch được duyệt.
+- `cv-event-monitoring` là Could và chạy như hệ thống ngoài; HRMS chỉ nhận sự
+  kiện đã xử lý, mọi cảnh báo phải qua manager xác nhận.
+- `vision-ocr` là Should và chạy như module độc lập; tích hợp vào pipeline
+  Document AI chỉ sau khi masking/retention cho ảnh giấy tờ được duyệt.
 - Không dùng số lượng source hoặc nhãn phase làm bằng chứng hoàn tất.
 - V1 có 15 Must recruitment/assessment; domain khác cần sponsor duyệt roadmap.
 - Head of HR/HR Director là economic buyer giả định; cần đóng OQ-7.

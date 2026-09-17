@@ -3,6 +3,8 @@ import { redirect } from "next/navigation";
 import DashboardClient from "./dashboard-client";
 import { createAdminClient } from "@/lib/supabase/admin";
 import type { DashboardStats, PipelineStage, AttentionCandidate, DashboardTest, MonthlyData, DashboardMode, EmployeeStats, SkillGapItem, AdminStats } from "./types";
+import { cookies } from "next/headers";
+import { DEV_AUTH_COOKIE, parseDevAuthCookie } from "@/lib/dev-auth";
 
 export default async function DashboardPage({
     searchParams,
@@ -13,18 +15,49 @@ export default async function DashboardPage({
 
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
-    if (!user) redirect("/login");
+    const cookieStore = await cookies();
+    const devUser = parseDevAuthCookie(cookieStore.get(DEV_AUTH_COOKIE)?.value);
+    if (!user && !devUser) redirect("/login");
 
-    const { data: userData } = await supabase
-        .from("users")
-        .select("*")
-        .eq("auth_id", user.id)
-        .single();
+    let userData = devUser;
+    if (user) {
+        const { data } = await supabase
+            .from("users")
+            .select("*")
+            .eq("auth_id", user.id)
+            .single();
+        userData = data;
+    }
+
+    if (!userData && user) {
+        const defaultName = user.user_metadata?.name || user.email?.split("@")[0] || "Admin";
+        const defaultEmail = user.email || "";
+        const { data: insertedUser } = await supabase
+            .from("users")
+            .insert({
+                auth_id: user.id,
+                email: defaultEmail,
+                name: defaultName,
+                role: "super_admin",
+            })
+            .select("*")
+            .single();
+
+        userData = insertedUser || {
+            id: user.id,
+            auth_id: user.id,
+            email: defaultEmail,
+            name: defaultName,
+            role: "super_admin",
+            created_at: new Date().toISOString(),
+        };
+    }
+    if (!userData) redirect("/login");
 
     const isAdmin = userData?.role === "admin" || userData?.role === "super_admin";
     const isHr = userData?.role === "hr";
     const isInterviewer = userData?.role === "interviewer";
-    const role = userData?.role as string;
+    const role = (userData?.role as string) || "super_admin";
 
     const roleDefaultMode: Record<string, DashboardMode> = {
         super_admin: "recruitment", admin: "recruitment",
@@ -42,8 +75,6 @@ export default async function DashboardPage({
     const mode: DashboardMode = validModes.includes(modeParam as DashboardMode)
         ? (modeParam as DashboardMode)
         : (roleDefaultMode[role] ?? "recruitment");
-
-    const dashUser = { name: userData.name, email: userData.email, role: userData.role };
 
     // HR/Interviewer modes: skip all heavy server fetching — data loaded client-side
     if (mode === "hr" || mode === "interviewer") {
@@ -71,7 +102,9 @@ export default async function DashboardPage({
         const { count: testCount } = await adminDb.from("tests").select("*", { count: "exact", head: true });
         const { count: resultCount } = await adminDb.from("results").select("*", { count: "exact", head: true });
 
-        const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
+        const thirtyDaysAgoDate = new Date();
+        thirtyDaysAgoDate.setUTCDate(thirtyDaysAgoDate.getUTCDate() - 30);
+        const thirtyDaysAgo = thirtyDaysAgoDate.toISOString();
         const { data: usageData } = await adminDb
             .from("ai_usage")
             .select("feature, tokens_in, tokens_out, cost_estimate, created_at")

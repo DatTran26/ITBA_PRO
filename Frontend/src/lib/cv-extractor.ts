@@ -1,11 +1,13 @@
+import { completeFilePrompt } from "@/lib/ai-complete";
+
 export async function extractText(
     fileBytes: Uint8Array,
     mimeType: string,
     filename: string,
-    openaiApiKey: string
+    _apiKey?: string,
 ): Promise<string> {
     if (mimeType === "application/pdf") {
-        return extractPdfViaOpenAI(fileBytes, openaiApiKey);
+        return extractPdfViaAi(fileBytes, filename);
     }
     if (mimeType === "application/vnd.openxmlformats-officedocument.wordprocessingml.document") {
         return extractDocx(fileBytes);
@@ -13,58 +15,15 @@ export async function extractText(
     throw new Error(`Unsupported mime type: ${mimeType}`);
 }
 
-/**
- * Use OpenAI GPT-4o vision to read PDF pages as images.
- * We convert the PDF bytes to base64 and send as an image_url,
- * asking GPT to transcribe all visible text.
- */
-async function extractPdfViaOpenAI(
-    bytes: Uint8Array,
-    apiKey: string,
-): Promise<string> {
-    const base64 = Buffer.from(bytes).toString("base64");
-
-    const res = await fetch("https://api.openai.com/v1/chat/completions", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${apiKey}`,
-        },
-        body: JSON.stringify({
-            model: "gpt-4o",
-            messages: [
-                {
-                    role: "system",
-                    content:
-                        "You are an OCR assistant. Extract ALL text from this PDF document. Return ONLY the raw text content, preserving the original structure. No commentary.",
-                },
-                {
-                    role: "user",
-                    content: [
-                        {
-                            type: "file",
-                            file: {
-                                filename: "document.pdf",
-                                file_data: `data:application/pdf;base64,${base64}`,
-                            },
-                        },
-                        {
-                            type: "text",
-                            text: "Extract all text from this document.",
-                        },
-                    ],
-                },
-            ],
-        }),
+async function extractPdfViaAi(bytes: Uint8Array, filename: string): Promise<string> {
+    const result = await completeFilePrompt({
+        system: "You are an OCR assistant. Extract ALL text from this PDF document. Return ONLY the raw text content, preserving the original structure. No commentary.",
+        userText: "Extract all text from this document.",
+        fileBase64: Buffer.from(bytes).toString("base64"),
+        mimeType: "application/pdf",
+        filename,
     });
-
-    if (!res.ok) {
-        const errBody = await res.text();
-        throw new Error(`OpenAI PDF extraction failed (${res.status}): ${errBody}`);
-    }
-
-    const json = await res.json();
-    return json.choices?.[0]?.message?.content?.trim() ?? "";
+    return result.content.trim();
 }
 
 function extractDocx(bytes: Uint8Array): string {
@@ -78,6 +37,6 @@ function extractDocx(bytes: Uint8Array): string {
         if (parts.length > 0) return parts.join(" ");
         return text.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
     } catch {
-        throw new Error("Failed to extract DOCX content");
+        return "";
     }
 }

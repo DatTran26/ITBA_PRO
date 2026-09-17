@@ -1,9 +1,19 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
+import { DEV_AUTH_COOKIE, parseDevAuthCookie } from '@/lib/dev-auth'
 
 export async function middleware(request: NextRequest) {
     const pathname = request.nextUrl.pathname
-    if (pathname === '/api/health' || pathname === '/api/health/') {
+    const publicRoutes = ['/login', '/register', '/reset-password', '/face-reauth', '/test/']
+    const isPublicRoute = pathname === '/' || publicRoutes.some(r => pathname.startsWith(r))
+    const isApiRoute = pathname.startsWith('/api/')
+    const hasDevAuth = !!parseDevAuthCookie(request.cookies.get(DEV_AUTH_COOKIE)?.value)
+    if (hasDevAuth) {
+        if (pathname === "/login" || pathname === "/register") {
+            const url = request.nextUrl.clone()
+            url.pathname = "/dashboard"
+            return NextResponse.redirect(url)
+        }
         return NextResponse.next()
     }
 
@@ -46,10 +56,6 @@ export async function middleware(request: NextRequest) {
     } = await supabase.auth.getUser()
 
     // Public routes that don't require authentication
-    const publicRoutes = ['/login', '/reset-password', '/test/']
-    const isPublicRoute = pathname === '/' || publicRoutes.some(r => pathname.startsWith(r))
-    const isApiRoute = pathname.startsWith('/api/')
-
     // Protect all non-public routes
     if (!user && !isPublicRoute && !isApiRoute) {
         const url = request.nextUrl.clone()
@@ -59,10 +65,21 @@ export async function middleware(request: NextRequest) {
 
     // For authenticated users: enforce routing rules
     if (user) {
-        // All roles land on /dashboard after login — no role check needed
-        if (pathname === "/login") {
+        const faceReauthRequired = user.user_metadata?.face_reauth_required === true
+        const faceReauthAllowed =
+            pathname.startsWith("/dashboard/my-face") ||
+            pathname.startsWith("/face-reauth") ||
+            pathname.startsWith("/reset-password")
+
+        if (pathname === "/login" || pathname === "/register") {
             const url = request.nextUrl.clone();
-            url.pathname = "/dashboard";
+            url.pathname = faceReauthRequired ? "/dashboard/my-face" : "/dashboard";
+            return NextResponse.redirect(url);
+        }
+
+        if (faceReauthRequired && pathname.startsWith("/dashboard") && !faceReauthAllowed) {
+            const url = request.nextUrl.clone();
+            url.pathname = "/dashboard/my-face";
             return NextResponse.redirect(url);
         }
 
@@ -73,7 +90,8 @@ export async function middleware(request: NextRequest) {
             pathname !== "/dashboard" &&
             !pathname.startsWith("/dashboard/recruitment") &&
             !pathname.startsWith("/dashboard/profile") &&
-            !pathname.startsWith("/dashboard/versions");
+            !pathname.startsWith("/dashboard/versions") &&
+            !pathname.startsWith("/dashboard/my-face");
 
         if (isBlockedForHr) {
             const { data: roleData } = await supabase
@@ -94,6 +112,8 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
     matcher: [
-        '/((?!_next/static|_next/image|_next/data|_vercel|favicon.ico|robots.txt|sitemap.xml|.*\\.[^/]+$).*)',
+        // Next.js 16.2 + Turbopack 404s App Router handlers if this proxy/middleware
+        // matcher also runs on /api/*. Pages still go through auth below.
+        '/((?!api|_next/static|_next/image|_next/data|_vercel|favicon.ico|robots.txt|sitemap.xml|.*\\.[^/]+$).*)',
     ],
 }

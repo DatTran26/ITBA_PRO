@@ -1,6 +1,8 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { extractText } from "./extract.ts";
 import { OpenAIScorer } from "./cv-scorer.ts";
+import { resolveAiConfig } from "../_shared/ai-settings.ts";
+import { jsonError, requireInternalCaller } from "../_shared/edge-auth.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -17,15 +19,16 @@ Deno.serve(async (req) => {
   const supabase = createClient(supabaseUrl, serviceRoleKey, {
     auth: { persistSession: false },
   });
+  const caller = await requireInternalCaller(req, supabase, ["hr", "interviewer", "admin", "super_admin"]);
+  if (caller instanceof Response) return new Response(caller.body, { status: caller.status, headers: { ...corsHeaders, "Content-Type": "application/json" } });
 
   let applicationId: string | undefined;
   let cvId: string | undefined;
 
   try {
-    const body = await req.json() as { applicationId: string; cvId: string; uploadedBy?: string };
+    const body = await req.json() as { applicationId: string; cvId: string };
     applicationId = body.applicationId;
     cvId = body.cvId;
-    const { uploadedBy } = body;
 
     if (!applicationId || !cvId) {
       return new Response(JSON.stringify({ error: "Missing applicationId or cvId" }), {
@@ -34,16 +37,7 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Set PROCESSING
-    await supabase
-      .from("candidate_cvs")
-      .update({
-        parse_status: "PROCESSING",
-        processing_started_at: new Date().toISOString(),
-      })
-      .eq("id", cvId);
-
-    // Fetch CV record
+    // Fetch CV record and verify it belongs to the requested application.
     const { data: cvRecord, error: cvErr } = await supabase
       .from("candidate_cvs")
       .select("storage_path, original_filename, mime_type")
@@ -55,11 +49,17 @@ Deno.serve(async (req) => {
     // Fetch application + JD
     const { data: application, error: appErr } = await supabase
       .from("job_applications")
-      .select("id, job_description_id, person_id")
+      .select("id, cv_id, job_description_id, person_id")
       .eq("id", applicationId)
       .single();
 
     if (appErr || !application) throw new Error("Application not found");
+    if (application.cv_id !== cvId) return jsonError("CV does not belong to this application", 403, corsHeaders);
+
+    await supabase
+      .from("candidate_cvs")
+      .update({ parse_status: "PROCESSING", processing_started_at: new Date().toISOString() })
+      .eq("id", cvId);
 
     // Fetch JD text and threshold
     let jdText = "Không có mô tả công việc.";
@@ -97,14 +97,13 @@ Deno.serve(async (req) => {
     const { data: aiSettings } = await supabase
       .from("system_settings")
       .select("key, value")
-      .in("key", ["openai_api_key", "ai_model"]);
+      .in("key", ["ai_provider", "openai_api_key", "gemini_api_key", "ai_model"]);
 
-    const aiMap = new Map(
-      (aiSettings ?? []).map((s: { key: string; value: unknown }) => [s.key, s.value as string])
-    );
+    const aiConfig = resolveAiConfig(aiSettings ?? [], Deno.env);
 
-    const openaiApiKey = aiMap.get("openai_api_key") || Deno.env.get("OPENAI_API_KEY") || "";
-    const aiModel = aiMap.get("ai_model") || Deno.env.get("OPENAI_MODEL") || "gpt-4o";
+    if (!aiConfig.apiKey) {
+      throw new Error("Missing AI API key. Set it in Settings (system_settings).");
+    }
 
     // Download CV bytes from storage
     const { data: fileData, error: fileErr } = await supabase.storage
@@ -120,14 +119,14 @@ Deno.serve(async (req) => {
       fileBytes,
       cvRecord.mime_type,
       cvRecord.original_filename,
-      openaiApiKey
+      aiConfig
     );
 
     // Score CV
     let tokensIn = 0;
     let tokensOut = 0;
 
-    const scorer = new OpenAIScorer(openaiApiKey, aiModel, (ti, to) => {
+    const scorer = new OpenAIScorer(aiConfig, (ti, to) => {
       tokensIn = ti;
       tokensOut = to;
     });
@@ -189,9 +188,9 @@ Deno.serve(async (req) => {
 
       if (adminUser) {
         await supabase.from("ai_usage").insert({
-          user_id: uploadedBy ?? adminUser.id,
+          user_id: caller.id ?? adminUser.id,
           feature: "cv_screening",
-          model: aiModel,
+          model: aiConfig.model,
           tokens_in: tokensIn,
           tokens_out: tokensOut,
           cost_estimate: (tokensIn / 1000) * 0.0025 + (tokensOut / 1000) * 0.01,

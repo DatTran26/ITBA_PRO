@@ -46,12 +46,16 @@ Canonical origins (baked into each image as `NEXT_PUBLIC_APP_URL`):
 
 | Environment | Origin | Supabase project |
 | --- | --- | --- |
-| `staging` | `https://staging.wpcteam.shop` | `itba-ai-staging` (`kxpunppvqfxfqdwpqpmp`), org **WPCTeam** |
+| `staging` | `https://staging.wpcteam.shop` | `itba-ai-staging` (`mqwsulanzahqaiecnfwc`; thay `kxpunppvqfxfqdwpqpmp` đã xóa), org **WPCTeam** |
 | `production` | `https://production.wpcteam.shop` | `itba-ai` (`lhvdtmieaplxzqmpmupe`), org **WPC Team** |
 
-Bốn biến public trên mỗi Environment (đã set): `NEXT_PUBLIC_SUPABASE_URL`,
+Các biến public trên mỗi Environment: `NEXT_PUBLIC_SUPABASE_URL`,
 `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `NEXT_PUBLIC_APP_URL`,
-`NEXT_PUBLIC_ENABLE_TURNSTILE` (`false` — bật khi Turnstile site key sẵn sàng).
+`NEXT_PUBLIC_ENABLE_TURNSTILE`, `NEXT_PUBLIC_TURNSTILE_SITE_KEY`.
+Khi bật Turnstile, đặt `NEXT_PUBLIC_ENABLE_TURNSTILE=true` và site key của
+đúng widget cho từng environment. Site key được phép nằm trong GitHub
+Environment variable vì nó xuất hiện trong browser bundle; **không** đặt
+Turnstile Secret key ở GitHub, `.env`, source, log, hay chat.
 
 Không đưa `SUPABASE_SERVICE_ROLE_KEY` / `OPENAI_API_KEY` / `DATABASE_URL` lên
 GitHub. Chúng thuộc `.env` trên VPS (runtime) và/hoặc Supabase Edge Function
@@ -67,13 +71,39 @@ build từ `main` (và tag `v*`).
 1. Tạo `staging` và `production`.
 2. Mỗi environment: `NEXT_PUBLIC_SUPABASE_URL`,
    `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `NEXT_PUBLIC_APP_URL`,
-   `NEXT_PUBLIC_ENABLE_TURNSTILE`.
+   `NEXT_PUBLIC_ENABLE_TURNSTILE`, `NEXT_PUBLIC_TURNSTILE_SITE_KEY`.
 3. `NEXT_PUBLIC_APP_URL` **bắt buộc** trên `production` (job fail nếu trống).
+   Khi `NEXT_PUBLIC_ENABLE_TURNSTILE=true`, workflow cũng fail nếu site key
+   trống.
 4. Sau lần push GHCR đầu: Packages → `down-town` → Change visibility → Public
    (repo đã public; image không chứa server secret) để VPS pull không cần PAT.
 
 Publish chưa được coi là “xong” cho đến khi một `workflow_dispatch` hoặc push
 `develop` chạy với vars khác rỗng.
+
+### Turnstile / Supabase CAPTCHA
+
+`captcha protection: request disallowed (invalid-input-secret)` là lỗi từ
+Cloudflare Siteverify: secret mà Supabase Auth gửi để xác thực widget không hợp
+lệ hoặc đã bị thu hồi. Đây không phải lỗi mật khẩu hay token của người dùng.
+
+Với **mỗi** environment, cấu hình theo cặp cùng một widget:
+
+1. Trong Cloudflare Turnstile, tạo/chọn widget cho hostname tương ứng và lấy
+   Site Key cùng Secret Key. Nếu staging và production dùng widget khác nhau,
+   chúng phải dùng cặp key riêng.
+2. Trong GitHub → Settings → Environments → `staging` hoặc `production`, đặt
+   `NEXT_PUBLIC_ENABLE_TURNSTILE=true` và
+   `NEXT_PUBLIC_TURNSTILE_SITE_KEY=<Site Key>`.
+3. Trong đúng Supabase project ở bảng trên: Settings → Authentication → Bot and
+   Abuse Protection, bật CAPTCHA, chọn **Cloudflare Turnstile**, dán **Secret
+   Key** của cùng widget, rồi Save. Secret chỉ được dán trực tiếp vào dashboard.
+4. Publish lại image của environment vì các biến `NEXT_PUBLIC_*` được in vào
+   bundle khi build. Sau đó đăng nhập một lần để smoke-test.
+
+Nếu lỗi vẫn là `invalid-input-secret`, lấy Secret Key đang hoạt động từ widget
+trong Cloudflare (hoặc tạo cặp key mới) rồi thay trong Supabase project đó; kiểm
+tra không nhầm Secret Key với Site Key và không dùng secret của widget khác.
 
 ## Validation snapshot sau tái cấu trúc
 

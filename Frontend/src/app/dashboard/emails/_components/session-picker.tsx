@@ -40,7 +40,6 @@ export default function SessionPicker({ value, onChange, disabled = false }: Pro
     const inputRef                = useRef<HTMLInputElement>(null);
 
     useEffect(() => {
-        setLoading(true);
         fetch("/api/recruitment/sessions")
             .then((r) => r.json())
             .then(({ sessions: raw }) => {

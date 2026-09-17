@@ -1,10 +1,11 @@
 ---
 type: documentation-index
 status: active
-updated: 2026-09-02
+updated: 2026-09-13
 links:
   - prd.md
   - architecture.md
+  - design-guidelines.md
   - development.md
   - operations.md
   - security.md
@@ -25,6 +26,7 @@ kỹ thuật.
 | --- | --- | --- |
 | [PRD sản phẩm](prd.md) | Xác định tầm nhìn, người dùng, scope và ưu tiên | Product intent, Feature Map, metrics, risks |
 | [Kiến trúc](architecture.md) | Tìm boundary, owner và data flow | WHY/WHERE của hệ thống và module |
+| [Design Guidelines](design-guidelines.md) | Thiết kế hoặc review giao diện `Frontend/` | Visual direction, semantic token, component, responsive và accessibility |
 | [Phát triển](development.md) | Thay đổi/review source | Setup, quy tắc code, validation và GitFlow |
 | [Vận hành](operations.md) | Build, release, deploy hoặc xử lý incident | Runtime contract, migration, rollback, runbook |
 | [Bảo mật](security.md) | Xử lý quyền, dữ liệu nhạy cảm, AI hoặc sự cố | Trust boundaries và security policy |
@@ -37,6 +39,8 @@ kỹ thuật.
   source/migration và validation tương ứng.
 - `architecture.md` sở hữu boundary và rationale; không sở hữu inventory route,
   table hoặc dependency version.
+- `design-guidelines.md` sở hữu visual direction và quy tắc UI của `Frontend/`;
+  UI/CSS trong `modules/` không phải template của sản phẩm chính.
 - `development.md`, `operations.md`, `security.md` sở hữu workflow và constraint
   bền vững; executable owner được liên kết trực tiếp.
 - [`../../AGENTS.md`](../../AGENTS.md) vẫn là authority bắt buộc cho GitFlow và
