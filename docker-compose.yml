@@ -103,9 +103,9 @@ services:
       SMTP_PASSWORD_ENCRYPTION_KEY: ${SMTP_PASSWORD_ENCRYPTION_KEY:-}
     depends_on:
       vision-ai-api:
-        condition: service_healthy
+        condition: service_started
       vision-ocr-api:
-        condition: service_healthy
+        condition: service_started
     restart: unless-stopped
     healthcheck:
       test:

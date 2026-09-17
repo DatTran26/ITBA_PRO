@@ -64,7 +64,13 @@ if [[ ${#IMAGES[@]} -gt 0 ]]; then
   fi
 fi
 
-"${COMPOSE[@]}" up -d --remove-orphans --no-build
+if ! "${COMPOSE[@]}" up -d --remove-orphans --no-build; then
+  echo "compose up failed" >&2
+  "${COMPOSE[@]}" ps || true
+  "${COMPOSE[@]}" logs --tail=80 web vision-ai-api vision-ocr-api || true
+  docker logout ghcr.io >/dev/null 2>&1 || true
+  exit 1
+fi
 
 APP_PORT="$(awk -F= '/^APP_PORT=/{print $2; exit}' .env | tr -d '\r')"
 HEALTH_URL="${HEALTH_URL:-http://127.0.0.1:${APP_PORT}/api/health}"
@@ -79,14 +85,20 @@ for _ in $(seq 1 60); do
 done
 
 sidecar_ok=1
-if ! "${COMPOSE[@]}" exec -T vision-ai-api python -c "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=3)"; then
-  echo "vision-ai-api health failed" >&2
-  sidecar_ok=0
-fi
-if ! "${COMPOSE[@]}" exec -T vision-ocr-api python -c "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=3)"; then
-  echo "vision-ocr-api health failed" >&2
-  sidecar_ok=0
-fi
+for service in vision-ai-api vision-ocr-api; do
+  ready=0
+  for _ in $(seq 1 45); do
+    if "${COMPOSE[@]}" exec -T "${service}" python -c "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=3)"; then
+      ready=1
+      break
+    fi
+    sleep 2
+  done
+  if [[ "${ready}" -ne 1 ]]; then
+    echo "${service} health failed" >&2
+    sidecar_ok=0
+  fi
+done
 
 docker logout ghcr.io >/dev/null 2>&1 || true
 
