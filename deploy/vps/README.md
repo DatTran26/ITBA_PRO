@@ -33,7 +33,9 @@ Runtime secrets stay in those `.env` files (mode `600`, owner `root`).
 1. Build `linux/amd64` and push `ghcr.io/dattran26/down-town` (`:staging` from
    `develop`, `:latest` from `main`, plus `:sha-<7>`).
 2. rsync compose files (never `.env`) to `VPS_DEPLOY_PATH`.
-3. SSH as **`root`** and run `deploy/vps/remote-up.sh` (flock, GHCR pull, health).
+3. SSH as **`root`** and run `deploy/vps/remote-up.sh` (flock, GHCR pull,
+   `compose up --no-deps web`, health). Vision sidecar images are local-only;
+   VPS stacks recreate the published `web` service without building them.
 
 Environment vars (not secrets): `VPS_HOST`, `VPS_USER`, `VPS_DEPLOY_PATH`.
 Environment secrets: `SSH_PRIVATE_KEY`, `SSH_KNOWN_HOSTS`.
