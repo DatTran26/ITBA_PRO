@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Camera, Check, Download, Loader2, MessageSquare, Pause, Play, RefreshCw, ShieldAlert, Square, X } from "lucide-react";
 import { toast } from "sonner";
 import AppNavbar from "@/components/ui/app-navbar";
-import PageBreadcrumb from "@/components/ui/page-breadcrumb";
+import WorkplacePageHeader from "@/components/ui/workplace-page-header";
 import PageContainer from "@/components/ui/page-container";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -516,18 +516,20 @@ export default function BehaviorClient() {
     <div className="min-h-screen bg-[#121A2E] text-[#ECF0F7]">
       <AppNavbar />
       <PageContainer>
-        <PageBreadcrumb breadcrumbs={[{ label: "Dashboard", href: "/dashboard" }, { label: "Behavior Monitoring" }]} />
-        <div className="mb-6 flex items-end justify-between gap-3">
-          <h1 className="font-display text-4xl font-light">Behavior Monitoring</h1>
-          <div className="flex items-center gap-2">
+        <WorkplacePageHeader
+          title="Behavior Monitoring"
+          breadcrumbs={[{ label: "Dashboard", href: "/dashboard" }, { label: "Behavior Monitoring" }]}
+          actions={
+            <>
             <Badge variant={monitorSession ? "default" : "outline"}>
               {monitorSession
                 ? `Session ${monitorSession.id.slice(-8)} · ${monitorSession.stats?.alerts_created ?? 0} alerts`
                 : "No active session"}
             </Badge>
             <Button variant="outline" size="icon" title="Refresh cameras, profiles, and alerts" onClick={() => { void refreshDevices(); void loadProfiles(); void load(); }}><RefreshCw /></Button>
-          </div>
-        </div>
+            </>
+          }
+        />
 
         <div className="grid gap-5 xl:grid-cols-2">
           <MonitorPanel title="Smoking Monitor" defaultModelPath={smokeModelPath} defaultCameraIndex={0} devices={devices} profiles={profiles} onAlertsSaved={load} />

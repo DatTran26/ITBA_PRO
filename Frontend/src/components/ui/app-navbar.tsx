@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { Search, HelpCircle, ChevronDown, GitBranch, PanelLeftClose, PanelLeftOpen, Menu } from "lucide-react";
+import { Search, HelpCircle, ChevronDown, GitBranch, Menu } from "lucide-react";
 import { tryCreateClient } from "@/lib/supabase/client";
 import NotificationBell from "@/components/ui/notification-bell";
 import NavbarUserDropdown from "@/components/ui/navbar-user-dropdown";
@@ -21,9 +21,7 @@ import {
     type NavGroup,
     type UserRole,
 } from "@/components/ui/nav-config";
-import { useUiLayout } from "@/components/ui/ui-layout-context";
-
-const TOPNAV_COMPACT_KEY = "topnav_compact";
+import { useUiLayout, useNavSessionUser } from "@/components/ui/ui-layout-context";
 
 interface BreadcrumbItem {
     label: string;
@@ -69,7 +67,7 @@ export function AppLogo({ showText = true }: { showText?: boolean }) {
  * Link; multi-link groups render as a dropdown. Active state uses the group's
  * accent color via inline style (Tailwind JIT can't infer dynamic hex colors).
  */
-function NavGroupEntry({ group, pathname, role, compact }: { group: NavGroup; pathname: string; role: UserRole; compact: boolean }) {
+function NavGroupEntry({ group, pathname, role }: { group: NavGroup; pathname: string; role: UserRole }) {
     const TriggerIcon = group.triggerIcon;
     const links = visibleLinksFor(group, role);
     const isActive = links.some((l) => pathname.startsWith(l.href));
@@ -92,7 +90,7 @@ function NavGroupEntry({ group, pathname, role, compact }: { group: NavGroup; pa
                     }
                 >
                     <LinkIcon className="w-3.5 h-3.5" />
-                    {!compact && group.label}
+                    {group.label}
                 </Link>
             </div>
         );
@@ -111,8 +109,8 @@ function NavGroupEntry({ group, pathname, role, compact }: { group: NavGroup; pa
                     }
                 >
                     {TriggerIcon && <TriggerIcon className="w-3.5 h-3.5" />}
-                    {!compact && group.label}
-                    {!compact && <ChevronDown className="w-3.5 h-3.5" />}
+                    {group.label}
+                    <ChevronDown className="w-3.5 h-3.5" />
                 </DropdownMenuTrigger>
                 <DropdownMenuContent
                     align="start"
@@ -166,24 +164,13 @@ export default function AppNavbar({
     showSearch = true,
 }: AppNavbarProps) {
     const [user, setUser] = useState(userProp ?? null);
-    const [compact, setCompact] = useState(false);
     const [mobileOpen, setMobileOpen] = useState(false);
     const pathname = usePathname();
-    const role = user?.role as UserRole | undefined;
+    const sessionUser = useNavSessionUser();
+    const role = (user?.role ?? sessionUser?.role) as UserRole | undefined;
     const groups = visibleGroupsFor(role);
     const layout = useUiLayout();
-
-    useEffect(() => {
-        const stored = window.localStorage.getItem(TOPNAV_COMPACT_KEY);
-        if (stored === "1") queueMicrotask(() => setCompact(true));
-    }, []);
-
-    function toggleCompact() {
-        const next = !compact;
-        setCompact(next);
-        window.localStorage.setItem(TOPNAV_COMPACT_KEY, next ? "1" : "0");
-        document.cookie = `${TOPNAV_COMPACT_KEY}=${next ? "1" : "0"}; path=/; max-age=31536000; SameSite=Lax`;
-    }
+    const resolvedUser = user ?? sessionUser;
 
     /* Self-suppress in sidebar layout — NavShell renders sidebar chrome.
      * Outside dashboard (no provider), useUiLayout returns "topnav" so
@@ -191,6 +178,10 @@ export default function AppNavbar({
     /* Fetch user data client-side if not provided via props */
     useEffect(() => {
         if (userProp !== undefined) return;
+        if (sessionUser) {
+            queueMicrotask(() => setUser(sessionUser));
+            return;
+        }
         let cancelled = false;
         async function fetchUser() {
             const supabase = tryCreateClient();
@@ -202,7 +193,7 @@ export default function AppNavbar({
         }
         fetchUser();
         return () => { cancelled = true; };
-    }, [userProp]);
+    }, [userProp, sessionUser]);
 
     /* Sync when parent updates user prop */
     useEffect(() => {
@@ -213,17 +204,9 @@ export default function AppNavbar({
 
     return (
         <div className="fixed top-4 left-4 right-4 z-50">
-            <nav className={`glass-card max-w-[88rem] mx-auto px-4 sm:px-6 flex items-center gap-2 sm:gap-3 transition-all duration-300 ${compact ? "h-12" : "h-14"}`}>
+            <nav className="glass-card max-w-[88rem] mx-auto h-14 px-4 sm:px-6 flex items-center gap-2 sm:gap-3">
                 {/* ── Left: Logo ── */}
                 <div className="flex items-center gap-1 shrink-0">
-                    <button
-                        type="button"
-                        className="p-2 rounded-lg text-[#8B99B0] hover:text-[#ECF0F7] hover:bg-[#1E2840] transition-colors cursor-pointer"
-                        title={compact ? "Expand menu" : "Minimize menu"}
-                        onClick={toggleCompact}
-                    >
-                        {compact ? <PanelLeftOpen className="w-4 h-4" /> : <PanelLeftClose className="w-4 h-4" />}
-                    </button>
                     <button
                         type="button"
                         className="p-2 rounded-lg text-[#8B99B0] hover:text-[#ECF0F7] hover:bg-[#1E2840] transition-colors cursor-pointer md:hidden"
@@ -232,12 +215,12 @@ export default function AppNavbar({
                     >
                         <Menu className="w-4 h-4" />
                     </button>
-                    <AppLogo showText={!compact} />
+                    <AppLogo />
                 </div>
 
                 {/* ── Group entries (config-driven) ── */}
                 {groups.map((group) => (
-                    <NavGroupEntry key={group.id} group={group} pathname={pathname} role={role ?? "hr"} compact={compact} />
+                    <NavGroupEntry key={group.id} group={group} pathname={pathname} role={role ?? "hr"} />
                 ))}
 
                 {/* ── Standalone Versions for non-System roles ── */}
@@ -246,7 +229,7 @@ export default function AppNavbar({
                 )}
 
                 {/* ── Center: Global Search ── */}
-                {showSearch && !compact && (
+                {showSearch && (
                     <div className="flex-1 flex justify-center max-w-md mx-auto">
                         <div className="relative w-full hidden md:block">
                             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[#5A6882]" />
@@ -264,7 +247,7 @@ export default function AppNavbar({
                 )}
 
                 {/* Spacer when no search */}
-                {(!showSearch || compact) && <div className="flex-1" />}
+                {!showSearch && <div className="flex-1" />}
 
                 {/* ── Right: Actions ── */}
                 <div className="flex items-center gap-1 shrink-0">
@@ -277,13 +260,13 @@ export default function AppNavbar({
                     </button>
 
                     {/* Notifications */}
-                    {showNotifications && <NotificationBell userRole={user?.role} />}
+                    {showNotifications && <NotificationBell userRole={resolvedUser?.role} />}
 
                     {/* Divider */}
                     <div className="w-px h-6 bg-[#8B99B0]/10 mx-1 hidden sm:block" />
 
                     {/* User dropdown */}
-                    <NavbarUserDropdown user={user} />
+                    <NavbarUserDropdown user={resolvedUser} />
 
                 </div>
             </nav>

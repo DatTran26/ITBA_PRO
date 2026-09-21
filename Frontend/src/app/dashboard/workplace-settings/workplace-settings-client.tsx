@@ -1,10 +1,10 @@
 "use client";
 
 import { useEffect, useState, type ReactNode } from "react";
-import { Cloud, Loader2, RotateCcw, Save, Settings2 } from "lucide-react";
+import { Cloud, Loader2, RotateCcw, Save } from "lucide-react";
 import { toast } from "sonner";
 import AppNavbar from "@/components/ui/app-navbar";
-import PageBreadcrumb from "@/components/ui/page-breadcrumb";
+import WorkplacePageHeader from "@/components/ui/workplace-page-header";
 import PageContainer from "@/components/ui/page-container";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -155,17 +155,11 @@ export default function WorkplaceSettingsClient() {
     <div className="min-h-screen bg-[#121A2E] text-[#ECF0F7]">
       <AppNavbar />
       <PageContainer>
-        <PageBreadcrumb breadcrumbs={[{ label: "Dashboard", href: "/dashboard" }, { label: "Workplace Settings" }]} />
-
-        <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <div className="mb-2 flex items-center gap-2 text-sm text-[#36DDAB]">
-              <Settings2 className="size-4" />
-              Workplace Monitoring
-            </div>
-            <h1 className="font-display text-4xl font-light">Settings</h1>
-          </div>
-          <div className="flex items-center gap-2">
+        <WorkplacePageHeader
+          title="Settings"
+          breadcrumbs={[{ label: "Dashboard", href: "/dashboard" }, { label: "Workplace Settings" }]}
+          actions={
+            <>
             {syncHint && <Badge variant="outline">{syncHint}</Badge>}
             {settings.updated_at && (
               <Badge variant="outline">Updated {new Date(settings.updated_at).toLocaleString()}</Badge>
@@ -179,8 +173,9 @@ export default function WorkplaceSettingsClient() {
             <Button onClick={save} disabled={saving || loading}>
               {saving ? <Loader2 className="animate-spin" /> : <Save />}Save
             </Button>
-          </div>
-        </div>
+            </>
+          }
+        />
 
         <div className="grid gap-5 xl:grid-cols-[1fr_0.9fr]">
           {canEditAiWeights && (

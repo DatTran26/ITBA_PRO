@@ -51,7 +51,7 @@ export default function NavShell({ user, layout, sidebarCollapsed, children }: N
 
     if (activeLayout === "topnav") {
         return (
-            <UiLayoutProvider value={{ layout: activeLayout, setLayout: handleSetLayout, mobileMenuOpen, setMobileMenuOpen }}>
+            <UiLayoutProvider value={{ layout: activeLayout, setLayout: handleSetLayout, mobileMenuOpen, setMobileMenuOpen, user }}>
                 <UiLayoutRealtimeListener currentLayout={activeLayout} />
                 {children}
             </UiLayoutProvider>
@@ -62,7 +62,7 @@ export default function NavShell({ user, layout, sidebarCollapsed, children }: N
     const contentMargin = collapsed ? "md:ml-16" : "md:ml-[260px]";
 
     return (
-        <UiLayoutProvider value={{ layout: activeLayout, setLayout: handleSetLayout, mobileMenuOpen, setMobileMenuOpen }}>
+        <UiLayoutProvider value={{ layout: activeLayout, setLayout: handleSetLayout, mobileMenuOpen, setMobileMenuOpen, user }}>
             <UiLayoutRealtimeListener currentLayout={activeLayout} />
 
             {/* Desktop sidebar */}

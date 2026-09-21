@@ -17,16 +17,11 @@ interface PageBreadcrumbProps {
 export default function PageBreadcrumb({ breadcrumbs, backHref }: PageBreadcrumbProps) {
     if (!breadcrumbs || breadcrumbs.length === 0) return null;
 
-    const derivedBack =
-        backHref ??
-        (breadcrumbs.length >= 2
-            ? breadcrumbs[breadcrumbs.length - 2]?.href
-            : breadcrumbs[breadcrumbs.length - 1]?.href);
-
+    const home = breadcrumbs.find((item) => item.href);
+    const derivedBack = backHref ?? home?.href;
     const backLabel =
-        breadcrumbs.length >= 2
-            ? breadcrumbs[breadcrumbs.length - 2]?.label
-            : breadcrumbs[0]?.label;
+        breadcrumbs.find((item) => item.href === derivedBack)?.label
+        ?? breadcrumbs[0]?.label;
 
     return (
         <div className="py-3 mb-3 space-y-1.5">

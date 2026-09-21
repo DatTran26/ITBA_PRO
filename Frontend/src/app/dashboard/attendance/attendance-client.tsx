@@ -6,7 +6,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { Camera, Clock3, Download, LogIn, LogOut, Play, RefreshCw, Square, MonitorSmartphone } from "lucide-react";
 import { toast } from "sonner";
 import AppNavbar from "@/components/ui/app-navbar";
-import PageBreadcrumb from "@/components/ui/page-breadcrumb";
+import WorkplacePageHeader from "@/components/ui/workplace-page-header";
 import PageContainer from "@/components/ui/page-container";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -196,20 +196,20 @@ export default function AttendanceClient() {
     <div className="min-h-screen bg-[#121A2E] text-[#ECF0F7]">
       <AppNavbar />
       <PageContainer>
-        <PageBreadcrumb breadcrumbs={[{ label: "Dashboard", href: "/dashboard" }, { label: "Attendance" }]} />
-        <div className="mb-8 flex items-end justify-between">
-          <div>
-            <h1 className="font-display text-4xl font-light">Attendance</h1>
-            <p className="mt-1 text-sm text-[#8B99B0]">Face attendance powered by ArcFace.</p>
-          </div>
-          <div className="flex items-center gap-2">
+        <WorkplacePageHeader
+          title="Attendance"
+          description="Face attendance powered by ArcFace."
+          breadcrumbs={[{ label: "Dashboard", href: "/dashboard" }, { label: "Attendance" }]}
+          actions={
+            <>
             <Link href="/dashboard/attendance/kiosk">
               <Button variant="outline"><MonitorSmartphone className="size-4" />Kiosk 1:N</Button>
             </Link>
             <Button variant="outline" onClick={exportCsv} disabled={sessions.length === 0}><Download className="size-4" />Export CSV</Button>
             <Button variant="outline" size="icon" title="Refresh" onClick={() => load()}><RefreshCw className="size-4" /></Button>
-          </div>
-        </div>
+            </>
+          }
+        />
 
         {/* Sync Info Banner */}
         <div className="mb-6 rounded-lg border border-[#36DDAB]/30 bg-[#36DDAB]/10 p-3.5 text-xs text-[#36DDAB]">

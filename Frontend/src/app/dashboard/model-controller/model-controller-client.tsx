@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import Link from "next/link";
 import {
   Cpu,
   ScanFace,
@@ -22,6 +23,7 @@ import {
   Flame,
   UserX,
   Sparkles,
+  Home,
 } from "lucide-react";
 import { toast } from "sonner";
 import AppNavbar from "@/components/ui/app-navbar";
@@ -393,6 +395,7 @@ export default function ModelControllerClient() {
         <div className="space-y-6 pb-12">
           {/* Breadcrumb */}
           <PageBreadcrumb
+            backHref="/dashboard"
             breadcrumbs={[
               { label: "Dashboard", href: "/dashboard" },
               { label: "Workplace Monitoring", href: "/dashboard/faces" },
@@ -424,6 +427,12 @@ export default function ModelControllerClient() {
             </div>
 
             <div className="flex items-center gap-2">
+              <Link href="/dashboard">
+                <Button variant="outline" className="border-slate-700">
+                  <Home className="h-4 w-4" />
+                  Home
+                </Button>
+              </Link>
               <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-xs">
                 <Activity className="h-3.5 w-3.5 text-slate-400" />
                 <span className="text-slate-400">Vision API:</span>

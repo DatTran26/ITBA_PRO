@@ -5,7 +5,7 @@ import Image from "next/image";
 import { Camera, Check, Loader2, Play, RefreshCw, ScanFace, Square, Upload, X, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
 import AppNavbar from "@/components/ui/app-navbar";
-import PageBreadcrumb from "@/components/ui/page-breadcrumb";
+import WorkplacePageHeader from "@/components/ui/workplace-page-header";
 import PageContainer from "@/components/ui/page-container";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -228,20 +228,20 @@ export default function MyFaceClient() {
     <div className="min-h-screen bg-[#121A2E] text-[#ECF0F7]">
       <AppNavbar />
       <PageContainer>
-        <PageBreadcrumb breadcrumbs={[{ label: "Dashboard", href: "/dashboard" }, { label: "My Face" }]} />
-        <div className="mb-8 flex items-end justify-between gap-4">
-          <div>
-            <h1 className="font-display text-4xl font-light">My Face</h1>
-            <p className="mt-2 text-[#8B99B0]">
-              {reauthRequired
-                ? "An administrator requested a new six-angle face capture before Face ID can be used."
-                : "Your enrolled face is used for Face ID sign-in and attendance. Updates require an administrator link."}
-            </p>
-          </div>
-          <Button variant="outline" size="icon" title="Refresh" onClick={() => load()}>
-            <RefreshCw />
-          </Button>
-        </div>
+        <WorkplacePageHeader
+          title="My Face"
+          description={
+            reauthRequired
+              ? "An administrator requested a new six-angle face capture before Face ID can be used."
+              : "Your enrolled face is used for Face ID sign-in and attendance. Updates require an administrator link."
+          }
+          breadcrumbs={[{ label: "Dashboard", href: "/dashboard" }, { label: "My Face" }]}
+          actions={
+            <Button variant="outline" size="icon" title="Refresh" onClick={() => load()}>
+              <RefreshCw />
+            </Button>
+          }
+        />
 
         {/* Current status */}
         {loaded && (

@@ -1,9 +1,10 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Camera, MonitorSmartphone } from "lucide-react";
+import { Camera } from "lucide-react";
 import { toast } from "sonner";
 import AppNavbar from "@/components/ui/app-navbar";
+import WorkplacePageHeader from "@/components/ui/workplace-page-header";
 import PageContainer from "@/components/ui/page-container";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -102,14 +103,17 @@ export default function AttendanceKioskClient() {
     <div className="min-h-screen bg-[#121A2E] text-[#ECF0F7]">
       <AppNavbar />
       <PageContainer>
+        <WorkplacePageHeader
+          title="Attendance kiosk"
+          description="Walk-up 1:N check-in and check-out."
+          breadcrumbs={[
+            { label: "Dashboard", href: "/dashboard" },
+            { label: "Attendance", href: "/dashboard/attendance" },
+            { label: "Kiosk" },
+          ]}
+          actions={<Badge variant={live ? "default" : "outline"}>{live ? "Live 1:N" : "Standby"}</Badge>}
+        />
         <div className="mx-auto max-w-3xl space-y-4">
-          <div className="flex items-center justify-between">
-            <h1 className="font-display text-4xl font-light flex items-center gap-3">
-              <MonitorSmartphone className="size-8 text-[#36DDAB]" />
-              Attendance kiosk
-            </h1>
-            <Badge variant={live ? "default" : "outline"}>{live ? "Live 1:N" : "Standby"}</Badge>
-          </div>
           <div className="relative overflow-hidden rounded-2xl bg-black aspect-video">
             <video ref={videoRef} autoPlay muted playsInline className="h-full w-full object-cover" />
             <div className="pointer-events-none absolute inset-12 rounded-full border-2 border-[#36DDAB]/50" />

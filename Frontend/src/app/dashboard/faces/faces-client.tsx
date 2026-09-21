@@ -21,7 +21,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import AppNavbar from "@/components/ui/app-navbar";
-import PageBreadcrumb from "@/components/ui/page-breadcrumb";
+import WorkplacePageHeader from "@/components/ui/workplace-page-header";
 import PageContainer from "@/components/ui/page-container";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -379,15 +379,12 @@ export default function FacesClient({ isSuperAdmin = false, canIssueReauth = fal
     <div className="min-h-screen bg-[#121A2E] text-[#ECF0F7]">
       <AppNavbar />
       <PageContainer>
-        <PageBreadcrumb breadcrumbs={[{ label: "Dashboard", href: "/dashboard" }, { label: "Face Management" }]} />
-        <div className="mb-8 flex items-end justify-between gap-4">
-          <div>
-            <h1 className="font-display text-4xl font-light">Face Management</h1>
-            <p className="mt-1 text-sm text-[#8B99B0]">
-              Enroll a person in person here. {canIssueReauth ? "Administrators can also issue a one-time face verification link." : "Face verification links are issued by an administrator."}
-            </p>
-          </div>
-          <div className="flex items-center gap-2">
+        <WorkplacePageHeader
+          title="Face Management"
+          description={`Enroll a person in person here. ${canIssueReauth ? "Administrators can also issue a one-time face verification link." : "Face verification links are issued by an administrator."}`}
+          breadcrumbs={[{ label: "Dashboard", href: "/dashboard" }, { label: "Face Management" }]}
+          actions={
+            <>
             {isSuperAdmin && (
               <Link href="/dashboard/model-controller">
                 <Button variant="outline" className="border-[#5B6CF0]/40 text-[#7C8FFF] hover:bg-[#5B6CF0]/10 text-xs">
@@ -397,8 +394,9 @@ export default function FacesClient({ isSuperAdmin = false, canIssueReauth = fal
               </Link>
             )}
             <Button variant="outline" size="icon" title="Refresh" onClick={() => load()}><RefreshCw /></Button>
-          </div>
-        </div>
+            </>
+          }
+        />
 
         {/* Super Admin Path Configuration Card */}
         {isSuperAdmin && (

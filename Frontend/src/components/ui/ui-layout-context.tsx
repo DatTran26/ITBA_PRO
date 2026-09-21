@@ -2,6 +2,9 @@
 
 import { createContext, useContext } from "react";
 import type { UiLayout } from "@/lib/settings/ui-layout";
+import type { UserRole } from "@/components/ui/nav-config";
+
+export type NavSessionUser = { name: string; email: string; role: UserRole };
 
 interface UiLayoutContextValue {
     layout: UiLayout;
@@ -9,6 +12,7 @@ interface UiLayoutContextValue {
     /** True when mobile drawer is open (sidebar layout, mobile viewport). */
     mobileMenuOpen: boolean;
     setMobileMenuOpen: (open: boolean) => void;
+    user: NavSessionUser | null;
 }
 
 const UiLayoutContext = createContext<UiLayoutContextValue | null>(null);
@@ -39,4 +43,8 @@ export function useMobileMenu(): {
         open: ctx?.mobileMenuOpen ?? false,
         setOpen: ctx?.setMobileMenuOpen ?? (() => {}),
     };
+}
+
+export function useNavSessionUser(): NavSessionUser | null {
+    return useContext(UiLayoutContext)?.user ?? null;
 }
