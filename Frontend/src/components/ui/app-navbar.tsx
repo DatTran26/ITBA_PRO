@@ -4,8 +4,8 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { Search, HelpCircle, ChevronDown, GitBranch } from "lucide-react";
-import { createClient } from "@/lib/supabase/client";
+import { Search, HelpCircle, ChevronDown, GitBranch, PanelLeftClose, PanelLeftOpen, Menu } from "lucide-react";
+import { tryCreateClient } from "@/lib/supabase/client";
 import NotificationBell from "@/components/ui/notification-bell";
 import NavbarUserDropdown from "@/components/ui/navbar-user-dropdown";
 import {
@@ -22,6 +22,8 @@ import {
     type UserRole,
 } from "@/components/ui/nav-config";
 import { useUiLayout } from "@/components/ui/ui-layout-context";
+
+const TOPNAV_COMPACT_KEY = "topnav_compact";
 
 interface BreadcrumbItem {
     label: string;
@@ -67,7 +69,7 @@ export function AppLogo({ showText = true }: { showText?: boolean }) {
  * Link; multi-link groups render as a dropdown. Active state uses the group's
  * accent color via inline style (Tailwind JIT can't infer dynamic hex colors).
  */
-function NavGroupEntry({ group, pathname, role }: { group: NavGroup; pathname: string; role: UserRole }) {
+function NavGroupEntry({ group, pathname, role, compact }: { group: NavGroup; pathname: string; role: UserRole; compact: boolean }) {
     const TriggerIcon = group.triggerIcon;
     const links = visibleLinksFor(group, role);
     const isActive = links.some((l) => pathname.startsWith(l.href));
@@ -81,6 +83,7 @@ function NavGroupEntry({ group, pathname, role }: { group: NavGroup; pathname: s
             <div className="hidden md:block shrink-0">
                 <Link
                     href={only.href}
+                    title={group.label}
                     className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm transition-colors"
                     style={
                         isActive
@@ -89,7 +92,7 @@ function NavGroupEntry({ group, pathname, role }: { group: NavGroup; pathname: s
                     }
                 >
                     <LinkIcon className="w-3.5 h-3.5" />
-                    {group.label}
+                    {!compact && group.label}
                 </Link>
             </div>
         );
@@ -99,6 +102,7 @@ function NavGroupEntry({ group, pathname, role }: { group: NavGroup; pathname: s
         <div className="hidden md:block shrink-0">
             <DropdownMenu>
                 <DropdownMenuTrigger
+                    title={group.label}
                     className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm transition-colors outline-none cursor-pointer text-[#8B99B0] hover:text-[#B6C2FF] hover:bg-[#1A2236] focus:text-[#B6C2FF] focus:bg-[#1A2236] data-[state=open]:bg-[#1A2236]"
                     style={
                         isActive
@@ -107,8 +111,8 @@ function NavGroupEntry({ group, pathname, role }: { group: NavGroup; pathname: s
                     }
                 >
                     {TriggerIcon && <TriggerIcon className="w-3.5 h-3.5" />}
-                    {group.label}
-                    <ChevronDown className="w-3.5 h-3.5" />
+                    {!compact && group.label}
+                    {!compact && <ChevronDown className="w-3.5 h-3.5" />}
                 </DropdownMenuTrigger>
                 <DropdownMenuContent
                     align="start"
@@ -162,10 +166,24 @@ export default function AppNavbar({
     showSearch = true,
 }: AppNavbarProps) {
     const [user, setUser] = useState(userProp ?? null);
+    const [compact, setCompact] = useState(false);
+    const [mobileOpen, setMobileOpen] = useState(false);
     const pathname = usePathname();
     const role = user?.role as UserRole | undefined;
     const groups = visibleGroupsFor(role);
     const layout = useUiLayout();
+
+    useEffect(() => {
+        const stored = window.localStorage.getItem(TOPNAV_COMPACT_KEY);
+        if (stored === "1") queueMicrotask(() => setCompact(true));
+    }, []);
+
+    function toggleCompact() {
+        const next = !compact;
+        setCompact(next);
+        window.localStorage.setItem(TOPNAV_COMPACT_KEY, next ? "1" : "0");
+        document.cookie = `${TOPNAV_COMPACT_KEY}=${next ? "1" : "0"}; path=/; max-age=31536000; SameSite=Lax`;
+    }
 
     /* Self-suppress in sidebar layout — NavShell renders sidebar chrome.
      * Outside dashboard (no provider), useUiLayout returns "topnav" so
@@ -175,7 +193,8 @@ export default function AppNavbar({
         if (userProp !== undefined) return;
         let cancelled = false;
         async function fetchUser() {
-            const supabase = createClient();
+            const supabase = tryCreateClient();
+            if (!supabase) return;
             const { data: { user: authUser } } = await supabase.auth.getUser();
             if (!authUser || cancelled) return;
             const { data } = await supabase.from("users").select("name, email, role").eq("auth_id", authUser.id).single();
@@ -194,15 +213,31 @@ export default function AppNavbar({
 
     return (
         <div className="fixed top-4 left-4 right-4 z-50">
-            <nav className="glass-card max-w-[88rem] mx-auto px-4 sm:px-6 h-14 flex items-center gap-4 transition-all duration-300">
+            <nav className={`glass-card max-w-[88rem] mx-auto px-4 sm:px-6 flex items-center gap-2 sm:gap-3 transition-all duration-300 ${compact ? "h-12" : "h-14"}`}>
                 {/* ── Left: Logo ── */}
                 <div className="flex items-center gap-1 shrink-0">
-                    <AppLogo />
+                    <button
+                        type="button"
+                        className="p-2 rounded-lg text-[#8B99B0] hover:text-[#ECF0F7] hover:bg-[#1E2840] transition-colors cursor-pointer"
+                        title={compact ? "Expand menu" : "Minimize menu"}
+                        onClick={toggleCompact}
+                    >
+                        {compact ? <PanelLeftOpen className="w-4 h-4" /> : <PanelLeftClose className="w-4 h-4" />}
+                    </button>
+                    <button
+                        type="button"
+                        className="p-2 rounded-lg text-[#8B99B0] hover:text-[#ECF0F7] hover:bg-[#1E2840] transition-colors cursor-pointer md:hidden"
+                        title="Open menu"
+                        onClick={() => setMobileOpen(true)}
+                    >
+                        <Menu className="w-4 h-4" />
+                    </button>
+                    <AppLogo showText={!compact} />
                 </div>
 
                 {/* ── Group entries (config-driven) ── */}
                 {groups.map((group) => (
-                    <NavGroupEntry key={group.id} group={group} pathname={pathname} role={role ?? "hr"} />
+                    <NavGroupEntry key={group.id} group={group} pathname={pathname} role={role ?? "hr"} compact={compact} />
                 ))}
 
                 {/* ── Standalone Versions for non-System roles ── */}
@@ -211,7 +246,7 @@ export default function AppNavbar({
                 )}
 
                 {/* ── Center: Global Search ── */}
-                {showSearch && (
+                {showSearch && !compact && (
                     <div className="flex-1 flex justify-center max-w-md mx-auto">
                         <div className="relative w-full hidden md:block">
                             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[#5A6882]" />
@@ -229,7 +264,7 @@ export default function AppNavbar({
                 )}
 
                 {/* Spacer when no search */}
-                {!showSearch && <div className="flex-1" />}
+                {(!showSearch || compact) && <div className="flex-1" />}
 
                 {/* ── Right: Actions ── */}
                 <div className="flex items-center gap-1 shrink-0">
@@ -252,6 +287,42 @@ export default function AppNavbar({
 
                 </div>
             </nav>
+            {mobileOpen && (
+                <>
+                    <button
+                        type="button"
+                        className="fixed inset-0 z-[60] bg-black/40"
+                        aria-label="Close menu overlay"
+                        onClick={() => setMobileOpen(false)}
+                    />
+                    <aside className="fixed left-4 top-20 z-[70] w-[280px] max-h-[70vh] overflow-y-auto rounded-xl border border-[#8B99B0]/10 bg-[#101828] p-4 shadow-xl">
+                        <p className="mb-3 text-sm font-medium text-[#ECF0F7]">Menu</p>
+                        {groups.map((group) => {
+                            const links = visibleLinksFor(group, role ?? "hr");
+                            return (
+                                <div key={group.id} className="mb-4">
+                                    <p className="px-2 text-[10px] uppercase tracking-[0.12em] text-[#5A6882]">{group.label}</p>
+                                    {links.map((link) => {
+                                        const Icon = link.icon;
+                                        const active = pathname.startsWith(link.href);
+                                        return (
+                                            <Link
+                                                key={link.href}
+                                                href={link.href}
+                                                onClick={() => setMobileOpen(false)}
+                                                className={`mt-1 flex items-center gap-2 rounded-lg px-3 py-2 text-sm ${active ? "bg-[#1A2236] text-[#ECF0F7]" : "text-[#8B99B0] hover:bg-[#1A2236]"}`}
+                                            >
+                                                <Icon className="w-4 h-4" />
+                                                {link.label}
+                                            </Link>
+                                        );
+                                    })}
+                                </div>
+                            );
+                        })}
+                    </aside>
+                </>
+            )}
         </div>
     );
 }

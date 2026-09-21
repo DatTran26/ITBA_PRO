@@ -1,8 +1,9 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Camera, Clock3, LogIn, LogOut, Play, RefreshCw, Square } from "lucide-react";
+import { Camera, Clock3, Download, LogIn, LogOut, Play, RefreshCw, Square, MonitorSmartphone } from "lucide-react";
 import { toast } from "sonner";
 import AppNavbar from "@/components/ui/app-navbar";
 import PageBreadcrumb from "@/components/ui/page-breadcrumb";
@@ -15,12 +16,40 @@ import { readApiResponse } from "@/lib/api-response";
 
 type Session = {
   id: string;
+  date?: string;
   check_in_at: string;
   check_out_at: string | null;
   check_in_similarity: number;
   check_out_similarity: number | null;
+  work_duration_minutes?: number | null;
+  status?: "on_time" | "late" | "open" | string;
   users?: { name?: string; email?: string } | null;
 };
+
+function csvCell(value: unknown) {
+  const text = value == null ? "" : String(value);
+  return `"${text.replace(/"/g, '""')}"`;
+}
+
+function vnHm(iso: string | null | undefined) {
+  if (!iso) return "";
+  return new Intl.DateTimeFormat("en-GB", {
+    timeZone: "Asia/Ho_Chi_Minh",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  }).format(new Date(iso));
+}
+
+function vnDate(iso: string | null | undefined) {
+  if (!iso) return "";
+  return new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Asia/Ho_Chi_Minh",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(new Date(iso));
+}
 
 export default function AttendanceClient() {
   const [sessions, setSessions] = useState<Session[]>([]);
@@ -124,6 +153,45 @@ export default function AttendanceClient() {
     }
   }
 
+  function exportCsv() {
+    const header = [
+      "id",
+      "user",
+      "email",
+      "date_vn",
+      "check_in_hhmm_vn",
+      "check_out_hhmm_vn",
+      "work_duration_minutes",
+      "status",
+      "check_in_similarity",
+      "check_out_similarity",
+    ];
+    const lines = [
+      header.map(csvCell).join(","),
+      ...sessions.map((session) => [
+        session.id,
+        session.users?.name ?? "Current user",
+        session.users?.email ?? "",
+        session.date ?? vnDate(session.check_in_at),
+        vnHm(session.check_in_at),
+        vnHm(session.check_out_at),
+        session.work_duration_minutes ?? "",
+        session.check_out_at ? (session.status === "late" ? "late" : "on_time") : "open",
+        session.check_in_similarity,
+        session.check_out_similarity ?? "",
+      ].map(csvCell).join(",")),
+    ];
+    const blob = new Blob([lines.join("\n")], { type: "text/csv;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const anchor = document.createElement("a");
+    anchor.href = url;
+    anchor.download = `attendance-${new Date().toISOString().slice(0, 10)}.csv`;
+    document.body.appendChild(anchor);
+    anchor.click();
+    anchor.remove();
+    URL.revokeObjectURL(url);
+  }
+
   return (
     <div className="min-h-screen bg-[#121A2E] text-[#ECF0F7]">
       <AppNavbar />
@@ -134,7 +202,13 @@ export default function AttendanceClient() {
             <h1 className="font-display text-4xl font-light">Attendance</h1>
             <p className="mt-1 text-sm text-[#8B99B0]">Face attendance powered by ArcFace.</p>
           </div>
-          <Button variant="outline" size="icon" title="Refresh" onClick={() => load()}><RefreshCw className="size-4" /></Button>
+          <div className="flex items-center gap-2">
+            <Link href="/dashboard/attendance/kiosk">
+              <Button variant="outline"><MonitorSmartphone className="size-4" />Kiosk 1:N</Button>
+            </Link>
+            <Button variant="outline" onClick={exportCsv} disabled={sessions.length === 0}><Download className="size-4" />Export CSV</Button>
+            <Button variant="outline" size="icon" title="Refresh" onClick={() => load()}><RefreshCw className="size-4" /></Button>
+          </div>
         </div>
 
         {/* Sync Info Banner */}
@@ -178,9 +252,15 @@ export default function AttendanceClient() {
                 <div key={session.id} className="grid gap-2 border-b border-white/10 py-3 sm:grid-cols-[1fr_auto_auto]">
                   <div>
                     <p className="font-medium">{session.users?.name ?? "Current user"}</p>
-                    <p className="text-xs text-[#8B99B0]">{new Date(session.check_in_at).toLocaleString()}</p>
+                    <p className="text-xs text-[#8B99B0]">
+                      {session.date ?? vnDate(session.check_in_at)} · {vnHm(session.check_in_at)}
+                      {session.check_out_at ? ` → ${vnHm(session.check_out_at)}` : ""}
+                      {session.work_duration_minutes != null ? ` · ${session.work_duration_minutes} min` : ""}
+                    </p>
                   </div>
-                  <Badge variant={session.check_out_at ? "outline" : "default"}>{session.check_out_at ? "Completed" : "Active"}</Badge>
+                  <Badge variant={session.check_out_at ? "outline" : "default"}>
+                    {session.check_out_at ? (session.status === "late" ? "Late" : session.status === "on_time" ? "On time" : "Completed") : "Active"}
+                  </Badge>
                   <p className="text-xs text-[#8B99B0]">In: {(session.check_in_similarity * 100).toFixed(1)}%{session.check_out_similarity != null ? ` · Out: ${(session.check_out_similarity * 100).toFixed(1)}%` : ""}</p>
                 </div>
               ))}

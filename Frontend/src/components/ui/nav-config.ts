@@ -21,6 +21,7 @@ import {
     Clock3,
     ShieldAlert,
     Cpu,
+    MonitorSmartphone,
 } from "lucide-react";
 
 /**
@@ -83,8 +84,10 @@ export const NAV_GROUPS: NavGroup[] = [
         links: [
             { href: "/dashboard/my-face", label: "My Face", icon: ScanFace },
             { href: "/dashboard/attendance", label: "Attendance", icon: Clock3 },
+            { href: "/dashboard/attendance/kiosk", label: "Attendance Kiosk", icon: MonitorSmartphone, allowedRoles: ["leader", "admin", "super_admin"] },
             { href: "/dashboard/faces", label: "Face Management", icon: ScanFace, allowedRoles: ["leader", "admin", "super_admin"] },
             { href: "/dashboard/behavior", label: "Behavior Review", icon: ShieldAlert, allowedRoles: ["leader", "admin", "super_admin"] },
+            { href: "/dashboard/workplace-settings", label: "Workplace Settings", icon: Settings2, allowedRoles: ["leader", "admin", "super_admin"] },
             { href: "/dashboard/model-controller", label: "AI Model Configuration", icon: Cpu, allowedRoles: ["super_admin"] },
         ],
         allowedRoles: ["hr", "interviewer", "recruiter", "leader", "admin", "super_admin"],

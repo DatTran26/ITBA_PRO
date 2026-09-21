@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { RefreshCw, X, Sparkles, ArrowUpCircle } from "lucide-react";
 import { useAppUpdateWatcher } from "@/hooks/use-app-update-watcher";
-import { createClient } from "@/lib/supabase/client";
+import { tryCreateClient } from "@/lib/supabase/client";
 
 // Shown when a new deployment is detected — lets user refresh on their own terms
 // RE-DESIGNED: v1.4.2 - Positioned below header with prominent version badge
@@ -17,13 +17,15 @@ export default function AppUpdateBanner() {
     useEffect(() => {
         const frame = requestAnimationFrame(() => setMounted(true));
 
-        // 2. Check initial auth session
-        const supabase = createClient();
+        const supabase = tryCreateClient();
+        if (!supabase) {
+            return () => cancelAnimationFrame(frame);
+        }
+
         supabase.auth.getSession().then(({ data: { session } }) => {
             setIsLoggedIn(!!session);
         });
 
-        // 3. Listen for auth changes
         const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
             setIsLoggedIn(!!session);
         });

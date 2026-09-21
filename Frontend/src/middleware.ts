@@ -1,6 +1,6 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
-import { DEV_AUTH_COOKIE, parseDevAuthCookie } from '@/lib/dev-auth'
+import { DEV_AUTH_COOKIE, isDevAuthEnabled, parseDevAuthCookie } from '@/lib/dev-auth'
 
 export async function middleware(request: NextRequest) {
     const pathname = request.nextUrl.pathname
@@ -17,6 +17,16 @@ export async function middleware(request: NextRequest) {
         return NextResponse.next()
     }
 
+    // Local vision / Face ID work: no Supabase keys required.
+    if (isDevAuthEnabled()) {
+        if (!isPublicRoute && !isApiRoute) {
+            const url = request.nextUrl.clone()
+            url.pathname = '/login'
+            return NextResponse.redirect(url)
+        }
+        return NextResponse.next()
+    }
+
     let supabaseResponse = NextResponse.next({
         request,
     })
@@ -24,7 +34,6 @@ export async function middleware(request: NextRequest) {
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
     const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 
-    // If variables are missing, skip supabase auth and return 500 error page
     if (!supabaseUrl || !supabaseAnonKey) {
         console.error('Middleware Error: Supabase variables are missing.')
         return new NextResponse('Internal Server Error: Supabase configuration missing', { status: 500 })

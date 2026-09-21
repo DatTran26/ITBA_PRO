@@ -1,16 +1,17 @@
 import { createBrowserClient } from '@supabase/ssr'
+import type { SupabaseClient } from '@supabase/supabase-js'
 
-export function createClient() {
+export function tryCreateClient(): SupabaseClient | null {
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
     const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+    if (!supabaseUrl || !supabaseAnonKey) return null
+    return createBrowserClient(supabaseUrl, supabaseAnonKey)
+}
 
-    if (!supabaseUrl || !supabaseAnonKey) {
-        console.error('Supabase configuration missing in browser.')
+export function createClient() {
+    const client = tryCreateClient()
+    if (!client) {
         throw new Error('Supabase configuration is incomplete.')
     }
-
-    return createBrowserClient(
-        supabaseUrl,
-        supabaseAnonKey
-    )
+    return client
 }

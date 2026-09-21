@@ -3,45 +3,19 @@ import { getAuthContext, isAuthError } from "@/lib/api/auth-helpers";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { callVisionAi, canManageVision, validateImage } from "@/lib/vision-ai";
 import { getFaceEnrollment } from "@/lib/face-store";
-import path from "node:path";
-import { promises as fs } from "node:fs";
+import {
+  punchLocalAttendance,
+  readLocalAttendance,
+} from "@/lib/workplace-local";
 
 export const runtime = "nodejs";
 export const maxDuration = 300;
-
-interface LocalAttendanceSession {
-  id: string;
-  user_id: string;
-  check_in_at: string;
-  check_out_at: string | null;
-  check_in_similarity: number;
-  check_out_similarity: number | null;
-  users?: { name?: string; email?: string } | null;
-}
-
-function getAttendanceFilePath(): string {
-  return path.resolve(process.cwd(), "..", "data", "vision-ai", "attendance-sessions.json");
-}
-
-async function readLocalAttendance(): Promise<LocalAttendanceSession[]> {
-  try {
-    const raw = await fs.readFile(getAttendanceFilePath(), "utf8");
-    return JSON.parse(raw);
-  } catch {
-    return [];
-  }
-}
-
-async function writeLocalAttendance(sessions: LocalAttendanceSession[]): Promise<void> {
-  const filePath = getAttendanceFilePath();
-  await fs.mkdir(path.dirname(filePath), { recursive: true });
-  await fs.writeFile(filePath, JSON.stringify(sessions, null, 2), "utf8");
-}
 
 export async function GET() {
   const ctx = await getAuthContext();
   if (isAuthError(ctx)) return ctx;
 
+  const localSessions = await readLocalAttendance();
   try {
     const admin = createAdminClient();
     let query = admin
@@ -52,13 +26,15 @@ export async function GET() {
     if (!canManageVision(ctx.role)) query = query.eq("user_id", ctx.userId);
     const { data, error } = await query;
     if (!error && data && data.length > 0) {
-      return NextResponse.json({ sessions: data });
+      const localIds = new Set(localSessions.map((row) => row.id));
+      const merged = [...localSessions, ...data.filter((row) => !localIds.has(row.id))];
+      const filtered = canManageVision(ctx.role) ? merged : merged.filter((s) => s.user_id === ctx.userId);
+      return NextResponse.json({ sessions: filtered });
     }
   } catch {
-    // Supabase unavailable; read local sessions
+    // Superbase optional.
   }
 
-  const localSessions = await readLocalAttendance();
   const filtered = canManageVision(ctx.role)
     ? localSessions
     : localSessions.filter((s) => s.user_id === ctx.userId);
@@ -76,7 +52,6 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "A valid action and face image are required" }, { status: 400 });
   }
 
-  // 1. Single Source of Truth: Get enrollment from face-store (same as login)
   const enrollment = await getFaceEnrollment(ctx.userId);
   if (!enrollment) {
     return NextResponse.json({
@@ -102,71 +77,13 @@ export async function POST(request: Request) {
     }
 
     const similarity = Math.max(...verification.similarities);
-    const now = new Date().toISOString();
-
-    // 2. Try Supabase first
-    try {
-      const admin = createAdminClient();
-      const { data: active } = await admin
-        .from("attendance_sessions")
-        .select("id")
-        .eq("user_id", ctx.userId)
-        .is("check_out_at", null)
-        .order("check_in_at", { ascending: false })
-        .limit(1)
-        .maybeSingle();
-
-      if (action === "check-in") {
-        if (active) return NextResponse.json({ error: "You already have an active attendance session" }, { status: 409 });
-        const { data, error } = await admin
-          .from("attendance_sessions")
-          .insert({ user_id: ctx.userId, check_in_similarity: similarity })
-          .select()
-          .single();
-        if (error) throw error;
-        return NextResponse.json({ session: data });
-      }
-
-      if (!active) return NextResponse.json({ error: "Check in before checking out" }, { status: 409 });
-      const { data, error } = await admin
-        .from("attendance_sessions")
-        .update({ check_out_at: now, check_out_similarity: similarity, updated_at: now })
-        .eq("id", active.id)
-        .select()
-        .single();
-      if (error) throw error;
-      return NextResponse.json({ session: data });
-    } catch {
-      // 3. Fallback to local attendance file if Supabase is unavailable
-      const localSessions = await readLocalAttendance();
-      const activeIdx = localSessions.findIndex((s) => s.user_id === ctx.userId && !s.check_out_at);
-
-      if (action === "check-in") {
-        if (activeIdx !== -1) {
-          return NextResponse.json({ error: "You already have an active attendance session" }, { status: 409 });
-        }
-        const newSession: LocalAttendanceSession = {
-          id: `att-${Date.now()}`,
-          user_id: ctx.userId,
-          check_in_at: now,
-          check_out_at: null,
-          check_in_similarity: similarity,
-          check_out_similarity: null,
-          users: { name: ctx.userId, email: "" },
-        };
-        localSessions.unshift(newSession);
-        await writeLocalAttendance(localSessions);
-        return NextResponse.json({ session: newSession });
-      }
-
-      if (activeIdx === -1) {
-        return NextResponse.json({ error: "Check in before checking out" }, { status: 409 });
-      }
-      localSessions[activeIdx].check_out_at = now;
-      localSessions[activeIdx].check_out_similarity = similarity;
-      await writeLocalAttendance(localSessions);
-      return NextResponse.json({ session: localSessions[activeIdx] });
-    }
+    const punched = await punchLocalAttendance({
+      userId: ctx.userId,
+      similarity,
+      direction: action === "check-in" ? "in" : "out",
+    });
+    if (!punched.ok) return NextResponse.json({ error: punched.error }, { status: punched.status });
+    return NextResponse.json({ session: punched.session });
   } catch (error) {
     return NextResponse.json({
       error: error instanceof Error ? error.message : "Attendance failed",

@@ -1,7 +1,7 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
-import { Camera, Check, Loader2, Pause, Play, RefreshCw, ShieldAlert, Square, X } from "lucide-react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Camera, Check, Download, Loader2, MessageSquare, Pause, Play, RefreshCw, ShieldAlert, Square, X } from "lucide-react";
 import { toast } from "sonner";
 import AppNavbar from "@/components/ui/app-navbar";
 import PageBreadcrumb from "@/components/ui/page-breadcrumb";
@@ -9,7 +9,16 @@ import PageContainer from "@/components/ui/page-container";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { readApiResponse } from "@/lib/api-response";
 
 type Alert = {
@@ -17,9 +26,26 @@ type Alert = {
   violation_type: string;
   severity: string;
   camera_location: string;
-  status: "pending_review" | "approved" | "rejected";
+  status: "pending_review" | "approved" | "rejected" | "false_positive" | "justified";
   detected_at: string;
+  evidence_url?: string | null;
+  session_id?: string | null;
   detections_json?: { confidence?: number; label?: string; bbox?: number[]; userId?: string; profileName?: string };
+  reviewed_by?: string | null;
+  review_note?: string | null;
+  reviewed_at?: string | null;
+  decision_category?: string | null;
+};
+
+type ReviewDecision = "approved" | "rejected" | "false_positive" | "justified";
+type ReviewReason = "policy_violation" | "no_violation" | "authorized_exception" | "camera_error" | "model_error" | "other";
+
+type MonitorSession = {
+  id: string;
+  status: string;
+  started_at: string;
+  camera_location: string;
+  stats?: { frames_scanned: number; violations_detected: number; alerts_created: number };
 };
 
 type Detection = { label: string; confidence: number; bbox: number[]; isViolation: boolean };
@@ -54,13 +80,14 @@ function MonitorPanel({ title, defaultModelPath, defaultCameraIndex, devices, pr
   const busyRef = useRef(false);
   const videoUrlRef = useRef<string | null>(null);
   const lastNoticeRef = useRef(0);
+  const cameraId = sourceType === "camera" ? `cam-${Math.max(0, devices.findIndex((item) => item.deviceId === deviceId))}` : `${title.toLowerCase().replace(/[^a-z0-9]+/g, "-")}-video`;
 
   const addLog = useCallback((message: string) => {
     const time = new Date().toLocaleTimeString([], { hour12: false });
     setLogs((current) => [`${time}  ${message}`, ...current].slice(0, 24));
   }, []);
 
-  const stop = useCallback(() => {
+  const haltMedia = useCallback(() => {
     streamRef.current?.getTracks().forEach((track) => track.stop());
     streamRef.current = null;
     if (videoRef.current) {
@@ -71,6 +98,15 @@ function MonitorPanel({ title, defaultModelPath, defaultCameraIndex, devices, pr
     setPaused(false);
     setOverlay(null);
   }, []);
+
+  const stop = useCallback(() => {
+    haltMedia();
+    void fetch("/api/behavior/session", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "stop", camera_id: cameraId }),
+    }).catch(() => undefined);
+  }, [cameraId, haltMedia]);
 
   useEffect(() => () => {
     stop();
@@ -96,7 +132,7 @@ function MonitorPanel({ title, defaultModelPath, defaultCameraIndex, devices, pr
   }
 
   async function start() {
-    stop();
+    haltMedia();
     if (!userId) return toast.error(`${title}: select a monitored profile`);
     const video = videoRef.current;
     if (!video) return;
@@ -114,6 +150,16 @@ function MonitorPanel({ title, defaultModelPath, defaultCameraIndex, devices, pr
         video.src = videoUrl;
       }
       await video.play();
+      await fetch("/api/behavior/session", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "start",
+          camera_id: cameraId,
+          camera_location: `${title} / ${sourceType === "camera" ? cameraId : "Video file"}`,
+          monitored_user_ids: [userId],
+        }),
+      }).catch(() => undefined);
       setRunning(true);
       setPaused(false);
       addLog(`Started ${sourceType === "camera" ? "camera" : "video"}`);
@@ -151,10 +197,10 @@ function MonitorPanel({ title, defaultModelPath, defaultCameraIndex, devices, pr
       return;
     }
 
-    const cameraIndex = Math.max(0, devices.findIndex((item) => item.deviceId === deviceId));
     const body = new FormData();
     body.append("image", new File([blob], "monitor-frame.jpg", { type: "image/jpeg" }));
-    body.append("cameraLocation", `${title} / ${sourceType === "camera" ? `Camera ${cameraIndex}` : "Video file"}`);
+    body.append("cameraId", cameraId);
+    body.append("cameraLocation", `${title} / ${sourceType === "camera" ? cameraId : "Video file"}`);
     body.append("modelPath", modelPath);
     const profile = profiles.find((item) => item.id === userId);
     if (!profile) {
@@ -176,6 +222,11 @@ function MonitorPanel({ title, defaultModelPath, defaultCameraIndex, devices, pr
       const labels = detections.map((detection) => `${detection.label} ${(detection.confidence * 100).toFixed(0)}%`).join(", ");
       addLog(`${detections.length} boxes · API ${Math.round(performance.now() - requestStarted)}ms · AI ${Math.round(data.processingMs ?? 0)}ms${labels ? ` · ${labels}` : ""}`);
       if (data.alerts?.length) await onAlertsSaved();
+      void fetch("/api/behavior/session", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "heartbeat", camera_id: cameraId }),
+      }).catch(() => undefined);
       if (violations.length && Date.now() - lastNoticeRef.current > 10_000) {
         lastNoticeRef.current = Date.now();
         toast.warning(data.warning ?? `${title}: ${violations.length} violation detection${violations.length === 1 ? "" : "s"}`);
@@ -189,7 +240,7 @@ function MonitorPanel({ title, defaultModelPath, defaultCameraIndex, devices, pr
       busyRef.current = false;
       setBusy(false);
     }
-  }, [addLog, deviceId, devices, modelPath, onAlertsSaved, paused, profiles, sourceType, title, userId]);
+  }, [addLog, cameraId, modelPath, onAlertsSaved, paused, profiles, sourceType, title, userId]);
 
   useEffect(() => {
     if (!running || paused) return;
@@ -277,19 +328,57 @@ function MonitorPanel({ title, defaultModelPath, defaultCameraIndex, devices, pr
   );
 }
 
+function csvCell(value: unknown) {
+  const text = value == null ? "" : String(value);
+  return `"${text.replace(/"/g, '""')}"`;
+}
+
+function violationLabel(type: string) {
+  return type === "smoking" ? "Smoking" : type === "empty_desk" ? "Away from desk" : type;
+}
+
 export default function BehaviorClient() {
   const [alerts, setAlerts] = useState<Alert[]>([]);
   const [devices, setDevices] = useState<MediaDeviceInfo[]>([]);
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [smokeModelPath, setSmokeModelPath] = useState("models/vision-ai/smoking.pt");
   const [leavingModelPath, setLeavingModelPath] = useState("models/vision-ai/leaving.pt");
+  const [monitorSession, setMonitorSession] = useState<MonitorSession | null>(null);
+  const [statusFilter, setStatusFilter] = useState<"all" | Alert["status"]>("all");
+  const [typeFilter, setTypeFilter] = useState("all");
+  const [dateFrom, setDateFrom] = useState("");
+  const [dateTo, setDateTo] = useState("");
+  const [reviewTarget, setReviewTarget] = useState<Alert | null>(null);
+  const [reviewDecision, setReviewDecision] = useState<ReviewDecision>("approved");
+  const [reviewReason, setReviewReason] = useState<ReviewReason>("policy_violation");
+  const [reviewNote, setReviewNote] = useState("");
+  const [reviewBusy, setReviewBusy] = useState(false);
+
+  const filteredAlerts = useMemo(() => alerts.filter((alert) => {
+    if (statusFilter !== "all" && alert.status !== statusFilter) return false;
+    if (typeFilter !== "all" && alert.violation_type !== typeFilter) return false;
+    if (dateFrom && alert.detected_at.slice(0, 10) < dateFrom) return false;
+    if (dateTo && alert.detected_at.slice(0, 10) > dateTo) return false;
+    return true;
+  }), [alerts, dateFrom, dateTo, statusFilter, typeFilter]);
+
+  const violationTypes = useMemo(() => {
+    return Array.from(new Set(alerts.map((alert) => alert.violation_type))).sort();
+  }, [alerts]);
+
+  const loadSession = useCallback(async () => {
+    const response = await fetch("/api/behavior/session", { cache: "no-store" });
+    const data = await readApiResponse<{ active?: MonitorSession | null }>(response);
+    if (response.ok) setMonitorSession(data.active ?? null);
+  }, []);
 
   const load = useCallback(async () => {
     const response = await fetch("/api/behavior", { cache: "no-store" });
     const data = await readApiResponse<{ error?: string; alerts: Alert[] }>(response);
     if (!response.ok) throw new Error(data.error ?? "Unable to load behavior alerts");
     setAlerts(data.alerts ?? []);
-  }, []);
+    await loadSession();
+  }, [loadSession]);
 
   const refreshDevices = useCallback(async () => {
     if (!navigator.mediaDevices?.enumerateDevices) return;
@@ -335,16 +424,92 @@ export default function BehaviorClient() {
     };
   }, [load, loadProfiles, refreshDevices]);
 
-  async function review(id: string, decision: "approved" | "rejected") {
-    const response = await fetch(`/api/behavior/${id}/review`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ decision }),
-    });
-    const data = await readApiResponse<{ error?: string }>(response);
-    if (!response.ok) return toast.error(data.error ?? "Behavior review failed");
-    toast.success(decision === "approved" ? "Violation approved" : "Alert rejected");
-    await load();
+  function openReview(alert: Alert, decision: ReviewDecision) {
+    setReviewTarget(alert);
+    setReviewDecision(decision);
+    setReviewReason(
+      decision === "approved" ? "policy_violation"
+        : decision === "justified" ? "authorized_exception"
+          : decision === "false_positive" ? "model_error"
+            : "no_violation",
+    );
+    setReviewNote(alert.review_note ?? "");
+  }
+
+  async function review() {
+    if (!reviewTarget) return;
+    const note = reviewNote.trim();
+    if (reviewDecision !== "approved" && (!reviewReason || note.length < 5)) {
+      toast.error("Reject, false positive, and justified decisions require a reason and a note of at least 5 characters");
+      return;
+    }
+
+    setReviewBusy(true);
+    try {
+      const response = await fetch(`/api/behavior/${reviewTarget.id}/review`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ decision: reviewDecision, reason_category: reviewReason, note }),
+      });
+      const data = await readApiResponse<{ error?: string }>(response);
+      if (!response.ok) return toast.error(data.error ?? "Behavior review failed");
+      toast.success("Review saved");
+      setReviewTarget(null);
+      setReviewNote("");
+      await load();
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Behavior review failed");
+    } finally {
+      setReviewBusy(false);
+    }
+  }
+
+  function exportCsv() {
+    const rows = filteredAlerts;
+    const header = [
+      "id",
+      "detected_at",
+      "status",
+      "violation_type",
+      "severity",
+      "profile",
+      "camera_location",
+      "confidence",
+      "session_id",
+      "reviewed_at",
+      "reviewed_by",
+      "decision_category",
+      "review_note",
+      "evidence_url",
+    ];
+    const lines = [
+      header.map(csvCell).join(","),
+      ...rows.map((alert) => [
+        alert.id,
+        alert.detected_at,
+        alert.status,
+        alert.violation_type,
+        alert.severity,
+        alert.detections_json?.profileName ?? "",
+        alert.camera_location,
+        alert.detections_json?.confidence ?? "",
+        alert.session_id ?? "",
+        alert.reviewed_at ?? "",
+        alert.reviewed_by ?? "",
+        alert.decision_category ?? "",
+        alert.review_note ?? "",
+        alert.evidence_url ?? "",
+      ].map(csvCell).join(",")),
+    ];
+    const blob = new Blob([lines.join("\n")], { type: "text/csv;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const anchor = document.createElement("a");
+    anchor.href = url;
+    anchor.download = `violation-history-${new Date().toISOString().slice(0, 10)}.csv`;
+    document.body.appendChild(anchor);
+    anchor.click();
+    anchor.remove();
+    URL.revokeObjectURL(url);
   }
 
   return (
@@ -352,9 +517,16 @@ export default function BehaviorClient() {
       <AppNavbar />
       <PageContainer>
         <PageBreadcrumb breadcrumbs={[{ label: "Dashboard", href: "/dashboard" }, { label: "Behavior Monitoring" }]} />
-        <div className="mb-6 flex items-end justify-between">
+        <div className="mb-6 flex items-end justify-between gap-3">
           <h1 className="font-display text-4xl font-light">Behavior Monitoring</h1>
-          <Button variant="outline" size="icon" title="Refresh cameras, profiles, and alerts" onClick={() => { void refreshDevices(); void loadProfiles(); void load(); }}><RefreshCw /></Button>
+          <div className="flex items-center gap-2">
+            <Badge variant={monitorSession ? "default" : "outline"}>
+              {monitorSession
+                ? `Session ${monitorSession.id.slice(-8)} · ${monitorSession.stats?.alerts_created ?? 0} alerts`
+                : "No active session"}
+            </Badge>
+            <Button variant="outline" size="icon" title="Refresh cameras, profiles, and alerts" onClick={() => { void refreshDevices(); void loadProfiles(); void load(); }}><RefreshCw /></Button>
+          </div>
         </div>
 
         <div className="grid gap-5 xl:grid-cols-2">
@@ -363,24 +535,89 @@ export default function BehaviorClient() {
         </div>
 
         <Card className="mt-5 rounded-lg bg-[#10192B]/80">
-          <CardHeader><CardTitle>Pending Review</CardTitle></CardHeader>
+          <CardHeader>
+            <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+              <div>
+                <CardTitle>Violation History & Review</CardTitle>
+                <p className="mt-1 text-sm text-[#8B99B0]">{filteredAlerts.length} of {alerts.length} alerts shown</p>
+              </div>
+              <div className="flex flex-wrap items-center gap-2">
+                <select
+                  className="h-9 rounded-lg border border-white/10 bg-[#0B1220] px-3 text-sm"
+                  value={statusFilter}
+                  onChange={(event) => setStatusFilter(event.target.value as typeof statusFilter)}
+                  aria-label="Filter by status"
+                >
+                  <option value="all">All statuses</option>
+                  <option value="pending_review">Pending review</option>
+                  <option value="approved">Approved</option>
+                  <option value="rejected">Rejected</option>
+                  <option value="false_positive">False positive</option>
+                  <option value="justified">Justified</option>
+                </select>
+                <select
+                  className="h-9 rounded-lg border border-white/10 bg-[#0B1220] px-3 text-sm"
+                  value={typeFilter}
+                  onChange={(event) => setTypeFilter(event.target.value)}
+                  aria-label="Filter by violation type"
+                >
+                  <option value="all">All violation types</option>
+                  {violationTypes.map((type) => <option key={type} value={type}>{violationLabel(type)}</option>)}
+                </select>
+                <Input
+                  type="date"
+                  value={dateFrom}
+                  onChange={(event) => setDateFrom(event.target.value)}
+                  className="h-9 w-auto border-white/10 bg-[#0B1220]"
+                  aria-label="Filter from date"
+                />
+                <Input
+                  type="date"
+                  value={dateTo}
+                  onChange={(event) => setDateTo(event.target.value)}
+                  className="h-9 w-auto border-white/10 bg-[#0B1220]"
+                  aria-label="Filter to date"
+                />
+                <Button variant="outline" onClick={exportCsv} disabled={filteredAlerts.length === 0}>
+                  <Download />Export CSV
+                </Button>
+              </div>
+            </div>
+          </CardHeader>
           <CardContent className="space-y-2">
-            {alerts.length === 0 && <p className="text-sm text-[#8B99B0]">No alerts.</p>}
-            {alerts.map((alert) => (
+            {filteredAlerts.length === 0 && <p className="text-sm text-[#8B99B0]">No alerts match the current filters.</p>}
+            {filteredAlerts.map((alert) => (
               <div key={alert.id} className="flex flex-col gap-3 border-b border-white/10 py-3 sm:flex-row sm:items-center sm:justify-between">
-                <div>
-                  <div className="flex items-center gap-2">
-                    <p className="font-medium">{alert.violation_type === "smoking" ? "Smoking" : "Away from desk"}</p>
-                    <Badge variant={alert.status === "pending_review" ? "default" : "outline"}>{alert.status}</Badge>
+                <div className="flex gap-3">
+                  {alert.evidence_url ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={alert.evidence_url} alt="" className="h-16 w-24 rounded object-cover bg-black" />
+                  ) : null}
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <p className="font-medium">{violationLabel(alert.violation_type)}</p>
+                      <Badge variant={alert.status === "pending_review" ? "default" : "outline"}>{alert.status}</Badge>
+                    </div>
+                    <p className="mt-1 text-xs text-[#8B99B0]">
+                      {alert.detections_json?.profileName ?? "Unassigned profile"} · {alert.camera_location} · {new Date(alert.detected_at).toLocaleString()} · {alert.detections_json?.confidence ? `${(alert.detections_json.confidence * 100).toFixed(1)}%` : alert.severity}
+                      {alert.session_id ? ` · ${alert.session_id}` : ""}
+                    </p>
+                    {alert.status !== "pending_review" && (
+                      <p className="mt-1 text-xs text-[#C8D0E0]">
+                        Reviewed {alert.reviewed_at ? new Date(alert.reviewed_at).toLocaleString() : "time unknown"}
+                        {alert.reviewed_by ? ` by ${alert.reviewed_by}` : ""}
+                        {alert.decision_category ? ` · ${alert.decision_category}` : ""}
+                        {alert.review_note ? ` · ${alert.review_note}` : ""}
+                      </p>
+                    )}
                   </div>
-                  <p className="mt-1 text-xs text-[#8B99B0]">
-                    {alert.detections_json?.profileName ?? "Unassigned profile"} · {alert.camera_location} · {new Date(alert.detected_at).toLocaleString()} · {alert.detections_json?.confidence ? `${(alert.detections_json.confidence * 100).toFixed(1)}%` : alert.severity}
-                  </p>
                 </div>
                 {alert.status === "pending_review" && (
-                  <div className="flex gap-2">
-                    <Button size="sm" onClick={() => review(alert.id, "approved")}><Check />Approve</Button>
-                    <Button size="sm" variant="destructive" onClick={() => review(alert.id, "rejected")}><X />Reject</Button>
+                  <div className="flex flex-wrap gap-2">
+                    <Button size="sm" onClick={() => openReview(alert, "approved")}><Check />Approve</Button>
+                    <Button size="sm" variant="outline" onClick={() => openReview(alert, "justified")}><MessageSquare />Justified</Button>
+                    <Button size="sm" variant="outline" onClick={() => openReview(alert, "false_positive")}><X />False Positive</Button>
+                    <Button size="sm" variant="destructive" onClick={() => openReview(alert, "rejected")}><X />Reject</Button>
                   </div>
                 )}
               </div>
@@ -388,6 +625,84 @@ export default function BehaviorClient() {
           </CardContent>
         </Card>
       </PageContainer>
+
+      <Dialog open={!!reviewTarget} onOpenChange={(open) => { if (!open && !reviewBusy) setReviewTarget(null); }}>
+        <DialogContent className="border border-white/10 bg-[#10192B] text-[#ECF0F7] sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Review violation alert</DialogTitle>
+            <DialogDescription className="text-[#8B99B0]">
+              Confirm the decision and add reviewer context for the audit trail.
+            </DialogDescription>
+          </DialogHeader>
+
+          {reviewTarget && (
+            <div className="space-y-4">
+              {reviewTarget.evidence_url && (
+                <div className="overflow-hidden rounded-lg border border-white/10 bg-black">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={reviewTarget.evidence_url} alt="Violation evidence" className="max-h-72 w-full object-contain" />
+                </div>
+              )}
+              <div className="rounded-lg border border-white/10 bg-[#0B1220] p-3 text-sm">
+                <p className="font-medium">{violationLabel(reviewTarget.violation_type)}</p>
+                <p className="mt-1 text-xs text-[#8B99B0]">
+                  {reviewTarget.detections_json?.profileName ?? "Unassigned profile"} · {reviewTarget.camera_location} · {new Date(reviewTarget.detected_at).toLocaleString()}
+                </p>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-xs font-medium uppercase tracking-[0.08em] text-[#8B99B0]">Decision</label>
+                <select
+                  className="h-10 w-full rounded-lg border border-white/10 bg-[#0B1220] px-3 text-sm"
+                  value={reviewDecision}
+                  onChange={(event) => setReviewDecision(event.target.value as ReviewDecision)}
+                >
+                  <option value="approved">Approve violation</option>
+                  <option value="rejected">Reject alert</option>
+                  <option value="false_positive">False positive</option>
+                  <option value="justified">Justified exception</option>
+                </select>
+              </div>
+
+              {reviewDecision !== "approved" && (
+                <div className="space-y-2">
+                  <label className="text-xs font-medium uppercase tracking-[0.08em] text-[#8B99B0]">Reason category</label>
+                  <select
+                    className="h-10 w-full rounded-lg border border-white/10 bg-[#0B1220] px-3 text-sm"
+                    value={reviewReason}
+                    onChange={(event) => setReviewReason(event.target.value as ReviewReason)}
+                  >
+                    <option value="no_violation">No violation</option>
+                    <option value="authorized_exception">Authorized exception</option>
+                    <option value="camera_error">Camera error</option>
+                    <option value="model_error">Model error</option>
+                    <option value="other">Other</option>
+                  </select>
+                </div>
+              )}
+
+              <div className="space-y-2">
+                <label className="text-xs font-medium uppercase tracking-[0.08em] text-[#8B99B0]">
+                  Review note {reviewDecision !== "approved" ? "required" : "optional"}
+                </label>
+                <Textarea
+                  value={reviewNote}
+                  onChange={(event) => setReviewNote(event.target.value)}
+                  className="min-h-28 border-white/10 bg-[#0B1220]"
+                  placeholder="Add context for this decision..."
+                />
+              </div>
+            </div>
+          )}
+
+          <DialogFooter className="border-white/10 bg-[#0B1220]/70">
+            <Button variant="outline" disabled={reviewBusy} onClick={() => setReviewTarget(null)}>Cancel</Button>
+            <Button disabled={reviewBusy} onClick={review}>
+              {reviewBusy ? <Loader2 className="animate-spin" /> : <Check />}Save Review
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

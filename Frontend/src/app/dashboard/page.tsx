@@ -13,15 +13,21 @@ export default async function DashboardPage({
 }) {
     const { mode: modeParam } = await searchParams;
 
-    const supabase = await createClient();
-    const { data: { user } } = await supabase.auth.getUser();
     const cookieStore = await cookies();
     const devUser = parseDevAuthCookie(cookieStore.get(DEV_AUTH_COOKIE)?.value);
+    const hasSupabaseConfig =
+        !!process.env.NEXT_PUBLIC_SUPABASE_URL &&
+        !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    const supabase = hasSupabaseConfig ? await createClient() : null;
+    const { data: { user } } = supabase
+        ? await supabase.auth.getUser()
+        : { data: { user: null } };
+
     if (!user && !devUser) redirect("/login");
 
     let userData = devUser;
     if (user) {
-        const { data } = await supabase
+        const { data } = await supabase!
             .from("users")
             .select("*")
             .eq("auth_id", user.id)
@@ -32,7 +38,7 @@ export default async function DashboardPage({
     if (!userData && user) {
         const defaultName = user.user_metadata?.name || user.email?.split("@")[0] || "Admin";
         const defaultEmail = user.email || "";
-        const { data: insertedUser } = await supabase
+        const { data: insertedUser } = await supabase!
             .from("users")
             .insert({
                 auth_id: user.id,
@@ -76,6 +82,41 @@ export default async function DashboardPage({
         ? (modeParam as DashboardMode)
         : (roleDefaultMode[role] ?? "recruitment");
 
+    const emptyStats: DashboardStats = {
+        activeTests: 0,
+        totalSubmissions: 0,
+        pendingReview: 0,
+        passed: 0,
+        failed: 0,
+        pendingAiReview: 0,
+    };
+
+    if (!supabase) {
+        return (
+            <DashboardClient
+                mode={mode}
+                user={userData}
+                tests={[]}
+                stats={emptyStats}
+                pipeline={[]}
+                monthlyData={[]}
+                attentionCandidates={[]}
+                pendingAiResults={[]}
+                employeeStats={mode === "employee" ? {
+                    employeesEvaluated: 0,
+                    avgSkillScore: null,
+                    positionsWithGaps: 0,
+                    pendingEvaluations: 0,
+                    evaluationCompletion: 0,
+                } : null}
+                skillGaps={[]}
+                adminStats={null}
+                isAdmin={isAdmin}
+                isHr={isHr}
+            />
+        );
+    }
+
     // HR/Interviewer modes: skip all heavy server fetching — data loaded client-side
     if (mode === "hr" || mode === "interviewer") {
         return (
@@ -83,7 +124,7 @@ export default async function DashboardPage({
                 mode={mode}
                 user={userData}
                 tests={[]}
-                stats={{ activeTests: 0, totalSubmissions: 0, pendingReview: 0, passed: 0, failed: 0, pendingAiReview: 0 }}
+                stats={emptyStats}
                 pipeline={[]}
                 monthlyData={[]}
                 attentionCandidates={[]}

@@ -4,11 +4,8 @@ import { NextResponse } from "next/server";
 export async function GET() {
     const ctx = await getAuthContext();
     if (isAuthError(ctx)) return ctx;
+    if (!ctx.supabase) return NextResponse.json({ versions: [] });
 
-    // All users (including Super_Admin) can see approved version notifications
-    // based on their individual user_version_reads record.
-
-    // Get IDs the user has already read
     const { data: readRows } = await ctx.supabase
         .from("user_version_reads")
         .select("version_id")
@@ -16,7 +13,6 @@ export async function GET() {
 
     const readIds = (readRows ?? []).map((r: { version_id: string }) => r.version_id);
 
-    // Fetch approved versions not yet read
     let query = ctx.supabase
         .from("versions")
         .select("id, version_number, title, description, published_at, created_at")
@@ -25,7 +21,6 @@ export async function GET() {
         .limit(50);
 
     if (readIds.length > 0) {
-        // format it manually to avoid Supabase JS SDK PostgREST array mismatch for .not()
         const formattedArray = `(${readIds.join(",")})`;
         query = query.not("id", "in", formattedArray);
     }
@@ -39,6 +34,7 @@ export async function GET() {
 export async function POST(request: Request) {
     const ctx = await getAuthContext();
     if (isAuthError(ctx)) return ctx;
+    if (!ctx.supabase) return NextResponse.json({ success: true });
 
     const body = await request.json();
     const { version_ids } = body;

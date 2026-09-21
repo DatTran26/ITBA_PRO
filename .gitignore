@@ -48,6 +48,7 @@ _templates/
 
 # Local credential stores & tool state — never commit
 /accounts/
+ITBA_Accounts.txt
 /.1devtool/
 /.devin/mcp_config.local.json
 docs/_shared/.status-state/

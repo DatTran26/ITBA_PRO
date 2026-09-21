@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { createClient } from "@/lib/supabase/client";
+import { tryCreateClient } from "@/lib/supabase/client";
 import { LogOut, User, ChevronDown } from "lucide-react";
 import {
     DropdownMenu, DropdownMenuTrigger, DropdownMenuContent,
@@ -34,9 +34,8 @@ export default function NavbarUserDropdown({ user, variant = "topnav" }: NavbarU
 
     async function handleLogout() {
         setIsLoggingOut(true);
-        const supabase = createClient();
-        await supabase.auth.signOut();
-        // Also clear dev auth cookie (face-login / dev-login sessions)
+        const supabase = tryCreateClient();
+        if (supabase) await supabase.auth.signOut();
         await fetch("/api/dev-logout", { method: "POST" }).catch(() => {});
         router.push("/login");
         router.refresh();

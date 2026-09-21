@@ -3,8 +3,14 @@ import { NextResponse, type NextRequest } from "next/server";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 
-function accountsFilePath() {
-    return process.env.DEV_LOGIN_ACCOUNTS_FILE ?? path.resolve(process.cwd(), "..", "..", "ITBA_Accounts.txt");
+function accountsFileCandidates() {
+    if (process.env.DEV_LOGIN_ACCOUNTS_FILE) return [process.env.DEV_LOGIN_ACCOUNTS_FILE];
+    const cwd = process.cwd();
+    return [
+        path.resolve(cwd, "ITBA_Accounts.txt"),
+        path.resolve(cwd, "..", "ITBA_Accounts.txt"),
+        path.resolve(cwd, "..", "..", "ITBA_Accounts.txt"),
+    ];
 }
 
 function findSuperAdminPasswords(fileText: string, email: string) {
@@ -37,10 +43,26 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ error: "Invalid local dev account" }, { status: 401 });
     }
 
-    const fileText = await readFile(accountsFilePath(), "utf8");
-    const expectedPasswords = findSuperAdminPasswords(fileText, expectedEmail);
-    if (!expectedPasswords.includes(password)) {
-        return NextResponse.json({ error: "Invalid local dev password" }, { status: 401 });
+    const expectedPasswords = new Set<string>();
+    const envPassword = process.env.DEV_LOGIN_PASSWORD?.trim();
+    if (envPassword) expectedPasswords.add(envPassword);
+    expectedPasswords.add("localdev");
+
+    for (const filePath of accountsFileCandidates()) {
+        try {
+            const fileText = await readFile(filePath, "utf8");
+            for (const found of findSuperAdminPasswords(fileText, expectedEmail)) {
+                expectedPasswords.add(found);
+            }
+        } catch {
+            // File is optional for local vision/Face ID work.
+        }
+    }
+
+    if (!expectedPasswords.has(password)) {
+        return NextResponse.json({
+            error: "Use test.superadmin@itba.ai / localdev for local login (Supabase passwords are not used here).",
+        }, { status: 401 });
     }
 
     const response = NextResponse.json({ ok: true });

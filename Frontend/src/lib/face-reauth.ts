@@ -56,6 +56,7 @@ export async function getPendingFaceReauth(userId: string): Promise<FaceReauthRe
 }
 
 export async function userRequiresFaceReauth(userId: string): Promise<boolean> {
+  if (!process.env.SUPABASE_SERVICE_ROLE_KEY) return false;
   const admin = createAdminClient();
   const { data, error } = await admin
     .from("users")

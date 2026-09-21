@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import { toast } from "sonner";
-import { createClient } from "@/lib/supabase/client";
+import { tryCreateClient } from "@/lib/supabase/client";
 import { useSetLayout } from "@/components/ui/ui-layout-context";
 import type { UiLayout } from "@/lib/settings/ui-layout";
 
@@ -27,7 +27,8 @@ export default function UiLayoutRealtimeListener({ currentLayout }: UiLayoutReal
     }, [currentLayout]);
 
     useEffect(() => {
-        const supabase = createClient();
+        const supabase = tryCreateClient();
+        if (!supabase) return;
         const channel = supabase
             .channel("ui-layout-changes")
             .on(

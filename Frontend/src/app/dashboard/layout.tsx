@@ -17,17 +17,25 @@ export default async function DashboardLayout({
 }: {
     children: React.ReactNode;
 }) {
-    const supabase = await createClient();
-    const { data: { user } } = await supabase.auth.getUser();
     const cookieStore = await cookies();
     const devUser = parseDevAuthCookie(cookieStore.get(DEV_AUTH_COOKIE)?.value);
+
+    let user: { id: string; email?: string; user_metadata?: { name?: string } } | null = null;
+    let supabase: Awaited<ReturnType<typeof createClient>> | null = null;
+    if (!devUser) {
+        supabase = await createClient();
+        const auth = await supabase.auth.getUser();
+        user = auth.data.user;
+    }
     if (!user && !devUser) redirect("/login");
 
     /* Fetch user data + layout setting + collapse cookie in parallel.
      * NavShell decides chrome based on layout; pages keep their existing
      * AppNavbar calls (self-suppressed in sidebar mode via context). */
     const [userResult, layout, sidebarCollapsed] = await Promise.all([
-        user ? supabase.from("users").select("name, email, role").eq("auth_id", user.id).single() : Promise.resolve({ data: devUser }),
+        user && supabase
+            ? supabase.from("users").select("name, email, role").eq("auth_id", user.id).single()
+            : Promise.resolve({ data: devUser }),
         readUiLayout(),
         readSidebarCollapsed(),
     ]);

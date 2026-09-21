@@ -3,6 +3,7 @@ import { promises as fs } from "node:fs";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { callVisionAi } from "@/lib/vision-ai";
 import { DEV_AUTH_USER } from "@/lib/dev-auth";
+import { atomicWriteJson } from "@/lib/workplace-local";
 
 export interface FaceUserRecord {
   id: string;
@@ -25,6 +26,7 @@ export interface LocalFaceRegistryItem {
   createdAt: string;
   embeddingsCount: number;
   embeddings?: number[][];
+  sync_status: "local_only" | "synced";
 }
 
 function getRegistryFilePath(): string {
@@ -34,23 +36,25 @@ function getRegistryFilePath(): string {
 function getAccountsFilePath(): string {
   return (
     process.env.DEV_LOGIN_ACCOUNTS_FILE ??
-    path.resolve(process.cwd(), "..", "..", "ITBA_Accounts.txt")
+    path.resolve(process.cwd(), "..", "ITBA_Accounts.txt")
   );
 }
 
-async function readLocalRegistry(): Promise<Record<string, LocalFaceRegistryItem>> {
+export async function readLocalRegistry(): Promise<Record<string, LocalFaceRegistryItem>> {
   try {
     const raw = await fs.readFile(getRegistryFilePath(), "utf8");
-    return JSON.parse(raw);
+    const parsed = JSON.parse(raw) as Record<string, LocalFaceRegistryItem>;
+    for (const item of Object.values(parsed)) {
+      if (!item.sync_status) item.sync_status = "local_only";
+    }
+    return parsed;
   } catch {
     return {};
   }
 }
 
 async function writeLocalRegistry(registry: Record<string, LocalFaceRegistryItem>): Promise<void> {
-  const filePath = getRegistryFilePath();
-  await fs.mkdir(path.dirname(filePath), { recursive: true });
-  await fs.writeFile(filePath, JSON.stringify(registry, null, 2), "utf8");
+  await atomicWriteJson(getRegistryFilePath(), registry);
 }
 
 /**
@@ -180,6 +184,7 @@ export async function saveFaceEnrollment(
     createdAt: new Date().toISOString(),
     embeddingsCount: embeddings.length,
     embeddings: embeddings,
+    sync_status: "local_only",
   };
   await writeLocalRegistry(registry);
 
@@ -195,6 +200,8 @@ export async function saveFaceEnrollment(
       is_active: true,
     });
     if (insertError) throw insertError;
+    registry[user.id].sync_status = "synced";
+    await writeLocalRegistry(registry);
   } catch (error) {
     if (!process.env.SUPABASE_SERVICE_ROLE_KEY) return;
     throw error;
@@ -252,19 +259,6 @@ export async function listActiveFaceEnrollments(): Promise<
     embeddings: number[][];
   }>
 > {
-  const admin = createAdminClient();
-  const [{ data: enrollments, error: enrollmentError }, { data: users, error: userError }] = await Promise.all([
-    admin
-      .from("user_face_embeddings")
-      .select("user_id, embedding_json, created_at")
-      .order("created_at", { ascending: false }),
-    admin.from("users").select("id, auth_id, email, name, role, face_reauth_required"),
-  ]);
-  if (enrollmentError) throw enrollmentError;
-  if (userError) throw userError;
-
-  const userMap = new Map((users ?? []).map((user) => [user.id, user]));
-  const seen = new Set<string>();
   const results: Array<{
     id: string;
     authId?: string | null;
@@ -274,23 +268,55 @@ export async function listActiveFaceEnrollments(): Promise<
     embeddings: number[][];
   }> = [];
 
-  for (const row of enrollments ?? []) {
-    if (seen.has(row.user_id)) continue;
-    const embeddings = row.embedding_json;
+  try {
+    const admin = createAdminClient();
+    const [{ data: enrollments, error: enrollmentError }, { data: users, error: userError }] = await Promise.all([
+      admin
+        .from("user_face_embeddings")
+        .select("user_id, embedding_json, created_at")
+        .order("created_at", { ascending: false }),
+      admin.from("users").select("id, auth_id, email, name, role, face_reauth_required"),
+    ]);
+    if (enrollmentError) throw enrollmentError;
+    if (userError) throw userError;
+
+    const userMap = new Map((users ?? []).map((user) => [user.id, user]));
+    const seen = new Set<string>();
+
+    for (const row of enrollments ?? []) {
+      if (seen.has(row.user_id)) continue;
+      const embeddings = row.embedding_json;
+      if (!Array.isArray(embeddings) || embeddings.length < 4) continue;
+      const user = userMap.get(row.user_id);
+      if (!user || user.face_reauth_required) continue;
+      seen.add(row.user_id);
+      results.push({
+        id: user.id,
+        authId: user.auth_id,
+        email: user.email,
+        name: user.name ?? user.email,
+        role: user.role,
+        embeddings,
+      });
+    }
+    if (results.length) return results;
+  } catch {
+    // Local Face ID: enrollments live in data/vision-ai/faces-registry.json
+  }
+
+  const registry = await readLocalRegistry();
+  for (const item of Object.values(registry)) {
+    const embeddings = item.embeddings;
     if (!Array.isArray(embeddings) || embeddings.length < 4) continue;
-    const user = userMap.get(row.user_id);
-    if (!user || user.face_reauth_required) continue;
-    seen.add(row.user_id);
     results.push({
-      id: user.id,
-      authId: user.auth_id,
-      email: user.email,
-      name: user.name ?? user.email,
-      role: user.role,
+      id: item.userId,
+      authId: item.userId,
+      email: item.email,
+      name: item.name,
+      role: item.role,
       embeddings,
     });
   }
-
   return results;
 }
 
