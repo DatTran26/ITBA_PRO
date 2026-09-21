@@ -236,3 +236,23 @@ def test_storage_config_endpoints(tmp_path: Path):
         assert len(saved_models) == 2
         assert saved_models[0]["iouThreshold"] == 0.5
         assert saved_models[1]["iouThreshold"] == 0.4
+
+        custom_pt = tmp_path / "custom_new.pt"
+        res_new_path = client.post(
+            "/api/vision/controller/config",
+            json={
+                "behaviorModelPath": "models/vision-ai/smoking.pt",
+                "behaviorModels": [
+                    {
+                        "id": "smoke_detection",
+                        "name": "Smoke",
+                        "modelPath": str(custom_pt),
+                        "confidence": 0.55,
+                        "labels": ["smoke"],
+                    }
+                ],
+            },
+        )
+        assert res_new_path.status_code == 200
+        saved_path = res_new_path.json()["config"]["behaviorModels"][0]["modelPath"]
+        assert "custom_new.pt" in saved_path.replace("\\", "/")

@@ -50,13 +50,16 @@ def _resolve_path(value: str, default: Path) -> Path:
         return default
     path = Path(os.path.expandvars(value.strip().strip('"').strip("'"))).expanduser()
     if path.exists():
-        return path.resolve() if path.is_absolute() else path
-    if path.is_absolute():
+        return path.resolve() if path.is_absolute() else path.resolve()
+    # Bare filename (yolov8n.pt) may live in VISION_AI_MODELS_DIR.
+    if len(path.parts) == 1:
         by_name = models_dir() / path.name
         if by_name.exists():
             return by_name
+        return by_name
+    if path.is_absolute():
         return path
-    from_models = models_dir() / path.name
+    from_models = models_dir() / path
     if from_models.exists():
         return from_models
     from_backend = (BACKEND_DIR / path).resolve()
@@ -199,15 +202,17 @@ def get_violation_data_dir() -> Path:
 
 def get_vision_config() -> dict:
     models_info = []
+    default_weight = find_weight("behavior.pt", "behavior.onnx")
     for m in BEHAVIOR_MODELS:
-        m_path_str = str(m.get("modelPath", "")).strip()
-        resolved_path = _resolve_path(m_path_str, find_weight("behavior.pt", "behavior.onnx"))
+        stored = str(m.get("modelPath", "")).strip()
+        resolved_path = _resolve_path(stored, Path(stored) if stored else default_weight)
+        display_path = str(resolved_path) if resolved_path.is_file() else (stored or str(resolved_path))
         models_info.append({
             "id": m.get("id") or "custom_model",
             "name": m.get("name") or "Behavior model",
             "description": m.get("description", ""),
             "enabled": bool(m.get("enabled", True)),
-            "modelPath": str(resolved_path),
+            "modelPath": display_path,
             "modelExists": resolved_path.is_file(),
             "confidence": float(m.get("confidence", 0.25)),
             "iouThreshold": float(m.get("iouThreshold", 0.45)),
@@ -268,7 +273,8 @@ def update_vision_config(updates: dict) -> dict:
             m_desc = str(item.get("description") or "").strip()
             m_enabled = bool(item.get("enabled", True))
             m_path = str(item.get("modelPath") or "").strip()
-            resolved_pt = str(_resolve_path(m_path, find_weight("behavior.pt", "behavior.onnx")))
+            fallback = Path(m_path) if m_path else find_weight("behavior.pt", "behavior.onnx")
+            resolved_pt = str(_resolve_path(m_path, fallback))
 
             conf = 0.25
             try:
@@ -312,8 +318,9 @@ def update_vision_config(updates: dict) -> dict:
                 all_labels.update(m.get("labels", []))
             BEHAVIOR_LABELS = all_labels or {"smoke", "cigarette", "empty_seat", "un-occupied_desk"}
 
-    # Legacy support if updating behaviorModelPath directly
-    if "behaviorModelPath" in updates and str(updates["behaviorModelPath"]).strip():
+    # Legacy single-path field. Ignore when the multi-model list is present so a
+    # stale behaviorModelPath from the UI cannot overwrite a newly saved .pt.
+    elif "behaviorModelPath" in updates and str(updates["behaviorModelPath"]).strip():
         BEHAVIOR_MODEL_PATH = str(
             _resolve_path(str(updates["behaviorModelPath"]).strip(), find_weight("behavior.pt", "behavior.onnx"))
         )

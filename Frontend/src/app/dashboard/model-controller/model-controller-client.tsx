@@ -209,7 +209,10 @@ export default function ModelControllerClient() {
       const res = await fetch("/api/vision-controller", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(config),
+        body: JSON.stringify({
+          ...config,
+          behaviorModelPath: config.behaviorModels[0]?.modelPath ?? config.behaviorModelPath,
+        }),
       });
 
       const data = await readApiResponse<{
