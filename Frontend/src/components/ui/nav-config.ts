@@ -82,6 +82,7 @@ export const NAV_GROUPS: NavGroup[] = [
         label: "Workplace Monitoring",
         triggerIcon: Clock3,
         links: [
+            { href: "/dashboard/employees", label: "Employees", icon: Users, allowedRoles: ["leader", "admin", "super_admin"] },
             { href: "/dashboard/my-face", label: "My Face", icon: ScanFace },
             { href: "/dashboard/attendance", label: "Attendance", icon: Clock3 },
             { href: "/dashboard/attendance/kiosk", label: "Attendance Kiosk", icon: MonitorSmartphone, allowedRoles: ["leader", "admin", "super_admin"] },
