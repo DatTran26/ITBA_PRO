@@ -1,8 +1,8 @@
 "use client";
 
-import { Pencil, Copy } from "lucide-react";
+import { Pencil, Copy, Briefcase, Building2, Layers, ListChecks, Users, CalendarDays } from "lucide-react";
 import { SharedDashboardButton } from "@/components/shares";
-import { Badge } from "@/components/ui/badge";
+import DetailHeader, { type DetailInfoItem } from "@/components/shares/detail-header";
 import StatusBadge from "@/components/crm/status-badge";
 import TagChips from "@/components/crm/tag-chips";
 import { POSITION_STATUSES } from "@/lib/crm/constants";
@@ -19,44 +19,30 @@ interface Props {
 }
 
 export default function PositionHeader({ position, tags, assignedCount, reqCount, onEdit, onClone, onAddTag }: Props) {
+  const info: DetailInfoItem[] = [
+    position.department && { icon: Building2, label: position.department },
+    position.target_level && { icon: Layers, label: `Level ${position.target_level}` },
+    { icon: ListChecks, label: `${reqCount} yêu cầu kỹ năng` },
+    { icon: Users, label: `${assignedCount} người được gán` },
+    { icon: CalendarDays, label: `Tạo ${new Date(position.created_at).toLocaleDateString("vi-VN")}` },
+  ].filter(Boolean) as DetailInfoItem[];
+
   return (
-    <div className="bg-muted border border-border/10 rounded-xl p-5 mb-4">
-      <div className="flex items-start justify-between gap-4">
-        <div>
-          <h1 className="text-xl font-bold text-foreground">{position.title}</h1>
-          <div className="flex items-center gap-2 mt-1.5 flex-wrap">
-            <StatusBadge status={position.status} config={POSITION_STATUSES} />
-            {position.department && (
-              <Badge variant="outline" className="text-xs border-border/20 text-muted-foreground">{position.department}</Badge>
-            )}
-            {position.target_level && (
-              <Badge variant="outline" className="text-xs border-border/30 text-ai">{position.target_level}</Badge>
-            )}
-          </div>
-          {tags.length > 0 && (
-            <div className="mt-2">
-              <TagChips tags={tags} onAdd={onAddTag} />
-            </div>
-          )}
-        </div>
-
-        <div className="flex gap-1.5 shrink-0">
-          <SharedDashboardButton variant="outline" size="sm" onClick={onClone} className="border-border/20 text-muted-foreground hover:text-foreground gap-1.5">
-            <Copy className="w-3.5 h-3.5" /> Clone
-          </SharedDashboardButton>
-          <SharedDashboardButton variant="outline" size="sm" onClick={onEdit} className="border-border/20 text-muted-foreground hover:text-foreground gap-1.5">
-            <Pencil className="w-3.5 h-3.5" /> Edit
-          </SharedDashboardButton>
-        </div>
-      </div>
-
-      {/* Quick stats row */}
-      <div className="flex flex-wrap gap-4 mt-4 pt-4 border-t border-border/10 text-sm text-muted-foreground">
-        {position.description && <span className="text-muted-foreground max-w-md truncate">{position.description}</span>}
-        <span>{reqCount} skill requirement{reqCount !== 1 ? "s" : ""}</span>
-        <span>{assignedCount} assigned person{assignedCount !== 1 ? "s" : ""}</span>
-        <span>Created {new Date(position.created_at).toLocaleDateString()}</span>
-      </div>
-    </div>
+    <DetailHeader
+      title={position.title}
+      avatarIcon={Briefcase}
+      status={<StatusBadge status={position.status} config={POSITION_STATUSES} />}
+      subtitle={position.description ? <span className="line-clamp-2 max-w-2xl">{position.description}</span> : undefined}
+      tags={tags.length > 0 ? <TagChips tags={tags} onAdd={onAddTag} /> : undefined}
+      actions={<>
+        <SharedDashboardButton variant="secondary" size="sm" onClick={onClone} leadingIcon={<Copy className="w-3.5 h-3.5" />}>
+          Clone
+        </SharedDashboardButton>
+        <SharedDashboardButton variant="secondary" size="sm" onClick={onEdit} leadingIcon={<Pencil className="w-3.5 h-3.5" />}>
+          Edit
+        </SharedDashboardButton>
+      </>}
+      info={info}
+    />
   );
 }

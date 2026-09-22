@@ -14,7 +14,10 @@ import PositionGapAnalysisTab from "./position-gap-analysis-tab";
 import PositionAssessmentsTab from "./position-assessments-tab";
 import PositionNotesTab from "./position-notes-tab";
 import PositionFormDialog from "@/components/management/position-form-dialog";
-import { SharedDashboardButton } from "@/components/shares";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import KpiCardGrid from "@/components/crm/kpi-card-grid";
+import { ListChecks, ShieldCheck, Users, Layers } from "lucide-react";
+import type { KpiCardData } from "@/lib/crm/types";
 import type {
   PositionDetail,
   SkillRequirement,
@@ -66,6 +69,15 @@ export default function PositionDetailClient({ position, availableSkills, assign
     (a, b) => a.checklist_order - b.checklist_order
   );
 
+  /* KPI suy ra từ dữ liệu đã fetch ở page.tsx, không thêm truy vấn. */
+  const avgReq = requirements.length ? (requirements.reduce((a, r) => a + r.required_level, 0) / requirements.length).toFixed(1) : "0";
+  const kpis: KpiCardData[] = [
+    { label: "Yêu cầu kỹ năng", value: requirements.length, icon: ListChecks, badge: "Checklist" },
+    { label: "Bắt buộc", value: requirements.filter((r) => r.is_mandatory).length, icon: ShieldCheck, badge: "Phải đạt" },
+    { label: "Người được gán", value: assignedPersons.length, icon: Users, badge: "Nhân sự" },
+    { label: "Level yêu cầu TB", value: avgReq, icon: Layers, badge: "Mức cần đạt" },
+  ];
+
   const handleClone = useCallback(async () => {
     try {
       const res = await fetch("/api/positions", {
@@ -89,7 +101,7 @@ export default function PositionDetailClient({ position, availableSkills, assign
   }, [position, router]);
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-transparent pb-12">
       <AppNavbar />
       <PageContainer>
         <PageBreadcrumb breadcrumbs={[
@@ -108,24 +120,19 @@ export default function PositionDetailClient({ position, availableSkills, assign
           onAddTag={() => {}}
         />
 
-        {/* Tabs */}
-        <div className="flex gap-1 border-b border-border/10 mb-4 overflow-x-auto">
-          {TABS.map((t) => (
-            <SharedDashboardButton
-              key={t}
-              onClick={() => setTab(t)}
-              className={`px-4 py-2.5 text-sm font-medium whitespace-nowrap transition-colors border-b-2 ${
-                tab === t
-                  ? "border-border text-foreground"
-                  : "border-transparent text-muted-foreground hover:text-muted-foreground"
-              }`}
-            >
-              {TAB_LABELS[t]}
-            </SharedDashboardButton>
-          ))}
-        </div>
+        <div className="mb-6"><KpiCardGrid items={kpis} /></div>
 
-        {tab === "overview" && <PositionOverviewTab position={position} assignedCount={assignedPersons.length} reqCount={requirements.length} tags={tags} />}
+        <Tabs value={tab} onValueChange={(v) => setTab(v as Tab)}>
+          <TabsList className="mb-5 max-w-full overflow-x-auto justify-start [scrollbar-width:none]">
+            {TABS.map((t) => (
+              <TabsTrigger key={t} value={t}>
+                {TAB_LABELS[t]}{t === "skills" ? ` (${requirements.length})` : t === "persons" ? ` (${assignedPersons.length})` : ""}
+              </TabsTrigger>
+            ))}
+          </TabsList>
+        </Tabs>
+
+        {tab === "overview" && <PositionOverviewTab position={position} requirements={requirements} personLevels={assignedPersons.map((p) => p.current_level)} tags={tags} />}
         {tab === "skills" && <PositionSkillsTab position={position} requirements={requirements} availableSkills={availableSkills} />}
         {tab === "persons" && <PositionPersonsTab persons={assignedPersons} requirements={requirements} />}
         {tab === "gap-analysis" && <PositionGapAnalysisTab persons={assignedPersons} requirements={requirements} />}
