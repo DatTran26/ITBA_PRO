@@ -22,6 +22,7 @@ interface FilterBarProps {
   onSearchChange: (v: string) => void;
   filters: ActiveFilter[];
   onClearAll?: () => void;
+  searchPlaceholder?: string;
 }
 
 export default function FilterBar({
@@ -29,6 +30,7 @@ export default function FilterBar({
   onSearchChange,
   filters,
   onClearAll,
+  searchPlaceholder = "Search by name, email...",
 }: FilterBarProps) {
   const hasActive = search.length > 0 || filters.some((f) => f.value !== "");
 
@@ -39,7 +41,7 @@ export default function FilterBar({
         <Input
           value={search}
           onChange={(e) => onSearchChange(e.target.value)}
-          placeholder="Search by name, email..."
+          placeholder={searchPlaceholder}
           className="pl-10 h-11 bg-muted/40 border-border rounded-xl text-foreground placeholder:text-muted-foreground/60 focus-visible:ring-0 focus-visible:border-border/40 transition-all shadow-inner backdrop-blur-sm"
         />
       </div>
@@ -53,7 +55,12 @@ export default function FilterBar({
           onValueChange={(v) => filter.onChange(v === "__all__" ? "" : (v ?? ""))}
         >
           <SelectTrigger className="h-11 min-w-[150px] bg-muted/40 border-border rounded-xl text-foreground/90 hover:bg-muted/60 transition-all shadow-inner backdrop-blur-sm">
-            <SelectValue placeholder={filter.label} />
+            {/* Base UI in thẳng value ra trigger — map sentinel/value về label */}
+            <SelectValue>
+              {(v: string) => v === "__all__"
+                ? `All ${filter.label}`
+                : filter.options.find((o) => o.value === v)?.label ?? v}
+            </SelectValue>
           </SelectTrigger>
           <SelectContent className="bg-muted border-border rounded-xl overflow-hidden backdrop-blur-xl shadow-2xl">
             <SelectItem value="__all__" className="text-muted-foreground focus:bg-muted hover:bg-muted transition-colors">

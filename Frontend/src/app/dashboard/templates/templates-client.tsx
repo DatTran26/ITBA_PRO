@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -10,7 +10,13 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-import { Plus, Search, Briefcase, Clock, FileText, Trash2, Play, Globe, User } from "lucide-react";
+import { Plus, Briefcase, Clock, FileText, Trash2, Play, Globe, User, Users, Timer } from "lucide-react";
+import { SharedDashboardButton, SharedDashboardPageHeader } from "@/components/shares";
+import KpiCardGrid from "@/components/crm/kpi-card-grid";
+import FilterBar from "@/components/crm/filter-bar";
+import OverviewBand from "@/components/shares/overview-band";
+import { DonutStat, HBarList, colorAt } from "@/components/charts";
+import type { KpiCardData, FilterOption } from "@/lib/crm/types";
 
 interface Template {
     id: string;
@@ -40,6 +46,9 @@ const levelColors: Record<string, string> = {
     Senior: "bg-danger/10 text-danger border-border/20",
 };
 
+const LEVELS = ["Junior", "Mid", "Senior"];
+const levelOptions: FilterOption[] = LEVELS.map((l) => ({ value: l, label: l }));
+
 export default function TemplatesClient({ templates: initial, isAdmin, userId }: Props) {
     const router = useRouter();
     const [templates, setTemplates] = useState(initial);
@@ -48,10 +57,41 @@ export default function TemplatesClient({ templates: initial, isAdmin, userId }:
     const [creating, setCreating] = useState(false);
     const [form, setForm] = useState({ name: "", description: "", job_role: "", level: "Junior", question_count: 10, time_limit: 30, target_type: "candidate", job_description: "", test_description: "" });
 
+    const [levelFilter, setLevelFilter] = useState("");
+
     const filtered = templates.filter((t) =>
-        t.name.toLowerCase().includes(search.toLowerCase()) ||
-        t.job_role.toLowerCase().includes(search.toLowerCase())
+        (!levelFilter || t.level === levelFilter) &&
+        (t.name.toLowerCase().includes(search.toLowerCase()) ||
+            t.job_role.toLowerCase().includes(search.toLowerCase()))
     );
+
+    /* KPI + dải tổng quan: suy ra từ `templates` đã fetch, không thêm truy vấn. */
+    const kpis: KpiCardData[] = useMemo(() => {
+        const avg = templates.length ? Math.round(templates.reduce((s, t) => s + t.time_limit, 0) / templates.length) : 0;
+        return [
+            { label: "Tổng template", value: templates.length, icon: FileText },
+            { label: "Global", value: templates.filter((t) => t.is_global).length, icon: Globe },
+            { label: "Của tôi", value: templates.filter((t) => t.created_by === userId).length, icon: User },
+            { label: "Cho ứng viên", value: templates.filter((t) => t.target_type === "candidate").length, icon: Users },
+            { label: "Cho nhân viên", value: templates.filter((t) => t.target_type === "employee").length, icon: Briefcase },
+            { label: "Thời lượng TB", value: `${avg}m`, icon: Timer },
+        ];
+    }, [templates, userId]);
+
+    const byLevel = useMemo(() => LEVELS.map((l, i) => ({
+        label: l, value: templates.filter((t) => t.level === l).length, color: colorAt(i),
+    })).filter((s) => s.value > 0), [templates]);
+
+    const byTarget = useMemo(() => [
+        { label: "Ứng viên", value: templates.filter((t) => t.target_type === "candidate").length, color: "var(--primary)" },
+        { label: "Nhân viên", value: templates.filter((t) => t.target_type === "employee").length, color: "var(--success)" },
+    ].filter((s) => s.value > 0), [templates]);
+
+    const byRole = useMemo(() => {
+        const counts = new Map<string, number>();
+        for (const t of templates) counts.set(t.job_role, (counts.get(t.job_role) ?? 0) + 1);
+        return [...counts].map(([label, value]) => ({ label, value })).sort((a, b) => b.value - a.value);
+    }, [templates]);
 
     async function handleCreate() {
         if (!form.name || !form.job_role) { toast.error("Name and job role are required"); return; }
@@ -92,34 +132,50 @@ export default function TemplatesClient({ templates: initial, isAdmin, userId }:
     }
 
     return (
-        <div className="space-y-6">
-            {/* Header */}
-            <div className="flex items-center justify-between">
-                <div>
-                    <h1 className="text-2xl font-semibold text-foreground font-display">Assessment Templates</h1>
-                    <p className="text-sm text-muted-foreground mt-1">{templates.length} template{templates.length !== 1 ? "s" : ""} available</p>
-                </div>
-                <Button onClick={() => setShowCreate(true)} className="bg-primary hover:bg-primary text-white cursor-pointer">
-                    <Plus className="w-4 h-4 mr-2" /> New Template
-                </Button>
-            </div>
+        <div className="space-y-6 pb-12 text-foreground">
+            <SharedDashboardPageHeader
+                className="mb-10"
+                title="Assessment Templates"
+                description="Mẫu đề đánh giá tái sử dụng cho ứng viên và nhân viên"
+                actions={(
+                    <SharedDashboardButton
+                        onClick={() => setShowCreate(true)}
+                        className="bg-primary hover:bg-primary text-white h-12 px-8 rounded-xl shadow-lg shadow-primary/20 transition-all font-semibold gap-2 border-0"
+                        leadingIcon={<Plus className="h-5 w-5" />}
+                    >
+                        New Template
+                    </SharedDashboardButton>
+                )}
+            />
 
-            {/* Search */}
-            <div className="relative max-w-sm">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search templates..." className="pl-9 bg-muted border-border/15 text-foreground" />
-            </div>
+            <KpiCardGrid items={kpis} />
+
+            {templates.length > 0 && (
+                <OverviewBand className="mt-6">
+                    <DonutStat title="Theo cấp độ" slices={byLevel} centerLabel="Mẫu" />
+                    <DonutStat title="Theo đối tượng" slices={byTarget} centerLabel="Mẫu" />
+                    <HBarList title="Theo vị trí" items={byRole} />
+                </OverviewBand>
+            )}
+
+            <FilterBar
+                search={search}
+                onSearchChange={setSearch}
+                searchPlaceholder="Tìm theo tên, vị trí..."
+                filters={[{ key: "level", label: "Level", options: levelOptions, value: levelFilter, onChange: setLevelFilter }]}
+                onClearAll={() => { setSearch(""); setLevelFilter(""); }}
+            />
 
             {/* Grid */}
             {filtered.length === 0 ? (
-                <Card className="border-border/10 bg-muted p-12 text-center">
+                <Card className="border-border bg-card p-12 text-center">
                     <FileText className="w-10 h-10 text-muted-foreground mx-auto mb-3" />
                     <p className="text-muted-foreground">{search ? "No templates match your search" : "No templates yet. Create one to get started."}</p>
                 </Card>
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     {filtered.map((t) => (
-                        <Card key={t.id} className="border-border/10 bg-muted hover:bg-accent transition-colors group">
+                        <Card key={t.id} className="border-border bg-card hover:bg-accent/50 transition-colors group">
                             <CardHeader className="pb-2">
                                 <div className="flex items-start justify-between gap-2">
                                     <CardTitle className="text-sm font-medium text-foreground/90 truncate">{t.name}</CardTitle>
