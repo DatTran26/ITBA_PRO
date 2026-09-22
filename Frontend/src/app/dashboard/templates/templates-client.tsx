@@ -10,12 +10,12 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-import { Plus, Briefcase, Clock, FileText, Trash2, Play, Globe, User, Users, Timer } from "lucide-react";
+import { Plus, Briefcase, Clock, FileText, Trash2, Play, Globe, User, Users, Timer, LayoutTemplate } from "lucide-react";
 import { SharedDashboardButton, SharedDashboardPageHeader } from "@/components/shares";
 import KpiCardGrid from "@/components/crm/kpi-card-grid";
 import FilterBar from "@/components/crm/filter-bar";
 import OverviewBand from "@/components/shares/overview-band";
-import { DonutStat, HBarList, colorAt } from "@/components/charts";
+import { DonutStat, HBarList, TrendArea, colorAt } from "@/components/charts";
 import type { KpiCardData, FilterOption } from "@/lib/crm/types";
 
 interface Template {
@@ -69,12 +69,12 @@ export default function TemplatesClient({ templates: initial, isAdmin, userId }:
     const kpis: KpiCardData[] = useMemo(() => {
         const avg = templates.length ? Math.round(templates.reduce((s, t) => s + t.time_limit, 0) / templates.length) : 0;
         return [
-            { label: "Tổng template", value: templates.length, icon: FileText },
-            { label: "Global", value: templates.filter((t) => t.is_global).length, icon: Globe },
-            { label: "Của tôi", value: templates.filter((t) => t.created_by === userId).length, icon: User },
-            { label: "Cho ứng viên", value: templates.filter((t) => t.target_type === "candidate").length, icon: Users },
-            { label: "Cho nhân viên", value: templates.filter((t) => t.target_type === "employee").length, icon: Briefcase },
-            { label: "Thời lượng TB", value: `${avg}m`, icon: Timer },
+            { label: "Tổng template", value: templates.length, icon: FileText, badge: "Toàn bộ" },
+            { label: "Global", value: templates.filter((t) => t.is_global).length, icon: Globe, badge: "Dùng chung" },
+            { label: "Của tôi", value: templates.filter((t) => t.created_by === userId).length, icon: User, badge: "Tự tạo" },
+            { label: "Cho ứng viên", value: templates.filter((t) => t.target_type === "candidate").length, icon: Users, badge: "Tuyển dụng" },
+            { label: "Cho nhân viên", value: templates.filter((t) => t.target_type === "employee").length, icon: Briefcase, badge: "Nội bộ" },
+            { label: "Thời lượng TB", value: `${avg}m`, icon: Timer, badge: "Mỗi bài" },
         ];
     }, [templates, userId]);
 
@@ -82,10 +82,20 @@ export default function TemplatesClient({ templates: initial, isAdmin, userId }:
         label: l, value: templates.filter((t) => t.level === l).length, color: colorAt(i),
     })).filter((s) => s.value > 0), [templates]);
 
-    const byTarget = useMemo(() => [
-        { label: "Ứng viên", value: templates.filter((t) => t.target_type === "candidate").length, color: "var(--primary)" },
-        { label: "Nhân viên", value: templates.filter((t) => t.target_type === "employee").length, color: "var(--success)" },
-    ].filter((s) => s.value > 0), [templates]);
+    /* 6 tháng gần nhất theo created_at, tháng trống vẫn hiện 0 để đường liền mạch. */
+    const byMonth = useMemo(() => {
+        const now = new Date();
+        return Array.from({ length: 6 }, (_, k) => {
+            const d = new Date(now.getFullYear(), now.getMonth() - 5 + k, 1);
+            return {
+                label: `T${d.getMonth() + 1}`,
+                value: templates.filter((t) => {
+                    const c = new Date(t.created_at);
+                    return c.getFullYear() === d.getFullYear() && c.getMonth() === d.getMonth();
+                }).length,
+            };
+        });
+    }, [templates]);
 
     const byRole = useMemo(() => {
         const counts = new Map<string, number>();
@@ -135,13 +145,15 @@ export default function TemplatesClient({ templates: initial, isAdmin, userId }:
         <div className="space-y-6 pb-12 text-foreground">
             <SharedDashboardPageHeader
                 className="mb-10"
-                title="Assessment Templates"
+                title="Templates"
+                icon={LayoutTemplate}
+                badge={{ label: `${templates.length} mẫu` }}
                 description="Mẫu đề đánh giá tái sử dụng cho ứng viên và nhân viên"
                 actions={(
                     <SharedDashboardButton
+                        variant="primary"
                         onClick={() => setShowCreate(true)}
-                        className="bg-primary hover:bg-primary text-white h-12 px-8 rounded-xl shadow-lg shadow-primary/20 transition-all font-semibold gap-2 border-0"
-                        leadingIcon={<Plus className="h-5 w-5" />}
+                        leadingIcon={<Plus className="h-4 w-4" />}
                     >
                         New Template
                     </SharedDashboardButton>
@@ -152,9 +164,9 @@ export default function TemplatesClient({ templates: initial, isAdmin, userId }:
 
             {templates.length > 0 && (
                 <OverviewBand className="mt-6">
-                    <DonutStat title="Theo cấp độ" slices={byLevel} centerLabel="Mẫu" />
-                    <DonutStat title="Theo đối tượng" slices={byTarget} centerLabel="Mẫu" />
-                    <HBarList title="Theo vị trí" items={byRole} />
+                    <DonutStat title="Cơ cấu cấp độ" subtitle="Junior, Mid, Senior" tag={{ label: "Cấp độ" }} slices={byLevel} centerLabel="Mẫu" />
+                    <TrendArea title="Template mới" subtitle="Số mẫu tạo trong 6 tháng gần nhất" tag={{ label: "6 tháng", tone: "teal" }} points={byMonth} color={colorAt(2)} />
+                    <HBarList title="Theo vị trí" subtitle="Vị trí có nhiều mẫu nhất" tag={{ label: "Top vị trí", tone: "violet" }} items={byRole} />
                 </OverviewBand>
             )}
 

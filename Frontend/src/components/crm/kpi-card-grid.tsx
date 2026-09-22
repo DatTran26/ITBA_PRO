@@ -9,9 +9,9 @@ interface KpiCardGridProps {
 
 export default function KpiCardGrid({ items }: KpiCardGridProps) {
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-6 gap-4">
+    <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3.5">
       {items.map((item, index) => (
-        <KpiCard key={index} data={item} />
+        <KpiCard key={index} data={item} index={index} />
       ))}
     </div>
   );
