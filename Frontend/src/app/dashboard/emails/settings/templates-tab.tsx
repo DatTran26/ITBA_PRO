@@ -64,8 +64,10 @@ export default function TemplatesTab({ canEdit }: { canEdit: boolean }) {
                         className="rounded-xl border border-border/10 bg-background overflow-hidden"
                     >
                         {/* Accordion header */}
-                        <SharedDashboardButton
-                            className="w-full flex items-center justify-between px-5 py-4 text-left hover:bg-muted/60 transition-colors cursor-pointer"
+                        <button
+                            type="button"
+                            aria-expanded={isOpen}
+                            className="w-full flex items-center justify-between gap-4 px-5 py-4 text-left hover:bg-muted/50 transition-colors cursor-pointer"
                             onClick={() => setActiveType(isOpen ? null : type)}
                         >
                             <div>
@@ -81,7 +83,7 @@ export default function TemplatesTab({ canEdit }: { canEdit: boolean }) {
                                     isOpen ? "rotate-180" : ""
                                 }`}
                             />
-                        </SharedDashboardButton>
+                        </button>
 
                         {/* Accordion body */}
                         {isOpen && (

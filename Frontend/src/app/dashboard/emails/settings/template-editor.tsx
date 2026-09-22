@@ -191,11 +191,7 @@ export default function TemplateEditor({ template, canEdit, onSaved }: TemplateE
             {/* Save - right-aligned green */}
             {canEdit && (
                 <div className="flex justify-end pt-1">
-                    <SharedDashboardButton
-                        onClick={handleSave}
-                        disabled={saving}
-                        className="px-5 py-2 bg-emerald-500 hover:bg-emerald-600 text-foreground text-sm font-medium rounded-lg transition-colors disabled:opacity-50"
-                    >
+                    <SharedDashboardButton variant="primary" onClick={handleSave} disabled={saving}>
                         {saving ? "Saving..." : "Save"}
                     </SharedDashboardButton>
                 </div>

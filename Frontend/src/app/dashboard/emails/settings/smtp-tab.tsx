@@ -11,13 +11,13 @@ interface SmtpTabProps {
 }
 
 const inputClass =
-    "w-full rounded-lg bg-background border border-border/15 text-foreground text-sm px-3 py-2 placeholder-muted-foreground focus:outline-none focus:border-border/50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors";
+    "w-full rounded-lg bg-card border border-border text-foreground text-sm px-3 py-2 placeholder:text-muted-foreground/60 focus:outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/15 disabled:bg-muted/40 disabled:text-muted-foreground disabled:cursor-not-allowed transition-colors";
 
 const labelClass = "block text-xs font-medium text-muted-foreground mb-1.5 uppercase tracking-wide";
 
 function Section({ title, description, children }: { title: string; description?: string; children: React.ReactNode }) {
     return (
-        <div className="rounded-xl border border-border/10 bg-background overflow-hidden">
+        <div className="rounded-2xl border border-border bg-card overflow-hidden shadow-[0_2px_14px_color-mix(in_srgb,var(--primary)_8%,transparent)]">
             <div className="px-5 py-4 border-b border-border/8">
                 <p className="text-sm font-medium text-foreground">{title}</p>
                 {description && <p className="text-xs text-muted-foreground mt-0.5">{description}</p>}
@@ -101,7 +101,7 @@ export default function SmtpTab({ config }: SmtpTabProps) {
     return (
         <div className="space-y-4 max-w-2xl">
             {/* Enable toggle */}
-            <div className="rounded-xl border border-border/10 bg-background px-5 py-4">
+            <div className="rounded-2xl border border-border bg-card px-5 py-4 shadow-[0_2px_14px_color-mix(in_srgb,var(--primary)_8%,transparent)]">
                 <div className="flex items-center justify-between gap-4">
                     <div>
                         <p className="text-sm font-medium text-foreground">Enable custom SMTP</p>
@@ -109,13 +109,13 @@ export default function SmtpTab({ config }: SmtpTabProps) {
                             Use your own SMTP server instead of the default provider
                         </p>
                     </div>
-                    <SharedDashboardButton
+                    <button
                         type="button"
                         role="switch"
                         aria-checked={enabled}
                         onClick={() => setEnabled((v) => !v)}
                         className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors focus-visible:outline-none ${
-                            enabled ? "bg-success" : "bg-muted"
+                            enabled ? "bg-success" : "bg-muted-foreground/30"
                         }`}
                     >
                         <span
@@ -123,7 +123,7 @@ export default function SmtpTab({ config }: SmtpTabProps) {
                                 enabled ? "translate-x-5" : "translate-x-0"
                             }`}
                         />
-                    </SharedDashboardButton>
+                    </button>
                 </div>
             </div>
 
