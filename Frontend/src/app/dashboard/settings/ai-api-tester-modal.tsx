@@ -60,10 +60,10 @@ export function AiApiTesterModal() {
             </DialogTrigger>
 
             <DialogContent
-                className="!max-w-none w-[92vw] max-w-[960px] sm:max-w-[960px] bg-background border border-white/[0.08] text-foreground p-0 overflow-hidden gap-0"
+                className="!max-w-none w-[92vw] max-w-[960px] sm:max-w-[960px] bg-background border border-border text-foreground p-0 overflow-hidden gap-0"
             >
                 {/* Header */}
-                <DialogHeader className="px-6 py-4 bg-gradient-to-r from-success/8 to-primary/4 border-b border-white/[0.06]">
+                <DialogHeader className="px-6 py-4 bg-gradient-to-r from-success/8 to-primary/4 border-b border-border">
                     <DialogTitle className="flex items-center gap-2.5 text-[15px] font-bold text-foreground">
                         <div className="w-7 h-7 rounded-lg bg-success/15 border border-border/25 flex items-center justify-center">
                             <Zap className="w-3.5 h-3.5 text-success" />
@@ -77,7 +77,7 @@ export function AiApiTesterModal() {
                 <div className="grid grid-cols-[1fr_1.2fr] min-h-[460px]">
 
                     {/* LEFT - Result */}
-                    <div className="flex flex-col gap-4 p-6 border-r border-white/[0.06]">
+                    <div className="flex flex-col gap-4 p-6 border-r border-border">
                         <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Result</p>
 
                         {!result && !loading && (
@@ -142,7 +142,7 @@ export function AiApiTesterModal() {
                                 {/* Response */}
                                 <pre className={`text-xs font-mono whitespace-pre-wrap break-words leading-relaxed p-3.5 rounded-xl flex-1 overflow-y-auto max-h-64 ${
                                     result.success
-                                        ? "bg-background text-primary border border-white/[0.04]"
+                                        ? "bg-background text-primary border border-border"
                                         : "bg-danger/[0.05] text-danger border border-border/15"
                                 }`}>
                                     {result.success ? result.response : result.error}

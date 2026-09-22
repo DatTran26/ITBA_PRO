@@ -99,20 +99,20 @@ function LayoutCard({
     return (
         <SharedDashboardButton
             type="button"
-            onClick={onSelect}
-            disabled={disabled || active}
+            onClick={active ? undefined : onSelect}
+            disabled={disabled}
             aria-pressed={active}
             aria-label={`Switch to ${label}`}
             className={`p-4 rounded-xl border-2 text-left transition-all disabled:cursor-default ${
                 active
-                    ? "border-border bg-primary/10"
-                    : "border-border/20 hover:border-border/40 hover:bg-primary/5 cursor-pointer"
+                    ? "border-primary/40 bg-primary/10"
+                    : "border-border hover:border-primary/30 hover:bg-primary/5 cursor-pointer"
             }`}
             data-layout={layout}
         >
             <div className="flex items-center gap-3 mb-1">
                 <Icon className={`w-5 h-5 ${active ? "text-primary" : "text-muted-foreground"}`} />
-                <span className="text-sm font-medium text-foreground">{label}</span>
+                <span className="text-sm font-bold text-foreground">{label}</span>
                 {active && (
                     <span className="ml-auto text-[10px] text-primary uppercase tracking-wider font-semibold">
                         Active

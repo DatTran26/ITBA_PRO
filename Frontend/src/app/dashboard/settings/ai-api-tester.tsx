@@ -45,11 +45,11 @@ export function AiApiTester() {
     }
 
     return (
-        <div className="rounded-2xl border border-white/[0.06] bg-card overflow-hidden shadow-xl shadow-black/20">
+        <div className="rounded-2xl border border-border bg-card overflow-hidden shadow-[0_2px_14px_color-mix(in_srgb,var(--primary)_8%,transparent)]">
             {/* Header - always visible */}
             <SharedDashboardButton
                 onClick={() => setIsOpen(!isOpen)}
-                className="w-full flex items-center justify-between px-5 py-4 bg-gradient-to-r from-success/10 to-primary/5 border-b border-white/[0.04] hover:from-success/15 transition-all"
+                className="w-full flex items-center justify-between px-5 py-4 bg-gradient-to-r from-success/10 to-primary/5 border-b border-border hover:from-success/15 transition-all"
             >
                 <div className="flex items-center gap-3">
                     <div className="w-8 h-8 rounded-xl flex items-center justify-center shadow-lg" style={{ backgroundColor: "color-mix(in srgb, var(--success) 9%, transparent)", border: "1px solid color-mix(in srgb, var(--success) 19%, transparent)" }}>

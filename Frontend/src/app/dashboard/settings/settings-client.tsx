@@ -1,5 +1,4 @@
 "use client";
-import { alpha } from "@/lib/utils";
 
 import { useState, useRef, useCallback } from "react";
 import { toast } from "sonner";
@@ -9,17 +8,22 @@ import PageBreadcrumb from "@/components/ui/page-breadcrumb";
 import PageContainer from "@/components/ui/page-container";
 import { PageTransition } from "@/components/ui/motion-wrapper";
 import { SettingRow, type SystemSetting } from "./setting-row";
+import { SharedDashboardPageHeader } from "@/components/shares";
+import FormSection, { FormSectionNav } from "@/components/shares/form-section";
+import type { ToneName } from "@/lib/ui/tones";
 import UiLayoutToggle from "./ui-layout-toggle";
 import type { UiLayout } from "@/lib/settings/ui-layout";
 
 const APPEARANCE_CATEGORY = "appearance";
 
-const CATEGORY_META: Record<string, { icon: React.ElementType; color: string; gradient: string }> = {
-    ai:         { icon: Brain,         color: "var(--ai)", gradient: "from-ai/20 to-primary/5" },
-    assessment: { icon: ClipboardList, color: "var(--primary)", gradient: "from-primary/20 to-success/5" },
-    scoring:    { icon: BarChart2,     color: "var(--success)", gradient: "from-success/20 to-primary/5" },
-    appearance: { icon: Palette,       color: "var(--primary)", gradient: "from-primary/20 to-ai/5" },
+const CATEGORY_META: Record<string, { icon: typeof Settings; tone: ToneName; label: string }> = {
+    ai:         { icon: Brain,         tone: "violet", label: "AI" },
+    assessment: { icon: ClipboardList, tone: "blue",   label: "Assessment" },
+    scoring:    { icon: BarChart2,     tone: "teal",   label: "Scoring" },
+    appearance: { icon: Palette,       tone: "pink",   label: "Appearance" },
+    general:    { icon: Settings,      tone: "orange", label: "General" },
 };
+const metaOf = (cat: string) => CATEGORY_META[cat] ?? { icon: Settings, tone: "gold" as ToneName, label: cat };
 
 type SaveState = "idle" | "saving" | "saved";
 
@@ -79,92 +83,66 @@ export default function SettingsClient({
     const currentUiLayout: UiLayout = uiLayoutSetting?.value === "sidebar" ? "sidebar" : "topnav";
 
     return (
-        <PageTransition className="min-h-screen bg-background text-foreground font-body">
+        <PageTransition className="min-h-screen bg-transparent text-foreground font-body pb-12">
             <AppNavbar user={user} />
             <PageContainer>
                 <PageBreadcrumb breadcrumbs={[{ label: "Dashboard", href: "/dashboard" }, { label: "Settings" }]} />
 
-                {/* Page header */}
-                <div className="flex items-center justify-between mb-8">
-                    <div className="flex items-center gap-4">
-                        <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-primary/30 to-ai/10 border border-border/20 flex items-center justify-center shadow-lg shadow-primary/10">
-                            <Settings className="w-5 h-5 text-primary" />
+                <SharedDashboardPageHeader
+                    title="System Settings"
+                    icon={Settings}
+                    badge={{ label: `${visibleCategoryKeys.length} nhóm` }}
+                    description="Cấu hình hành vi nền tảng và tham số AI. Thay đổi được lưu tự động."
+                    actions={(
+                        <div className="h-8 flex items-center" aria-live="polite">
+                            {saveState === "saving" && (
+                                <span className="flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold bg-primary/10 text-primary">
+                                    <Loader2 className="w-3 h-3 animate-spin" /> Đang lưu
+                                </span>
+                            )}
+                            {saveState === "saved" && (
+                                <span className="flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold bg-success/10 text-success">
+                                    <CheckCircle2 className="w-3 h-3" /> Đã lưu
+                                </span>
+                            )}
                         </div>
-                        <div>
-                            <h1 className="text-2xl font-display font-bold bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text text-transparent">
-                                System Settings
-                            </h1>
-                            <p className="text-sm text-muted-foreground mt-0.5">Configure platform behaviour and AI parameters</p>
-                        </div>
-                    </div>
-
-                    {/* Save state indicator */}
-                    <div className="h-8 flex items-center">
-                        {saveState === "saving" && (
-                            <span className="flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold bg-primary/10 text-primary border border-border/20 animate-pulse">
-                                <Loader2 className="w-3 h-3 animate-spin" /> Saving…
-                            </span>
-                        )}
-                        {saveState === "saved" && (
-                            <span className="flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold bg-success/10 text-success border border-border/20">
-                                <CheckCircle2 className="w-3 h-3" /> Saved
-                            </span>
-                        )}
-                    </div>
-                </div>
-
-                {/* Category cards */}
-                <div className="flex flex-col gap-5">
-                    {visibleCategoryKeys.map((cat) => {
-                        const meta = CATEGORY_META[cat] ?? { icon: Settings, color: "var(--muted-foreground)", gradient: "from-muted-foreground/10 to-transparent" };
-                        const Icon = meta.icon;
-                        const isAppearance = cat === APPEARANCE_CATEGORY;
-                        return (
-                            <div
-                                key={cat}
-                                className="rounded-2xl border border-white/[0.06] bg-card overflow-hidden shadow-xl shadow-black/20"
-                            >
-                                {/* Gradient accent header */}
-                                <div className={`bg-gradient-to-r ${meta.gradient} px-5 py-4 border-b border-white/[0.04]`}>
-                                    <div className="flex items-center gap-3">
-                                        <div
-                                            className="w-8 h-8 rounded-xl flex items-center justify-center shadow-lg"
-                                            style={{ backgroundColor: `${alpha(meta.color, 9)}`, border: `1px solid ${alpha(meta.color, 19)}` }}
-                                        >
-                                            <Icon className="w-4 h-4" style={{ color: meta.color }} />
-                                        </div>
-                                        <div>
-                                            <h2 className="text-sm font-bold capitalize tracking-wide" style={{ color: meta.color }}>
-                                                {isAppearance ? "Appearance" : cat}
-                                            </h2>
-                                            <p className="text-[11px] text-muted-foreground">
-                                                {isAppearance ? "Navigation Layout" : `${categories[cat].length} settings`}
-                                            </p>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                {/* Custom appearance UI for super_admin; generic rows for others */}
-                                {isAppearance ? (
-                                    <UiLayoutToggle currentValue={currentUiLayout} />
-                                ) : (
-                                    <div className="px-1 py-1">
-                                        {categories[cat].map((setting) => (
-                                            <SettingRow
-                                                key={setting.key}
-                                                setting={setting}
-                                                onChange={handleChange}
-                                            />
-                                        ))}
-                                    </div>
-                                )}
-                            </div>
-                        );
-                    })}
-
-                    {visibleCategoryKeys.length === 0 && (
-                        <p className="text-center text-muted-foreground py-20">No settings found.</p>
                     )}
+                />
+
+                <div className="grid gap-6 xl:grid-cols-[13rem_minmax(0,1fr)]">
+                    <FormSectionNav
+                        items={visibleCategoryKeys.map((cat) => ({ id: `settings-${cat}`, label: metaOf(cat).label, icon: metaOf(cat).icon, tone: metaOf(cat).tone }))}
+                    />
+
+                    <div className="flex flex-col gap-5 max-w-4xl">
+                        {visibleCategoryKeys.map((cat) => {
+                            const meta = metaOf(cat);
+                            const isAppearance = cat === APPEARANCE_CATEGORY;
+                            return (
+                                <FormSection
+                                    key={cat}
+                                    id={`settings-${cat}`}
+                                    icon={meta.icon}
+                                    tone={meta.tone}
+                                    title={meta.label}
+                                    subtitle={isAppearance ? "Bố cục điều hướng" : `${categories[cat].length} thiết lập`}
+                                    bodyClassName={isAppearance ? "p-0" : undefined}
+                                >
+                                    {isAppearance ? (
+                                        <UiLayoutToggle currentValue={currentUiLayout} />
+                                    ) : (
+                                        categories[cat].map((setting) => (
+                                            <SettingRow key={setting.key} setting={setting} onChange={handleChange} />
+                                        ))
+                                    )}
+                                </FormSection>
+                            );
+                        })}
+
+                        {visibleCategoryKeys.length === 0 && (
+                            <p className="text-center text-muted-foreground py-20">Chưa có thiết lập nào.</p>
+                        )}
+                    </div>
                 </div>
             </PageContainer>
         </PageTransition>

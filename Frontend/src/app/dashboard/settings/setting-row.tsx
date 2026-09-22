@@ -33,15 +33,15 @@ const inputCls = [
 ].join(" ");
 
 const rowCls = [
-    "group relative flex items-center justify-between",
-    "px-5 py-4 border-b border-white/[0.04] last:border-0",
-    "hover:bg-white/[0.025] transition-colors rounded-xl",
+    "group relative flex flex-col items-stretch gap-3 sm:flex-row sm:items-center sm:justify-between",
+    "px-5 py-4 border-b border-border last:border-0",
+    "hover:bg-muted/50 transition-colors",
 ].join(" ");
 
 function SettingLabel({ label, description }: { label: string; description: string | null }) {
     return (
-        <div className="flex-1 min-w-0 pr-6">
-            <p className="text-sm font-semibold text-primary">{label}</p>
+        <div className="flex-1 min-w-0 sm:pr-6">
+            <p className="text-sm font-bold text-foreground">{label}</p>
             {description && <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">{description}</p>}
         </div>
     );
@@ -75,8 +75,8 @@ export function SettingRow({
     if (setting.input_type === "password") {
         return (
             <div className={rowCls}>
-                <div className="flex-1 min-w-0 pr-6">
-                    <p className="text-sm font-semibold text-primary">{setting.label}</p>
+                <div className="flex-1 min-w-0 sm:pr-6">
+                    <p className="text-sm font-bold text-foreground">{setting.label}</p>
                     {setting.description && (
                         <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">{setting.description}</p>
                     )}
@@ -104,7 +104,7 @@ export function SettingRow({
                         onCut={(e) => e.preventDefault()}
                         onDragStart={(e) => e.preventDefault()}
                         onChange={(e) => handleChange(e.target.value)}
-                        className={`${inputCls} w-72 pr-9`}
+                        className={`${inputCls} w-full sm:w-72 pr-9`}
                     />
                     <SharedDashboardButton
                         type="button"
@@ -146,7 +146,7 @@ export function SettingRow({
             <div className={rowCls}>
                 <SettingLabel label={setting.label} description={setting.description} />
                 <Select value={localValue} onValueChange={(v) => handleChange(v ?? localValue)}>
-                    <SelectTrigger className="w-48 bg-background/60 border-border/15 text-foreground h-9 text-sm rounded-lg focus:border-border/50 focus:ring-2 focus:ring-primary/15 transition-all">
+                    <SelectTrigger className="w-full sm:w-48 bg-background/60 border-border/15 text-foreground h-9 text-sm rounded-lg focus:border-border/50 focus:ring-2 focus:ring-primary/15 transition-all">
                         <SelectValue />
                     </SelectTrigger>
                     <SelectContent className="bg-background border-border/15 text-foreground rounded-xl shadow-2xl">
@@ -169,7 +169,7 @@ export function SettingRow({
                 value={localValue}
                 type={setting.input_type === "number" ? "number" : "text"}
                 onChange={(e) => handleChange(e.target.value)}
-                className={`${inputCls} w-48 text-right`}
+                className={`${inputCls} w-full sm:w-48 text-right`}
             />
         </div>
     );
