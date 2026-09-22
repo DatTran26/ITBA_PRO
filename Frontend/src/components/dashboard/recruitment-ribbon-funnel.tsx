@@ -159,7 +159,7 @@ export default function RecruitmentRibbonFunnel({
           <div>
             <span className="text-xs font-bold text-[#6b8ca0] block">Điểm AI trung bình</span>
             <span className="text-xl font-extrabold text-[#264e6b] tabular-nums">
-              {avgAiScore > 0 ? avgAiScore : 78}
+              {avgAiScore}
             </span>
           </div>
           <svg className="w-16 h-8 text-[#7a5cf0] shrink-0" viewBox="0 0 64 32" fill="none">
@@ -177,7 +177,7 @@ export default function RecruitmentRibbonFunnel({
           <div>
             <span className="text-xs font-bold text-[#6b8ca0] block">Tỷ lệ nhận Offer</span>
             <span className="text-xl font-extrabold text-[#264e6b] tabular-nums">
-              {offerAcceptanceRate > 0 ? `${offerAcceptanceRate}%` : "88%"}
+              {`${offerAcceptanceRate}%`}
             </span>
           </div>
           <svg className="w-16 h-8 text-[#2e7d64] shrink-0" viewBox="0 0 64 32" fill="none">
@@ -213,7 +213,7 @@ export default function RecruitmentRibbonFunnel({
           <div>
             <span className="text-xs font-bold text-[#6b8ca0] block">Lịch phỏng vấn</span>
             <span className="text-xl font-extrabold text-[#264e6b] tabular-nums">
-              {interviewsCount > 0 ? interviewsCount : (byStage["INTERVIEW_SCHEDULED"] ?? 5)}
+              {interviewsCount > 0 ? interviewsCount : (byStage["INTERVIEW_SCHEDULED"] ?? 0)}
             </span>
           </div>
           <svg className="w-16 h-8 text-[#0077cc] shrink-0" viewBox="0 0 64 32" fill="none">
