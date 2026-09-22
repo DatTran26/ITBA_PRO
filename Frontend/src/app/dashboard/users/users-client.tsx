@@ -21,14 +21,18 @@ import {
     XCircle,
     ArrowLeft,
     Copy,
-    Check
+    Check,
+    Briefcase,
+    CalendarCheck,
+    UserCog,
+    KeyRound
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { PageTransition, FadeIn, StaggerContainer, StaggerItem } from "@/components/ui/motion-wrapper";
+import { PageTransition, StaggerContainer, StaggerItem } from "@/components/ui/motion-wrapper";
 import {
     Dialog,
     DialogContent,
@@ -53,6 +57,13 @@ import Link from "next/link";
 import AppNavbar from "@/components/ui/app-navbar";
 import PageBreadcrumb from "@/components/ui/page-breadcrumb";
 import PageContainer from "@/components/ui/page-container";
+import { SharedDashboardPageHeader } from "@/components/shares";
+import KpiCardGrid from "@/components/crm/kpi-card-grid";
+import OverviewBand from "@/components/shares/overview-band";
+import { DonutStat, HBarList, TrendArea, colorAt } from "@/components/charts";
+import { countByMonth } from "@/lib/ui/series";
+import { toneByName, type ToneName } from "@/lib/ui/tones";
+import type { KpiCardData } from "@/lib/crm/types";
 
 interface UserProfile {
     id: string;
@@ -72,13 +83,14 @@ const ROLE_OPTIONS = [
     { value: "admin", label: "Admin", description: "Full admin access" },
 ] as const;
 
-const ROLE_BADGE_CLASS: Record<string, string> = {
-    super_admin: "bg-rose-500/10 text-rose-400 border-rose-500/20",
-    admin: "bg-primary/10 text-primary border-border/20",
-    leader: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20",
-    hr: "bg-amber-500/10 text-amber-400 border-amber-500/20",
-    interviewer: "bg-cyan-500/10 text-cyan-400 border-cyan-500/20",
-    recruiter: "bg-muted-foreground/5 text-muted-foreground border-border/10",
+/* Tông cố định theo vai trò — cùng vai trò luôn cùng màu ở pill và biểu đồ. */
+const ROLE_ORDER = ["super_admin", "admin", "leader", "hr", "interviewer", "recruiter"] as const;
+const ROLE_TONE: Record<string, ToneName> = {
+    super_admin: "pink", admin: "blue", leader: "teal", hr: "orange", interviewer: "violet", recruiter: "gold",
+};
+const roleTone = (role: string) => toneByName(ROLE_TONE[role] ?? "gold");
+const ROLE_LABEL: Record<string, string> = {
+    super_admin: "Super Admin", admin: "Admin", leader: "Leader", hr: "HR", interviewer: "Interviewer", recruiter: "Recruiter",
 };
 
 const ROLE_ACCESS_LABEL: Record<string, string> = {
@@ -129,6 +141,23 @@ export default function UsersClient({
         setCopied(true);
         setTimeout(() => setCopied(false), 2000);
     };
+
+    /* KPI + dải tổng quan: suy ra từ `users` đã có, không thêm truy vấn. */
+    const countRole = (...roles: string[]) => users.filter((u) => roles.includes(u.role)).length;
+    const kpis: KpiCardData[] = [
+        { label: "Tổng tài khoản", value: users.length, icon: Users, badge: "Toàn hệ thống" },
+        { label: "Admin", value: countRole("super_admin", "admin"), icon: Shield, badge: "Quản trị" },
+        { label: "HR", value: countRole("hr"), icon: Briefcase, badge: "Tuyển dụng" },
+        { label: "Interviewer", value: countRole("interviewer"), icon: CalendarCheck, badge: "Phỏng vấn" },
+        { label: "Vận hành", value: countRole("recruiter", "leader"), icon: UserCog, badge: "Recruiter + Leader" },
+        { label: "Đổi mật khẩu", value: users.filter((u) => u.force_password_change).length, icon: KeyRound, badge: "Bắt buộc", tone: "pink" },
+    ];
+    const byRole = ROLE_ORDER.map((r) => ({ label: ROLE_LABEL[r], value: countRole(r), color: roleTone(r).mark })).filter((x) => x.value > 0);
+    const byMonth = countByMonth(users.map((u) => u.created_at));
+    const byDomain = [...users.reduce((m, u) => {
+        const d = u.email.split("@")[1] ?? "khác";
+        return m.set(d, (m.get(d) ?? 0) + 1);
+    }, new Map<string, number>())].map(([label, value]) => ({ label, value }));
 
     const filteredUsers = users.filter(u =>
         u.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -304,26 +333,16 @@ export default function UsersClient({
                 <PageBreadcrumb breadcrumbs={[{ label: "Dashboard", href: "/dashboard" }, { label: "Identity Management" }]} />
 
 
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12">
-                    <FadeIn>
-                        <h1 className="text-4xl font-light font-display text-foreground mb-2">User Directory</h1>
-                        <p className="text-muted-foreground font-light">Manage system access protocols and administrative agents.</p>
-                    </FadeIn>
-
-                    <div className="flex items-center gap-4">
-                        <FadeIn delay={0.1} className="relative group">
-                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
-                            <Input
-                                placeholder="Filter identities..."
-                                value={searchQuery}
-                                onChange={(e) => setSearchQuery(e.target.value)}
-                                className="pl-10 w-[240px] md:w-[320px] bg-muted/60 border-border/10 text-foreground placeholder:text-muted-foreground/70 h-11 rounded-xl focus:border-border/40 transition-all font-light"
-                            />
-                        </FadeIn>
-
+                <SharedDashboardPageHeader
+                    title="Users"
+                    icon={Users}
+                    badge={{ label: `${users.length} tài khoản` }}
+                    description="Quản lý tài khoản, vai trò và quyền truy cập hệ thống"
+                    actions={(
+                    <div className="flex items-center gap-3">
                         <Dialog open={isAddingUser} onOpenChange={setIsAddingUser}>
                             <DialogTrigger asChild>
-                                <Button className="bg-primary hover:bg-primary/90 text-black shadow-[0_0_20px_color-mix(in_srgb,var(--primary)_30%,transparent)] hover:-translate-y-0.5 transition-all h-11 px-6 rounded-xl gap-2 font-semibold cursor-pointer">
+                                <Button className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg shadow-primary/20 active:scale-[0.98] transition-all h-11 px-6 rounded-xl gap-2 font-semibold cursor-pointer">
                                     <UserPlus className="w-4 h-4" />
                                     Provision Identity
                                 </Button>
@@ -570,6 +589,27 @@ export default function UsersClient({
                             </DialogContent>
                         </Dialog>
                     </div>
+                    )}
+                />
+
+                <KpiCardGrid items={kpis} />
+
+                {users.length > 0 && (
+                    <OverviewBand className="mt-6">
+                        <DonutStat title="Cơ cấu vai trò" subtitle="Tài khoản theo vai trò" tag={{ label: "Vai trò" }} slices={byRole} centerLabel="Tài khoản" />
+                        <TrendArea title="Tài khoản mới" subtitle="Tạo trong 6 tháng gần nhất" tag={{ label: "6 tháng", tone: "teal" }} points={byMonth} color={colorAt(2)} />
+                        <HBarList title="Theo tên miền email" subtitle="Nguồn tài khoản" tag={{ label: "Domain", tone: "violet" }} items={byDomain} />
+                    </OverviewBand>
+                )}
+
+                <div className="relative mb-6 max-w-sm group">
+                    <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-primary transition-colors pointer-events-none" />
+                    <Input
+                        placeholder="Tìm theo tên, email..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        className="pl-10 h-11 bg-muted/40 border-border rounded-xl text-foreground placeholder:text-muted-foreground/60"
+                    />
                 </div>
 
                 <div className="grid grid-cols-1 gap-6">
@@ -584,12 +624,14 @@ export default function UsersClient({
                                             <div className="flex items-center gap-4">
                                                 <div className="w-14 h-14 rounded-2xl bg-background/60 border border-border/10 flex items-center justify-center relative overflow-hidden group-hover:border-border/30 transition-colors">
                                                     <UserCircle className="w-8 h-8 text-muted-foreground group-hover:text-primary transition-colors" />
-                                                    <div className="absolute bottom-0 right-0 w-4 h-4 bg-emerald-500 border-2 border-border rounded-full" title="Status: Online" />
                                                 </div>
                                                 <div className="space-y-1">
                                                     <div className="flex items-center gap-2">
                                                         <h3 className="text-lg font-medium text-foreground group-hover:text-foreground transition-colors">{user.name}</h3>
-                                                        <Badge className={`${ROLE_BADGE_CLASS[user.role] ?? ROLE_BADGE_CLASS.recruiter} px-2 h-5 text-[10px] uppercase font-bold tracking-widest`}>
+                                                        <Badge
+                                                            className="border-0 px-2 h-5 text-[10px] uppercase font-bold tracking-widest"
+                                                            style={{ color: roleTone(user.role).ink, backgroundColor: roleTone(user.role).bg }}
+                                                        >
                                                             {user.role}
                                                         </Badge>
                                                     </div>
