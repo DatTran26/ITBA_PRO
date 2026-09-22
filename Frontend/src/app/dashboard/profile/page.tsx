@@ -3,10 +3,11 @@ import { redirect } from "next/navigation";
 import PageContainer from "@/components/ui/page-container";
 import AppNavbar from "@/components/ui/app-navbar";
 import PageBreadcrumb from "@/components/ui/page-breadcrumb";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { User, Mail, Shield, Calendar } from "lucide-react";
-import { PremiumBackground } from "@/components/ui/premium-background";
-import { PageTransition, FadeIn } from "@/components/ui/motion-wrapper";
+import { User, Mail, Shield, Calendar, Info } from "lucide-react";
+import { PageTransition } from "@/components/ui/motion-wrapper";
+import { SharedDashboardPageHeader } from "@/components/shares";
+import FormSection from "@/components/shares/form-section";
+import { ROLE_LABEL, roleTone } from "@/lib/ui/roles";
 
 export default async function ProfilePage() {
     const supabase = await createClient();
@@ -33,87 +34,59 @@ export default async function ProfilePage() {
         };
     }
 
-    const createdAt = userRecord.created_at ? new Date(userRecord.created_at).toLocaleDateString("en-US", {
+    const createdAt = userRecord.created_at ? new Date(userRecord.created_at).toLocaleDateString("vi-VN", {
         year: 'numeric', month: 'long', day: 'numeric'
     }) : "N/A";
 
-    return (
-        <PageTransition className="min-h-screen bg-transparent text-foreground relative">
-            <PremiumBackground />
+    const role = userRecord.role || "recruiter";
+    const tone = roleTone(role);
+    const fields = [
+        { icon: User, label: "Họ tên", value: userRecord.name },
+        { icon: Mail, label: "Email", value: userRecord.email },
+        { icon: Calendar, label: "Thành viên từ", value: createdAt },
+    ];
 
+    return (
+        <PageTransition className="min-h-screen bg-transparent text-foreground pb-12">
             <AppNavbar />
 
             <PageContainer>
                 <PageBreadcrumb breadcrumbs={[{ label: "Dashboard", href: "/dashboard" }, { label: "Profile" }]} />
-                <div className="max-w-3xl mx-auto pt-8">
-                    <FadeIn>
-                        <div className="flex items-center gap-4 mb-8">
-                            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary/20 to-ai/20 border border-border/20 flex items-center justify-center shadow-lg">
-                                <User className="w-8 h-8 text-primary" />
-                            </div>
-                            <div>
-                                <h1 className="text-3xl font-display font-light text-foreground italic">User Profile</h1>
-                                <p className="text-muted-foreground text-sm font-mono uppercase tracking-wider">Identity Management Node</p>
-                            </div>
-                        </div>
+                <SharedDashboardPageHeader
+                    title="Profile"
+                    icon={User}
+                    badge={{ label: ROLE_LABEL[role] ?? role, tone: tone.name }}
+                    description="Thông tin tài khoản và quyền truy cập của bạn"
+                />
 
-                        <Card className="bg-muted/40 border-border/15 backdrop-blur-xl overflow-hidden rounded-3xl relative">
-                            <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent pointer-events-none" />
-                            <CardHeader className="border-b border-border/10 pb-6">
-                                <CardTitle className="text-lg font-medium text-foreground flex items-center gap-2">
-                                    <Shield className="w-5 h-5 text-success" />
-                                    Account Information
-                                </CardTitle>
-                            </CardHeader>
-                            <CardContent className="p-8 space-y-8">
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                                    <div className="space-y-1">
-                                        <p className="text-[10px] text-muted-foreground font-mono uppercase tracking-widest">Full Name</p>
-                                        <div className="flex items-center gap-3 text-foreground">
-                                            <User className="w-4 h-4 text-primary/60" />
-                                            <span className="text-lg">{userRecord.name}</span>
-                                        </div>
-                                    </div>
-
-                                    <div className="space-y-1">
-                                        <p className="text-[10px] text-muted-foreground font-mono uppercase tracking-widest">Email Address</p>
-                                        <div className="flex items-center gap-3 text-foreground">
-                                            <Mail className="w-4 h-4 text-primary/60" />
-                                            <span className="text-lg font-mono">{userRecord.email}</span>
-                                        </div>
-                                    </div>
-
-                                    <div className="space-y-1">
-                                        <p className="text-[10px] text-muted-foreground font-mono uppercase tracking-widest">Assigned Role</p>
-                                        <div className="flex items-center gap-3">
-                                            <div className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-tighter border
-                                                ${userRecord.role === 'super_admin' ? 'bg-red-500/10 border-red-500/30 text-red-400' :
-                                                  userRecord.role === 'admin' ? 'bg-primary/10 border-border/30 text-primary' :
-                                                  'bg-emerald-500/10 border-emerald-500/30 text-emerald-400'}
-                                            `}>
-                                                {userRecord.role || 'Recruiter'}
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div className="space-y-1">
-                                        <p className="text-[10px] text-muted-foreground font-mono uppercase tracking-widest">Member Since</p>
-                                        <div className="flex items-center gap-3 text-ai/80">
-                                            <Calendar className="w-4 h-4" />
-                                            <span>{createdAt}</span>
-                                        </div>
-                                    </div>
+                <div className="flex flex-col gap-5 max-w-3xl">
+                    <FormSection icon={Shield} tone="blue" title="Thông tin tài khoản" subtitle="Hồ sơ đăng nhập hệ thống">
+                        <dl className="grid gap-x-8 gap-y-6 p-5 sm:grid-cols-2">
+                            {fields.map(({ icon: Icon, label, value }) => (
+                                <div key={label} className="min-w-0 space-y-1.5">
+                                    <dt className="text-xs font-bold text-muted-foreground">{label}</dt>
+                                    <dd className="flex items-center gap-2.5 text-base font-semibold text-foreground">
+                                        <Icon className="w-4 h-4 shrink-0 text-primary/70" />
+                                        <span className="truncate">{value}</span>
+                                    </dd>
                                 </div>
+                            ))}
+                            <div className="space-y-1.5">
+                                <dt className="text-xs font-bold text-muted-foreground">Vai trò</dt>
+                                <dd>
+                                    <span className="inline-block rounded-full px-3 py-1 text-xs font-bold" style={{ color: tone.ink, backgroundColor: tone.bg }}>
+                                        {ROLE_LABEL[role] ?? role}
+                                    </span>
+                                </dd>
+                            </div>
+                        </dl>
+                    </FormSection>
 
-                                <div className="pt-6 border-t border-border/10">
-                                    <p className="text-[11px] text-muted-foreground italic">
-                                        Security Notice: Your role and identity permissions are cryptographically locked.
-                                        Contact a Super Administrator to modify system access protocols.
-                                    </p>
-                                </div>
-                            </CardContent>
-                        </Card>
-                    </FadeIn>
+                    <FormSection icon={Info} tone="orange" title="Quyền truy cập" subtitle="Ai có thể thay đổi vai trò">
+                        <p className="p-5 text-sm text-muted-foreground leading-relaxed">
+                            Vai trò và quyền truy cập do Super Admin quản lý. Liên hệ Super Admin nếu bạn cần đổi vai trò.
+                        </p>
+                    </FormSection>
                 </div>
             </PageContainer>
         </PageTransition>

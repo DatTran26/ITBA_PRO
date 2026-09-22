@@ -62,7 +62,7 @@ import KpiCardGrid from "@/components/crm/kpi-card-grid";
 import OverviewBand from "@/components/shares/overview-band";
 import { DonutStat, HBarList, TrendArea, colorAt } from "@/components/charts";
 import { countByMonth } from "@/lib/ui/series";
-import { toneByName, type ToneName } from "@/lib/ui/tones";
+import { ROLE_ORDER, ROLE_LABEL, roleTone } from "@/lib/ui/roles";
 import type { KpiCardData } from "@/lib/crm/types";
 
 interface UserProfile {
@@ -83,15 +83,6 @@ const ROLE_OPTIONS = [
     { value: "admin", label: "Admin", description: "Full admin access" },
 ] as const;
 
-/* Tông cố định theo vai trò — cùng vai trò luôn cùng màu ở pill và biểu đồ. */
-const ROLE_ORDER = ["super_admin", "admin", "leader", "hr", "interviewer", "recruiter"] as const;
-const ROLE_TONE: Record<string, ToneName> = {
-    super_admin: "pink", admin: "blue", leader: "teal", hr: "orange", interviewer: "violet", recruiter: "gold",
-};
-const roleTone = (role: string) => toneByName(ROLE_TONE[role] ?? "gold");
-const ROLE_LABEL: Record<string, string> = {
-    super_admin: "Super Admin", admin: "Admin", leader: "Leader", hr: "HR", interviewer: "Interviewer", recruiter: "Recruiter",
-};
 
 const ROLE_ACCESS_LABEL: Record<string, string> = {
     super_admin: "Root + Version Control",
