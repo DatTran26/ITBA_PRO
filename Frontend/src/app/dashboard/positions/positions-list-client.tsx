@@ -8,6 +8,9 @@ import PageContainer from "@/components/ui/page-container";
 import { SharedDashboardButton, SharedDashboardPageHeader } from "@/components/shares";
 import { Plus, Briefcase, AlertTriangle, Users, FileX, Archive } from "lucide-react";
 import KpiCardGrid from "@/components/crm/kpi-card-grid";
+import OverviewBand from "@/components/shares/overview-band";
+import { DonutStat, HBarList, TrendArea, colorAt } from "@/components/charts";
+import { countByMonth } from "@/lib/ui/series";
 import FilterBar from "@/components/crm/filter-bar";
 import ViewSwitcher from "@/components/crm/view-switcher";
 import PositionsTableView from "./positions-table-view";
@@ -46,12 +49,28 @@ export default function PositionsListClient({ positions }: Props) {
   }, [positions, search, statusFilter, deptFilter]);
 
   const kpis: KpiCardData[] = useMemo(() => [
-    { label: "Total Positions", value: positions.length, icon: Briefcase },
-    { label: "Active", value: positions.filter((p) => p.status === "active").length, icon: Briefcase },
-    { label: "No Skill Reqs", value: positions.filter((p) => getReqCount(p) === 0).length, icon: AlertTriangle },
-    { label: "Unassigned", value: positions.filter((p) => !p.assigned_persons_count).length, icon: Users },
-    { label: "Archived", value: positions.filter((p) => p.status === "archived" || p.status === "deprecated").length, icon: Archive },
+    { label: "Total Positions", value: positions.length, icon: Briefcase, badge: "Toàn bộ" },
+    { label: "Active", value: positions.filter((p) => p.status === "active").length, icon: Briefcase, badge: "Đang tuyển" },
+    { label: "No Skill Reqs", value: positions.filter((p) => getReqCount(p) === 0).length, icon: AlertTriangle, badge: "Thiếu chuẩn" },
+    { label: "Unassigned", value: positions.filter((p) => !p.assigned_persons_count).length, icon: Users, badge: "Chưa gán" },
+    { label: "Archived", value: positions.filter((p) => p.status === "archived" || p.status === "deprecated").length, icon: Archive, badge: "Lưu trữ" },
   ], [positions]);
+
+  /* Dải tổng quan: suy ra từ `positions` đã fetch, không thêm truy vấn. */
+  const byStatus = useMemo(() => Object.entries(POSITION_STATUSES).map(([key, meta], i) => ({
+    label: meta.label, value: positions.filter((p) => p.status === key).length, color: colorAt(i),
+  })).filter((s) => s.value > 0), [positions]);
+
+  const byDept = useMemo(() => {
+    const counts = new Map<string, number>();
+    for (const p of positions) {
+      const d = p.department || "Chưa gán phòng ban";
+      counts.set(d, (counts.get(d) ?? 0) + 1);
+    }
+    return [...counts].map(([label, value]) => ({ label, value }));
+  }, [positions]);
+
+  const byMonth = useMemo(() => countByMonth(positions.map((p) => p.created_at)), [positions]);
 
   const statusOptions: FilterOption[] = Object.entries(POSITION_STATUSES).map(([k, v]) => ({ value: k, label: v.label }));
   const departments = [...new Set(positions.map((p) => p.department).filter(Boolean))] as string[];
@@ -67,14 +86,12 @@ export default function PositionsListClient({ positions }: Props) {
         <PageBreadcrumb breadcrumbs={[{ label: "Dashboard", href: "/dashboard" }, { label: "Positions" }]} />
         <SharedDashboardPageHeader
           className="mb-10"
-          title="Role Intelligence"
+          title="Positions"
+          icon={Briefcase}
+          badge={{ label: `${positions.length} vị trí` }}
           description="Structure your organization with precision-defined roles and skill benchmarks"
           actions={(
-            <SharedDashboardButton
-              onClick={() => setDialogOpen(true)}
-              className="bg-primary hover:bg-primary text-white h-12 px-8 rounded-xl shadow-lg shadow-primary/20 transition-all font-semibold gap-2 border-0"
-              leadingIcon={<Plus className="h-5 w-5" />}
-            >
+            <SharedDashboardButton variant="primary" onClick={() => setDialogOpen(true)} leadingIcon={<Plus className="h-4 w-4" />}>
               New Position
             </SharedDashboardButton>
           )}
@@ -82,10 +99,19 @@ export default function PositionsListClient({ positions }: Props) {
 
         <KpiCardGrid items={kpis} />
 
+        {positions.length > 0 && (
+          <OverviewBand className="mt-6">
+            <DonutStat title="Trạng thái vị trí" subtitle="Active, draft, cần review..." tag={{ label: "Trạng thái" }} slices={byStatus} centerLabel="Vị trí" />
+            <HBarList title="Theo phòng ban" subtitle="Số vị trí mỗi phòng ban" tag={{ label: "Phòng ban", tone: "violet" }} items={byDept} />
+            <TrendArea title="Vị trí mới" subtitle="Tạo trong 6 tháng gần nhất" tag={{ label: "6 tháng", tone: "teal" }} points={byMonth} color={colorAt(2)} />
+          </OverviewBand>
+        )}
+
         <div className="flex items-center justify-between gap-3 mt-6 mb-4">
           <FilterBar
             search={search}
             onSearchChange={setSearch}
+            searchPlaceholder="Tìm vị trí, phòng ban..."
             filters={[
               { key: "status", label: "Status", options: statusOptions, value: statusFilter, onChange: setStatusFilter },
               { key: "dept", label: "Department", options: deptOptions, value: deptFilter, onChange: setDeptFilter },

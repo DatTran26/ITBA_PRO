@@ -17,6 +17,7 @@ import FilterBar from "@/components/crm/filter-bar";
 import OverviewBand from "@/components/shares/overview-band";
 import { DonutStat, HBarList, TrendArea, colorAt } from "@/components/charts";
 import type { KpiCardData, FilterOption } from "@/lib/crm/types";
+import { countByMonth } from "@/lib/ui/series";
 
 interface Template {
     id: string;
@@ -82,20 +83,7 @@ export default function TemplatesClient({ templates: initial, isAdmin, userId }:
         label: l, value: templates.filter((t) => t.level === l).length, color: colorAt(i),
     })).filter((s) => s.value > 0), [templates]);
 
-    /* 6 tháng gần nhất theo created_at, tháng trống vẫn hiện 0 để đường liền mạch. */
-    const byMonth = useMemo(() => {
-        const now = new Date();
-        return Array.from({ length: 6 }, (_, k) => {
-            const d = new Date(now.getFullYear(), now.getMonth() - 5 + k, 1);
-            return {
-                label: `T${d.getMonth() + 1}`,
-                value: templates.filter((t) => {
-                    const c = new Date(t.created_at);
-                    return c.getFullYear() === d.getFullYear() && c.getMonth() === d.getMonth();
-                }).length,
-            };
-        });
-    }, [templates]);
+    const byMonth = useMemo(() => countByMonth(templates.map((t) => t.created_at)), [templates]);
 
     const byRole = useMemo(() => {
         const counts = new Map<string, number>();
