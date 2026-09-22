@@ -1,9 +1,10 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { CheckCircle2, XCircle, GraduationCap } from "lucide-react";
+import { CheckCircle2, XCircle, AlertCircle } from "lucide-react";
+import { ChartFrame } from "@/components/charts";
+import { Skeleton } from "@/components/ui/skeleton";
+import { toneFor } from "@/lib/ui/tones";
 import type { PersonSkillItem, SkillRequirement } from "@/app/dashboard/management-types";
 
 interface Props {
@@ -12,8 +13,9 @@ interface Props {
   positionId: string | null;
 }
 
-export default function PersonSkillsTab({ personId, skills, positionId }: Props) {
+export default function PersonSkillsTab({ skills, positionId }: Props) {
   const [requirements, setRequirements] = useState<SkillRequirement[]>([]);
+  const [loaded, setLoaded] = useState(!positionId);
 
   useEffect(() => {
     if (!positionId) return;
@@ -24,76 +26,94 @@ export default function PersonSkillsTab({ personId, skills, positionId }: Props)
           setRequirements(data.position.position_skill_requirements);
         }
       })
-      .catch(() => {});
+      .catch(() => {})
+      .finally(() => setLoaded(true));
   }, [positionId]);
 
   const skillMap = new Map(skills.map((s) => [s.skill_id, s]));
+  const rows = requirements.map((req) => {
+    const current = skillMap.get(req.skill_id)?.current_level ?? 0;
+    return { req, current, met: current >= req.required_level };
+  });
+  const metCount = rows.filter((r) => r.met).length;
+  // Thang chung cho mọi thanh để so được giữa các dòng (level 1-5 là chuẩn, nới nếu có số lớn hơn).
+  const scale = Math.max(5, ...rows.map((r) => Math.max(r.current, r.req.required_level)));
 
   return (
-    <div className="space-y-4">
-      {/* Current skills */}
-      <Card className="bg-muted border-border/10 p-4">
-        <div className="flex items-center gap-2 mb-3">
-          <GraduationCap className="w-4 h-4 text-primary" />
-          <h3 className="text-sm font-medium text-foreground">Current Skills ({skills.length})</h3>
-        </div>
-        {skills.length === 0 ? (
-          <p className="text-sm text-muted-foreground">No skills recorded</p>
-        ) : (
-          <div className="space-y-1.5">
-            {skills.map((s) => (
-              <div key={s.id} className="flex items-center justify-between px-3 py-2 rounded-lg bg-background">
-                <div>
-                  <span className="text-sm text-foreground">{s.skills.name}</span>
-                  {s.skills.category && <span className="text-xs text-muted-foreground ml-2">{s.skills.category}</span>}
+    <div className="grid gap-4 lg:grid-cols-2">
+      <ChartFrame
+        title="Kỹ năng hiện có"
+        subtitle="Level đã ghi nhận"
+        tag={{ label: `${skills.length} kỹ năng`, tone: "violet" }}
+        empty={skills.length === 0}
+        emptyLabel="Chưa ghi nhận kỹ năng"
+      >
+        <ul className="divide-y divide-border">
+          {skills.map((s) => {
+            const t = toneFor(s.skills.category ?? s.skills.name);
+            return (
+              <li key={s.id} className="flex items-center justify-between gap-3 py-2.5">
+                <div className="min-w-0">
+                  <p className="text-sm font-semibold text-foreground truncate">{s.skills.name}</p>
+                  {s.skills.category && <p className="text-xs text-muted-foreground">{s.skills.category}</p>}
                 </div>
-                <Badge variant="outline" className="border-border/30 text-primary text-xs">
+                <span className="shrink-0 rounded-full px-2.5 py-0.5 text-[11px] font-bold" style={{ color: t.ink, backgroundColor: t.bg }}>
                   Level {s.current_level}
-                </Badge>
-              </div>
-            ))}
-          </div>
-        )}
-      </Card>
+                </span>
+              </li>
+            );
+          })}
+        </ul>
+      </ChartFrame>
 
-      {/* Required vs current (gap analysis) */}
-      {positionId && requirements.length > 0 && (
-        <Card className="bg-muted border-border/10 p-4">
-          <h3 className="text-sm font-medium text-foreground mb-3">Position Requirements Gap</h3>
-          <div className="space-y-1.5">
-            {requirements.map((req) => {
-              const current = skillMap.get(req.skill_id);
-              const met = current && current.current_level >= req.required_level;
+      {!positionId ? (
+        <ChartFrame title="Khoảng cách với vị trí" subtitle="So với yêu cầu của vị trí" empty emptyLabel="Gán vị trí để xem phân tích khoảng cách kỹ năng">
+          {null}
+        </ChartFrame>
+      ) : !loaded ? (
+        <Skeleton className="h-72 rounded-2xl" />
+      ) : (
+        <ChartFrame
+          title="Khoảng cách với vị trí"
+          subtitle="Level hiện tại so với yêu cầu, vạch đứng là mức cần đạt"
+          tag={{ label: `Đạt ${metCount}/${rows.length}`, tone: metCount === rows.length ? "teal" : "orange" }}
+          empty={rows.length === 0}
+          emptyLabel="Vị trí này chưa định nghĩa yêu cầu kỹ năng"
+        >
+          <ul className="space-y-3.5">
+            {rows.map(({ req, current, met }) => {
+              const color = met ? "var(--success)" : req.is_mandatory ? "var(--danger)" : "var(--warning)";
+              const Icon = met ? CheckCircle2 : req.is_mandatory ? XCircle : AlertCircle;
               return (
-                <div key={req.id} className="flex items-center justify-between px-3 py-2 rounded-lg bg-background">
-                  <div className="flex items-center gap-2">
-                    {met ? (
-                      <CheckCircle2 className="w-3.5 h-3.5 text-success shrink-0" />
-                    ) : (
-                      <XCircle className="w-3.5 h-3.5 text-danger shrink-0" />
-                    )}
-                    <span className="text-sm text-foreground">{req.skills.name}</span>
-                    {req.is_mandatory && <span className="text-[10px] text-danger">Required</span>}
-                  </div>
-                  <div className="flex items-center gap-2 text-xs">
-                    <span className={met ? "text-success" : "text-danger"}>
-                      {current ? current.current_level : 0}
+                <li key={req.id} title={`${req.skills.name}: ${current}/${req.required_level}`}>
+                  <div className="flex items-center justify-between gap-3 mb-1.5">
+                    <div className="flex items-center gap-2 min-w-0">
+                      <Icon className="w-4 h-4 shrink-0" style={{ color }} />
+                      <span className="text-sm font-semibold text-foreground truncate">{req.skills.name}</span>
+                      {req.is_mandatory && (
+                        <span className="shrink-0 rounded-full bg-danger/10 px-2 py-0.5 text-[10px] font-bold text-danger">Bắt buộc</span>
+                      )}
+                    </div>
+                    <span className="shrink-0 text-xs font-bold tabular-nums text-foreground">
+                      {current}<span className="text-muted-foreground"> / {req.required_level}</span>
                     </span>
-                    <span className="text-muted-foreground">/</span>
-                    <span className="text-muted-foreground">{req.required_level}</span>
                   </div>
-                </div>
+                  <div className="relative h-2.5 rounded-full bg-muted">
+                    <span
+                      className="absolute inset-y-0 left-0 rounded-full"
+                      style={{ width: `${(current / scale) * 100}%`, backgroundColor: color }}
+                    />
+                    <span
+                      aria-hidden
+                      className="absolute -top-1 -bottom-1 w-0.5 rounded-full bg-foreground/60"
+                      style={{ left: `calc(${(req.required_level / scale) * 100}% - 1px)` }}
+                    />
+                  </div>
+                </li>
               );
             })}
-          </div>
-        </Card>
-      )}
-
-      {positionId && requirements.length === 0 && (
-        <p className="text-sm text-muted-foreground text-center py-4">No skill requirements defined for this position</p>
-      )}
-      {!positionId && (
-        <p className="text-sm text-muted-foreground text-center py-4">Assign a position to see skill gap analysis</p>
+          </ul>
+        </ChartFrame>
       )}
     </div>
   );

@@ -87,7 +87,7 @@ export default function PersonDetailClient({ person, skills, results, membership
         <div className="mb-6"><KpiCardGrid items={kpis} /></div>
 
         <Tabs value={tab} onValueChange={(v) => setTab(v as TabKey)}>
-          <TabsList className="mb-5 max-w-full overflow-x-auto justify-start">
+          <TabsList className="mb-5 max-w-full overflow-x-auto justify-start [scrollbar-width:none]">
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="skills">Skills ({skills.length})</TabsTrigger>
             <TabsTrigger value="assessments">Assessments ({results.length})</TabsTrigger>
