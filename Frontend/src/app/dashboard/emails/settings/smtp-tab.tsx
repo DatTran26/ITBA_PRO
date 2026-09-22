@@ -11,16 +11,16 @@ interface SmtpTabProps {
 }
 
 const inputClass =
-    "w-full rounded-lg bg-[#060D1A] border border-[#8B99B0]/15 text-[#ECF0F7] text-sm px-3 py-2 placeholder-[#3D4F6A] focus:outline-none focus:border-[#5B6CF0]/50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors";
+    "w-full rounded-lg bg-background border border-border/15 text-foreground text-sm px-3 py-2 placeholder-muted-foreground focus:outline-none focus:border-border/50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors";
 
-const labelClass = "block text-xs font-medium text-[#5A6882] mb-1.5 uppercase tracking-wide";
+const labelClass = "block text-xs font-medium text-muted-foreground mb-1.5 uppercase tracking-wide";
 
 function Section({ title, description, children }: { title: string; description?: string; children: React.ReactNode }) {
     return (
-        <div className="rounded-xl border border-[#8B99B0]/10 bg-[#0C1422] overflow-hidden">
-            <div className="px-5 py-4 border-b border-[#8B99B0]/8">
-                <p className="text-sm font-medium text-[#ECF0F7]">{title}</p>
-                {description && <p className="text-xs text-[#5A6882] mt-0.5">{description}</p>}
+        <div className="rounded-xl border border-border/10 bg-background overflow-hidden">
+            <div className="px-5 py-4 border-b border-border/8">
+                <p className="text-sm font-medium text-foreground">{title}</p>
+                {description && <p className="text-xs text-muted-foreground mt-0.5">{description}</p>}
             </div>
             <div className="p-5 space-y-4">{children}</div>
         </div>
@@ -101,11 +101,11 @@ export default function SmtpTab({ config }: SmtpTabProps) {
     return (
         <div className="space-y-4 max-w-2xl">
             {/* Enable toggle */}
-            <div className="rounded-xl border border-[#8B99B0]/10 bg-[#0C1422] px-5 py-4">
+            <div className="rounded-xl border border-border/10 bg-background px-5 py-4">
                 <div className="flex items-center justify-between gap-4">
                     <div>
-                        <p className="text-sm font-medium text-[#ECF0F7]">Enable custom SMTP</p>
-                        <p className="text-xs text-[#5A6882] mt-0.5">
+                        <p className="text-sm font-medium text-foreground">Enable custom SMTP</p>
+                        <p className="text-xs text-muted-foreground mt-0.5">
                             Use your own SMTP server instead of the default provider
                         </p>
                     </div>
@@ -115,7 +115,7 @@ export default function SmtpTab({ config }: SmtpTabProps) {
                         aria-checked={enabled}
                         onClick={() => setEnabled((v) => !v)}
                         className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors focus-visible:outline-none ${
-                            enabled ? "bg-[#36DDAB]" : "bg-[#1A2236]"
+                            enabled ? "bg-success" : "bg-muted"
                         }`}
                     >
                         <span
@@ -211,7 +211,7 @@ export default function SmtpTab({ config }: SmtpTabProps) {
                     <div className="flex items-center justify-between mb-1.5">
                         <label className={labelClass + " mb-0"}>Password</label>
                         {hasPassword && !smtpPassword && (
-                            <span className="inline-flex items-center gap-1 text-[10px] font-medium text-[#36DDAB] uppercase tracking-wide">
+                            <span className="inline-flex items-center gap-1 text-[10px] font-medium text-success uppercase tracking-wide">
                                 <Lock className="w-3 h-3" />
                                 Saved (encrypted)
                             </span>
@@ -230,7 +230,7 @@ export default function SmtpTab({ config }: SmtpTabProps) {
                             type="button"
                             disabled={fieldsDisabled}
                             onClick={() => setShowPassword((v) => !v)}
-                            className="absolute right-3 top-1/2 -translate-y-1/2 text-[#5A6882] hover:text-[#8B99B0] transition-colors disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-muted-foreground transition-colors disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
                             aria-label={showPassword ? "Hide password" : "Show password"}
                         >
                             {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
@@ -248,7 +248,7 @@ export default function SmtpTab({ config }: SmtpTabProps) {
                         min={0}
                         className={inputClass}
                     />
-                    <p className="text-xs text-[#3D4F6A] mt-1.5">
+                    <p className="text-xs text-muted-foreground mt-1.5">
                         Minimum time between outgoing emails to avoid rate limiting
                     </p>
                 </div>
@@ -260,7 +260,7 @@ export default function SmtpTab({ config }: SmtpTabProps) {
                     type="button"
                     onClick={handleSave}
                     disabled={saving}
-                    className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-[#5B6CF0] text-white hover:bg-[#4B5CE0] transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                    className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-primary text-white hover:bg-primary transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                 >
                     <Save className="w-4 h-4" />
                     {saving ? "Saving..." : "Save changes"}
@@ -271,7 +271,7 @@ export default function SmtpTab({ config }: SmtpTabProps) {
                     onClick={handleTestSend}
                     disabled={testing || !enabled || !hasPassword}
                     title={!enabled ? "Enable SMTP first" : !hasPassword ? "Save a password first" : "Send a test email to yourself"}
-                    className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium border border-[#8B99B0]/15 text-[#5A6882] hover:text-[#ECF0F7] hover:border-[#8B99B0]/30 transition-colors disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+                    className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium border border-border/15 text-muted-foreground hover:text-foreground hover:border-border/30 transition-colors disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
                 >
                     <Send className="w-4 h-4" />
                     {testing ? "Sending..." : "Send test email"}

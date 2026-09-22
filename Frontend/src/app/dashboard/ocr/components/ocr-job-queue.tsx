@@ -44,19 +44,19 @@ export default function OCRJobQueue({
                 );
             case "processing":
                 return (
-                    <span className="inline-flex items-center gap-1 rounded-full bg-[#5B6CF0]/20 px-2 py-0.5 text-[10px] font-medium text-[#7C8FFF] border border-[#5B6CF0]/30 animate-pulse">
+                    <span className="inline-flex items-center gap-1 rounded-full bg-primary/20 px-2 py-0.5 text-[10px] font-medium text-primary border border-border/30 animate-pulse">
                         <Loader2 className="h-3 w-3 animate-spin" /> Đang quét...
                     </span>
                 );
             case "needs_review":
                 return (
-                    <span className="inline-flex items-center gap-1 rounded-full bg-[#F59E0B]/20 px-2 py-0.5 text-[10px] font-medium text-[#FBBF24] border border-[#F59E0B]/30">
+                    <span className="inline-flex items-center gap-1 rounded-full bg-warning/20 px-2 py-0.5 text-[10px] font-medium text-warning border border-border/30">
                         <Sparkles className="h-3 w-3" /> Cần duyệt
                     </span>
                 );
             case "confirmed":
                 return (
-                    <span className="inline-flex items-center gap-1 rounded-full bg-[#36DDAB]/20 px-2 py-0.5 text-[10px] font-medium text-[#36DDAB] border border-[#36DDAB]/30">
+                    <span className="inline-flex items-center gap-1 rounded-full bg-success/20 px-2 py-0.5 text-[10px] font-medium text-success border border-border/30">
                         <CheckCircle2 className="h-3 w-3" /> Đã xác nhận
                     </span>
                 );
@@ -73,17 +73,17 @@ export default function OCRJobQueue({
     };
 
     return (
-        <div className="flex flex-col gap-2 rounded-2xl border border-white/[0.08] bg-[#1A233A]/70 p-4 backdrop-blur-md">
+        <div className="flex flex-col gap-2 rounded-2xl border border-white/[0.08] bg-muted/70 p-4 backdrop-blur-md">
             <div className="flex items-center justify-between border-b border-white/[0.06] pb-2.5">
                 <div className="flex items-center gap-2">
-                    <Layers className="h-4 w-4 text-[#5B6CF0]" />
-                    <h3 className="text-xs font-semibold uppercase tracking-wider text-[#94A3B8]">
+                    <Layers className="h-4 w-4 text-primary" />
+                    <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                         Danh sách tài liệu ({jobs.length})
                     </h3>
                 </div>
                 <button
                     onClick={onClearAll}
-                    className="text-[11px] font-medium text-[#64748B] hover:text-rose-400 transition-colors"
+                    className="text-[11px] font-medium text-muted-foreground hover:text-rose-400 transition-colors"
                 >
                     Xóa tất cả
                 </button>
@@ -98,32 +98,32 @@ export default function OCRJobQueue({
                             onClick={() => onSelectJob(job.id)}
                             className={`group relative flex items-center justify-between gap-3 rounded-xl p-2.5 transition-all duration-200 cursor-pointer border ${
                                 isSelected
-                                    ? "bg-[#5B6CF0]/15 border-[#5B6CF0]/50 shadow-[0_0_15px_rgba(91,108,240,0.15)] ring-1 ring-[#5B6CF0]/30"
-                                    : "bg-[#121A2E]/50 border-white/[0.04] hover:border-white/10 hover:bg-[#121A2E]/80"
+                                    ? "bg-primary/15 border-border/50 shadow-[0_0_15px_color-mix(in_srgb,var(--primary)_15%,transparent)] ring-1 ring-primary/30"
+                                    : "bg-background/50 border-white/[0.04] hover:border-border hover:bg-background/80"
                             }`}
                         >
                             {/* Left: Thumbnail & Info */}
                             <div className="flex items-center gap-3 min-w-0 flex-1">
-                                <div className="relative h-11 w-11 shrink-0 overflow-hidden rounded-lg border border-white/10 bg-[#0D1322]">
+                                <div className="relative h-11 w-11 shrink-0 overflow-hidden rounded-lg border border-border bg-background">
                                     {/* eslint-disable-next-line @next/next/no-img-element */}
                                     <img
                                         src={job.previewUrl}
                                         alt={job.file.name}
                                         className="h-full w-full object-cover"
                                     />
-                                    <span className="absolute bottom-0 right-0 rounded-tl bg-black/70 px-1 text-[9px] font-mono text-white/80">
+                                    <span className="absolute bottom-0 right-0 rounded-tl bg-black/70 px-1 text-[9px] font-mono text-muted-foreground">
                                         #{idx + 1}
                                     </span>
                                 </div>
 
                                 <div className="min-w-0 flex-1">
-                                    <p className="truncate text-xs font-medium text-[#ECF0F7]" title={job.file.name}>
+                                    <p className="truncate text-xs font-medium text-foreground" title={job.file.name}>
                                         {job.file.name}
                                     </p>
                                     <div className="mt-1 flex items-center gap-2">
                                         {renderStatusBadge(job.status, job.errorMessage)}
                                         {job.engine && (
-                                            <span className="text-[10px] text-[#64748B] font-mono">
+                                            <span className="text-[10px] text-muted-foreground font-mono">
                                                 {job.engine}
                                             </span>
                                         )}
@@ -140,7 +140,7 @@ export default function OCRJobQueue({
                                             onRetryJob(job.id);
                                         }}
                                         title="Thử lại"
-                                        className="flex h-7 w-7 items-center justify-center rounded-lg text-[#F59E0B] hover:bg-[#F59E0B]/10 transition-colors"
+                                        className="flex h-7 w-7 items-center justify-center rounded-lg text-warning hover:bg-warning/10 transition-colors"
                                     >
                                         <RotateCcw className="h-3.5 w-3.5" />
                                     </button>
@@ -151,7 +151,7 @@ export default function OCRJobQueue({
                                         onRemoveJob(job.id);
                                     }}
                                     title="Xóa ảnh"
-                                    className="flex h-7 w-7 items-center justify-center rounded-lg text-[#64748B] hover:bg-rose-500/10 hover:text-rose-400 transition-colors"
+                                    className="flex h-7 w-7 items-center justify-center rounded-lg text-muted-foreground hover:bg-rose-500/10 hover:text-rose-400 transition-colors"
                                 >
                                     <Trash2 className="h-3.5 w-3.5" />
                                 </button>

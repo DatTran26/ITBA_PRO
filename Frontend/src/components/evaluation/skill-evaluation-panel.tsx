@@ -83,7 +83,7 @@ export default function SkillEvaluationPanel({
     }, [items, resultId]);
 
     return (
-        <Card className="border-[#8B99B0]/10 bg-[#0F1729] mt-8">
+        <Card className="border-border/10 bg-background mt-8">
             <CardContent className="p-6">
                 <SkillEvaluationHeader
                     positionName={positionName}

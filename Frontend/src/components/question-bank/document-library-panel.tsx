@@ -57,7 +57,7 @@ export function DocumentLibraryPanel({ onSelect, selectingId }: Props) {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-12 text-[#5A6882]">
+      <div className="flex items-center justify-center py-12 text-muted-foreground">
         <Loader2 className="mr-2 h-5 w-5 animate-spin" />
         <span className="text-sm">Loading library...</span>
       </div>
@@ -67,17 +67,17 @@ export function DocumentLibraryPanel({ onSelect, selectingId }: Props) {
   return (
     <div className="space-y-3">
       <div className="relative">
-        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#5A6882]" />
+        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
         <Input
           placeholder="Search documents..."
           value={query}
           onChange={(event) => setQuery(event.target.value)}
-          className="h-9 border-[#8B99B0]/10 bg-[#1C2333]/40 pl-9 text-sm"
+          className="h-9 border-border/10 bg-card/40 pl-9 text-sm"
         />
       </div>
 
       {filtered.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-10 text-[#5A6882]">
+        <div className="flex flex-col items-center justify-center py-10 text-muted-foreground">
           <FolderOpen className="mb-2 h-8 w-8 opacity-40" />
           <p className="text-sm">{docs.length === 0 ? "No documents in library yet" : "No matches"}</p>
         </div>

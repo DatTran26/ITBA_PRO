@@ -36,8 +36,8 @@ export default function CreateTestRoleGrid({ selectedRole, setSelectedRole, slid
         <div>
             <FadeIn delay={0.2}>
                 <div className="flex items-center gap-3 mb-6">
-                    <div className="w-10 h-10 rounded-xl bg-[#1B253B] border border-white/5 flex items-center justify-center text-xs font-mono text-[#7C8FFF] shadow-lg">01</div>
-                    <h2 className="text-xl font-medium font-display text-white">Designate Role</h2>
+                    <div className="w-10 h-10 rounded-xl bg-muted border border-border flex items-center justify-center text-xs font-mono text-primary shadow-lg">01</div>
+                    <h2 className="text-xl font-medium font-display text-foreground">Designate Role</h2>
                 </div>
             </FadeIn>
 
@@ -46,20 +46,20 @@ export default function CreateTestRoleGrid({ selectedRole, setSelectedRole, slid
                     const isMainRole = selectedRole === role.name;
                     const isSlideRole = slideRoles.includes(role.name);
 
-                    let btnClass = "border-white/5 bg-[#1B253B]/40 text-[#8B99B0] hover:border-[#7C8FFF]/30 hover:bg-[#1B253B]/60 hover:text-white backdrop-blur-sm";
-                    let iconClass = "text-[#5A6882] group-hover:text-[#8B99B0]";
+                    let btnClass = "border-white/5 bg-muted/40 text-muted-foreground hover:border-border/30 hover:bg-muted/60 hover:text-white backdrop-blur-sm";
+                    let iconClass = "text-muted-foreground group-hover:text-muted-foreground";
                     let indicator = null;
 
                     if (isMainRole) {
-                        btnClass = "!border-red-500/50 !bg-red-500/10 !text-red-400 shadow-[0_0_20px_-5px_rgba(239,68,68,0.2)]";
+                        btnClass = "!border-red-500/50 !bg-red-500/10 !text-red-400 shadow-[0_0_20px_-5px_color-mix(in_srgb,var(--danger)_20%,transparent)]";
                         iconClass = "!text-red-400";
                         indicator = (
-                            <div className="absolute -right-1 -top-1 w-3.5 h-3.5 rounded-full bg-red-500 flex items-center justify-center shadow-[0_0_10px_rgba(239,68,68,0.5)]">
-                                <CheckCircle2 className="w-2.5 h-2.5 text-white" />
+                            <div className="absolute -right-1 -top-1 w-3.5 h-3.5 rounded-full bg-red-500 flex items-center justify-center shadow-[0_0_10px_color-mix(in_srgb,var(--danger)_50%,transparent)]">
+                                <CheckCircle2 className="w-2.5 h-2.5 text-foreground" />
                             </div>
                         );
                     } else if (isSlideRole) {
-                        btnClass = "!border-yellow-500/50 !bg-yellow-500/10 !text-yellow-400 shadow-[0_0_20px_-5px_rgba(234,179,8,0.2)]";
+                        btnClass = "!border-yellow-500/50 !bg-yellow-500/10 !text-yellow-400 shadow-[0_0_20px_-5px_color-mix(in_srgb,var(--warning)_20%,transparent)]";
                         iconClass = "!text-yellow-400";
                     }
 
@@ -96,12 +96,12 @@ export default function CreateTestRoleGrid({ selectedRole, setSelectedRole, slid
             {/* Additional Custom Roles */}
             {customSlideRoles.length > 0 && (
                 <FadeIn delay={0.3} className="mt-4">
-                    <div className="text-xs font-mono text-[#8B99B0] mb-2 uppercase tracking-wider">Additional Discovered Roles</div>
+                    <div className="text-xs font-mono text-muted-foreground mb-2 uppercase tracking-wider">Additional Discovered Roles</div>
                     <div className="flex flex-wrap gap-2">
                         {customSlideRoles.map((cRole, idx) => (
                             <div
                                 key={idx}
-                                className="group relative flex items-center gap-2 pl-3 pr-4 py-2 rounded-xl border text-sm font-medium transition-all duration-300 border-sky-500 bg-sky-500/10 text-sky-300 shadow-[0_0_20px_-5px_rgba(14,165,233,0.3)]"
+                                className="group relative flex items-center gap-2 pl-3 pr-4 py-2 rounded-xl border text-sm font-medium transition-all duration-300 border-sky-500 bg-sky-500/10 text-sky-300 shadow-[0_0_20px_-5px_color-mix(in_srgb,var(--primary)_30%,transparent)]"
                             >
                                 <FileText className="w-3.5 h-3.5 text-sky-400" />
                                 {cRole}

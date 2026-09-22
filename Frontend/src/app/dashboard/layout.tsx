@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import NavShell from "@/components/ui/nav-shell";
+import ThemeScope from "@/components/ui/theme-scope";
 import { readUiLayout } from "@/lib/settings/ui-layout";
 import { readSidebarCollapsed } from "@/components/ui/sidebar-collapse-cookie";
 import type { UserRole } from "@/components/ui/nav-config";
@@ -41,16 +42,17 @@ export default async function DashboardLayout({
           };
 
     return (
+        <ThemeScope>
         <div
             data-ui-layout={layout}
-            className="min-h-screen bg-[#121A2E] text-[#ECF0F7] font-body selection:bg-[#5B6CF0]/30 relative"
+            className="min-h-screen bg-background text-foreground font-body selection:bg-primary/30 relative"
             suppressHydrationWarning
         >
             {/* Global Mesh Gradient Decor */}
             <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden opacity-60" suppressHydrationWarning>
-                <div className="absolute top-0 right-0 w-[50%] h-[50%] bg-[#5B6CF0]/[0.08] blur-[120px] rounded-full" suppressHydrationWarning />
-                <div className="absolute bottom-[10%] left-[-5%] w-[40%] h-[40%] bg-[#7C8FFF]/[0.05] blur-[100px] rounded-full" suppressHydrationWarning />
-                <div className="absolute top-[20%] left-[20%] w-[30%] h-[30%] bg-[#36DDAB]/[0.03] blur-[80px] rounded-full" suppressHydrationWarning />
+                <div className="absolute top-0 right-0 w-[50%] h-[50%] bg-primary/[0.08] blur-[120px] rounded-full" suppressHydrationWarning />
+                <div className="absolute bottom-[10%] left-[-5%] w-[40%] h-[40%] bg-primary/[0.05] blur-[100px] rounded-full" suppressHydrationWarning />
+                <div className="absolute top-[20%] left-[20%] w-[30%] h-[30%] bg-success/[0.03] blur-[80px] rounded-full" suppressHydrationWarning />
             </div>
 
             <div className="relative z-10" suppressHydrationWarning>
@@ -59,5 +61,6 @@ export default async function DashboardLayout({
                 </NavShell>
             </div>
         </div>
+        </ThemeScope>
     );
 }

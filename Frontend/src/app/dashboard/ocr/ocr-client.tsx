@@ -101,17 +101,17 @@ export default function OCRClient() {
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-white/[0.08] pb-6">
                 <div>
                     <div className="flex items-center gap-2.5">
-                        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-tr from-[#5B6CF0] to-[#36DDAB] text-white shadow-lg shadow-[#5B6CF0]/25">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-tr from-primary to-success text-white shadow-lg shadow-primary/25">
                             <ScanText className="h-5 w-5" />
                         </div>
                         <div>
-                            <h1 className="text-2xl font-bold tracking-tight text-[#ECF0F7] flex items-center gap-2">
+                            <h1 className="text-2xl font-bold tracking-tight text-foreground flex items-center gap-2">
                                 Vision OCR Studio
-                                <span className="rounded-full bg-[#5B6CF0]/20 border border-[#5B6CF0]/30 px-2.5 py-0.5 text-xs font-semibold text-[#7C8FFF]">
+                                <span className="rounded-full bg-primary/20 border border-border/30 px-2.5 py-0.5 text-xs font-semibold text-primary">
                                     AI Engine
                                 </span>
                             </h1>
-                            <p className="text-xs sm:text-sm text-[#94A3B8] mt-0.5">
+                            <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">
                                 Trích xuất nội dung văn bản in, chữ viết tay và bảng biểu từ hình ảnh với Google Gemini Vision VLM
                             </p>
                         </div>
@@ -120,22 +120,22 @@ export default function OCRClient() {
 
                 {/* Quick KPI stats */}
                 <div className="flex items-center gap-3">
-                    <div className="flex items-center gap-2 rounded-xl border border-white/[0.08] bg-[#1A233A]/60 px-3.5 py-2 backdrop-blur-md">
-                        <div className="h-2 w-2 rounded-full bg-[#5B6CF0]" />
-                        <span className="text-xs text-[#94A3B8]">Tổng tài liệu:</span>
-                        <span className="text-sm font-bold text-[#ECF0F7]">{stats.total}</span>
+                    <div className="flex items-center gap-2 rounded-xl border border-white/[0.08] bg-muted/60 px-3.5 py-2 backdrop-blur-md">
+                        <div className="h-2 w-2 rounded-full bg-primary" />
+                        <span className="text-xs text-muted-foreground">Tổng tài liệu:</span>
+                        <span className="text-sm font-bold text-foreground">{stats.total}</span>
                     </div>
 
-                    <div className="flex items-center gap-2 rounded-xl border border-white/[0.08] bg-[#1A233A]/60 px-3.5 py-2 backdrop-blur-md">
-                        <div className="h-2 w-2 rounded-full bg-[#F59E0B]" />
-                        <span className="text-xs text-[#94A3B8]">Cần duyệt:</span>
-                        <span className="text-sm font-bold text-[#FBBF24]">{stats.needsReview}</span>
+                    <div className="flex items-center gap-2 rounded-xl border border-white/[0.08] bg-muted/60 px-3.5 py-2 backdrop-blur-md">
+                        <div className="h-2 w-2 rounded-full bg-warning" />
+                        <span className="text-xs text-muted-foreground">Cần duyệt:</span>
+                        <span className="text-sm font-bold text-warning">{stats.needsReview}</span>
                     </div>
 
-                    <div className="flex items-center gap-2 rounded-xl border border-white/[0.08] bg-[#1A233A]/60 px-3.5 py-2 backdrop-blur-md">
-                        <div className="h-2 w-2 rounded-full bg-[#36DDAB]" />
-                        <span className="text-xs text-[#94A3B8]">Đã duyệt:</span>
-                        <span className="text-sm font-bold text-[#36DDAB]">{stats.confirmed}</span>
+                    <div className="flex items-center gap-2 rounded-xl border border-white/[0.08] bg-muted/60 px-3.5 py-2 backdrop-blur-md">
+                        <div className="h-2 w-2 rounded-full bg-success" />
+                        <span className="text-xs text-muted-foreground">Đã duyệt:</span>
+                        <span className="text-sm font-bold text-success">{stats.confirmed}</span>
                     </div>
                 </div>
             </div>

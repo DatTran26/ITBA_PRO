@@ -2,26 +2,73 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import {
   ArrowRight,
-  BrainCircuit,
+  Inbox,
+  Filter,
+  FileCheck2,
+  MessagesSquare,
+  Mail,
+  UserCheck,
+  Sparkles,
+  ShieldCheck,
   Timer,
-  LineChart,
-  Target,
-  Shield,
-  Globe,
-  Cpu,
-  Layers,
-  MessageSquare,
-  Database,
-  Zap,
-  Wind,
-  Code
+  ClipboardList,
+  PlayCircle,
 } from "lucide-react";
-import { FadeIn, StaggerContainer, StaggerItem, PageTransition, TiltCard, RevealText } from "@/components/ui/motion-wrapper";
-import BackgroundOrbs from "@/components/ui/background-orbs";
-import { NeuralNetwork } from "@/components/ui/neural-network";
+import { FadeIn, StaggerContainer, StaggerItem, PageTransition } from "@/components/ui/motion-wrapper";
+
+/** Bốn bước chính của phễu tuyển dụng. Dải chuyển sắc xanh → lục chạy theo
+ *  chiều đi của ứng viên là chi tiết nhận diện riêng của ITBA. */
+const PIPELINE = [
+  { icon: Inbox, label: "Nhận hồ sơ", value: "412", color: "var(--primary)" },
+  { icon: Filter, label: "AI sàng lọc", value: "294", color: "var(--primary)" },
+  { icon: FileCheck2, label: "Làm bài test", value: "183", color: "var(--primary)" },
+  { icon: MessagesSquare, label: "Phỏng vấn", value: "94", color: "var(--success)" },
+  { icon: Mail, label: "Gửi offer", value: "37", color: "var(--success)" },
+  { icon: UserCheck, label: "Nhận việc", value: "24", color: "var(--success)" },
+];
+
+const PROOF = [
+  { value: "4,2 phút", label: "trung bình để chấm xong một CV" },
+  { value: "88%", label: "hồ sơ được chấm tự động" },
+  { value: "31 ngày", label: "thời gian tuyển trung bình" },
+  { value: "100%", label: "quyết định đều có ghi căn cứ" },
+];
+
+const FEATURES = [
+  {
+    icon: Sparkles,
+    title: "Chấm CV theo đúng mô tả công việc",
+    body: "Điểm phù hợp được phân rã theo kỹ năng, kinh nghiệm và lĩnh vực chuyên môn. Mỗi thành phần điểm đều kèm căn cứ lấy từ CV, không phải một con số từ trên trời.",
+    tint: "var(--ai-bg)",
+    ink: "var(--ai-txt)",
+    wide: true,
+  },
+  {
+    icon: ClipboardList,
+    title: "Bài test kỹ thuật tự sinh",
+    body: "Sinh đề theo vị trí tuyển dụng, chấm tự động và đối chiếu với điểm CV.",
+    tint: "var(--cyan-bg)",
+    ink: "var(--cyan-txt)",
+  },
+  {
+    icon: ShieldCheck,
+    title: "HR luôn giữ quyền quyết định",
+    body: "AI đề xuất, người duyệt. Mọi lần ghi đè điểm đều bắt buộc ghi lý do và lưu lại người thực hiện.",
+    tint: "var(--ok-bg)",
+    ink: "var(--tg-success)",
+  },
+  {
+    icon: Timer,
+    title: "Không hồ sơ nào bị bỏ quên",
+    body: "Hồ sơ dưới ngưỡng vào danh sách cần xem lại chứ không bị loại thẳng. Quá hạn phản hồi thì hệ thống nhắc.",
+    tint: "var(--warn-bg)",
+    ink: "var(--warn-txt)",
+    wide: true,
+  },
+];
 
 export default function LandingPage() {
   const [scrolled, setScrolled] = useState(false);
@@ -29,294 +76,184 @@ export default function LandingPage() {
 
   useEffect(() => {
     setMounted(true);
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 50);
-    };
-    window.addEventListener("scroll", handleScroll);
+    const handleScroll = () => setScrolled(window.scrollY > 40);
+    window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   if (!mounted) return null;
 
-  const technologies = [
-    { name: 'TypeScript', icon: Code, color: '#00F2FF' },
-    { name: 'Supabase', icon: Database, color: '#3ECF8E' },
-    { name: 'OpenAI', icon: BrainCircuit, color: '#10a37f' },
-    { name: 'Next.js', icon: Layers, color: '#FFFFFF' },
-    { name: 'Vercel', icon: Zap, color: '#FFFFFF' },
-    { name: 'Tailwind', icon: Wind, color: '#38BDF8' }
-  ];
-
   return (
-    <PageTransition className="min-h-screen bg-[#F8FAFC] text-slate-900 selection:bg-orange-100 overflow-hidden font-body relative transition-colors duration-1000">
-
-      {/* Advanced Neural Background */}
-      <NeuralNetwork />
-
-      {/* Arctic Ambient Background */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-[5%] -left-[5%] w-[40%] h-[40%] bg-indigo-100/20 blur-[120px]" />
-        <div className="absolute top-[20%] -right-[10%] w-[35%] h-[35%] bg-rose-100/10 blur-[100px]" />
+    <PageTransition className="tg min-h-screen overflow-hidden relative">
+      {/* Mảng nền mềm — chỉ ở trang giới thiệu, màn hình làm việc không có */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
+        <div className="absolute -top-[10%] -left-[8%] w-[45%] h-[45%] rounded-full bg-primary/40 blur-[130px]" />
+        <div className="absolute top-[35%] -right-[12%] w-[40%] h-[40%] rounded-full bg-primary/60 blur-[120px]" />
       </div>
-
-      <BackgroundOrbs />
 
       <motion.nav
         initial={false}
         animate={{
-          top: scrolled ? 16 : 32,
-          width: scrolled ? "92%" : "calc(100% - 6rem)",
-          paddingTop: scrolled ? 16 : 22,
-          paddingBottom: scrolled ? 16 : 22,
-          backgroundColor: scrolled ? "rgba(255, 255, 255, 0.95)" : "rgba(255, 255, 255, 0.5)",
+          top: scrolled ? 14 : 28,
+          paddingTop: scrolled ? 12 : 16,
+          paddingBottom: scrolled ? 12 : 16,
         }}
-        className="fixed left-1/2 -translate-x-1/2 z-50 max-w-7xl px-12 border border-black/[0.03] rounded-[2.5rem] shadow-[0_20px_50px_-20px_rgba(0,0,0,0.05)] flex justify-between items-center transition-all duration-700 ease-[cubic-bezier(0.23,1,0.32,1)] backdrop-blur-xl"
+        className="fixed left-1/2 -translate-x-1/2 z-50 w-[min(92%,64rem)] px-6 sm:px-8 rounded-full bg-white/90 backdrop-blur-xl border border-[var(--tg-border)] shadow-[var(--sh)] flex justify-between items-center gap-4"
       >
-        <Link href="/" className="flex items-center gap-4 group">
-          <div className="w-10 h-10 rounded-xl bg-slate-900 flex items-center justify-center text-white font-black text-[12px] shadow-2xl group-hover:scale-105 transition-transform duration-500">
-            AI
+        <Link href="/" className="flex items-center gap-3 group shrink-0">
+          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-primary to-primary flex items-center justify-center text-white text-[13px] tg-display shadow-[var(--sh)] group-hover:scale-105 transition-transform">
+            IT
           </div>
-          <span className="text-2xl font-black tracking-tighter uppercase text-slate-900">
-            ITBA.CORE
-          </span>
+          <span className="tg-display text-xl text-[var(--p-deep)] tracking-tight">ITBA</span>
         </Link>
-        <div className="flex gap-12 items-center">
-          <Link href="/login" className="text-base font-mono font-black uppercase tracking-[0.4em] text-orange-600 hover:text-orange-700 transition-all flex items-center gap-1 group">
-            <span className="opacity-40 group-hover:opacity-100 transition-opacity">/ </span>
-            WPCTeam
-            <span className="w-2.5 h-5 bg-orange-600 ml-2 animate-[pulse_1s_infinite] opacity-80" />
-          </Link>
+
+        <div className="hidden md:flex items-center gap-8 text-sm text-[var(--tg-muted)]">
+          <a href="#quy-trinh" className="hover:text-[var(--p-deep)] transition-colors">Quy trình</a>
+          <a href="#tinh-nang" className="hover:text-[var(--p-deep)] transition-colors">Tính năng</a>
         </div>
+
+        <Link
+          href="/login"
+          className="tg-pill px-5 py-2.5 text-sm font-semibold flex items-center gap-2 shrink-0"
+        >
+          Đăng nhập
+          <ArrowRight className="w-4 h-4" />
+        </Link>
       </motion.nav>
 
       <main className="relative z-10">
-        <section className="relative pt-60 pb-32 px-6 overflow-hidden">
-          <div className="max-w-7xl mx-auto text-center relative z-10">
+        <section className="pt-52 sm:pt-56 pb-16 px-6">
+          <div className="max-w-6xl mx-auto">
             <FadeIn>
-              <div className="inline-flex items-center gap-3 px-6 py-3 rounded-full bg-emerald-50 border border-emerald-100 mb-10 group cursor-default">
-                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_10px_rgba(16,185,129,0.5)]" />
-                <span className="text-[10px] font-black uppercase tracking-[0.5em] text-emerald-500">Neural System Online</span>
-              </div>
+              <span className="inline-flex items-center gap-2.5 px-5 py-2.5 rounded-full bg-white border border-[var(--tg-border)] shadow-[var(--sh)] text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--p-deep)]">
+                <span className="w-1.5 h-1.5 rounded-full bg-primary" />
+                Nền tảng tuyển dụng có AI
+              </span>
+            </FadeIn>
+
+            <FadeIn delay={0.1}>
+              <h1 className="tg-display mt-8 text-[clamp(2rem,5.6vw,3.75rem)] text-[var(--p-deep)] max-w-[18ch]">
+                Từ 412 hồ sơ xuống 24 người nhận việc,{" "}
+                <span className="text-primary">không ai bị bỏ sót</span>
+              </h1>
             </FadeIn>
 
             <FadeIn delay={0.2}>
-              <RevealText
-                text="Autonomous Digital Intelligence"
-                className="text-5xl md:text-7xl lg:text-[7rem] font-black tracking-tight mb-10 leading-[1] uppercase silver-silk-text justify-center"
-              />
-            </FadeIn>
-
-            <FadeIn delay={0.3}>
-              <p className="max-w-3xl mx-auto text-slate-500 text-lg md:text-xl font-medium leading-relaxed mb-16 opacity-80">
-                Frontier human potential processing. Neural synthesis of talent, technology, and engineering precision. Redefining intelligence through autonomous synthesis.
+              <p className="mt-7 max-w-[60ch] text-lg text-[var(--tg-muted)] leading-relaxed">
+                Chấm CV theo đúng mô tả công việc, chấm bài test kỹ thuật, và ghi lại căn cứ cho
+                từng quyết định để HR có thể lật lại bất cứ lúc nào.
               </p>
             </FadeIn>
 
-            <FadeIn delay={0.4}>
-              <div className="flex flex-col sm:flex-row items-center justify-center gap-8">
-                <Link href="/login" className="relative group px-16 py-6 bg-slate-900 rounded-[2rem] font-black text-sm uppercase tracking-[0.3em] text-white overflow-hidden shadow-[0_20px_60px_-20px_rgba(139,92,246,0.6)] transition-all duration-500 hover:shadow-[0_25px_80px_-15px_rgba(139,92,246,0.8)] hover:-translate-y-1.5 active:scale-95 active:translate-y-0">
-                  <div className="absolute inset-0 bg-gradient-to-r from-indigo-700 via-violet-700 to-rose-700 opacity-95 group-hover:opacity-100 transition-opacity duration-500" />
-                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-in-out" />
-                  <span className="relative z-10 flex items-center justify-center gap-4">
-                    Launch System
-                    <ArrowRight className="w-5 h-5 transition-transform duration-500 group-hover:translate-x-2" />
-                  </span>
+            <FadeIn delay={0.3}>
+              <div className="mt-10 flex flex-wrap gap-3">
+                <Link href="/login" className="tg-pill px-7 py-3.5 text-[15px] font-semibold flex items-center gap-2.5">
+                  Dùng thử miễn phí
+                  <ArrowRight className="w-[18px] h-[18px]" />
                 </Link>
-                <Link href="#features" className="px-16 py-6 bg-white border border-rose-100 text-slate-900 rounded-[2rem] font-black text-sm uppercase tracking-[0.3em] hover:bg-rose-50 transition-all shadow-sm">
-                  Briefing
-                </Link>
+                <a href="#quy-trinh" className="tg-pill-ghost px-7 py-3.5 text-[15px] font-semibold flex items-center gap-2.5">
+                  <PlayCircle className="w-[18px] h-[18px]" />
+                  Xem quy trình
+                </a>
               </div>
             </FadeIn>
 
-            {/* Arctic Tech Badges */}
-            <FadeIn delay={0.6}>
-              <div className="mt-40">
-                <p className="text-[11px] font-black tracking-[0.6em] text-[#475569] uppercase mb-16 opacity-60">Verified Infrastructure</p>
-                <div className="flex flex-wrap justify-center items-center gap-8 md:gap-12">
-                  {technologies.map((tech, i) => (
-                    <motion.div
-                      key={i}
-                      whileHover={{ y: -8, scale: 1.02 }}
-                      className="group relative px-8 py-5 rounded-2xl bg-white border border-indigo-50 flex items-center gap-4 transition-all duration-500 hover:border-violet-300 shadow-sm hover:shadow-md cursor-pointer"
-                    >
-                      <div
-                        className={`relative z-10 w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center border border-slate-100 transition-all duration-500`}
-                        style={{ color: i % 3 === 0 ? '#8B5CF6' : i % 3 === 1 ? '#3B82F6' : '#EF4444' }}
-                      >
-                        <tech.icon className="w-5 h-5 transition-transform duration-500 group-hover:scale-110" />
-                      </div>
-
-                      <div className="relative z-10 flex flex-col items-start leading-none gap-1">
-                        <span className="text-lg font-black tracking-tight text-slate-900">
-                          {tech.name}
-                        </span>
-                        <span className="text-[8px] font-black uppercase tracking-[0.2em] text-slate-400">
-                          Protocol
-                        </span>
-                      </div>
-                    </motion.div>
-                  ))}
-                </div>
-              </div>
-            </FadeIn>
+            <StaggerContainer className="mt-16 grid grid-cols-2 lg:grid-cols-4 gap-3">
+              {PROOF.map((p) => (
+                <StaggerItem key={p.label}>
+                  <div className="tg-card-sm p-5 h-full">
+                    <div className="tg-display text-[22px] text-[var(--p-deep)] tabular-nums">{p.value}</div>
+                    <p className="mt-1 text-[13px] text-[var(--tg-muted)] leading-snug">{p.label}</p>
+                  </div>
+                </StaggerItem>
+              ))}
+            </StaggerContainer>
           </div>
         </section>
 
-        {/* Bento Grid: Arctic Minimalist */}
-        <section id="features" className="py-52 px-6 relative">
-          <div className="max-w-7xl mx-auto">
-            <div className="text-center mb-40">
-              <div className="inline-block px-8 py-3 rounded-full bg-slate-100 text-slate-400 text-[11px] font-black uppercase tracking-[0.6em] mb-10 border border-slate-200">Core Specs</div>
-              <h2 className="text-6xl md:text-7xl font-black silver-silk-text tracking-tight mb-10 leading-none uppercase">Neural Precision</h2>
-              <p className="max-w-3xl mx-auto text-slate-400 text-[13px] font-black uppercase tracking-[0.5em]">System-wide optimization protocols.</p>
-            </div>
+        <section id="quy-trinh" className="py-20 px-6 scroll-mt-32">
+          <div className="max-w-6xl mx-auto">
+            <FadeIn>
+              <h2 className="tg-heading text-[clamp(1.4rem,3vw,2rem)] text-[var(--tg-text)]">
+                Sáu bước, mỗi bước đều có số
+              </h2>
+              <p className="mt-3 max-w-[64ch] text-[15px] text-[var(--tg-muted)]">
+                Số liệu quý III của một vị trí Kỹ sư Backend. HR nhìn một lần là biết hồ sơ đang
+                đọng ở đâu.
+              </p>
+            </FadeIn>
 
-            <StaggerContainer className="grid grid-cols-1 md:grid-cols-12 gap-12 auto-rows-[480px]">
-               {/* Feature 1 */}
-                <StaggerItem className="md:col-span-8">
-                  <TiltCard className="h-full">
-                    <div className="inner-glow-card p-12 h-full flex flex-col justify-between group rounded-[2.5rem]">
-                      <div className="space-y-8">
-                         <div className="w-16 h-16 rounded-2xl bg-violet-50 flex items-center justify-center text-violet-600 border border-violet-100 group-hover:scale-105 transition-transform duration-500">
-                            <BrainCircuit className="w-8 h-8" />
-                         </div>
-                         <h3 className="text-4xl font-black uppercase silver-silk-text tracking-tighter">Synthesis Engine</h3>
-                         <p className="text-slate-500 text-lg leading-relaxed max-w-lg font-medium">
-                            Real-time neural processing of candidate capabilities. Orchestrating assessment protocols with zero-latency.
-                         </p>
-                      </div>
-                      <div className="h-32 w-full bg-indigo-50/50 rounded-3xl border border-indigo-100 p-8 flex items-end gap-3 group-hover:border-indigo-300 transition-all duration-500">
-                        {[40, 70, 45, 90, 65, 80, 55, 30, 85].map((h, i) => (
-                          <motion.div
-                            key={i}
-                            initial={{ height: 0 }}
-                            whileInView={{ height: `${h}%` }}
-                            transition={{ delay: i * 0.05, duration: 1.5, ease: "circOut" }}
-                            className={`flex-1 rounded-t-lg opacity-40 hover:opacity-100 transition-all`}
-                            style={{ backgroundColor: i % 3 === 0 ? '#8B5CF6' : i % 3 === 1 ? '#3B82F6' : '#EF4444' }}
-                          />
-                        ))}
-                      </div>
+            <StaggerContainer className="mt-10 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+              {PIPELINE.map((s) => (
+                <StaggerItem key={s.label}>
+                  <div className="tg-card-sm overflow-hidden h-full">
+                    <div className="h-12 grid place-items-center text-white" style={{ background: s.color }}>
+                      <s.icon className="w-5 h-5" />
                     </div>
-                  </TiltCard>
-                </StaggerItem>
-
-               {/* Feature 2 */}
-                <StaggerItem className="md:col-span-4">
-                  <TiltCard className="h-full">
-                    <div className="h-full bg-white border border-slate-100 p-12 flex flex-col justify-center text-center gap-10 rounded-[2.5rem] group">
-                      <div className="mx-auto w-24 h-24 rounded-[2.5rem] bg-slate-50 flex items-center justify-center text-slate-900 border border-slate-100 group-hover:scale-105 group-hover:rotate-6 transition-all duration-700">
-                        <Target className="w-12 h-12" />
-                      </div>
-                      <div>
-                         <h4 className="text-[10px] font-black text-rose-500 uppercase tracking-[0.5em] mb-4">Neural Ops</h4>
-                         <h3 className="text-2xl font-black text-slate-900 mb-6 uppercase tracking-tight">Intelligence</h3>
-                         <p className="text-slate-400 text-[11px] leading-loose font-black uppercase tracking-[0.2em]">High-fidelity screening.</p>
-                      </div>
+                    <div className="px-3 pt-3 pb-4 text-center">
+                      <div className="tg-display text-lg text-[var(--tg-text)] tabular-nums">{s.value}</div>
+                      <p className="mt-0.5 text-[12px] text-[var(--tg-muted)]">{s.label}</p>
                     </div>
-                  </TiltCard>
+                  </div>
                 </StaggerItem>
-
-               {/* Feature 3 */}
-                <StaggerItem className="md:col-span-4">
-                  <TiltCard className="h-full">
-                    <div className="h-full bg-white border border-slate-100 p-12 flex flex-col items-start gap-8 rounded-[2.5rem] group">
-                      <div className="w-16 h-16 rounded-2xl bg-slate-50 flex items-center justify-center text-slate-900 border border-slate-100">
-                        <Shield className="w-8 h-8" />
-                      </div>
-                      <div className="space-y-4">
-                        <h3 className="text-2xl font-black text-slate-900 uppercase tracking-tight">Security</h3>
-                        <p className="text-slate-500 text-[11px] leading-relaxed font-black uppercase tracking-widest">Enterprise-grade encryption and autonomous validation.</p>
-                      </div>
-                      <div className="mt-auto w-full pt-8 border-t border-indigo-50 text-[10px] font-black text-violet-600 uppercase tracking-[0.4em] flex items-center gap-3">
-                        <span className="w-2 h-2 rounded-full bg-violet-600 animate-pulse" />
-                        Verified
-                      </div>
-                    </div>
-                  </TiltCard>
-                </StaggerItem>
-
-               {/* Feature 4 */}
-                <StaggerItem className="md:col-span-8">
-                  <TiltCard className="h-full">
-                    <div className="h-full inner-glow-card p-12 flex items-center justify-between gap-12 rounded-[2.5rem] group overflow-hidden">
-                      <div className="space-y-8 flex-1">
-                         <h3 className="text-4xl font-black uppercase silver-silk-text tracking-tighter">Strategic BRIEF</h3>
-                         <p className="text-slate-500 text-lg font-medium leading-relaxed">
-                            Transforming terminal output into actionable strategic intelligence for elite global engineering teams.
-                         </p>
-                      </div>
-                      <div className="hidden lg:block w-64 h-64 relative">
-                         <div className="absolute inset-0 bg-indigo-500/5 rounded-full blur-[80px]" />
-                         <MessageSquare className="w-full h-full text-indigo-600 opacity-[0.03] rotate-[10deg] scale-125" />
-                      </div>
-                    </div>
-                  </TiltCard>
-                </StaggerItem>
+              ))}
             </StaggerContainer>
+          </div>
+        </section>
+
+        <section id="tinh-nang" className="py-20 px-6 scroll-mt-32">
+          <div className="max-w-6xl mx-auto">
+            <FadeIn>
+              <h2 className="tg-heading text-[clamp(1.4rem,3vw,2rem)] text-[var(--tg-text)]">
+                AI chấm điểm, con người quyết định
+              </h2>
+            </FadeIn>
+
+            <StaggerContainer className="mt-10 grid grid-cols-1 md:grid-cols-12 gap-4">
+              {FEATURES.map((f) => (
+                <StaggerItem key={f.title} className={f.wide ? "md:col-span-7" : "md:col-span-5"}>
+                  <div className="tg-card p-8 h-full flex flex-col gap-4">
+                    <span className="tg-ico" style={{ background: f.tint, color: f.ink }}>
+                      <f.icon className="w-5 h-5" />
+                    </span>
+                    <h3 className="tg-heading text-xl text-[var(--tg-text)]">{f.title}</h3>
+                    <p className="text-[15px] text-[var(--tg-muted)] leading-relaxed">{f.body}</p>
+                  </div>
+                </StaggerItem>
+              ))}
+            </StaggerContainer>
+          </div>
+        </section>
+
+        <section className="pb-24 px-6">
+          <div className="max-w-6xl mx-auto tg-card px-8 py-12 sm:px-12 text-center flex flex-col items-center gap-6">
+            <h2 className="tg-display text-[clamp(1.5rem,3.4vw,2.25rem)] text-[var(--p-deep)] max-w-[20ch]">
+              Bắt đầu với vị trí đang tuyển gấp nhất của bạn
+            </h2>
+            <p className="max-w-[54ch] text-[15px] text-[var(--tg-muted)]">
+              Tải lên mô tả công việc và một tập CV, hệ thống trả về danh sách đã xếp hạng kèm căn cứ.
+            </p>
+            <Link href="/login" className="tg-pill px-8 py-3.5 text-[15px] font-semibold flex items-center gap-2.5">
+              Dùng thử miễn phí
+              <ArrowRight className="w-[18px] h-[18px]" />
+            </Link>
           </div>
         </section>
       </main>
 
-      {/* Arctic High-End Footer */}
-      <footer className="relative z-10 border-t border-slate-100 bg-white pt-32 pb-16 px-6 overflow-hidden">
-        <div className="max-w-6xl mx-auto">
-          <div className="flex flex-col lg:flex-row items-start justify-between gap-20 mb-32">
-            <div className="space-y-10 max-w-sm">
-              <Link href="/" className="inline-flex items-center gap-4 group">
-                <div className="w-12 h-12 rounded-xl bg-slate-900 flex items-center justify-center text-white font-black text-xl shadow-2xl transition-transform duration-700">
-                  AI
-                </div>
-                <span className="text-2xl font-black tracking-tighter silver-silk-text uppercase">
-                  ITBA.CORE
-                </span>
-              </Link>
-              <p className="text-slate-400 text-[15px] leading-[1.8] font-medium">
-                Premium engineering excellence and autonomous technical screening. Redefining intelligence through neural synthesis.
-              </p>
+      <footer className="relative z-10 border-t border-[var(--tg-border)] bg-white/70 backdrop-blur-sm px-6 py-12">
+        <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-6">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-primary to-primary flex items-center justify-center text-white text-[13px] tg-display">
+              IT
             </div>
-
-            <div className="w-full lg:max-w-md p-10 inner-glow-card border-slate-100 rounded-[2rem]">
-               <h4 className="text-lg font-black silver-silk-text mb-3 uppercase tracking-tight">Launch Platform</h4>
-               <p className="text-slate-400 text-xs mb-8 font-black uppercase tracking-widest">Technical briefings directly to terminal.</p>
-               <div className="flex gap-3">
-                 <input
-                    type="email"
-                    placeholder="TERMINAL@ITBA.CORE"
-                    className="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-5 py-3 text-[10px] font-black text-slate-900 focus:border-violet-400 outline-none transition-all placeholder:text-slate-300"
-                 />
-                 <button className="px-8 py-3 bg-indigo-600 text-white rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-violet-700 transition-all shadow-lg">
-                   LAUNCH
-                 </button>
-               </div>
-            </div>
+            <span className="text-sm text-[var(--tg-muted)]">
+              © {new Date().getFullYear()} ITBA · Nền tảng tuyển dụng có AI
+            </span>
           </div>
-
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-16 mb-32">
-            {[
-              { title: "Capabilities", links: ["Neural Engine", "Assessment Suite", "Intelligence", "Role Synthesis"] },
-              { title: "Ecosystem", links: ["API Terminal", "Integrations", "Security", "Global Edge"] },
-              { title: "Infrastructure", links: ["Documentation", "System Logs", "Architectural", "Status"], special: true }
-            ].map((col, i) => (
-              <div key={i} className="space-y-8">
-                <h4 className="text-[10px] font-black uppercase tracking-[0.5em] text-slate-900 opacity-30">{col.title}</h4>
-                <ul className="space-y-5">
-                  {col.links.map((link, j) => (
-                    <li key={j} className="text-[13px] font-black uppercase tracking-widest text-slate-400 hover:text-slate-900 transition-all cursor-pointer">
-                      {link}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ))}
-          </div>
-
-          <div className="pt-12 border-t border-slate-100 flex flex-col md:flex-row justify-between items-center gap-8 text-[10px] font-black tracking-[0.4em] text-slate-300 uppercase">
-             <span>© {new Date().getFullYear()} ITBA CORE. PROCESSED IN SILICON VALLEY.</span>
-             <div className="flex gap-10">
-               <span className="hover:text-slate-900 cursor-pointer transition-colors">Legal</span>
-               <span className="hover:text-slate-900 cursor-pointer transition-colors">Protocols</span>
-             </div>
+          <div className="flex gap-7 text-sm text-[var(--tg-muted)]">
+            <span className="hover:text-[var(--p-deep)] cursor-pointer transition-colors">Điều khoản</span>
+            <span className="hover:text-[var(--p-deep)] cursor-pointer transition-colors">Bảo mật</span>
           </div>
         </div>
       </footer>

@@ -17,11 +17,11 @@ const SIMPLE_ACTIONS: Record<
   { action: SimpleAction; label: string; color: string }[]
 > = {
   PASSED: [
-    { action: "make_offer", label: "Gửi offer", color: "bg-[#06B6D4]/15 border-[#06B6D4]/30 text-[#06B6D4] hover:bg-[#06B6D4]/25" },
+    { action: "make_offer", label: "Gửi offer", color: "bg-primary/15 border-primary/30 text-primary hover:bg-primary/25" },
   ],
   OFFERED: [
-    { action: "accept", label: "Chấp nhận", color: "bg-[#22C55E]/15 border-[#22C55E]/30 text-[#22C55E] hover:bg-[#22C55E]/25" },
-    { action: "reject", label: "Từ chối offer", color: "bg-[#EF4444]/15 border-[#EF4444]/30 text-[#EF4444] hover:bg-[#EF4444]/25" },
+    { action: "accept", label: "Chấp nhận", color: "bg-success/15 border-success/30 text-success hover:bg-success/25" },
+    { action: "reject", label: "Từ chối offer", color: "bg-danger/15 border-danger/30 text-danger hover:bg-danger/25" },
   ],
   ACCEPTED: [],
   // All other statuses: no offer actions
@@ -76,7 +76,7 @@ export default function OfferActions({ applicationId, pipelineStatus, onSuccess 
         {showOnboard && <OnboardDialog applicationId={applicationId} onSuccess={onSuccess} />}
       </div>
       {error && (
-        <p className="text-xs text-[#EF4444]">{error}</p>
+        <p className="text-xs text-danger">{error}</p>
       )}
     </div>
   );

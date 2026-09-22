@@ -1,0 +1,325 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&amp;family=JetBrains+Mono:wght@500;600&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap">
+  <style>
+    body { margin: 0; background: #F6F8FB; color: #0F172A; font-family: "Plus Jakarta Sans", system-ui, -apple-system, "Segoe UI", sans-serif; font-size: 14px; line-height: 1.5; -webkit-font-smoothing: antialiased; }
+    a { color: #2F5BEA; text-decoration: none; }
+    a:hover { color: #2549C9; text-decoration: underline; }
+    .display { font-family: "Bricolage Grotesque", "Plus Jakarta Sans", system-ui, sans-serif; font-optical-sizing: auto; letter-spacing: -0.02em; }
+    .mono { font-family: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace; font-variant-numeric: tabular-nums; }
+    .scan { font-family: "Times New Roman", Times, "Liberation Serif", serif; }
+    button, input { font: inherit; color: inherit; }
+    button { cursor: pointer; }
+    .btn { transition: background-color 120ms cubic-bezier(.2,.8,.2,1), transform 120ms cubic-bezier(.2,.8,.2,1); }
+    .btn:active { transform: scale(.98); }
+    .btn-primary:hover { background: #2549C9 !important; }
+    .btn-quiet:hover { background: #F1F4F8 !important; }
+    .btn-text:hover { background: #EEF2FD !important; }
+    .nav:hover { background: rgba(255,255,255,.08); }
+    aside :focus-visible { outline-color: #FFFFFF; }
+    .row { transition: background-color 200ms cubic-bezier(.2,.8,.2,1), border-color 200ms cubic-bezier(.2,.8,.2,1); }
+    .thread { fill: none; stroke-linecap: round; transition: stroke-dashoffset 600ms cubic-bezier(.2,.8,.2,1), opacity 200ms cubic-bezier(.2,.8,.2,1), stroke-width 200ms cubic-bezier(.2,.8,.2,1); }
+    .thread-dot { transition: opacity 200ms cubic-bezier(.2,.8,.2,1); }
+    .src { transition: background-color 200ms cubic-bezier(.2,.8,.2,1), box-shadow 200ms cubic-bezier(.2,.8,.2,1); border-radius: 3px; }
+    .field:focus { outline: 2px solid #2F5BEA; outline-offset: 1px; border-color: #2F5BEA !important; }
+    :focus-visible { outline: 2px solid #2F5BEA; outline-offset: 2px; }
+    @media (prefers-reduced-motion: reduce) { .thread, .thread-dot, .src, .row, .btn { transition: none; } }
+  </style>
+</helmet>
+<div style="display: flex; width: 1440px; height: 960px; background: #F6F8FB; overflow: hidden;">
+
+  <aside style="width: 248px; flex-shrink: 0; background: #2549C9; color: #FFFFFF; border-right: 1px solid rgba(255,255,255,.12); display: flex; flex-direction: column; padding: 16px 12px; gap: 20px; box-sizing: border-box;">
+    <div style="display: flex; align-items: center; gap: 10px; padding: 4px 8px;">
+      <div style="width: 28px; height: 28px; border-radius: 8px; background: #FFFFFF; color: #1B2F8F; display: flex; align-items: center; justify-content: center; font-weight: 700;">D</div>
+      <span class="display" style="font-size: 17px; font-weight: 700;">DownTown</span>
+    </div>
+    <div class="nav" style="display: flex; align-items: center; gap: 10px; height: 36px; padding: 0 10px; border-radius: 8px; color: #DCE3FA; font-weight: 500;">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"></path></svg>
+      <span>Tổng quan</span>
+    </div>
+    <div style="display: flex; flex-direction: column; gap: 2px;">
+      <div style="font-size: 12px; font-weight: 600; color: #DCE3FA; padding: 0 10px 4px;">Tài liệu</div>
+      <div class="nav" style="display: flex; align-items: center; gap: 10px; height: 36px; padding: 0 10px; border-radius: 8px; background: rgba(255,255,255,.14); color: #FFFFFF; font-weight: 600;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path><path d="M14 3v6h6M8 13h8M8 17h5"></path></svg>
+        <span>Thư viện tài liệu</span>
+      </div>
+      <div class="nav" style="display: flex; align-items: center; gap: 10px; height: 36px; padding: 0 10px; border-radius: 8px; color: #DCE3FA; font-weight: 500;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 12h16M4 18h10"></path></svg>
+        <span>Hàng đợi xử lý</span>
+      </div>
+    </div>
+    <div style="display: flex; flex-direction: column; gap: 2px;">
+      <div style="font-size: 12px; font-weight: 600; color: #DCE3FA; padding: 0 10px 4px;">Tuyển dụng</div>
+      <div class="nav" style="display: flex; align-items: center; gap: 10px; height: 36px; padding: 0 10px; border-radius: 8px; color: #DCE3FA; font-weight: 500;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"></rect><path d="M9 3v18M15 3v18"></path></svg>
+        <span>Pipeline</span>
+      </div>
+    </div>
+  </aside>
+
+  <main style="flex: 1; display: flex; flex-direction: column; min-width: 0;">
+    <header style="padding: 24px 32px 16px; display: flex; flex-direction: column; gap: 10px;">
+      <span style="font-size: 13px; color: #5B6577;">Tài liệu / Huong-dan-quyet-toan-thue.pdf</span>
+      <div style="display: flex; justify-content: space-between; align-items: flex-end; gap: 24px;">
+        <div style="display: flex; flex-direction: column; gap: 10px;">
+          <h1 class="display" style="margin: 0; font-size: 30px; font-weight: 700; line-height: 1.15;">Review trích xuất</h1>
+          <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+            <span style="display: inline-flex; align-items: center; height: 24px; padding: 0 10px; border-radius: 9999px; font-size: 12px; font-weight: 600; background: #EAF6EE; color: #15803D;">OCR hoàn tất</span>
+            <span style="display: inline-flex; align-items: center; height: 24px; padding: 0 10px; border-radius: 9999px; font-size: 12px; font-weight: 600; background: #EEF1F5; color: #5B6577;">PDF scan, 2 trang</span>
+            <span style="display: inline-flex; align-items: center; height: 24px; padding: 0 10px; border-radius: 9999px; font-size: 12px; font-weight: 600; background: #EEF1F5; color: #5B6577;">Xử lý trong 4.2 giây</span>
+            <span style="display: inline-flex; align-items: center; height: 24px; padding: 0 10px; border-radius: 9999px; font-size: 12px; font-weight: 600; background: {{ pendingBg }}; color: {{ pendingFg }};">{{ pendingLabel }}</span>
+          </div>
+        </div>
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <button class="btn btn-quiet" style="height: 40px; padding: 0 16px; border-radius: 8px; border: 1px solid #E3E8EF; background: #FFFFFF; font-weight: 600;">Yêu cầu OCR lại</button>
+          <button class="btn btn-primary" onClick="{{ save }}" aria-disabled="{{ saveDisabled }}" style="height: 40px; padding: 0 16px; border-radius: 8px; border: 0; background: #2F5BEA; color: #FFFFFF; font-weight: 600; opacity: {{ saveOpacity }}; cursor: {{ saveCursor }};">Xác nhận và lưu</button>
+        </div>
+      </div>
+      <sc-if value="{{ saved }}" hint-placeholder-val="{{ false }}">
+        <div role="status" style="display: flex; align-items: center; gap: 8px; padding: 10px 14px; border-radius: 8px; background: #EAF6EE; color: #15803D; font-weight: 500; font-size: 13px;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-10"></path></svg>
+          Đã lưu 5 trường vào thư viện tài liệu. Lịch sử hiệu chỉnh được giữ cùng bản OCR gốc.
+        </div>
+      </sc-if>
+    </header>
+
+    <div data-thread-root="doc" style="position: relative; flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(0, 1fr) 500px; gap: 72px; padding: 4px 32px 24px;">
+      <section style="background: #EEF1F5; border-radius: 12px; padding: 16px; display: flex; flex-direction: column; gap: 10px; min-height: 0;">
+        <div style="display: flex; justify-content: space-between; font-size: 13px;">
+          <span style="font-weight: 600;">Bản scan gốc</span>
+          <span style="color: #5B6577;">Trang 1 trên 2</span>
+        </div>
+        <div data-thread-scroll style="flex: 1; min-height: 0; overflow: auto;">
+          <article data-thread-edge class="scan" style="background: #FFFFFF; border: 1px solid #E3E8EF; padding: 36px 44px; font-size: 15px; line-height: 1.62; color: #0F172A; display: flex; flex-direction: column; gap: 12px;">
+            <div style="text-align: center;"><strong class="src" data-src="title" style="font-size: 17px; padding: 1px 3px; background: {{ hlTitle }}; box-shadow: {{ ringTitle }};">Quyết toán thuế</strong></div>
+            <p style="margin: 0;">Căn cứ theo quy định tại <span class="src" data-src="legal" style="padding: 1px 2px; background: {{ hlLegal }}; box-shadow: {{ ringLegal }};">điểm b, khoản 1, Điều 43, Luật Quản lý thuế số 38/2019/QH14</span> quy định về hồ sơ khai quyết toán thuế như sau: Hồ sơ khai quyết toán thuế khi kết thúc năm gồm tờ khai quyết toán thuế năm, báo cáo tài chính năm, tờ khai giao dịch liên kết.</p>
+            <p style="margin: 0;">Doanh nghiệp thực hiện lập báo cáo quyết toán thuế cho các sắc thuế: <span class="src" data-src="types" style="padding: 1px 2px; background: {{ hlTypes }}; box-shadow: {{ ringTypes }};">Thuế thu nhập doanh nghiệp (TNDN), Thuế thu nhập cá nhân (TNCN), Thuế giá trị gia tăng (GTGT)</span>.</p>
+            <p style="margin: 0;"><strong>e.1 Lập báo cáo quyết toán thuế hàng năm</strong></p>
+            <p style="margin: 0;">Bước 1: Chuẩn bị hồ sơ chứng từ, số liệu trong kỳ báo cáo. Tờ khai thuế GTGT, TNDN; hoá đơn mua vào, bán ra; giấy nộp tiền thuế; sổ cái và sổ chi tiết.</p>
+            <p style="margin: 0;"><em><strong>Yêu cầu:</strong></em> Sau khi tập hợp xong, kế toán cần rà soát lại toàn bộ số liệu, chứng từ để kịp thời điều chỉnh nếu phát hiện sai sót.</p>
+            <p style="margin: 0;">Bước 2: Tích hợp và tổng hợp số liệu từ các tờ khai, báo cáo tài chính, báo cáo lãi lỗ và bảng phân bổ chi phí.</p>
+            <p style="margin: 0;">Bước 3: Lập bảng báo cáo quyết toán</p>
+            <p style="margin: 0;">Lập tờ khai <span class="src" data-src="forms" style="padding: 1px 2px; background: {{ hlForms }}; box-shadow: {{ ringForms }};">Quyết toán thuế TNDN (theo Mẫu 03/TNDN), tờ khai Quyết toán Thuế TNCN (Mẫu 05/QTT-TNCN)</span></p>
+            <p style="margin: 0;">Phân bổ số thuế GTGT đầu vào (theo <span class="src" data-src="circular" style="padding: 1px 2px; background: {{ hlCircular }}; box-shadow: {{ ringCircular }};">Thông tư 80/2021/TT-BTC</span>) cho doanh thu nội địa và doanh thu xuất khẩu.</p>
+          </article>
+        </div>
+      </section>
+
+      <section style="background: #FFFFFF; border: 1px solid #E3E8EF; border-radius: 12px; box-shadow: 0 1px 2px rgba(15,23,42,.05); display: flex; flex-direction: column; min-height: 0; overflow: hidden;">
+        <div style="padding: 16px 20px 12px; display: flex; flex-direction: column; gap: 4px; border-bottom: 1px solid #E3E8EF;">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h2 style="margin: 0; font-size: 16px; font-weight: 600;">5 trường trích xuất</h2>
+            <span style="display: inline-flex; align-items: center; gap: 6px; height: 24px; padding: 0 10px; border-radius: 9999px; background: #EEF2FD; color: #2F5BEA; font-size: 12px; font-weight: 600;">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"></path></svg>
+              AI đề xuất
+            </span>
+          </div>
+          <span style="font-size: 13px; color: #5B6577;">Mẫu trích xuất: văn bản hướng dẫn nghiệp vụ. Rê chuột vào trường để xem nguồn.</span>
+        </div>
+        <div data-thread-scroll style="flex: 1; min-height: 0; overflow: auto; padding: 12px; display: flex; flex-direction: column; gap: 8px;">
+          <sc-for list="{{ rows }}" as="r" hint-placeholder-count="5">
+            <div class="row" data-dst="{{ r.key }}" onMouseEnter="{{ r.enter }}" onMouseLeave="{{ leave }}" style="padding: 12px 14px; border-radius: 8px; border: 1px solid {{ r.border }}; background: {{ r.bg }}; display: flex; flex-direction: column; gap: 6px;">
+              <div style="display: flex; justify-content: space-between; align-items: baseline; gap: 8px;">
+                <span style="font-size: 12px; font-weight: 500; color: #5B6577;">{{ r.label }}</span>
+                <span class="mono" style="font-size: 12px; font-weight: 600; color: {{ r.confColor }};">{{ r.conf }}</span>
+              </div>
+              <sc-if value="{{ r.isEditing }}" hint-placeholder-val="{{ false }}">
+                <div style="display: flex; gap: 8px;">
+                  <input class="field" aria-label="{{ r.label }}" value="{{ draft }}" onChange="{{ onDraft }}" style="flex: 1; height: 36px; padding: 0 10px; border: 1px solid #848FA1; border-radius: 8px; background: #FFFFFF; box-sizing: border-box;">
+                  <button class="btn btn-primary" onClick="{{ commit }}" style="height: 36px; padding: 0 12px; border-radius: 8px; border: 0; background: #2F5BEA; color: #FFFFFF; font-weight: 600; font-size: 13px;">Lưu</button>
+                  <button class="btn btn-quiet" onClick="{{ cancel }}" style="height: 36px; padding: 0 12px; border-radius: 8px; border: 1px solid #E3E8EF; background: #FFFFFF; font-weight: 600; font-size: 13px;">Huỷ</button>
+                </div>
+              </sc-if>
+              <sc-if value="{{ r.notEditing }}" hint-placeholder-val="{{ true }}">
+                <span style="font-weight: 600;">{{ r.value }}</span>
+              </sc-if>
+              <sc-if value="{{ r.hasNote }}" hint-placeholder-val="{{ false }}">
+                <span style="font-size: 12px; color: {{ r.noteColor }};">{{ r.note }}</span>
+              </sc-if>
+              <sc-if value="{{ r.notEditing }}" hint-placeholder-val="{{ true }}">
+                <div style="display: flex; gap: 6px; justify-content: flex-end;">
+                  <button class="btn btn-text" onClick="{{ r.edit }}" style="height: 30px; padding: 0 10px; border-radius: 8px; border: 0; background: transparent; color: #2F5BEA; font-weight: 600; font-size: 13px;">Sửa</button>
+                  <sc-if value="{{ r.isWarn }}" hint-placeholder-val="{{ false }}">
+                    <button class="btn btn-primary" onClick="{{ r.confirm }}" style="height: 30px; padding: 0 12px; border-radius: 8px; border: 0; background: #2F5BEA; color: #FFFFFF; font-weight: 600; font-size: 13px;">Xác nhận</button>
+                  </sc-if>
+                </div>
+              </sc-if>
+            </div>
+          </sc-for>
+        </div>
+        <div style="padding: 12px 20px; border-top: 1px solid #E3E8EF; font-size: 13px; color: #5B6577;">Lưu vào: Thư viện tài liệu, nhóm Thuế và kế toán</div>
+      </section>
+
+      <svg aria-hidden="true" style="position: absolute; left: 0; top: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; z-index: 2;">
+        <sc-for list="{{ threads }}" as="t" hint-placeholder-count="0">
+          <path class="thread" d="{{ t.d }}" pathLength="1" style="stroke: {{ t.color }}; stroke-width: {{ t.width }}px; stroke-dasharray: {{ t.dash }}; stroke-dashoffset: {{ t.offset }}; opacity: {{ t.opacity }}; transition-delay: {{ t.delay }};"></path>
+          <circle class="thread-dot" cx="{{ t.x1 }}" cy="{{ t.y1 }}" r="3.5" style="fill: {{ t.color }}; opacity: {{ t.dotOpacity }};"></circle>
+          <circle class="thread-dot" cx="{{ t.x2 }}" cy="{{ t.y2 }}" r="3.5" style="fill: {{ t.color }}; opacity: {{ t.dotOpacity }};"></circle>
+        </sc-for>
+      </svg>
+    </div>
+  </main>
+</div>
+</x-dc>
+<script data-dc-script>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { geo: {}, drawn: false, settled: false, hover: null, editing: null, draft: '', saved: false,
+      values: {}, status: { circular: 'warn' } };
+    this.timers = [];
+  }
+  componentDidMount() {
+    this.initThreads();
+    this.timers.push(setTimeout(() => this.setState({ drawn: true }), 400));
+    this.timers.push(setTimeout(() => this.setState({ settled: true }), 400 + 600 + 5 * 120));
+  }
+  componentDidUpdate() {
+    if (this.onLayout) this.onLayout();
+  }
+  componentWillUnmount() {
+    this.timers.forEach((t) => clearTimeout(t));
+    this.destroyThreads();
+  }
+  initThreads() {
+    this.onLayout = () => {
+      cancelAnimationFrame(this.layoutRaf);
+      this.layoutRaf = requestAnimationFrame(() => this.measureThreads());
+    };
+    if (window.ResizeObserver) {
+      this.ro = new ResizeObserver(this.onLayout);
+      document.querySelectorAll('[data-thread-root]').forEach((el) => this.ro.observe(el));
+    }
+    this.scrollers = Array.prototype.slice.call(document.querySelectorAll('[data-thread-scroll]'));
+    this.scrollers.forEach((el) => el.addEventListener('scroll', this.onLayout, { passive: true }));
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(this.onLayout);
+    this.onLayout();
+  }
+  destroyThreads() {
+    cancelAnimationFrame(this.layoutRaf);
+    if (this.ro) this.ro.disconnect();
+    (this.scrollers || []).forEach((el) => el.removeEventListener('scroll', this.onLayout));
+  }
+  measureThreads() {
+    const out = {};
+    document.querySelectorAll('[data-thread-root]').forEach((root) => {
+      const rr = root.getBoundingClientRect();
+      root.querySelectorAll('[data-src]').forEach((s) => {
+        const k = s.getAttribute('data-src');
+        const d = root.querySelector('[data-dst="' + k + '"]');
+        if (!d) return;
+        const a = s.getBoundingClientRect();
+        const b = d.getBoundingClientRect();
+        if (!a.width || !b.width) return;
+        const edge = s.closest('[data-thread-edge]');
+        const right = edge ? edge.getBoundingClientRect().right : a.right;
+        const x1 = Math.round(right - rr.left + 6);
+        const y1 = Math.round(a.top + a.height / 2 - rr.top);
+        const x2 = Math.round(b.left - rr.left - 6);
+        const y2 = Math.round(b.top + Math.min(b.height / 2, 28) - rr.top);
+        const bend = Math.max(32, Math.abs(x2 - x1) * 0.5);
+        out[k] = {
+          x1: x1, y1: y1, x2: x2, y2: y2, len: Math.hypot(x2 - x1, y2 - y1) * 1.15 + 1,
+          d: 'M' + x1 + ' ' + y1 + ' C' + (x1 + bend) + ' ' + y1 + ' ' + (x2 - bend) + ' ' + y2 + ' ' + x2 + ' ' + y2
+        };
+      });
+    });
+    if (JSON.stringify(out) !== JSON.stringify(this.state.geo || {})) this.setState({ geo: out });
+  }
+  thread(key, opt) {
+    const g = (this.state.geo || {})[key];
+    if (!g) return null;
+    const drawn = !!opt.drawn;
+    const warn = !!opt.warn;
+    const unit = (5 / g.len).toFixed(4);
+    return {
+      d: g.d, x1: g.x1, y1: g.y1, x2: g.x2, y2: g.y2,
+      color: warn ? opt.warnColor : opt.color,
+      width: opt.active ? '2.5' : '1.5',
+      dash: warn && drawn ? unit + ' ' + unit : '1 1',
+      offset: drawn ? '0' : '1',
+      opacity: opt.dim ? '0.25' : '1',
+      delay: drawn && !opt.settled ? ((opt.index || 0) * 120) + 'ms' : '0ms',
+      dotOpacity: drawn ? (opt.dim ? '0.25' : '1') : '0'
+    };
+  }
+  renderVals() {
+    const s = this.state;
+    const defs = [
+      { key: 'title', label: 'Tiêu đề tài liệu', ocr: 'Quyết toán thuế', conf: '0.98' },
+      { key: 'legal', label: 'Căn cứ pháp lý', ocr: 'Điểm b, khoản 1, Điều 43, Luật 38/2019/QH14', conf: '0.94' },
+      { key: 'types', label: 'Sắc thuế', ocr: 'TNDN, TNCN, GTGT', conf: '0.91' },
+      { key: 'forms', label: 'Mẫu tờ khai', ocr: '03/TNDN, 05/QTT-TNCN', conf: '0.88' },
+      { key: 'circular', label: 'Văn bản hướng dẫn', ocr: 'Thông tư 8O/2021/TT-BTC', conf: '0.58' }
+    ];
+    const statusOf = (k) => s.status[k] || 'ok';
+    const pending = defs.filter((d) => statusOf(d.key) === 'warn').length;
+    const hl = (k) => {
+      if (!s.drawn) return 'transparent';
+      return statusOf(k) === 'warn' ? '#FDF3E6' : '#EEF2FD';
+    };
+    const ring = (k) => (s.hover === k ? '0 0 0 2px ' + (statusOf(k) === 'warn' ? '#B45309' : '#2F5BEA') : 'none');
+    const rows = defs.map((d) => {
+      const st = statusOf(d.key);
+      const value = s.values[d.key] !== undefined ? s.values[d.key] : d.ocr;
+      const isEditing = s.editing === d.key;
+      const notes = {
+        warn: ['Ký tự “O” có thể là số 0. Kiểm tra với bản scan.', '#B45309'],
+        edited: ['Đã hiệu chỉnh. Bản OCR gốc: ' + d.ocr, '#2F5BEA'],
+        confirmed: ['HR đã xác nhận giá trị OCR.', '#15803D']
+      };
+      return {
+        key: d.key, label: d.label, value: value,
+        conf: st === 'ok' ? d.conf : (st === 'warn' ? d.conf : 'HR'),
+        confColor: st === 'warn' ? '#B45309' : (st === 'ok' ? '#5B6577' : '#15803D'),
+        border: st === 'warn' ? '#FDF3E6' : (s.hover === d.key ? '#848FA1' : '#E3E8EF'),
+        bg: st === 'warn' ? '#FDF3E6' : '#FFFFFF',
+        isEditing: isEditing, notEditing: !isEditing, isWarn: st === 'warn',
+        hasNote: !isEditing && !!notes[st], note: notes[st] ? notes[st][0] : '', noteColor: notes[st] ? notes[st][1] : '#5B6577',
+        enter: () => this.setState({ hover: d.key }),
+        edit: () => this.setState({ editing: d.key, draft: value }),
+        confirm: () => this.setState({ status: Object.assign({}, this.state.status, { [d.key]: 'confirmed' }) })
+      };
+    });
+    const threads = defs.map((d, i) => this.thread(d.key, {
+      drawn: s.drawn, settled: s.settled, index: i,
+      warn: statusOf(d.key) === 'warn', color: '#2F5BEA', warnColor: '#B45309',
+      active: s.hover === d.key, dim: !!s.hover && s.hover !== d.key
+    })).filter(Boolean);
+    return {
+      rows: rows, threads: threads, draft: s.draft, saved: s.saved,
+      hlTitle: hl('title'), hlLegal: hl('legal'), hlTypes: hl('types'), hlForms: hl('forms'), hlCircular: hl('circular'),
+      ringTitle: ring('title'), ringLegal: ring('legal'), ringTypes: ring('types'), ringForms: ring('forms'), ringCircular: ring('circular'),
+      pendingLabel: pending ? pending + ' trường cần xác nhận' : 'Đã xác nhận đủ trường',
+      pendingBg: pending ? '#FDF3E6' : '#EAF6EE', pendingFg: pending ? '#B45309' : '#15803D',
+      saveDisabled: pending > 0 || s.saved ? 'true' : 'false',
+      saveOpacity: pending > 0 || s.saved ? '0.45' : '1',
+      saveCursor: pending > 0 || s.saved ? 'not-allowed' : 'pointer',
+      save: () => { if (pending === 0) this.setState({ saved: true }); },
+      leave: () => this.setState({ hover: null }),
+      onDraft: (e) => this.setState({ draft: e.target.value }),
+      cancel: () => this.setState({ editing: null }),
+      commit: () => {
+        const key = this.state.editing;
+        const def = defs.filter((d) => d.key === key)[0];
+        const next = this.state.draft.trim() || def.ocr;
+        const st = next !== def.ocr ? 'edited' : (statusOf(key) === 'warn' ? 'confirmed' : statusOf(key));
+        this.setState({
+          editing: null,
+          values: Object.assign({}, this.state.values, { [key]: next }),
+          status: Object.assign({}, this.state.status, { [key]: st })
+        });
+      }
+    };
+  }
+}
+</script>
+</body>
+</html>

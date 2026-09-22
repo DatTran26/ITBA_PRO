@@ -62,7 +62,7 @@ export default function OnboardDialog({ applicationId, onSuccess }: OnboardDialo
     <>
       <button
         onClick={handleOpen}
-        className="px-3 py-1.5 rounded-lg text-sm font-medium bg-[#10B981]/15 border border-[#10B981]/30 text-[#10B981] hover:bg-[#10B981]/25 transition-colors"
+        className="px-3 py-1.5 rounded-lg text-sm font-medium bg-success/15 border border-success/30 text-success hover:bg-success/25 transition-colors"
       >
         Onboard
       </button>
@@ -72,24 +72,24 @@ export default function OnboardDialog({ applicationId, onSuccess }: OnboardDialo
           <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={handleClose} />
           <div className="relative glass-card w-full max-w-md p-6 flex flex-col gap-5">
             <div className="flex items-center justify-between">
-              <h2 className="text-base font-semibold text-[#ECF0F7]">Xác nhận Onboard</h2>
+              <h2 className="text-base font-semibold text-foreground">Xác nhận Onboard</h2>
               <button
                 onClick={handleClose}
-                className="text-[#5A6882] hover:text-[#8B99B0] transition-colors text-lg leading-none"
+                className="text-muted-foreground hover:text-muted-foreground transition-colors text-lg leading-none"
                 aria-label="Đóng"
               >
                 ×
               </button>
             </div>
 
-            <p className="text-sm text-[#8B99B0]">
-              Hành động này sẽ chuyển ứng viên thành <span className="text-[#ECF0F7] font-medium">nhân viên chính thức</span> và cập nhật hồ sơ trong hệ thống.
+            <p className="text-sm text-muted-foreground">
+              Hành động này sẽ chuyển ứng viên thành <span className="text-foreground font-medium">nhân viên chính thức</span> và cập nhật hồ sơ trong hệ thống.
             </p>
 
             <form onSubmit={handleSubmit} className="flex flex-col gap-4">
               <div className="flex flex-col gap-1.5">
-                <label className="text-sm text-[#8B99B0]" htmlFor="joined-date">
-                  Ngày gia nhập <span className="text-[#EF4444]">*</span>
+                <label className="text-sm text-muted-foreground" htmlFor="joined-date">
+                  Ngày gia nhập <span className="text-danger">*</span>
                 </label>
                 <input
                   id="joined-date"
@@ -97,12 +97,12 @@ export default function OnboardDialog({ applicationId, onSuccess }: OnboardDialo
                   value={joinedDate}
                   onChange={(e) => setJoinedDate(e.target.value)}
                   disabled={loading}
-                  className="w-full px-3 py-2 rounded-lg bg-[#0F1628] border border-[#8B99B0]/20 text-[#ECF0F7] text-sm focus:outline-none focus:border-[#7C8FFF]/50 disabled:opacity-50"
+                  className="w-full px-3 py-2 rounded-lg bg-card border border-muted-foreground/20 text-foreground text-sm focus:outline-none focus:border-background/50 disabled:opacity-50"
                 />
               </div>
 
               <div className="flex flex-col gap-1.5">
-                <label className="text-sm text-[#8B99B0]" htmlFor="onboard-note">
+                <label className="text-sm text-muted-foreground" htmlFor="onboard-note">
                   Ghi chú
                 </label>
                 <textarea
@@ -112,12 +112,12 @@ export default function OnboardDialog({ applicationId, onSuccess }: OnboardDialo
                   onChange={(e) => setNote(e.target.value)}
                   placeholder="Ghi chú thêm..."
                   disabled={loading}
-                  className="w-full px-3 py-2 rounded-lg bg-[#0F1628] border border-[#8B99B0]/20 text-[#ECF0F7] text-sm placeholder-[#5A6882] focus:outline-none focus:border-[#7C8FFF]/50 resize-none disabled:opacity-50"
+                  className="w-full px-3 py-2 rounded-lg bg-card border border-muted-foreground/20 text-foreground text-sm placeholder-muted-foreground focus:outline-none focus:border-background/50 resize-none disabled:opacity-50"
                 />
               </div>
 
               {error && (
-                <p className="text-sm text-[#EF4444] bg-[#EF4444]/10 border border-[#EF4444]/20 rounded-lg px-3 py-2">
+                <p className="text-sm text-danger bg-danger/10 border border-danger/20 rounded-lg px-3 py-2">
                   {error}
                 </p>
               )}
@@ -127,14 +127,14 @@ export default function OnboardDialog({ applicationId, onSuccess }: OnboardDialo
                   type="button"
                   onClick={handleClose}
                   disabled={loading}
-                  className="px-4 py-2 rounded-lg text-sm text-[#8B99B0] hover:text-[#ECF0F7] border border-[#8B99B0]/20 hover:border-[#8B99B0]/40 transition-colors disabled:opacity-50"
+                  className="px-4 py-2 rounded-lg text-sm text-muted-foreground hover:text-foreground border border-muted-foreground/20 hover:border-muted-foreground/40 transition-colors disabled:opacity-50"
                 >
                   Hủy
                 </button>
                 <button
                   type="submit"
                   disabled={loading}
-                  className="px-4 py-2 rounded-lg text-sm font-medium bg-[#10B981] text-white hover:bg-[#10B981]/80 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="px-4 py-2 rounded-lg text-sm font-medium bg-success text-white hover:bg-success/80 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {loading ? "Đang xử lý..." : "Xác nhận Onboard"}
                 </button>

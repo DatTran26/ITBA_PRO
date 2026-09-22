@@ -258,15 +258,15 @@ export default async function DashboardPage({
         }
 
         pipeline = [
-            { label: "Test Completed", count: allResults.length, color: "#8B99B0", bgColor: "#8B99B00D" },
-            { label: "Skills Assessed", count: skillsAssessedCount, color: "#B48EFF", bgColor: "#B48EFF0D" },
-            { label: "Level Confirmed", count: levelConfirmedCount, color: "#36DDAB", bgColor: "#36DDAB0D" },
+            { label: "Test Completed", count: allResults.length, color: "var(--muted-foreground)", bgColor: "color-mix(in srgb, var(--muted-foreground) 5%, transparent)" },
+            { label: "Skills Assessed", count: skillsAssessedCount, color: "var(--ai)", bgColor: "color-mix(in srgb, var(--ai) 5%, transparent)" },
+            { label: "Level Confirmed", count: levelConfirmedCount, color: "var(--success)", bgColor: "color-mix(in srgb, var(--success) 5%, transparent)" },
         ];
     } else {
         pipeline = [
-            { label: "Submitted", count: allResults.length, color: "#8B99B0", bgColor: "#8B99B00D" },
-            { label: "Pending Review", count: stats.pendingReview, color: "#FFB86C", bgColor: "#FFB86C0D" },
-            { label: "AI Analyzed", count: aiAnalyzedCount, color: "#B48EFF", bgColor: "#B48EFF0D" },
+            { label: "Submitted", count: allResults.length, color: "var(--muted-foreground)", bgColor: "color-mix(in srgb, var(--muted-foreground) 5%, transparent)" },
+            { label: "Pending Review", count: stats.pendingReview, color: "var(--warning)", bgColor: "color-mix(in srgb, var(--warning) 5%, transparent)" },
+            { label: "AI Analyzed", count: aiAnalyzedCount, color: "var(--ai)", bgColor: "color-mix(in srgb, var(--ai) 5%, transparent)" },
         ];
     }
 

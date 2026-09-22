@@ -39,7 +39,7 @@ export default function UiLayoutToggle({ currentValue }: UiLayoutToggleProps) {
 
     return (
         <div className="px-5 py-4 space-y-4">
-            <p className="text-xs text-[#5A6882]">
+            <p className="text-xs text-muted-foreground">
                 Applies globally to all users. Change broadcasts in real time and refreshes online sessions
                 within ~2 seconds.
             </p>
@@ -105,21 +105,21 @@ function LayoutCard({
             aria-label={`Switch to ${label}`}
             className={`p-4 rounded-xl border-2 text-left transition-all disabled:cursor-default ${
                 active
-                    ? "border-[#7C8FFF] bg-[#7C8FFF]/10"
-                    : "border-[#8B99B0]/20 hover:border-[#7C8FFF]/40 hover:bg-[#7C8FFF]/5 cursor-pointer"
+                    ? "border-border bg-primary/10"
+                    : "border-border/20 hover:border-border/40 hover:bg-primary/5 cursor-pointer"
             }`}
             data-layout={layout}
         >
             <div className="flex items-center gap-3 mb-1">
-                <Icon className={`w-5 h-5 ${active ? "text-[#7C8FFF]" : "text-[#8B99B0]"}`} />
-                <span className="text-sm font-medium text-[#ECF0F7]">{label}</span>
+                <Icon className={`w-5 h-5 ${active ? "text-primary" : "text-muted-foreground"}`} />
+                <span className="text-sm font-medium text-foreground">{label}</span>
                 {active && (
-                    <span className="ml-auto text-[10px] text-[#7C8FFF] uppercase tracking-wider font-semibold">
+                    <span className="ml-auto text-[10px] text-primary uppercase tracking-wider font-semibold">
                         Active
                     </span>
                 )}
             </div>
-            <p className="text-xs text-[#8B99B0] pl-8">{description}</p>
+            <p className="text-xs text-muted-foreground pl-8">{description}</p>
         </SharedDashboardButton>
     );
 }
@@ -148,19 +148,19 @@ function ConfirmDialog({
                 onClick={(e) => e.stopPropagation()}
             >
                 <div className="flex items-start gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-[#F59E0B]/15 border border-[#F59E0B]/30 flex items-center justify-center shrink-0">
-                        <AlertTriangle className="w-5 h-5 text-[#F59E0B]" />
+                    <div className="w-10 h-10 rounded-xl bg-warning/15 border border-border/30 flex items-center justify-center shrink-0">
+                        <AlertTriangle className="w-5 h-5 text-warning" />
                     </div>
                     <div className="flex-1">
-                        <h3 id="ui-layout-confirm-title" className="text-base font-semibold text-[#ECF0F7]">
+                        <h3 id="ui-layout-confirm-title" className="text-base font-semibold text-foreground">
                             Change navigation layout?
                         </h3>
-                        <p className="text-sm text-[#8B99B0] mt-1">
+                        <p className="text-sm text-muted-foreground mt-1">
                             This will switch the navigation to{" "}
-                            <strong className="text-[#ECF0F7]">
+                            <strong className="text-foreground">
                                 {targetValue === "sidebar" ? "Sidebar" : "Top Navigation"}
                             </strong>{" "}
-                            for <strong className="text-[#ECF0F7]">all users</strong> immediately. Online
+                            for <strong className="text-foreground">all users</strong> immediately. Online
                             sessions will see a refresh notification within 2 seconds.
                         </p>
                     </div>
@@ -171,7 +171,7 @@ function ConfirmDialog({
                         type="button"
                         onClick={onCancel}
                         disabled={busy}
-                        className="px-4 py-2 rounded-lg text-sm text-[#8B99B0] hover:text-[#ECF0F7] hover:bg-[#1E2840] transition-colors cursor-pointer disabled:cursor-default"
+                        className="px-4 py-2 rounded-lg text-sm text-muted-foreground hover:text-foreground hover:bg-muted transition-colors cursor-pointer disabled:cursor-default"
                     >
                         Cancel
                     </SharedDashboardButton>
@@ -179,7 +179,7 @@ function ConfirmDialog({
                         type="button"
                         onClick={onConfirm}
                         disabled={busy}
-                        className="px-4 py-2 rounded-lg text-sm font-medium bg-[#7C8FFF] text-white hover:bg-[#6B7DEE] transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-default"
+                        className="px-4 py-2 rounded-lg text-sm font-medium bg-primary text-white hover:bg-primary transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-default"
                     >
                         {busy ? "Applying..." : "Continue"}
                     </SharedDashboardButton>

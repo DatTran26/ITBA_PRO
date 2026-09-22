@@ -13,11 +13,11 @@ export default function PersonNotesTab({ personId, activityLogs }: Props) {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
       <div>
-        <h3 className="text-sm font-medium text-[#ECF0F7] mb-3">Notes</h3>
+        <h3 className="text-sm font-medium text-foreground mb-3">Notes</h3>
         <NotesPanel entityType="person" entityId={personId} />
       </div>
       <div>
-        <h3 className="text-sm font-medium text-[#ECF0F7] mb-3">Activity</h3>
+        <h3 className="text-sm font-medium text-foreground mb-3">Activity</h3>
         <ActivityTimeline items={activityLogs} />
       </div>
     </div>

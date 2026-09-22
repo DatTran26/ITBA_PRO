@@ -70,7 +70,7 @@ export default function PositionPicker({ value, onChange, className = "" }: Prop
             {/* Trigger / input */}
             <div
                 onClick={() => { setOpen(true); inputRef.current?.focus(); }}
-                className="flex items-center gap-2 w-full bg-[#0A1020] border border-white/10 rounded-xl px-3 py-2.5 cursor-text"
+                className="flex items-center gap-2 w-full bg-background border border-border rounded-xl px-3 py-2.5 cursor-text"
             >
                 <Briefcase className="w-3.5 h-3.5 text-cyan-200/60 shrink-0" />
                 <input
@@ -79,7 +79,7 @@ export default function PositionPicker({ value, onChange, className = "" }: Prop
                     onChange={handleInputChange}
                     onFocus={() => setOpen(true)}
                     placeholder={loading ? "Loading..." : "Search position..."}
-                    className="flex-1 bg-transparent text-sm text-[#F6F8FC] placeholder:text-slate-600 outline-none min-w-0"
+                    className="flex-1 bg-transparent text-sm text-primary placeholder:text-slate-600 outline-none min-w-0"
                 />
                 {value && !open ? (
                     <SharedDashboardButton onClick={handleClear} className="text-slate-500 hover:text-slate-300 transition-colors">
@@ -92,7 +92,7 @@ export default function PositionPicker({ value, onChange, className = "" }: Prop
 
             {/* Dropdown */}
             {open && (
-                <div className="absolute z-50 top-full mt-1.5 w-full bg-[#0D1628] border border-white/10 rounded-xl shadow-xl overflow-hidden">
+                <div className="absolute z-50 top-full mt-1.5 w-full bg-background border border-border rounded-xl shadow-xl overflow-hidden">
                     <div className="max-h-52 overflow-y-auto">
                         {filtered.length === 0 ? (
                             <p className="px-4 py-3 text-sm text-slate-500">
@@ -106,7 +106,7 @@ export default function PositionPicker({ value, onChange, className = "" }: Prop
                                     className="w-full flex items-center gap-3 px-4 py-2.5 text-left hover:bg-white/[0.06] transition-colors group"
                                 >
                                     <span className="flex-1 min-w-0">
-                                        <span className="block text-sm text-[#F6F8FC] truncate">{pos.title}</span>
+                                        <span className="block text-sm text-primary truncate">{pos.title}</span>
                                         {pos.department && (
                                             <span className="block text-xs text-slate-500 truncate">{pos.department}</span>
                                         )}

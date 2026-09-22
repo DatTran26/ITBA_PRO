@@ -281,7 +281,7 @@ export default function LevelConfigStep({ onConfigured, initialTotal, lockTotal 
       {/* Topic filter */}
       {availableTopics.length > 0 && (
         <div>
-          <p className="text-xs text-[#8B99B0] font-medium mb-2 uppercase tracking-wider flex items-center gap-1.5">
+          <p className="text-xs text-muted-foreground font-medium mb-2 uppercase tracking-wider flex items-center gap-1.5">
             <Tag className="w-3 h-3" /> Topic filter (optional)
           </p>
           <div className="flex flex-wrap gap-2">
@@ -291,8 +291,8 @@ export default function LevelConfigStep({ onConfigured, initialTotal, lockTotal 
                 onClick={() => toggleTopic(t)}
                 className={`text-xs px-3 py-1 rounded-full border transition-all ${
                   selectedTopics.includes(t)
-                    ? "bg-[#10B981]/15 border-[#10B981]/40 text-[#10B981]"
-                    : "border-[#8B99B0]/15 text-[#5A6882] hover:text-[#8B99B0]"
+                    ? "bg-success/15 border-border/40 text-success"
+                    : "border-border/15 text-muted-foreground hover:text-muted-foreground"
                 }`}
               >
                 {t}
@@ -306,7 +306,7 @@ export default function LevelConfigStep({ onConfigured, initialTotal, lockTotal 
         <Button
           onClick={handleSubmit}
           disabled={!canSubmit}
-          className="bg-[#10B981] hover:bg-[#0D9E6E] text-white border-0 h-9 px-6 rounded-xl gap-2"
+          className="bg-success hover:bg-success text-white border-0 h-9 px-6 rounded-xl gap-2"
         >
           {submitLabel}
           <ChevronRight className="w-4 h-4" />

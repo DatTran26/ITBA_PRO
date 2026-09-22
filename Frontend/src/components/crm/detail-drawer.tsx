@@ -29,18 +29,18 @@ export default function DetailDrawer({
     <Sheet open={open} onOpenChange={(v) => !v && onClose()}>
       <SheetContent
         side="right"
-        className={`${width} bg-[#1B253B] border-l border-[#8B99B0]/10 p-0 overflow-hidden flex flex-col`}
+        className={`${width} bg-muted border-l border-border/10 p-0 overflow-hidden flex flex-col`}
       >
-        <SheetHeader className="px-5 py-4 border-b border-[#8B99B0]/10 shrink-0">
+        <SheetHeader className="px-5 py-4 border-b border-border/10 shrink-0">
           <div className="flex items-center justify-between">
-            <SheetTitle className="text-[#ECF0F7] text-base font-semibold">
+            <SheetTitle className="text-foreground text-base font-semibold">
               {title}
             </SheetTitle>
             <Button
               variant="ghost"
               size="sm"
               onClick={onClose}
-              className="h-7 w-7 p-0 text-[#5A6882] hover:text-[#ECF0F7]"
+              className="h-7 w-7 p-0 text-muted-foreground hover:text-foreground"
             >
               <X className="w-4 h-4" />
             </Button>

@@ -115,40 +115,40 @@ export default function UploadLauncher({
                 onDrop={handleDrop}
                 className={`group relative cursor-pointer overflow-hidden rounded-2xl border-2 border-dashed transition-all duration-300 ${
                     isDragging
-                        ? "border-[#5B6CF0] bg-[#5B6CF0]/10 scale-[1.008] shadow-[0_0_30px_rgba(91,108,240,0.25)]"
-                        : "border-white/10 bg-[#1A233A]/60 hover:border-[#5B6CF0]/60 hover:bg-[#1A233A]/90 hover:shadow-xl"
+                        ? "border-border bg-primary/10 scale-[1.008] shadow-[0_0_30px_color-mix(in_srgb,var(--primary)_25%,transparent)]"
+                        : "border-border bg-muted/60 hover:border-border/60 hover:bg-muted/90 hover:shadow-xl"
                 }`}
             >
                 {/* Decorative background glow */}
-                <div className="absolute -right-16 -top-16 h-32 w-32 rounded-full bg-[#5B6CF0]/10 blur-2xl pointer-events-none group-hover:bg-[#5B6CF0]/20 transition-all" />
-                <div className="absolute -left-16 -bottom-16 h-32 w-32 rounded-full bg-[#36DDAB]/10 blur-2xl pointer-events-none group-hover:bg-[#36DDAB]/15 transition-all" />
+                <div className="absolute -right-16 -top-16 h-32 w-32 rounded-full bg-primary/10 blur-2xl pointer-events-none group-hover:bg-primary/20 transition-all" />
+                <div className="absolute -left-16 -bottom-16 h-32 w-32 rounded-full bg-success/10 blur-2xl pointer-events-none group-hover:bg-success/15 transition-all" />
 
                 <div className="flex flex-col items-center justify-center px-6 py-10 text-center relative z-10">
-                    <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-tr from-[#5B6CF0]/20 to-[#36DDAB]/20 border border-white/10 group-hover:scale-110 group-hover:border-[#5B6CF0]/40 transition-all duration-300 shadow-lg">
-                        <UploadCloud className="h-8 w-8 text-[#5B6CF0] group-hover:text-[#7C8FFF] transition-colors" />
+                    <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-tr from-primary/20 to-success/20 border border-border group-hover:scale-110 group-hover:border-border/40 transition-all duration-300 shadow-lg">
+                        <UploadCloud className="h-8 w-8 text-primary group-hover:text-primary transition-colors" />
                     </div>
 
-                    <h3 className="mt-4 text-base font-semibold text-[#ECF0F7] group-hover:text-white transition-colors flex items-center gap-2">
+                    <h3 className="mt-4 text-base font-semibold text-foreground group-hover:text-foreground transition-colors flex items-center gap-2">
                         <span>Tải lên hình ảnh tài liệu để quét OCR</span>
-                        <Sparkles className="w-4 h-4 text-[#36DDAB]" />
+                        <Sparkles className="w-4 h-4 text-success" />
                     </h3>
 
-                    <p className="mt-1 text-sm text-[#94A3B8] max-w-md">
+                    <p className="mt-1 text-sm text-muted-foreground max-w-md">
                         Kéo và thả file ảnh vào đây, hoặc{" "}
-                        <span className="text-[#5B6CF0] font-medium underline underline-offset-4 decoration-[#5B6CF0]/50 group-hover:text-[#7C8FFF]">
+                        <span className="text-primary font-medium underline underline-offset-4 decoration-primary/50 group-hover:text-primary">
                             chọn từ máy tính
                         </span>
                     </p>
 
-                    <div className="mt-4 flex flex-wrap items-center justify-center gap-2 text-xs text-[#64748B]">
+                    <div className="mt-4 flex flex-wrap items-center justify-center gap-2 text-xs text-muted-foreground">
                         <span className="inline-flex items-center gap-1 rounded-full bg-white/[0.04] px-2.5 py-1 border border-white/[0.06]">
-                            <ImageIcon className="w-3.5 h-3.5 text-[#5B6CF0]" /> PNG, JPG, JPEG, WEBP
+                            <ImageIcon className="w-3.5 h-3.5 text-primary" /> PNG, JPG, JPEG, WEBP
                         </span>
                         <span className="inline-flex items-center gap-1 rounded-full bg-white/[0.04] px-2.5 py-1 border border-white/[0.06]">
-                            <FileText className="w-3.5 h-3.5 text-[#36DDAB]" /> Tối đa 10 MB / ảnh
+                            <FileText className="w-3.5 h-3.5 text-success" /> Tối đa 10 MB / ảnh
                         </span>
                         <span className="inline-flex items-center gap-1 rounded-full bg-white/[0.04] px-2.5 py-1 border border-white/[0.06]">
-                            <AlertCircle className="w-3.5 h-3.5 text-[#F59E0B]" /> Tối đa 5 ảnh / phiên
+                            <AlertCircle className="w-3.5 h-3.5 text-warning" /> Tối đa 5 ảnh / phiên
                         </span>
                     </div>
                 </div>

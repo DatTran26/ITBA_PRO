@@ -5,7 +5,7 @@ export type UiLayout = "topnav" | "sidebar";
 
 /** Cookie name — kept as a string literal; client writer (nav-shell) uses the same string. */
 const LAYOUT_COOKIE = "ui_layout";
-const DEFAULT_LAYOUT: UiLayout = "topnav";
+const DEFAULT_LAYOUT: UiLayout = "sidebar";
 
 /**
  * Server-side read of the global navigation layout.

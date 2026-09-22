@@ -39,8 +39,8 @@ export function AiQuestionCard({
     <div
       className={`rounded-xl border transition-colors ${
         isSelected
-          ? "border-[#10B981]/30 bg-[#10B981]/5"
-          : "border-[#8B99B0]/10 bg-[#1E2840]/40"
+          ? "border-border/30 bg-success/5"
+          : "border-border/10 bg-muted/40"
       }`}
     >
       <div className="flex items-start gap-3 p-4">
@@ -48,7 +48,7 @@ export function AiQuestionCard({
           type="button"
           onClick={onToggleSelect}
           className={`mt-0.5 w-4 h-4 rounded flex-shrink-0 border transition-colors ${
-            isSelected ? "bg-[#10B981] border-[#10B981]" : "border-[#8B99B0]/40"
+            isSelected ? "bg-success border-border" : "border-border/40"
           }`}
           aria-label={isSelected ? "Deselect" : "Select"}
         >
@@ -64,22 +64,22 @@ export function AiQuestionCard({
             <Textarea
               value={q.question_text}
               onChange={(e) => onChange({ question_text: e.target.value })}
-              className="text-sm bg-[#0C1220]/60 border-[#8B99B0]/20"
+              className="text-sm bg-background/60 border-border/20"
               rows={2}
             />
           ) : (
-            <p className="text-sm text-[#ECF0F7] leading-snug">{q.question_text}</p>
+            <p className="text-sm text-foreground leading-snug">{q.question_text}</p>
           )}
 
           <div className="flex items-center gap-2 flex-wrap">
-            <span className="text-xs px-2 py-0.5 rounded-full font-medium bg-[#8B99B0]/10 text-[#8B99B0]">
+            <span className="text-xs px-2 py-0.5 rounded-full font-medium bg-muted-foreground/10 text-muted-foreground">
               {q.question_type ?? "single_choice"}
             </span>
             {editing ? (
               <select
                 value={q.level}
                 onChange={(e) => onChange({ level: e.target.value })}
-                className="text-xs h-6 px-2 rounded bg-[#0C1220]/80 border border-[#8B99B0]/20 text-[#ECF0F7]"
+                className="text-xs h-6 px-2 rounded bg-background/80 border border-border/20 text-foreground"
               >
                 {LEVELS.map((l) => (
                   <option key={l} value={l}>{l}</option>
@@ -97,7 +97,7 @@ export function AiQuestionCard({
                 variant="ghost"
                 size="sm"
                 onClick={() => setEditing((v) => !v)}
-                className="h-7 px-2 text-xs text-[#5A6882] hover:text-[#7C8FFF]"
+                className="h-7 px-2 text-xs text-muted-foreground hover:text-primary"
               >
                 {editing ? <X className="w-3 h-3" /> : <Pencil className="w-3 h-3" />}
                 {editing ? "Done" : "Edit"}
@@ -107,7 +107,7 @@ export function AiQuestionCard({
                 variant="ghost"
                 size="sm"
                 onClick={onDelete}
-                className="h-7 px-2 text-xs text-[#5A6882] hover:text-red-400"
+                className="h-7 px-2 text-xs text-muted-foreground hover:text-red-400"
                 aria-label="Delete question"
               >
                 <Trash2 className="w-3 h-3" />
@@ -115,7 +115,7 @@ export function AiQuestionCard({
               <button
                 type="button"
                 onClick={() => setExpanded((v) => !v)}
-                className="h-7 px-2 flex items-center gap-1 text-xs text-[#5A6882] hover:text-[#8B99B0]"
+                className="h-7 px-2 flex items-center gap-1 text-xs text-muted-foreground hover:text-muted-foreground"
               >
                 {expanded ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
                 {expanded ? "Hide" : "Show"}
@@ -130,20 +130,20 @@ export function AiQuestionCard({
           <AiQuestionAnswerRenderer question={q} editing={editing} onChange={onChange} />
 
           {q.source_excerpt && (
-            <div className="flex gap-2 text-xs text-[#94A3B8] bg-[#7C8FFF]/5 border border-[#7C8FFF]/15 rounded-lg px-3 py-2 italic">
-              <Quote className="w-3.5 h-3.5 text-[#7C8FFF] flex-shrink-0 mt-0.5" />
+            <div className="flex gap-2 text-xs text-muted-foreground bg-primary/5 border border-border/15 rounded-lg px-3 py-2 italic">
+              <Quote className="w-3.5 h-3.5 text-primary flex-shrink-0 mt-0.5" />
               <span>&ldquo;{q.source_excerpt}&rdquo;</span>
             </div>
           )}
 
           {(q.explanation || editing) && (
-            <div className="flex gap-2 text-xs text-[#5A6882] bg-[#8B99B0]/5 rounded-lg px-3 py-2">
-              <Sparkles className="w-3.5 h-3.5 text-[#10B981] flex-shrink-0 mt-0.5" />
+            <div className="flex gap-2 text-xs text-muted-foreground bg-muted-foreground/5 rounded-lg px-3 py-2">
+              <Sparkles className="w-3.5 h-3.5 text-success flex-shrink-0 mt-0.5" />
               {editing ? (
                 <Textarea
                   value={q.explanation ?? ""}
                   onChange={(e) => onChange({ explanation: e.target.value })}
-                  className="text-xs bg-transparent border-[#8B99B0]/20"
+                  className="text-xs bg-transparent border-border/20"
                   rows={2}
                   placeholder="Explanation (optional)"
                 />

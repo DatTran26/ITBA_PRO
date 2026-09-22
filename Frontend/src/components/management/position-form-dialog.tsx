@@ -69,40 +69,40 @@ export default function PositionFormDialog({ open, onOpenChange, onSuccess, edit
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="bg-[#0C1220] border-[#8B99B0]/15 text-[#ECF0F7] max-w-lg">
+      <DialogContent className="bg-background border-border/15 text-foreground max-w-lg">
         <DialogHeader>
           <DialogTitle>{isEdit ? "Edit Position" : "Add Position"}</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 mt-2">
           <div>
-            <Label className="text-[#8B99B0] text-xs mb-1 block">Title *</Label>
-            <Input {...register("title")} className="bg-[#1E2840] border-[#8B99B0]/15 text-[#ECF0F7]" />
+            <Label className="text-muted-foreground text-xs mb-1 block">Title *</Label>
+            <Input {...register("title")} className="bg-muted border-border/15 text-foreground" />
             {errors.title && <p className="text-red-400 text-xs mt-1">{errors.title.message}</p>}
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <Label className="text-[#8B99B0] text-xs mb-1 block">Department</Label>
-              <Input {...register("department")} className="bg-[#1E2840] border-[#8B99B0]/15 text-[#ECF0F7]" />
+              <Label className="text-muted-foreground text-xs mb-1 block">Department</Label>
+              <Input {...register("department")} className="bg-muted border-border/15 text-foreground" />
             </div>
             <div>
-              <Label className="text-[#8B99B0] text-xs mb-1 block">Target Level</Label>
+              <Label className="text-muted-foreground text-xs mb-1 block">Target Level</Label>
               <Select value={levelValue ?? ""} onValueChange={(v) => setValue("target_level", v ?? undefined)}>
-                <SelectTrigger className="bg-[#1E2840] border-[#8B99B0]/15 text-[#ECF0F7]">
+                <SelectTrigger className="bg-muted border-border/15 text-foreground">
                   <SelectValue placeholder="Select level" />
                 </SelectTrigger>
-                <SelectContent className="bg-[#1E2840] border-[#8B99B0]/15">
+                <SelectContent className="bg-muted border-border/15">
                   {LEVELS.map((l) => <SelectItem key={l} value={l}>{l}</SelectItem>)}
                 </SelectContent>
               </Select>
             </div>
           </div>
           <div>
-            <Label className="text-[#8B99B0] text-xs mb-1 block">Description</Label>
-            <Textarea {...register("description")} rows={3} className="bg-[#1E2840] border-[#8B99B0]/15 text-[#ECF0F7] resize-none" />
+            <Label className="text-muted-foreground text-xs mb-1 block">Description</Label>
+            <Textarea {...register("description")} rows={3} className="bg-muted border-border/15 text-foreground resize-none" />
           </div>
           <div className="flex gap-2 justify-end pt-2">
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)} className="border-[#8B99B0]/20 text-[#8B99B0] hover:text-[#ECF0F7]">Cancel</Button>
-            <Button type="submit" disabled={isSubmitting} className="bg-[#7C8FFF] hover:bg-[#6B7FEF] text-white">
+            <Button type="button" variant="outline" onClick={() => onOpenChange(false)} className="border-border/20 text-muted-foreground hover:text-foreground">Cancel</Button>
+            <Button type="submit" disabled={isSubmitting} className="bg-primary hover:bg-primary text-white">
               {isSubmitting ? "Saving..." : isEdit ? "Save Changes" : "Create"}
             </Button>
           </div>

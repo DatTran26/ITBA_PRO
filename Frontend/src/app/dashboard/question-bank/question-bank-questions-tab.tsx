@@ -121,8 +121,8 @@ export default function QuestionBankQuestionsTab({ kpis, topics, canEdit, refres
       </div>
 
       {loading ? (
-        <div className="border border-[#8B99B0]/10 rounded-lg flex items-center justify-center py-16">
-          <p className="text-sm text-[#5A6882]">Loading...</p>
+        <div className="border border-border/10 rounded-lg flex items-center justify-center py-16">
+          <p className="text-sm text-muted-foreground">Loading...</p>
         </div>
       ) : (
         <QuestionBankTable

@@ -23,13 +23,13 @@ const columns: ColumnDef<PersonListItem>[] = [
     <span className="capitalize text-xs">{String(v)}</span>
   )},
   { key: "position_title", label: "Position", sortable: true, className: "hidden lg:table-cell", render: (v) => (
-    <span className="text-[#8B99B0]">{v ? String(v) : "—"}</span>
+    <span className="text-muted-foreground">{v ? String(v) : "—"}</span>
   )},
   { key: "status", label: "Status", sortable: true, render: (v) => (
     <StatusBadge status={String(v)} config={PERSON_STATUSES} />
   )},
   { key: "tags", label: "Tags", className: "hidden xl:table-cell", render: (_, row) => (
-    row.tags?.length ? <TagChips tags={row.tags} /> : <span className="text-[#5A6882] text-xs">—</span>
+    row.tags?.length ? <TagChips tags={row.tags} /> : <span className="text-muted-foreground text-xs">—</span>
   )},
 ];
 

@@ -1,0 +1,170 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&amp;family=JetBrains+Mono:wght@500;600&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap">
+  <style>
+    .display { font-family: "Bricolage Grotesque", "Plus Jakarta Sans", system-ui, sans-serif; font-optical-sizing: auto; letter-spacing: -0.02em; }
+  </style>
+  <style>
+    body { margin: 0; background: #F6F8FB; color: #0F172A; font-family: "Plus Jakarta Sans", system-ui, -apple-system, "Segoe UI", sans-serif; font-size: 14px; line-height: 1.5; -webkit-font-smoothing: antialiased; }
+    a { color: #2F5BEA; text-decoration: none; }
+    a:hover { color: #2549C9; text-decoration: underline; }
+    .mono { font-family: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace; font-variant-numeric: tabular-nums; }
+    button { font: inherit; color: inherit; cursor: pointer; }
+    .btn { transition: background-color 120ms cubic-bezier(.2,.8,.2,1), transform 120ms cubic-bezier(.2,.8,.2,1); }
+    .btn:active { transform: scale(.98); }
+    .btn-primary:hover { background: #2549C9 !important; }
+    .btn-quiet:hover { background: #F1F4F8 !important; }
+    .opt { transition: border-color 120ms cubic-bezier(.2,.8,.2,1), background-color 120ms cubic-bezier(.2,.8,.2,1); }
+    .opt:hover { border-color: #848FA1 !important; }
+    .prog { transition: width 280ms cubic-bezier(.2,.8,.2,1); }
+    :focus-visible { outline: 2px solid #2F5BEA; outline-offset: 2px; }
+    @media (prefers-reduced-motion: reduce) { .opt, .prog, .btn { transition: none; } }
+  </style>
+</helmet>
+<div style="width: 1440px; height: 900px; background: #F6F8FB; display: flex; flex-direction: column;">
+  <header style="height: 64px; flex-shrink: 0; background: #FFFFFF; border-bottom: 1px solid #E3E8EF; display: flex; align-items: center; justify-content: space-between; padding: 0 32px;">
+    <div style="display: flex; align-items: center; gap: 16px;">
+      <div style="width: 28px; height: 28px; border-radius: 8px; background: #2F5BEA; color: #FFFFFF; display: flex; align-items: center; justify-content: center; font-weight: 700;">D</div>
+      <div style="display: flex; flex-direction: column; line-height: 1.3;">
+        <span class="display" style="font-weight: 700; font-size: 17px;">Bài kiểm tra Backend Engineer</span>
+        <span style="font-size: 12px; color: #5B6577;">Cấp Middle, 20 câu, 45 phút</span>
+      </div>
+    </div>
+    <div style="display: flex; align-items: center; gap: 12px;">
+      <span style="display: flex; align-items: center; gap: 8px; height: 36px; padding: 0 12px; border-radius: 8px; background: #F1F4F8; font-size: 13px;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#5B6577" stroke-width="1.5" stroke-linecap="round"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg>
+        <span style="color: #5B6577;">Còn lại</span>
+        <span class="mono" style="font-weight: 600;">24:18</span>
+      </span>
+      <button class="btn btn-primary" style="height: 36px; padding: 0 16px; border-radius: 8px; border: 0; background: #2F5BEA; color: #FFFFFF; font-weight: 600;">Nộp bài</button>
+    </div>
+  </header>
+
+  <div style="flex: 1; min-height: 0; display: grid; grid-template-columns: 300px minmax(0, 1fr); gap: 32px; padding: 32px; max-width: 1240px; width: 100%; margin: 0 auto; box-sizing: border-box;">
+    <aside style="background: #FFFFFF; border: 1px solid #E3E8EF; border-radius: 12px; box-shadow: 0 1px 2px rgba(15,23,42,.05); padding: 20px; display: flex; flex-direction: column; gap: 16px; align-self: start;">
+      <div style="display: flex; flex-direction: column; gap: 8px;">
+        <div style="display: flex; justify-content: space-between; font-size: 13px;">
+          <span style="font-weight: 600;">Tiến độ</span>
+          <span style="color: #5B6577;"><span class="mono" style="font-weight: 600; color: #0F172A;">{{ answered }}</span>/20 đã trả lời</span>
+        </div>
+        <div style="height: 6px; border-radius: 9999px; background: #EEF1F5; overflow: hidden;">
+          <div class="prog" style="width: {{ progress }}; height: 100%; background: #2F5BEA; border-radius: 9999px;"></div>
+        </div>
+      </div>
+      <div style="display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px;">
+        <sc-for list="{{ cells }}" as="c" hint-placeholder-count="20">
+          <button class="btn mono" onClick="{{ c.go }}" aria-label="{{ c.aria }}" style="height: 40px; border-radius: 8px; border: {{ c.border }}; background: {{ c.bg }}; color: {{ c.fg }}; font-size: 13px; font-weight: 600;">{{ c.n }}</button>
+        </sc-for>
+      </div>
+      <div style="display: flex; gap: 16px; font-size: 12px; color: #5B6577;">
+        <span style="display: flex; align-items: center; gap: 6px;"><span style="width: 12px; height: 12px; border-radius: 4px; background: #EEF2FD; border: 1px solid #2F5BEA;"></span>Đã trả lời</span>
+        <span style="display: flex; align-items: center; gap: 6px;"><span style="width: 12px; height: 12px; border-radius: 4px; background: #FFFFFF; border: 1px solid #848FA1;"></span>Chưa trả lời</span>
+      </div>
+    </aside>
+
+    <section style="display: flex; flex-direction: column; gap: 20px; max-width: 760px;">
+      <div style="display: flex; align-items: center; gap: 8px;">
+        <span style="font-size: 13px; color: #5B6577; font-weight: 500;">Câu {{ qNumber }} trên 20</span>
+        <sc-for list="{{ tags }}" as="tag" hint-placeholder-count="2">
+          <span style="height: 22px; padding: 0 8px; display: inline-flex; align-items: center; border-radius: 9999px; background: #EEF1F5; font-size: 12px; font-weight: 500;">{{ tag }}</span>
+        </sc-for>
+      </div>
+      <h1 style="margin: 0; font-size: 20px; font-weight: 600; line-height: 1.45; text-wrap: pretty;">{{ prompt }}</h1>
+      <pre class="mono" style="margin: 0; padding: 14px 16px; background: #0F172A; color: #E3E8EF; border-radius: 8px; font-size: 13px; line-height: 1.6; white-space: pre-wrap;">{{ code }}</pre>
+      <div role="radiogroup" style="display: flex; flex-direction: column; gap: 10px;">
+        <sc-for list="{{ options }}" as="o" hint-placeholder-count="4">
+          <button class="opt" role="radio" aria-checked="{{ o.checked }}" onClick="{{ o.pick }}" style="min-height: 56px; display: flex; align-items: center; gap: 14px; padding: 12px 16px; text-align: left; border-radius: 12px; border: 1.5px solid {{ o.border }}; background: {{ o.bg }};">
+            <span style="width: 20px; height: 20px; flex-shrink: 0; border-radius: 9999px; border: 1.5px solid {{ o.dotBorder }}; display: flex; align-items: center; justify-content: center; box-sizing: border-box;">
+              <span style="width: 10px; height: 10px; border-radius: 9999px; background: {{ o.dotFill }};"></span>
+            </span>
+            <span class="mono" style="font-weight: 600; color: #5B6577; width: 16px;">{{ o.key }}</span>
+            <span style="font-weight: 500;">{{ o.text }}</span>
+          </button>
+        </sc-for>
+      </div>
+      <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 4px;">
+        <span style="display: flex; align-items: center; gap: 6px; font-size: 13px; color: {{ saveColor }};">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-10"></path></svg>
+          {{ saveText }}
+        </span>
+        <div style="display: flex; gap: 8px;">
+          <button class="btn btn-quiet" onClick="{{ prev }}" style="height: 40px; padding: 0 16px; border-radius: 8px; border: 1px solid #E3E8EF; background: #FFFFFF; font-weight: 600;">Câu trước</button>
+          <button class="btn btn-primary" onClick="{{ next }}" style="height: 40px; padding: 0 16px; border-radius: 8px; border: 0; background: #2F5BEA; color: #FFFFFF; font-weight: 600;">Câu tiếp theo</button>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>
+</x-dc>
+<script data-dc-script>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { q: 0, answers: {} };
+  }
+  renderVals() {
+    const s = this.state;
+    const questions = [
+      {
+        n: 8, tags: ['PostgreSQL', 'Trung bình'],
+        prompt: 'Bảng orders có 40 triệu dòng. Truy vấn dưới đây chạy chậm. Cách xử lý nào hiệu quả nhất?',
+        code: 'SELECT id, total, created_at\nFROM orders\nWHERE customer_id = $1\nORDER BY created_at DESC\nLIMIT 20;',
+        options: ['Tạo index trên (customer_id, created_at DESC)', 'Tạo hai index riêng cho customer_id và created_at', 'Chạy VACUUM FULL mỗi đêm', 'Tăng work_mem cho phiên truy vấn']
+      },
+      {
+        n: 9, tags: ['Go', 'Khó'],
+        prompt: 'Một worker Go đọc message từ Kafka và ghi vào PostgreSQL. Khi database chậm, bộ nhớ tăng liên tục. Nguyên nhân khả dĩ nhất là gì?',
+        code: 'for msg := range consumer.Messages() {\n    go save(ctx, msg)\n}',
+        options: ['Tạo goroutine không giới hạn, cần worker pool hoặc semaphore', 'Kafka consumer không commit offset', 'Thiếu defer rows.Close()', 'GOMAXPROCS đặt quá thấp']
+      }
+    ];
+    const cur = questions[s.q];
+    const picked = s.answers[s.q];
+    const answeredExtra = Object.keys(s.answers).length;
+    const answered = 7 + answeredExtra;
+    const keys = ['A', 'B', 'C', 'D'];
+    const cells = [];
+    for (let i = 0; i < 20; i++) {
+      const qIdx = i - 7;
+      const isAnswered = i < 7 || (qIdx >= 0 && qIdx < 2 && s.answers[qIdx] !== undefined);
+      const isCurrent = i === cur.n - 1;
+      cells.push({
+        n: String(i + 1),
+        aria: 'Câu ' + (i + 1) + (isAnswered ? ', đã trả lời' : ', chưa trả lời'),
+        bg: isAnswered ? '#EEF2FD' : '#FFFFFF',
+        fg: isAnswered ? '#2F5BEA' : '#0F172A',
+        border: isCurrent ? '2px solid #2F5BEA' : (isAnswered ? '1px solid #D6E0FA' : '1px solid #848FA1'),
+        go: () => { if (qIdx === 0 || qIdx === 1) this.setState({ q: qIdx }); }
+      });
+    }
+    return {
+      answered: String(answered),
+      progress: (answered / 20 * 100) + '%',
+      cells: cells,
+      qNumber: String(cur.n), tags: cur.tags, prompt: cur.prompt, code: cur.code,
+      options: cur.options.map((text, i) => {
+        const on = picked === i;
+        return {
+          key: keys[i], text: text, checked: on ? 'true' : 'false',
+          border: on ? '#2F5BEA' : '#E3E8EF', bg: on ? '#EEF2FD' : '#FFFFFF',
+          dotBorder: on ? '#2F5BEA' : '#848FA1', dotFill: on ? '#2F5BEA' : 'transparent',
+          pick: () => this.setState({ answers: Object.assign({}, this.state.answers, { [s.q]: i }) })
+        };
+      }),
+      saveText: picked === undefined ? 'Câu trả lời được lưu tự động' : 'Đã lưu câu trả lời',
+      saveColor: picked === undefined ? '#5B6577' : '#15803D',
+      prev: () => this.setState({ q: Math.max(0, this.state.q - 1) }),
+      next: () => this.setState({ q: Math.min(questions.length - 1, this.state.q + 1) })
+    };
+  }
+}
+</script>
+</body>
+</html>

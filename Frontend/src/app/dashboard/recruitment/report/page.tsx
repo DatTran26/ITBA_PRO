@@ -17,7 +17,7 @@ export default async function RecruitmentReportPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0A1120]">
+    <div className="min-h-screen bg-background">
       <AppNavbar
         user={profile ? { name: profile.name, email: profile.email, role: profile.role } : null}
       />

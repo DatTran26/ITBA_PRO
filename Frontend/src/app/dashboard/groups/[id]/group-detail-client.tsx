@@ -63,7 +63,7 @@ export default function GroupDetailClient({ group, members: initialMembers, note
   }
 
   return (
-    <div className="min-h-screen bg-[#121A2E]">
+    <div className="min-h-screen bg-background">
       <AppNavbar />
       <PageContainer>
         <PageBreadcrumb breadcrumbs={[
@@ -79,15 +79,15 @@ export default function GroupDetailClient({ group, members: initialMembers, note
         />
 
         {/* Tabs */}
-        <div className="flex gap-1 border-b border-[#8B99B0]/10 mb-4 overflow-x-auto">
+        <div className="flex gap-1 border-b border-border/10 mb-4 overflow-x-auto">
           {TABS.map((t) => (
             <button
               key={t}
               onClick={() => setTab(t)}
               className={`px-4 py-2.5 text-sm font-medium whitespace-nowrap transition-colors border-b-2 ${
                 tab === t
-                  ? "border-[#7C8FFF] text-[#ECF0F7]"
-                  : "border-transparent text-[#5A6882] hover:text-[#8B99B0]"
+                  ? "border-border text-foreground"
+                  : "border-transparent text-muted-foreground hover:text-muted-foreground"
               }`}
             >
               {TAB_LABELS[t]}

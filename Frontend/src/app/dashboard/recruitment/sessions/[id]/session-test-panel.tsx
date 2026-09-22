@@ -146,22 +146,22 @@ export default function SessionTestPanel({ sessionId, currentTest, onUpdated }: 
   return (
     <>
       <div className="space-y-3">
-        <p className="text-xs text-[#8B99B0]">Test dùng trong buổi phỏng vấn. Candidate không nhận email tự động.</p>
+        <p className="text-xs text-muted-foreground">Test dùng trong buổi phỏng vấn. Candidate không nhận email tự động.</p>
 
         {currentTest ? (
-          <div className="rounded-lg border border-[#36DDAB]/25 bg-[#36DDAB]/10 p-3">
-            <p className="text-sm font-medium text-[#ECF0F7]">{currentTest.title ?? currentTest.job_role ?? "Session Test"}</p>
-            <p className="text-xs text-[#8B99B0]">Status: {currentTest.status ?? "active"}</p>
+          <div className="rounded-lg border border-border/25 bg-success/10 p-3">
+            <p className="text-sm font-medium text-foreground">{currentTest.title ?? currentTest.job_role ?? "Session Test"}</p>
+            <p className="text-xs text-muted-foreground">Status: {currentTest.status ?? "active"}</p>
             <div className="mt-2 flex flex-wrap gap-2">
               {currentLink && (
-                <button onClick={() => navigator.clipboard.writeText(currentLink).then(() => toast.success("Đã copy test link"))} className="inline-flex items-center gap-2 rounded-md border border-[#7C8FFF]/40 bg-[#7C8FFF]/10 px-2.5 py-1.5 text-xs text-[#B6C2FF] hover:bg-[#7C8FFF]/20">
+                <button onClick={() => navigator.clipboard.writeText(currentLink).then(() => toast.success("Đã copy test link"))} className="inline-flex items-center gap-2 rounded-md border border-border/40 bg-primary/10 px-2.5 py-1.5 text-xs text-primary hover:bg-primary/20">
                   <Link2 className="h-3.5 w-3.5" /> Copy test link
                 </button>
               )}
               {lastCreatedTestId && (
                 <button
                   onClick={() => openViewInDrawer(lastCreatedTestId)}
-                  className="inline-flex items-center gap-2 rounded-md border border-[#36DDAB]/35 bg-[#36DDAB]/10 px-2.5 py-1.5 text-xs text-[#7BEBCA] hover:bg-[#36DDAB]/20"
+                  className="inline-flex items-center gap-2 rounded-md border border-border/35 bg-success/10 px-2.5 py-1.5 text-xs text-success hover:bg-success/20"
                 >
                   Xem trực tiếp trong drawer
                 </button>
@@ -169,30 +169,30 @@ export default function SessionTestPanel({ sessionId, currentTest, onUpdated }: 
             </div>
           </div>
         ) : (
-          <div className="rounded-lg border border-[#8B99B0]/20 bg-[#0A1120] p-3 text-xs text-[#8B99B0]">Chưa gắn test cho session này.</div>
+          <div className="rounded-lg border border-border/20 bg-background p-3 text-xs text-muted-foreground">Chưa gắn test cho session này.</div>
         )}
 
         {loading ? (
-          <div className="flex justify-center py-3"><Loader2 className="h-4 w-4 animate-spin text-[#7C8FFF]" /></div>
+          <div className="flex justify-center py-3"><Loader2 className="h-4 w-4 animate-spin text-primary" /></div>
         ) : (
           <div className="space-y-2">
             <div className="grid gap-2 sm:grid-cols-[1fr_auto]">
-              <select value={selected} onChange={(event) => setSelected(event.target.value)} className="w-full rounded-lg border border-[#8B99B0]/15 bg-[#0C1422] px-3 py-2 text-sm text-[#ECF0F7] focus:border-[#7C8FFF]/50 focus:outline-none">
+              <select value={selected} onChange={(event) => setSelected(event.target.value)} className="w-full rounded-lg border border-border/15 bg-background px-3 py-2 text-sm text-foreground focus:border-border/50 focus:outline-none">
                 <option value="">-- Chọn test candidate --</option>
                 {tests.map((test) => (
                   <option key={test.id} value={test.id}>{test.title ?? test.job_role} ({test.level})</option>
                 ))}
               </select>
-              <button onClick={openQuickCreatePanel} className="inline-flex items-center justify-center gap-2 rounded-lg border border-[#7C8FFF]/40 bg-[#7C8FFF]/10 px-3 py-2 text-sm font-medium text-[#B6C2FF] hover:bg-[#7C8FFF]/20">
+              <button onClick={openQuickCreatePanel} className="inline-flex items-center justify-center gap-2 rounded-lg border border-border/40 bg-primary/10 px-3 py-2 text-sm font-medium text-primary hover:bg-primary/20">
                 <Plus className="h-4 w-4" /> Tạo nhanh
               </button>
             </div>
 
             <div className="flex gap-2">
-              <button onClick={attachTest} disabled={saving} className="inline-flex flex-1 items-center justify-center gap-2 rounded-lg bg-[#7C8FFF] px-3 py-2 text-sm font-medium text-white disabled:opacity-50">
+              <button onClick={attachTest} disabled={saving} className="inline-flex flex-1 items-center justify-center gap-2 rounded-lg bg-primary px-3 py-2 text-sm font-medium text-white disabled:opacity-50">
                 {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Link2 className="h-4 w-4" />} Gắn test
               </button>
-              <button onClick={detachTest} disabled={saving || !currentTest} className="inline-flex items-center justify-center gap-2 rounded-lg border border-[#FF6B7A]/40 bg-[#FF6B7A]/10 px-3 py-2 text-sm font-medium text-[#FF9BA6] disabled:opacity-50">
+              <button onClick={detachTest} disabled={saving || !currentTest} className="inline-flex items-center justify-center gap-2 rounded-lg border border-border/40 bg-danger/10 px-3 py-2 text-sm font-medium text-danger disabled:opacity-50">
                 <Unlink className="h-4 w-4" /> Gỡ
               </button>
             </div>
@@ -202,22 +202,22 @@ export default function SessionTestPanel({ sessionId, currentTest, onUpdated }: 
 
       {openQuickCreate && (
         <div className="fixed inset-x-0 bottom-0 top-12 z-50 bg-black/50 backdrop-blur-[2px]">
-          <div className="absolute right-0 top-0 h-full w-full max-w-[72vw] border-l border-[#8B99B0]/15 bg-[#0A1120] shadow-2xl">
+          <div className="absolute right-0 top-0 h-full w-full max-w-[72vw] border-l border-border/15 bg-background shadow-2xl">
             <div className="flex h-full flex-col">
-              <div className="flex items-center justify-between border-b border-[#8B99B0]/12 px-6 py-4">
+              <div className="flex items-center justify-between border-b border-border/12 px-6 py-4">
                 <div>
-                  <p className="text-xs uppercase tracking-[0.18em] text-[#7C8FFF]">Quick Create</p>
-                  <h3 className="text-xl font-semibold text-[#ECF0F7]">{drawerMode === "create" ? "Tạo nhanh bộ test" : "Chi tiết bài test"}</h3>
+                  <p className="text-xs uppercase tracking-[0.18em] text-primary">Quick Create</p>
+                  <h3 className="text-xl font-semibold text-foreground">{drawerMode === "create" ? "Tạo nhanh bộ test" : "Chi tiết bài test"}</h3>
                 </div>
-                <button onClick={() => setOpenQuickCreate(false)} className="rounded-lg p-2 text-[#8B99B0] hover:bg-[#8B99B0]/10 hover:text-[#ECF0F7]">
+                <button onClick={() => setOpenQuickCreate(false)} className="rounded-lg p-2 text-muted-foreground hover:bg-muted-foreground/10 hover:text-foreground">
                   <X className="h-4 w-4" />
                 </button>
               </div>
 
-              <div className="flex items-center gap-2 border-b border-[#8B99B0]/12 px-6 py-3">
+              <div className="flex items-center gap-2 border-b border-border/12 px-6 py-3">
                 <button
                   onClick={() => setDrawerMode("create")}
-                  className={`rounded-lg px-3 py-1.5 text-xs font-medium ${drawerMode === "create" ? "bg-[#7C8FFF]/20 text-[#B6C2FF]" : "text-[#8B99B0] hover:bg-[#8B99B0]/10"}`}
+                  className={`rounded-lg px-3 py-1.5 text-xs font-medium ${drawerMode === "create" ? "bg-primary/20 text-primary" : "text-muted-foreground hover:bg-muted-foreground/10"}`}
                 >
                   Tạo nhanh
                 </button>
@@ -229,27 +229,27 @@ export default function SessionTestPanel({ sessionId, currentTest, onUpdated }: 
                     }
                   }}
                   disabled={!lastCreatedTestId}
-                  className={`rounded-lg px-3 py-1.5 text-xs font-medium ${drawerMode === "view" ? "bg-[#36DDAB]/15 text-[#7BEBCA]" : "text-[#8B99B0] hover:bg-[#8B99B0]/10"} disabled:opacity-40`}
+                  className={`rounded-lg px-3 py-1.5 text-xs font-medium ${drawerMode === "view" ? "bg-success/15 text-success" : "text-muted-foreground hover:bg-muted-foreground/10"} disabled:opacity-40`}
                 >
                   Xem bài test
                 </button>
                 {lastCreatedTestId && (
-                  <Link href={`/dashboard/tests/${lastCreatedTestId}`} target="_blank" rel="noreferrer" className="ml-auto text-xs text-[#8B99B0] underline-offset-4 hover:text-[#ECF0F7] hover:underline">
+                  <Link href={`/dashboard/tests/${lastCreatedTestId}`} target="_blank" rel="noreferrer" className="ml-auto text-xs text-muted-foreground underline-offset-4 hover:text-foreground hover:underline">
                     Mở tab mới
                   </Link>
                 )}
               </div>
 
               <div className="flex-1 overflow-hidden px-4 pb-4 pt-4">
-                <div className="h-full rounded-xl border border-[#8B99B0]/12 bg-[#0C1422]">
+                <div className="h-full rounded-xl border border-border/12 bg-background">
                   {drawerMode === "create" ? (
                     <CreateTestWorkbench embedded onCreated={handleQuickCreated} />
                   ) : viewLoading ? (
-                    <div className="flex h-full items-center justify-center text-[#8B99B0]"><Loader2 className="mr-2 h-4 w-4 animate-spin" />Đang tải chi tiết bài test...</div>
+                    <div className="flex h-full items-center justify-center text-muted-foreground"><Loader2 className="mr-2 h-4 w-4 animate-spin" />Đang tải chi tiết bài test...</div>
                   ) : viewTest ? (
                     <TestDetailClient embedded test={viewTest as Parameters<typeof TestDetailClient>[0]["test"]} generationContext={{ job_description: null, test_description: null }} />
                   ) : (
-                    <div className="flex h-full items-center justify-center text-sm text-[#8B99B0]">Chưa có bài test để hiển thị.</div>
+                    <div className="flex h-full items-center justify-center text-sm text-muted-foreground">Chưa có bài test để hiển thị.</div>
                   )}
                 </div>
               </div>

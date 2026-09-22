@@ -16,8 +16,8 @@ const STATUS_CONFIG: Record<InterviewerStatus, { label: string; dot: string; bad
 };
 
 const DOT_COLORS: Record<string, string> = {
-  pending: "#F59E0B", accepted: "#10B981",
-  declined: "#F43F5E", reschedule_requested: "#6366F1", completed: "#475569",
+  pending: "var(--warning)", accepted: "var(--success)",
+  declined: "var(--danger)", reschedule_requested: "var(--primary)", completed: "var(--muted-foreground)",
 };
 
 const POPUP_W = 304;
@@ -78,18 +78,18 @@ function AcceptanceSection({ scheduleId, onRefresh }: { scheduleId: string; onRe
           <XCircle className="w-3.5 h-3.5" /> Từ chối
         </button>
         <button onClick={() => setShowReschedule(!showReschedule)} disabled={loading}
-          className="inline-flex items-center gap-1.5 h-8 px-3 rounded-lg text-xs font-medium bg-white/5 border border-white/12 text-[#8B99B0] hover:bg-white/10 transition-colors cursor-pointer disabled:opacity-50">
+          className="inline-flex items-center gap-1.5 h-8 px-3 rounded-lg text-xs font-medium bg-muted border border-border text-muted-foreground hover:bg-muted transition-colors cursor-pointer disabled:opacity-50">
           <RefreshCw className="w-3.5 h-3.5" /> Đổi slot
         </button>
       </div>
       {showReschedule && (
-        <div className="flex flex-col gap-2 p-3 rounded-xl border border-white/8 bg-white/3">
+        <div className="flex flex-col gap-2 p-3 rounded-xl border border-border bg-muted">
           <input type="datetime-local" value={proposedAt} onChange={e => setProposedAt(e.target.value)}
-            className="h-8 rounded-lg border border-white/10 bg-transparent px-3 text-xs [color-scheme:dark] focus:outline-none focus:ring-2 focus:ring-[#7C8FFF]/40" />
+            className="h-8 rounded-lg border border-border bg-transparent px-3 text-xs [color-scheme:dark] focus:outline-none focus:ring-2 focus:ring-primary/40" />
           <input type="text" placeholder="Lý do (tuỳ chọn)" value={note} onChange={e => setNote(e.target.value)}
-            className="h-8 rounded-lg border border-white/10 bg-transparent px-3 text-xs placeholder:text-[#5A6882] focus:outline-none focus:ring-2 focus:ring-[#7C8FFF]/40" />
+            className="h-8 rounded-lg border border-border bg-transparent px-3 text-xs placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40" />
           <button onClick={() => respond("reschedule")} disabled={!proposedAt || loading}
-            className="h-8 rounded-lg text-xs font-medium bg-[#5B6CF0] hover:bg-[#4958d6] text-white disabled:opacity-50 transition-colors cursor-pointer">
+            className="h-8 rounded-lg text-xs font-medium bg-primary hover:bg-primary text-white disabled:opacity-50 transition-colors cursor-pointer">
             Gửi đề xuất
           </button>
         </div>
@@ -128,13 +128,13 @@ export default function InterviewEventDetail({ item, anchorRect, userRole, onClo
   const candidate = item.job_applications?.persons?.full_name ?? "—";
   const jd = item.job_applications?.job_descriptions;
   const colorKey = item.status !== "scheduled" ? "completed" : item.interviewer_status;
-  const dotColor = DOT_COLORS[colorKey] ?? "#475569";
+  const dotColor = DOT_COLORS[colorKey] ?? "var(--muted-foreground)";
   const cfg = STATUS_CONFIG[item.interviewer_status];
   const isPending = item.interviewer_status === "pending" && userRole === "interviewer";
   const isHrOrAdmin = userRole !== "interviewer";
   const showActions = isPending || (isHrOrAdmin && item.interviewer_status === "reschedule_requested");
 
-  const iconBtn = "w-8 h-8 rounded-lg flex items-center justify-center text-[#5A6882] hover:text-[#8B99B0] hover:bg-white/8 transition-all cursor-pointer";
+  const iconBtn = "w-8 h-8 rounded-lg flex items-center justify-center text-muted-foreground hover:text-muted-foreground hover:bg-white/8 transition-all cursor-pointer";
 
   return (
     <>
@@ -145,7 +145,7 @@ export default function InterviewEventDetail({ item, anchorRect, userRole, onClo
         exit={{ opacity: 0, scale: 0.93, y: -6 }}
         transition={{ duration: 0.16, ease: [0.16, 1, 0.3, 1] }}
         style={{ position: "fixed", left: pos.left, top: pos.top, width: POPUP_W, zIndex: 999 }}
-        className="bg-[#1A2440] border border-white/[0.12] rounded-2xl shadow-[0_12px_48px_rgba(0,0,0,0.75),0_0_0_1px_rgba(255,255,255,0.04)] overflow-hidden"
+        className="bg-muted border border-white/[0.12] rounded-2xl shadow-[0_12px_48px_rgba(0,0,0,0.75),0_0_0_1px_rgba(255,255,255,0.04)] overflow-hidden"
       >
         {/* Action bar */}
         <div className="flex items-center justify-end gap-0.5 px-2 pt-2.5 pb-0">
@@ -163,8 +163,8 @@ export default function InterviewEventDetail({ item, anchorRect, userRole, onClo
           <div className="flex items-start gap-3">
             <div className="w-3.5 h-3.5 rounded-[3px] mt-0.5 shrink-0" style={{ backgroundColor: dotColor }} />
             <div>
-              <p className="text-[15px] font-semibold text-[#ECF0F7] leading-snug">{candidate}</p>
-              <p className="text-xs text-[#8B99B0] mt-0.5 capitalize">
+              <p className="text-[15px] font-semibold text-foreground leading-snug">{candidate}</p>
+              <p className="text-xs text-muted-foreground mt-0.5 capitalize">
                 {formatDate(item.scheduled_at, item.timezone)} · {formatTimeRange(item.scheduled_at, item.timezone)}
               </p>
             </div>
@@ -173,14 +173,14 @@ export default function InterviewEventDetail({ item, anchorRect, userRole, onClo
           {/* Job info */}
           {jd && (
             <div className="flex items-center gap-2.5">
-              <Briefcase className="w-4 h-4 shrink-0 text-[#4A5568]" />
-              <span className="text-[13px] text-[#8B99B0]">{jd.title}{jd.department ? ` · ${jd.department}` : ""}</span>
+              <Briefcase className="w-4 h-4 shrink-0 text-muted-foreground" />
+              <span className="text-[13px] text-muted-foreground">{jd.title}{jd.department ? ` · ${jd.department}` : ""}</span>
             </div>
           )}
 
           {/* Status */}
           <div className="flex items-center gap-2.5">
-            <Tag className="w-4 h-4 shrink-0 text-[#4A5568]" />
+            <Tag className="w-4 h-4 shrink-0 text-muted-foreground" />
             <span className={`inline-flex items-center gap-1.5 text-[10px] font-semibold px-2 py-0.5 rounded-md border uppercase tracking-wider ${cfg.badge}`}>
               <span className={`w-1.5 h-1.5 rounded-full ${cfg.dot}`} />
               {cfg.label}
@@ -193,13 +193,13 @@ export default function InterviewEventDetail({ item, anchorRect, userRole, onClo
           {/* Reschedule proposed time */}
           {item.interviewer_proposed_at && (
             <div className="flex items-center gap-2.5">
-              <Clock className="w-4 h-4 shrink-0 text-[#4A5568]" />
-              <span className="text-[13px] text-[#8B99B0]">Đề xuất: <span className="text-[#ECF0F7]">{formatDateTime(item.interviewer_proposed_at, item.timezone)}</span></span>
+              <Clock className="w-4 h-4 shrink-0 text-muted-foreground" />
+              <span className="text-[13px] text-muted-foreground">Đề xuất: <span className="text-foreground">{formatDateTime(item.interviewer_proposed_at, item.timezone)}</span></span>
             </div>
           )}
 
           {/* Actions section */}
-          {showActions && <div className="border-t border-white/6 pt-3" />}
+          {showActions && <div className="border-t border-border pt-3" />}
           {isPending && <AcceptanceSection scheduleId={item.id} onRefresh={onRefresh} />}
           {isHrOrAdmin && item.interviewer_status === "reschedule_requested" && (
             <div className="rounded-xl border border-indigo-500/20 bg-indigo-500/8 p-3 flex flex-col gap-2">
@@ -207,7 +207,7 @@ export default function InterviewEventDetail({ item, anchorRect, userRole, onClo
                 <ShieldAlert className="w-3.5 h-3.5" /> Interviewer đề xuất đổi slot
               </div>
               {item.interviewer_note && (
-                <p className="text-xs text-[#8B99B0] italic">"{item.interviewer_note}"</p>
+                <p className="text-xs text-muted-foreground italic">"{item.interviewer_note}"</p>
               )}
             </div>
           )}

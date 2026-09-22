@@ -1,4 +1,5 @@
 "use client";
+import { alpha } from "@/lib/utils";
 
 import { useState, useEffect } from "react";
 import { Video, Building2, Phone, Loader2 } from "lucide-react";
@@ -18,9 +19,9 @@ const LOCATION_TYPES = [
 ] as const;
 
 const ROUND_CONFIG = [
-  { value: 1, label: "Round 1", sub: "Sơ tuyển", color: "#7C8FFF" },
-  { value: 2, label: "Round 2", sub: "Chuyên môn", color: "#F59E0B" },
-  { value: 3, label: "Final",   sub: "Vòng cuối", color: "#B48EFF" },
+  { value: 1, label: "Round 1", sub: "Sơ tuyển", color: "var(--primary)" },
+  { value: 2, label: "Round 2", sub: "Chuyên môn", color: "var(--warning)" },
+  { value: 3, label: "Final",   sub: "Vòng cuối", color: "var(--ai)" },
 ] as const;
 
 const LOCATION_PLACEHOLDER: Record<string, string> = {
@@ -85,7 +86,7 @@ export default function SessionCreateForm({ onCreated }: Props) {
     <form onSubmit={handleSubmit} className="space-y-6 max-w-2xl">
       {/* Round selector */}
       <div>
-        <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#5A6882] mb-3">Vòng phỏng vấn</p>
+        <p className="text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground mb-3">Vòng phỏng vấn</p>
         <div className="grid grid-cols-3 gap-3">
           {ROUND_CONFIG.map((r) => (
             <button
@@ -95,12 +96,12 @@ export default function SessionCreateForm({ onCreated }: Props) {
               className={`p-4 rounded-xl border text-left transition-all duration-200 cursor-pointer ${
                 round === r.value
                   ? "border-current bg-opacity-10"
-                  : "border-[#8B99B0]/15 bg-[#0C1422] hover:border-[#8B99B0]/30"
+                  : "border-border/15 bg-background hover:border-border/30"
               }`}
-              style={round === r.value ? { borderColor: r.color, background: `${r.color}18`, color: r.color } : {}}
+              style={round === r.value ? { borderColor: r.color, background: `${alpha(r.color, 9)}`, color: r.color } : {}}
             >
-              <p className="font-bold text-sm" style={round === r.value ? { color: r.color } : { color: "#ECF0F7" }}>{r.label}</p>
-              <p className="text-xs mt-0.5 text-[#8B99B0]">{r.sub}</p>
+              <p className="font-bold text-sm" style={round === r.value ? { color: r.color } : { color: "var(--foreground)" }}>{r.label}</p>
+              <p className="text-xs mt-0.5 text-muted-foreground">{r.sub}</p>
             </button>
           ))}
         </div>
@@ -109,30 +110,30 @@ export default function SessionCreateForm({ onCreated }: Props) {
       {/* Date & Time */}
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <label className="block text-xs font-semibold uppercase tracking-[0.12em] text-[#5A6882] mb-2">Ngày</label>
+          <label className="block text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground mb-2">Ngày</label>
           <input
             type="date"
             value={date}
             onChange={(e) => setDate(e.target.value)}
             required
-            className="w-full bg-[#0C1422] border border-[#8B99B0]/15 rounded-lg text-[#ECF0F7] px-3 py-2 text-sm focus:outline-none focus:border-[#7C8FFF]/50 cursor-pointer"
+            className="w-full bg-background border border-border/15 rounded-lg text-foreground px-3 py-2 text-sm focus:outline-none focus:border-border/50 cursor-pointer"
           />
         </div>
         <div>
-          <label className="block text-xs font-semibold uppercase tracking-[0.12em] text-[#5A6882] mb-2">Giờ</label>
+          <label className="block text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground mb-2">Giờ</label>
           <input
             type="time"
             value={time}
             onChange={(e) => setTime(e.target.value)}
             required
-            className="w-full bg-[#0C1422] border border-[#8B99B0]/15 rounded-lg text-[#ECF0F7] px-3 py-2 text-sm focus:outline-none focus:border-[#7C8FFF]/50 cursor-pointer"
+            className="w-full bg-background border border-border/15 rounded-lg text-foreground px-3 py-2 text-sm focus:outline-none focus:border-border/50 cursor-pointer"
           />
         </div>
       </div>
 
       {/* Duration */}
       <div>
-        <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#5A6882] mb-3">Thời lượng</p>
+        <p className="text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground mb-3">Thời lượng</p>
         <div className="flex gap-2">
           {DURATIONS.map((d) => (
             <button
@@ -141,8 +142,8 @@ export default function SessionCreateForm({ onCreated }: Props) {
               onClick={() => setDuration(d)}
               className={`flex-1 py-2 rounded-lg text-sm font-medium transition-colors duration-200 cursor-pointer ${
                 duration === d
-                  ? "bg-[#7C8FFF] text-white"
-                  : "bg-[#0C1422] border border-[#8B99B0]/15 text-[#8B99B0] hover:border-[#8B99B0]/30 hover:text-[#ECF0F7]"
+                  ? "bg-primary text-white"
+                  : "bg-background border border-border/15 text-muted-foreground hover:border-border/30 hover:text-foreground"
               }`}
             >
               {d} phút
@@ -153,7 +154,7 @@ export default function SessionCreateForm({ onCreated }: Props) {
 
       {/* Location type */}
       <div>
-        <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#5A6882] mb-3">Hình thức</p>
+        <p className="text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground mb-3">Hình thức</p>
         <div className="flex gap-2 mb-3">
           {LOCATION_TYPES.map(({ value, label, icon: Icon }) => (
             <button
@@ -162,8 +163,8 @@ export default function SessionCreateForm({ onCreated }: Props) {
               onClick={() => setLocationType(value)}
               className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-lg text-sm font-medium transition-colors duration-200 cursor-pointer ${
                 locationType === value
-                  ? "bg-[#7C8FFF] text-white"
-                  : "bg-[#0C1422] border border-[#8B99B0]/15 text-[#8B99B0] hover:border-[#8B99B0]/30 hover:text-[#ECF0F7]"
+                  ? "bg-primary text-white"
+                  : "bg-background border border-border/15 text-muted-foreground hover:border-border/30 hover:text-foreground"
               }`}
             >
               <Icon className="w-4 h-4" />{label}
@@ -175,18 +176,18 @@ export default function SessionCreateForm({ onCreated }: Props) {
           value={locationDetail}
           onChange={(e) => setLocationDetail(e.target.value)}
           placeholder={LOCATION_PLACEHOLDER[locationType]}
-          className="w-full bg-[#0C1422] border border-[#8B99B0]/15 rounded-lg text-[#ECF0F7] px-3 py-2 text-sm focus:outline-none focus:border-[#7C8FFF]/50"
+          className="w-full bg-background border border-border/15 rounded-lg text-foreground px-3 py-2 text-sm focus:outline-none focus:border-border/50"
         />
       </div>
 
       {/* Position (optional) */}
       {jdList.length > 0 && (
         <div>
-          <label className="block text-xs font-semibold uppercase tracking-[0.12em] text-[#5A6882] mb-2">Vị trí (tuỳ chọn)</label>
+          <label className="block text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground mb-2">Vị trí (tuỳ chọn)</label>
           <select
             value={jdId}
             onChange={(e) => setJdId(e.target.value)}
-            className="w-full bg-[#0C1422] border border-[#8B99B0]/15 rounded-lg text-[#ECF0F7] px-3 py-2 text-sm focus:outline-none focus:border-[#7C8FFF]/50 cursor-pointer"
+            className="w-full bg-background border border-border/15 rounded-lg text-foreground px-3 py-2 text-sm focus:outline-none focus:border-border/50 cursor-pointer"
           >
             <option value="">-- Không chọn --</option>
             {jdList.map((jd) => <option key={jd.id} value={jd.id}>{jd.title}</option>)}
@@ -196,20 +197,20 @@ export default function SessionCreateForm({ onCreated }: Props) {
 
       {/* Note */}
       <div>
-        <label className="block text-xs font-semibold uppercase tracking-[0.12em] text-[#5A6882] mb-2">Ghi chú (tuỳ chọn)</label>
+        <label className="block text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground mb-2">Ghi chú (tuỳ chọn)</label>
         <textarea
           value={note}
           onChange={(e) => setNote(e.target.value)}
           rows={3}
           placeholder="Lưu ý cho buổi phỏng vấn..."
-          className="w-full bg-[#0C1422] border border-[#8B99B0]/15 rounded-lg text-[#ECF0F7] px-3 py-2 text-sm focus:outline-none focus:border-[#7C8FFF]/50 resize-none"
+          className="w-full bg-background border border-border/15 rounded-lg text-foreground px-3 py-2 text-sm focus:outline-none focus:border-border/50 resize-none"
         />
       </div>
 
       <button
         type="submit"
         disabled={submitting}
-        className="w-full bg-[#7C8FFF] hover:bg-[#6B7FEE] text-white rounded-lg px-4 py-2.5 text-sm font-medium transition-colors cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2"
+        className="w-full bg-primary hover:bg-primary text-white rounded-lg px-4 py-2.5 text-sm font-medium transition-colors cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2"
       >
         {submitting && <Loader2 className="w-4 h-4 animate-spin" />}
         {submitting ? "Đang tạo..." : "Tạo buổi phỏng vấn"}

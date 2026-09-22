@@ -100,13 +100,13 @@ export default function QuestionFormDialog({ open, onOpenChange, onSuccess, edit
     }
   }
 
-  const fieldCls = "bg-[#1E2840] border-[#8B99B0]/15 text-[#ECF0F7] placeholder:text-[#5A6882]";
-  const labelCls = "text-[#8B99B0] text-xs mb-1 block";
+  const fieldCls = "bg-muted border-border/15 text-foreground placeholder:text-muted-foreground";
+  const labelCls = "text-muted-foreground text-xs mb-1 block";
   const errCls = "text-red-400 text-xs mt-1";
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="bg-[#0C1220] border-[#8B99B0]/15 text-[#ECF0F7] max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="bg-background border-border/15 text-foreground max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>{isEdit ? "Edit Question" : "Add Question"}</DialogTitle>
         </DialogHeader>
@@ -170,10 +170,10 @@ export default function QuestionFormDialog({ open, onOpenChange, onSuccess, edit
           </div>
 
           <div className="flex gap-2 justify-end pt-2">
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)} className="border-[#8B99B0]/20 text-[#8B99B0] hover:text-[#ECF0F7]">
+            <Button type="button" variant="outline" onClick={() => onOpenChange(false)} className="border-border/20 text-muted-foreground hover:text-foreground">
               Cancel
             </Button>
-            <Button type="submit" disabled={isSubmitting} className="bg-[#10B981] hover:bg-[#0D9E6E] text-white border-0">
+            <Button type="submit" disabled={isSubmitting} className="bg-success hover:bg-success text-white border-0">
               {isSubmitting ? "Saving..." : isEdit ? "Save Changes" : "Create Question"}
             </Button>
           </div>

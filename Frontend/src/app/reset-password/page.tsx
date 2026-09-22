@@ -53,7 +53,7 @@ export default function ResetPasswordPage() {
     };
 
     return (
-        <PageTransition className="min-h-screen bg-[#030305] text-white flex items-center justify-center p-6 font-body">
+        <PageTransition className="min-h-screen bg-background text-white flex items-center justify-center p-6 font-body">
 
 
             <FadeIn className="w-full max-w-md relative z-10">
@@ -105,7 +105,7 @@ export default function ResetPasswordPage() {
                             <Button
                                 type="submit"
                                 disabled={isLoading}
-                                className="w-full h-12 mt-6 bg-indigo-600 hover:bg-indigo-500 text-white font-medium rounded-xl transition-all shadow-[0_0_20px_rgba(99,102,241,0.3)] hover:shadow-[0_0_30px_rgba(99,102,241,0.5)]"
+                                className="w-full h-12 mt-6 bg-indigo-600 hover:bg-indigo-500 text-white font-medium rounded-xl transition-all shadow-[0_0_20px_color-mix(in_srgb,var(--primary)_30%,transparent)] hover:shadow-[0_0_30px_color-mix(in_srgb,var(--primary)_50%,transparent)]"
                             >
                                 {isLoading ? (
                                     <Loader2 className="w-4 h-4 animate-spin" />

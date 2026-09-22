@@ -18,7 +18,7 @@ export default function ScoreRing({ value, max = 100, size = 80, label, hidePerc
   const displayPct = Math.round(pct * 100);
 
   const strokeColor =
-    displayPct >= 75 ? "#22C55E" : displayPct >= 50 ? "#F59E0B" : "#EF4444";
+    displayPct >= 75 ? "var(--success)" : displayPct >= 50 ? "var(--warning)" : "var(--danger)";
 
   return (
     <div className="flex flex-col items-center gap-1">
@@ -41,7 +41,7 @@ export default function ScoreRing({ value, max = 100, size = 80, label, hidePerc
           cy={center}
           r={radius}
           fill="none"
-          stroke="#121A2E"
+          stroke="var(--background)"
           strokeWidth={size / 10}
         />
         <circle
@@ -64,7 +64,7 @@ export default function ScoreRing({ value, max = 100, size = 80, label, hidePerc
           y={center}
           textAnchor="middle"
           dominantBaseline="middle"
-          fill="#FFFFFF"
+          fill="var(--foreground)"
           fontSize={size * fontSizeRatio}
           fontWeight="900"
           className="font-display"
@@ -76,7 +76,7 @@ export default function ScoreRing({ value, max = 100, size = 80, label, hidePerc
           {displayPct}{hidePercentage ? "" : "%"}
         </text>
       </svg>
-      {label && <span className="text-[10px] font-bold text-[#8B99B0] uppercase tracking-widest mt-2">{label}</span>}
+      {label && <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mt-2">{label}</span>}
     </div>
   );
 }

@@ -8,11 +8,11 @@ const sharedStatusChipVariants = cva(
     variants: {
       // Dark-tuned tints (design-guidelines §4.2). DEPRECATED — prefer ui/status-chip.
       tone: {
-        neutral: "bg-white/[0.06] text-[#8B99B0]",
-        info: "bg-[#5B6CF0]/15 text-[#7C8FFF]",
-        success: "bg-[#34D399]/15 text-[#34D399]",
-        warning: "bg-[#FBBF24]/15 text-[#FBBF24]",
-        danger: "bg-[#FB7185]/15 text-[#FB7185]",
+        neutral: "bg-white/[0.06] text-muted-foreground",
+        info: "bg-primary/15 text-primary",
+        success: "bg-success/15 text-success",
+        warning: "bg-warning/15 text-warning",
+        danger: "bg-danger/15 text-danger",
       },
     },
     defaultVariants: {

@@ -105,7 +105,7 @@ export default function ResultClient({
     };
 
     return (
-        <PageTransition className="min-h-screen bg-[#030305] text-white font-body selection:bg-indigo-500/30 overflow-hidden relative">
+        <PageTransition className="min-h-screen bg-background text-white font-body selection:bg-indigo-500/30 overflow-hidden relative">
 
             <div className="relative z-10 max-w-6xl mx-auto px-6 py-12">
                 <div className="mb-12 text-center md:text-left flex flex-col md:flex-row items-center justify-between gap-6">
@@ -142,7 +142,7 @@ export default function ResultClient({
 
                         {/* Score Gauge */}
                         <StaggerItem>
-                            <Card className="border-white/5 bg-[#0a0a0c]/80 backdrop-blur-xl relative overflow-hidden shadow-2xl">
+                            <Card className="border-white/5 bg-background/80 backdrop-blur-xl relative overflow-hidden shadow-2xl">
                                 <CardContent className="pt-8 pb-8 text-center flex flex-col items-center">
                                     <div className="relative w-40 h-40 mb-6">
                                         <svg className="w-40 h-40 -rotate-90" viewBox="0 0 128 128">
@@ -155,8 +155,8 @@ export default function ResultClient({
                                             />
                                             <defs>
                                                 <linearGradient id="rg">
-                                                    <stop offset="0%" stopColor={percentage >= 80 ? "#10b981" : percentage >= 50 ? "#f59e0b" : "#ef4444"} />
-                                                    <stop offset="100%" stopColor={percentage >= 80 ? "#059669" : percentage >= 50 ? "#d97706" : "#dc2626"} />
+                                                    <stop offset="0%" stopColor={percentage >= 80 ? "var(--success)" : percentage >= 50 ? "var(--warning)" : "var(--danger)"} />
+                                                    <stop offset="100%" stopColor={percentage >= 80 ? "var(--success)" : percentage >= 50 ? "var(--warning)" : "var(--danger)"} />
                                                 </linearGradient>
                                             </defs>
                                         </svg>
@@ -201,7 +201,7 @@ export default function ResultClient({
                                                         <ul className="space-y-2">
                                                             {aiAnalysis.strengths.map((s, i) => (
                                                                 <li key={i} className="text-sm text-emerald-400/80 flex items-start gap-3">
-                                                                    <div className="mt-0.5 shrink-0 w-1.5 h-1.5 rounded-full bg-emerald-500/50 shadow-[0_0_8px_rgba(16,185,129,0.8)]" />
+                                                                    <div className="mt-0.5 shrink-0 w-1.5 h-1.5 rounded-full bg-emerald-500/50 shadow-[0_0_8px_color-mix(in_srgb,var(--success)_80%,transparent)]" />
                                                                     {s}
                                                                 </li>
                                                             ))}
@@ -215,7 +215,7 @@ export default function ResultClient({
                                                         <ul className="space-y-2">
                                                             {aiAnalysis.weaknesses.map((w, i) => (
                                                                 <li key={i} className="text-sm text-amber-400/80 flex items-start gap-3">
-                                                                    <div className="mt-0.5 shrink-0 w-1.5 h-1.5 rounded-full bg-amber-500/50 shadow-[0_0_8px_rgba(245,158,11,0.8)]" />
+                                                                    <div className="mt-0.5 shrink-0 w-1.5 h-1.5 rounded-full bg-amber-500/50 shadow-[0_0_8px_color-mix(in_srgb,var(--warning)_80%,transparent)]" />
                                                                     {w}
                                                                 </li>
                                                             ))}
@@ -261,10 +261,10 @@ export default function ResultClient({
                                             {/* Edge indicator line */}
                                             <div className={`absolute left-0 top-0 bottom-0 w-1 ${isCorrect ? "bg-emerald-500" : "bg-rose-500"}`} />
 
-                                            <div className={`p-6 pl-8 rounded-xl border border-white/5 bg-[#0a0a0c]/60 backdrop-blur-md transition-all`}>
+                                            <div className={`p-6 pl-8 rounded-xl border border-white/5 bg-background/60 backdrop-blur-md transition-all`}>
                                                 <div className="flex items-start justify-between mb-4 gap-4">
                                                     <div className="flex items-center gap-3">
-                                                        <div className={`w-8 h-8 rounded-full flex items-center justify-center border ${isCorrect ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-400 shadow-[0_0_15px_rgba(16,185,129,0.2)]" : "bg-rose-500/10 border-rose-500/20 text-rose-400 shadow-[0_0_15px_rgba(244,63,94,0.2)]"
+                                                        <div className={`w-8 h-8 rounded-full flex items-center justify-center border ${isCorrect ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-400 shadow-[0_0_15px_color-mix(in_srgb,var(--success)_20%,transparent)]" : "bg-rose-500/10 border-rose-500/20 text-rose-400 shadow-[0_0_15px_color-mix(in_srgb,var(--danger)_20%,transparent)]"
                                                             }`}>
                                                             {isCorrect ? <Check className="w-4 h-4 font-bold" /> : <X className="w-4 h-4 font-bold" />}
                                                         </div>
@@ -283,7 +283,7 @@ export default function ResultClient({
 
                                                         let optClass = "border-white/5 bg-white/[0.01] text-white/40";
                                                         if (isSelectedOpt && isCorrect) {
-                                                            optClass = "bg-emerald-500/10 border-emerald-500/30 text-emerald-300 shadow-[0_0_20px_-5px_rgba(16,185,129,0.3)] ring-1 ring-emerald-500/20";
+                                                            optClass = "bg-emerald-500/10 border-emerald-500/30 text-emerald-300 shadow-[0_0_20px_-5px_color-mix(in_srgb,var(--success)_30%,transparent)] ring-1 ring-emerald-500/20";
                                                         } else if (isSelectedOpt && !isCorrect) {
                                                             optClass = "bg-rose-500/5 border-rose-500/20 text-rose-300";
                                                         }

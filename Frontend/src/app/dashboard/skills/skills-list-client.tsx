@@ -8,6 +8,9 @@ import PageContainer from "@/components/ui/page-container";
 import { Button } from "@/components/ui/button";
 import { Plus, Zap, TrendingUp, AlertTriangle, Download, LayoutList, LayoutGrid, Grid3X3, FilePlus2 } from "lucide-react";
 import KpiCardGrid from "@/components/crm/kpi-card-grid";
+import OverviewBand from "@/components/shares/overview-band";
+import { DonutStat, HBarList, colorAt } from "@/components/charts";
+import { SharedDashboardPageHeader } from "@/components/shares";
 import FilterBar from "@/components/crm/filter-bar";
 import SkillFormDialog from "@/components/management/skill-form-dialog";
 import CreateTestFromSkills from "@/components/tests/create-test-from-skills";
@@ -36,7 +39,7 @@ export const CATEGORY_COLORS: Record<string, string> = {
   "Soft Skills":       "border-yellow-500/30 text-yellow-400 bg-yellow-500/10",
   "Domain Knowledge":  "border-orange-500/30 text-orange-400 bg-orange-500/10",
 };
-export const FALLBACK_COLOR = "border-[#8B99B0]/20 text-[#8B99B0] bg-[#8B99B0]/10";
+export const FALLBACK_COLOR = "border-border/20 text-muted-foreground bg-muted-foreground/10";
 
 export function categoryColor(name: string | null) {
   if (!name) return FALLBACK_COLOR;
@@ -74,6 +77,25 @@ export default function SkillsListClient({ skills: initialSkills, categories, is
     { label: "Unmapped Skills", value: kpis.unmappedCount, icon: AlertTriangle },
     { label: "Skill Gaps", value: kpis.shortageCount, icon: AlertTriangle },
   ];
+
+
+  /* Dải tổng quan: suy từ danh sách kỹ năng đã fetch, không thêm truy vấn. */
+  const shortageBars = useMemo(() => initialSkills
+    .filter((s) => s.shortage_score > 0)
+    .map((s) => ({ label: s.name, value: s.shortage_score, color: "var(--danger)" })),
+  [initialSkills]);
+
+  const byCategory = useMemo(() => {
+    const counts = new Map<string, number>();
+    for (const s of initialSkills) counts.set(s.category ?? "Chưa phân nhóm",
+      (counts.get(s.category ?? "Chưa phân nhóm") ?? 0) + 1);
+    return [...counts].map(([label, value], i) => ({ label, value, color: colorAt(i) }));
+  }, [initialSkills]);
+
+  const mostRequired = useMemo(() => initialSkills
+    .filter((s) => s.position_count > 0)
+    .map((s) => ({ label: s.name, value: s.position_count, color: "var(--primary)" })),
+  [initialSkills]);
 
   const categoryOptions: FilterOption[] = categories.map((c) => ({ value: c.name, label: c.name }));
 
@@ -126,22 +148,20 @@ export default function SkillsListClient({ skills: initialSkills, categories, is
   const clearAll = () => { setSearch(""); setCategoryFilter(""); };
 
   return (
-    <div className="bg-transparent text-[#ECF0F7] pb-12">
+    <div className="bg-transparent text-foreground pb-12">
       <AppNavbar />
       <PageContainer>
         <PageBreadcrumb breadcrumbs={[{ label: "Dashboard", href: "/dashboard" }, { label: "Skills" }]} />
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-10">
-          <div className="space-y-1">
-            <h1 className="text-4xl font-extralight tracking-tight text-[#ECF0F7] font-display">Skill Intelligence</h1>
-            <p className="text-sm text-[#5A6882] font-light">Map your organizational capabilities and identify strategic growth vectors</p>
-          </div>
-          <div className="flex items-center gap-3">
+        <SharedDashboardPageHeader
+          title="Bản đồ kỹ năng"
+          description="Năng lực hiện có của tổ chức và những kỹ năng đang thiếu so với yêu cầu vị trí"
+          actions={<>
             {isAdmin && (
               <Button
                 onClick={handleExportCsv}
                 disabled={exporting}
                 variant="outline"
-                className="h-12 px-6 rounded-xl border border-white/5 bg-white/5 text-[#8B99B0] hover:text-[#ECF0F7] hover:bg-white/10 gap-2 transition-all"
+                className="h-12 px-6 rounded-xl border border-border bg-muted text-muted-foreground hover:text-foreground hover:bg-muted gap-2 transition-all"
               >
                 <Download className="w-4 h-4" />{exporting ? "Exporting..." : "Export CRM"}
               </Button>
@@ -149,22 +169,28 @@ export default function SkillsListClient({ skills: initialSkills, categories, is
             <Button
               onClick={() => setCreateTestOpen(true)}
               variant="outline"
-              className="h-12 px-6 rounded-xl border border-[#10B981]/35 bg-[#10B981]/10 text-[#10B981] hover:bg-[#10B981]/20 gap-2 transition-all font-semibold"
+              className="h-12 px-6 rounded-xl border border-border/35 bg-success/10 text-success hover:bg-success/20 gap-2 transition-all font-semibold"
             >
               <FilePlus2 className="w-5 h-5" /> Tạo bộ test
             </Button>
             <Button
               onClick={() => setDialogOpen(true)}
-              className="bg-[#7C8FFF] hover:bg-[#5B6CF0] text-white h-12 px-8 rounded-xl shadow-lg shadow-[#7C8FFF]/20 transition-all font-semibold gap-2 border-0"
+              className="bg-primary hover:bg-primary text-white h-12 px-8 rounded-xl shadow-lg shadow-primary/20 transition-all font-semibold gap-2 border-0"
             >
               <Plus className="w-5 h-5" /> Add New Skill
             </Button>
-          </div>
-        </div>
+          </>}
+        />
 
         <KpiCardGrid items={kpiItems} />
 
-        <div className="flex items-center justify-between gap-3 mt-6 mb-4">
+        <OverviewBand className="mt-6">
+          <HBarList title="Kỹ năng thiếu hụt" items={shortageBars} />
+          <DonutStat title="Theo nhóm kỹ năng" slices={byCategory} centerLabel="Kỹ năng" />
+          <HBarList title="Vị trí yêu cầu nhiều nhất" items={mostRequired} />
+        </OverviewBand>
+
+        <div className="flex items-center justify-between gap-3 mb-4">
           <FilterBar
             search={search}
             onSearchChange={setSearch}
@@ -173,13 +199,13 @@ export default function SkillsListClient({ skills: initialSkills, categories, is
             ]}
             onClearAll={clearAll}
           />
-          <div className="flex items-center gap-1 p-1 rounded-lg bg-[#1B253B] border border-[#8B99B0]/10 shrink-0">
+          <div className="flex items-center gap-1 p-1 rounded-lg bg-muted border border-border/10 shrink-0">
             {VIEW_OPTIONS.map(({ mode, icon: Icon, label }) => (
               <button
                 key={mode}
                 aria-label={label}
                 onClick={() => setView(mode)}
-                className={`p-1.5 rounded transition-colors ${view === mode ? "bg-[#7C8FFF] text-white" : "text-[#5A6882] hover:text-[#ECF0F7] hover:bg-[#222C4A]"}`}
+                className={`p-1.5 rounded transition-colors ${view === mode ? "bg-primary text-white" : "text-muted-foreground hover:text-foreground hover:bg-accent"}`}
               >
                 <Icon className="w-4 h-4" />
               </button>
@@ -212,7 +238,7 @@ export default function SkillsListClient({ skills: initialSkills, categories, is
       <Dialog open={createTestOpen} onOpenChange={setCreateTestOpen}>
         <DialogContent
           showCloseButton={false}
-          className="max-w-3xl w-[calc(100%-2rem)] max-h-[90vh] overflow-y-auto bg-[#101828] ring-[#7C8FFF]/15"
+          className="max-w-3xl w-[calc(100%-2rem)] max-h-[90vh] overflow-y-auto bg-background ring-primary/15"
         >
           <DialogTitle className="sr-only">Create test from skills</DialogTitle>
           <CreateTestFromSkills

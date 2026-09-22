@@ -24,7 +24,7 @@ function AnimatedProcessingText() {
         return () => clearInterval(timer);
     }, []);
     return (
-        <p className="text-base font-bold text-[#F59E0B] tracking-wide">
+        <p className="text-base font-bold text-warning tracking-wide">
             Đang xử lý{".".repeat(dots)}
         </p>
     );
@@ -136,18 +136,18 @@ export default function CvUploadDialog({ trigger, onSuccess }: CvUploadDialogPro
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>{trigger}</DialogTrigger>
-            <DialogContent className="bg-[#0F172A]/98 border-[#8B99B0]/20 text-[#ECF0F7] rounded-2xl p-0 overflow-hidden max-w-none w-[calc(100vw-32px)]"
+            <DialogContent className="bg-background/98 border-muted-foreground/20 text-foreground rounded-2xl p-0 overflow-hidden max-w-none w-[calc(100vw-32px)]"
                 style={{ maxWidth: "900px" }}>
                 <div className="flex items-stretch relative">
                     {/* ── Full-dialog skeleton overlay ── */}
                     {extractingInfo && (
-                        <div className="absolute inset-0 z-[60] bg-[#0A1220]/88 backdrop-blur-md rounded-2xl flex flex-col items-center justify-center gap-4 animate-in fade-in duration-300">
-                            <div className="w-14 h-14 rounded-full border-[3px] border-[#F59E0B]/20 border-t-[#F59E0B] animate-spin" />
+                        <div className="absolute inset-0 z-[60] bg-background/88 backdrop-blur-md rounded-2xl flex flex-col items-center justify-center gap-4 animate-in fade-in duration-300">
+                            <div className="w-14 h-14 rounded-full border-[3px] border-warning/20 border-t-border animate-spin" />
                             <AnimatedProcessingText />
                             <div className="flex gap-2 mt-1">
-                                <div className="h-1.5 w-10 bg-[#F59E0B]/15 rounded-full overflow-hidden"><div className="h-full bg-[#F59E0B]/70 rounded-full animate-pulse" style={{ width: '60%' }} /></div>
-                                <div className="h-1.5 w-8 bg-[#F59E0B]/15 rounded-full overflow-hidden"><div className="h-full bg-[#F59E0B]/50 rounded-full animate-pulse" style={{ width: '45%', animationDelay: '0.4s' }} /></div>
-                                <div className="h-1.5 w-14 bg-[#F59E0B]/15 rounded-full overflow-hidden"><div className="h-full bg-[#F59E0B]/60 rounded-full animate-pulse" style={{ width: '35%', animationDelay: '0.8s' }} /></div>
+                                <div className="h-1.5 w-10 bg-warning/15 rounded-full overflow-hidden"><div className="h-full bg-warning/70 rounded-full animate-pulse" style={{ width: '60%' }} /></div>
+                                <div className="h-1.5 w-8 bg-warning/15 rounded-full overflow-hidden"><div className="h-full bg-warning/50 rounded-full animate-pulse" style={{ width: '45%', animationDelay: '0.4s' }} /></div>
+                                <div className="h-1.5 w-14 bg-warning/15 rounded-full overflow-hidden"><div className="h-full bg-warning/60 rounded-full animate-pulse" style={{ width: '35%', animationDelay: '0.8s' }} /></div>
                             </div>
                         </div>
                     )}
@@ -156,7 +156,7 @@ export default function CvUploadDialog({ trigger, onSuccess }: CvUploadDialogPro
                         <div className="px-6 pt-6 pr-12 shrink-0">
                             <DialogHeader>
                                 <DialogTitle className="text-lg font-bold flex items-center gap-2">
-                                    <Upload className="w-4 h-4 text-[#7C8FFF]" /> Upload CV
+                                    <Upload className="w-4 h-4 text-primary" /> Upload CV
                                 </DialogTitle>
                             </DialogHeader>
                         </div>
@@ -167,22 +167,22 @@ export default function CvUploadDialog({ trigger, onSuccess }: CvUploadDialogPro
                                 <div onClick={() => fileInputRef.current?.click()}
                                     onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
                                     onDragLeave={() => setDragOver(false)} onDrop={onDrop}
-                                    className={`border-2 border-dashed rounded-xl p-6 text-center cursor-pointer transition-colors ${dragOver ? "border-[#7C8FFF] bg-[#7C8FFF]/5" : "border-[#8B99B0]/25 hover:border-[#8B99B0]/50"}`}>
-                                    <Upload className="w-7 h-7 mx-auto mb-2.5 text-[#8B99B0]" />
-                                    <p className="text-sm text-[#8B99B0]">Drop file here or click to browse</p>
-                                    <p className="text-xs text-[#5A6882] mt-1">PDF or DOCX · max 10 MB</p>
+                                    className={`border-2 border-dashed rounded-xl p-6 text-center cursor-pointer transition-colors ${dragOver ? "border-primary bg-primary/5" : "border-muted-foreground/25 hover:border-muted-foreground/50"}`}>
+                                    <Upload className="w-7 h-7 mx-auto mb-2.5 text-muted-foreground" />
+                                    <p className="text-sm text-muted-foreground">Drop file here or click to browse</p>
+                                    <p className="text-xs text-muted-foreground mt-1">PDF or DOCX · max 10 MB</p>
                                     <input ref={fileInputRef} type="file" className="hidden"
                                         accept=".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
                                         onChange={(e) => { const f = e.target.files?.[0]; if (f) handleFile(f); e.target.value = ""; }} />
                                 </div>
                             ) : (
-                                <div className="flex items-center gap-3 px-4 py-3 bg-[#0C1220] border border-[#7C8FFF]/25 rounded-xl">
-                                    <FileText className="w-5 h-5 text-[#7C8FFF] shrink-0" />
+                                <div className="flex items-center gap-3 px-4 py-3 bg-card border border-background/25 rounded-xl">
+                                    <FileText className="w-5 h-5 text-primary shrink-0" />
                                     <div className="flex-1 min-w-0">
-                                        <p className="text-sm text-[#ECF0F7] font-medium truncate">{file.name}</p>
-                                        <p className="text-xs text-[#5A6882]">{(file.size / 1024 / 1024).toFixed(1)} MB</p>
+                                        <p className="text-sm text-foreground font-medium truncate">{file.name}</p>
+                                        <p className="text-xs text-muted-foreground">{(file.size / 1024 / 1024).toFixed(1)} MB</p>
                                     </div>
-                                    <button onClick={clearFile} disabled={loading} className="text-[#5A6882] hover:text-rose-400 transition-colors cursor-pointer">
+                                    <button onClick={clearFile} disabled={loading} className="text-muted-foreground hover:text-rose-400 transition-colors cursor-pointer">
                                         <X className="w-4 h-4" />
                                     </button>
                                     <input ref={fileInputRef} type="file" className="hidden" accept=".pdf,.docx"
@@ -191,25 +191,25 @@ export default function CvUploadDialog({ trigger, onSuccess }: CvUploadDialogPro
                             )}
 
                             <div className="space-y-1.5">
-                                <Label className="text-xs text-[#8B99B0] font-medium">Candidate Name <span className="text-rose-400">*</span></Label>
+                                <Label className="text-xs text-muted-foreground font-medium">Candidate Name <span className="text-rose-400">*</span></Label>
                                 <input value={candidateName} onChange={(e) => setCandidateName(e.target.value)} placeholder="Nguyen Van A"
-                                    className="w-full bg-[#0C1220]/60 border border-[#8B99B0]/15 text-[#ECF0F7] h-9 px-3 text-sm rounded-lg focus:border-[#7C8FFF]/70 focus:outline-none !ring-0 !outline-none placeholder:text-[#5A6882]/60 transition-all duration-200" />
+                                    className="w-full bg-card/60 border border-muted-foreground/15 text-foreground h-9 px-3 text-sm rounded-lg focus:border-background/70 focus:outline-none !ring-0 !outline-none placeholder:text-muted-foreground/60 transition-all duration-200" />
                             </div>
 
                             <div className="space-y-1.5">
-                                <Label className="text-xs text-[#8B99B0] font-medium">Email <span className="text-[#5A6882]">(optional)</span></Label>
+                                <Label className="text-xs text-muted-foreground font-medium">Email <span className="text-muted-foreground">(optional)</span></Label>
                                 <input type="email" value={candidateEmail} onChange={(e) => setCandidateEmail(e.target.value)} placeholder="candidate@email.com"
-                                    className="w-full bg-[#0C1220]/60 border border-[#8B99B0]/15 text-[#ECF0F7] h-9 px-3 text-sm rounded-lg focus:border-[#7C8FFF]/70 focus:outline-none !ring-0 !outline-none placeholder:text-[#5A6882]/60 transition-all duration-200" />
+                                    className="w-full bg-card/60 border border-muted-foreground/15 text-foreground h-9 px-3 text-sm rounded-lg focus:border-background/70 focus:outline-none !ring-0 !outline-none placeholder:text-muted-foreground/60 transition-all duration-200" />
                             </div>
 
                             {/* JD section */}
                             <div className="space-y-1.5">
                                 <div className="flex items-center justify-between">
-                                    <Label className="text-xs text-[#8B99B0] font-medium">Job Description <span className="text-rose-400">*</span></Label>
+                                    <Label className="text-xs text-muted-foreground font-medium">Job Description <span className="text-rose-400">*</span></Label>
                                     <button type="button" onClick={() => setShowCreateJd((v) => !v)}
                                         className={`flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-full border transition-all duration-200 cursor-pointer ${showCreateJd
-                                            ? "bg-[#F97316]/15 border-[#F97316]/50 text-[#FB923C]"
-                                            : "bg-[#F97316]/10 border-[#F97316]/30 text-[#F97316] hover:bg-[#F97316]/20 hover:border-[#F97316]/60 hover:shadow-[0_0_14px_rgba(249,115,22,0.25)]"
+                                            ? "bg-warning/15 border-warning/50 text-warning"
+                                            : "bg-warning/10 border-warning/30 text-warning hover:bg-warning/20 hover:border-warning/60 hover:shadow-[0_0_14px_color-mix(in_srgb,var(--warning)_25%,transparent)]"
                                             }`}>
                                         {showCreateJd ? <X className="w-3 h-3" /> : <Plus className="w-3 h-3" />}
                                         {showCreateJd ? "Huỷ" : "Tạo JD mới"}
@@ -238,22 +238,22 @@ export default function CvUploadDialog({ trigger, onSuccess }: CvUploadDialogPro
                         </div>
 
                         {/* Footer */}
-                        <div className="px-6 pb-6 pt-4 border-t border-[#141F33] space-y-3 shrink-0">
+                        <div className="px-6 pb-6 pt-4 border-t border-muted space-y-3 shrink-0">
                             {loading && (
                                 <div className="space-y-1.5">
-                                    <div className="flex justify-between text-xs text-[#5A6882]">
+                                    <div className="flex justify-between text-xs text-muted-foreground">
                                         <span>Uploading &amp; analyzing…</span><span>{Math.round(progress)}%</span>
                                     </div>
-                                    <div className="h-1 bg-[#141F33] rounded-full overflow-hidden">
-                                        <div className="h-full bg-[#7C8FFF] rounded-full transition-all duration-300" style={{ width: `${progress}%` }} />
+                                    <div className="h-1 bg-muted rounded-full overflow-hidden">
+                                        <div className="h-full bg-primary rounded-full transition-all duration-300" style={{ width: `${progress}%` }} />
                                     </div>
                                 </div>
                             )}
                             <div className="flex justify-end gap-2">
                                 <Button variant="ghost" onClick={() => setOpen(false)} disabled={loading}
-                                    className="text-[#8B99B0] hover:text-[#ECF0F7] hover:bg-[#1B253B] cursor-pointer">Cancel</Button>
+                                    className="text-muted-foreground hover:text-foreground hover:bg-muted cursor-pointer">Cancel</Button>
                                 <Button onClick={handleSubmit} disabled={loading || !file || !candidateName.trim() || !jdId}
-                                    className="bg-[#F59E0B] hover:bg-[#D97706] text-white px-6 rounded-xl cursor-pointer font-semibold">
+                                    className="bg-warning hover:bg-warning text-white px-6 rounded-xl cursor-pointer font-semibold">
                                     {loading ? "Uploading…" : "Upload & Analyze"}
                                 </Button>
                             </div>

@@ -22,7 +22,7 @@ function KpiCard({ label, value, icon: Icon, delta, hint, tone = "default", clas
     (delta ? (delta.value > 0 ? "up" : delta.value < 0 ? "down" : "flat") : "flat")
   const DeltaIcon = dir === "up" ? TrendingUp : dir === "down" ? TrendingDown : Minus
   const deltaColor =
-    dir === "up" ? "text-[#34D399]" : dir === "down" ? "text-[#FB7185]" : "text-muted-foreground"
+    dir === "up" ? "text-success" : dir === "down" ? "text-danger" : "text-muted-foreground"
 
   return (
     <Card className={cn("gap-0 px-5 py-4", className)}>
@@ -32,7 +32,7 @@ function KpiCard({ label, value, icon: Icon, delta, hint, tone = "default", clas
           <span
             className={cn(
               "flex size-7 items-center justify-center rounded-lg [&>svg]:size-4",
-              tone === "ai" ? "bg-[#A78BFA]/15 text-[#A78BFA]" : "bg-primary/15 text-[#7C8FFF]"
+              tone === "ai" ? "bg-primary/15 text-primary" : "bg-primary/15 text-primary"
             )}
           >
             <Icon />

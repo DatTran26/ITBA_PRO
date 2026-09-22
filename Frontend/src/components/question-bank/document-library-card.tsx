@@ -45,14 +45,14 @@ export function DocumentLibraryCard({ document: doc, lastRunStatus, onSelect, on
   const buttonLabel = isReRun ? `Re-run (v${runCount + 1})` : "Use";
 
   return (
-    <div className="flex items-center gap-3 rounded-lg border border-[#8B99B0]/10 bg-[#1C2333]/40 px-4 py-3 transition-colors hover:bg-[#1C2333]/70">
+    <div className="flex items-center gap-3 rounded-lg border border-border/10 bg-card/40 px-4 py-3 transition-colors hover:bg-card/70">
       <div className="shrink-0">{icon}</div>
 
       <div className="min-w-0 flex-1">
-        <p className="truncate text-sm font-medium text-[#E2E8F0]">{doc.title}</p>
-        <p className="mt-0.5 text-xs text-[#5A6882]">
+        <p className="truncate text-sm font-medium text-primary">{doc.title}</p>
+        <p className="mt-0.5 text-xs text-muted-foreground">
           {formatDate(doc.created_at)}
-          {isReRun && <span className="ml-2 text-[#7C8FFF]/70">· {runCount} previous run{runCount > 1 ? "s" : ""}</span>}
+          {isReRun && <span className="ml-2 text-primary/70">· {runCount} previous run{runCount > 1 ? "s" : ""}</span>}
         </p>
       </div>
 
@@ -66,7 +66,7 @@ export function DocumentLibraryCard({ document: doc, lastRunStatus, onSelect, on
         <SharedDashboardButton
           size="sm"
           variant="ghost"
-          className="h-7 px-2 text-[#7C8FFF] hover:bg-[#7C8FFF]/10 hover:text-[#7C8FFF]"
+          className="h-7 px-2 text-primary hover:bg-primary/10 hover:text-primary"
           onClick={() => onSelect(doc)}
           disabled={selecting}
           aria-label={isReRun ? "Re-run pipeline on this document" : "Use document"}

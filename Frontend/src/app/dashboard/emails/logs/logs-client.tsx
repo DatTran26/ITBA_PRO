@@ -86,7 +86,7 @@ export default function LogsClient({ initialLogs, initialTotal }: Props) {
             </div>
 
             <section className={emailPanelClass}>
-                <div className="mb-4 flex items-center gap-2 text-sm font-semibold text-[#F6F8FC]">
+                <div className="mb-4 flex items-center gap-2 text-sm font-semibold text-primary">
                     <Filter className="h-4 w-4 text-cyan-200" />
                     Smart filters
                 </div>
@@ -121,14 +121,14 @@ export default function LogsClient({ initialLogs, initialTotal }: Props) {
                     <SharedDashboardButton
                         onClick={applyFilters}
                         disabled={loading}
-                        className="rounded-2xl bg-[#EDF7FF] px-5 py-3 text-sm font-semibold text-[#0C1627] transition hover:bg-white disabled:opacity-50"
+                        className="rounded-2xl bg-background px-5 py-3 text-sm font-semibold text-primary transition hover:bg-white disabled:opacity-50"
                     >
                         {loading ? "Loading..." : "Apply"}
                     </SharedDashboardButton>
                 </div>
             </section>
 
-            <section className="overflow-hidden rounded-[1.5rem] border border-white/10 bg-[#111A2D]/78 shadow-xl shadow-black/20">
+            <section className="overflow-hidden rounded-[1.5rem] border border-border bg-background/78 shadow-xl shadow-black/20">
                 <div className="hidden lg:block">
                     <Table>
                         <TableHeader className="bg-white/[0.03]">
@@ -146,9 +146,9 @@ export default function LogsClient({ initialLogs, initialTotal }: Props) {
                                     className="cursor-pointer"
                                 >
                                     <TableCell className="text-slate-400">{new Date(log.sent_at).toLocaleString("vi-VN")}</TableCell>
-                                    <TableCell className="text-[#F6F8FC]">{TYPE_LABELS[log.template_type] ?? log.template_type}</TableCell>
+                                    <TableCell className="text-primary">{TYPE_LABELS[log.template_type] ?? log.template_type}</TableCell>
                                     <TableCell>
-                                        <p className="text-[#F6F8FC]">{log.to_name ?? "Unknown"}</p>
+                                        <p className="text-primary">{log.to_name ?? "Unknown"}</p>
                                         <p className="text-xs text-slate-500">{log.to_email}</p>
                                     </TableCell>
                                     <TableCell className="max-w-sm truncate text-slate-400">{log.subject}</TableCell>
@@ -164,7 +164,7 @@ export default function LogsClient({ initialLogs, initialTotal }: Props) {
                         <SharedDashboardButton key={log.id} onClick={() => setSelected(log)} className="block w-full p-4 text-left transition hover:bg-white/[0.04]">
                             <div className="mb-3 flex items-start justify-between gap-3">
                                 <div>
-                                    <p className="text-sm font-semibold text-[#F6F8FC]">{log.to_name ?? log.to_email}</p>
+                                    <p className="text-sm font-semibold text-primary">{log.to_name ?? log.to_email}</p>
                                     <p className="text-xs text-slate-500">{log.to_email}</p>
                                 </div>
                                 <StatusPill status={log.status} />
@@ -178,13 +178,13 @@ export default function LogsClient({ initialLogs, initialTotal }: Props) {
                 {logs.length === 0 && (
                     <div className="p-12 text-center">
                         <Mail className="mx-auto h-10 w-10 text-slate-600" />
-                        <p className="mt-3 text-sm font-medium text-[#F6F8FC]">No emails found</p>
+                        <p className="mt-3 text-sm font-medium text-primary">No emails found</p>
                         <p className="mt-1 text-xs text-slate-500">Try removing filters or checking another recipient.</p>
                     </div>
                 )}
             </section>
 
-            <div className="flex flex-col items-center justify-between gap-3 rounded-2xl border border-white/10 bg-white/[0.03] p-3 sm:flex-row">
+            <div className="flex flex-col items-center justify-between gap-3 rounded-2xl border border-border bg-white/[0.03] p-3 sm:flex-row">
                 <p className="text-sm text-slate-500">Page {page} of {totalPages} · {total} total events</p>
                 <div className="flex gap-2">
                     <PagerButton disabled={page <= 1} onClick={() => fetchLogs(page - 1, typeFilter, statusFilter, toFilter)} icon={ChevronLeft} />
@@ -204,9 +204,9 @@ function Metric({ icon: Icon, label, value, tone }: { icon: React.ElementType; l
         amber: "bg-amber-300/12 text-amber-200",
     };
     return (
-        <div className="rounded-2xl border border-white/10 bg-white/[0.035] p-4">
+        <div className="rounded-2xl border border-border bg-white/[0.035] p-4">
             <div className={`mb-3 flex h-10 w-10 items-center justify-center rounded-xl ${tones[tone]}`}><Icon className="h-5 w-5" /></div>
-            <p className="font-display text-2xl text-[#F6F8FC]">{value}</p>
+            <p className="font-display text-2xl text-primary">{value}</p>
             <p className="text-xs text-slate-500">{label}</p>
         </div>
     );
@@ -223,7 +223,7 @@ function StatusPill({ status }: { status: string }) {
 
 function PagerButton({ disabled, onClick, icon: Icon }: { disabled: boolean; onClick: () => void; icon: React.ElementType }) {
     return (
-        <SharedDashboardButton onClick={onClick} disabled={disabled} className="rounded-xl border border-white/10 bg-white/[0.04] p-2 text-slate-400 transition hover:bg-white/[0.08] hover:text-white disabled:cursor-not-allowed disabled:opacity-30">
+        <SharedDashboardButton onClick={onClick} disabled={disabled} className="rounded-xl border border-border bg-white/[0.04] p-2 text-slate-400 transition hover:bg-white/[0.08] hover:text-foreground disabled:cursor-not-allowed disabled:opacity-30">
             <Icon className="h-4 w-4" />
         </SharedDashboardButton>
     );
@@ -232,13 +232,13 @@ function PagerButton({ disabled, onClick, icon: Icon }: { disabled: boolean; onC
 function LogModal({ log, onClose }: { log: Log; onClose: () => void }) {
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm">
-            <div className="max-h-[84vh] w-full max-w-2xl overflow-y-auto rounded-[1.5rem] border border-white/10 bg-[#0B1220] shadow-2xl">
-                <div className="sticky top-0 flex items-center justify-between border-b border-white/10 bg-[#0B1220]/95 p-5 backdrop-blur">
+            <div className="max-h-[84vh] w-full max-w-2xl overflow-y-auto rounded-[1.5rem] border border-border bg-background shadow-2xl">
+                <div className="sticky top-0 flex items-center justify-between border-b border-border bg-background/95 p-5 backdrop-blur">
                     <div>
                         <p className="text-xs uppercase tracking-[0.22em] text-cyan-200/70">Email event</p>
-                        <h3 className="mt-1 text-lg font-semibold text-[#F6F8FC]">Log detail</h3>
+                        <h3 className="mt-1 text-lg font-semibold text-primary">Log detail</h3>
                     </div>
-                    <SharedDashboardButton onClick={onClose} className="rounded-xl p-2 text-slate-400 transition hover:bg-white/10 hover:text-white"><X className="h-4 w-4" /></SharedDashboardButton>
+                    <SharedDashboardButton onClick={onClose} className="rounded-xl p-2 text-slate-400 transition hover:bg-muted hover:text-foreground"><X className="h-4 w-4" /></SharedDashboardButton>
                 </div>
                 <div className="space-y-4 p-5">
                     <Detail label="Template" value={`${TYPE_LABELS[log.template_type] ?? log.template_type} (${log.locale})`} />
@@ -247,7 +247,7 @@ function LogModal({ log, onClose }: { log: Log; onClose: () => void }) {
                     <Detail label="Sent at & by" value={`${new Date(log.sent_at).toLocaleString("vi-VN")} - ${log.sent_by}`} />
                     <div>
                         <p className="mb-1.5 text-xs text-slate-500">Variables</p>
-                        <pre className="overflow-x-auto rounded-2xl border border-white/10 bg-[#0A1020] p-4 text-xs text-emerald-200">
+                        <pre className="overflow-x-auto rounded-2xl border border-border bg-background p-4 text-xs text-emerald-200">
                             {JSON.stringify(log.variables, null, 2)}
                         </pre>
                     </div>
@@ -261,9 +261,9 @@ function LogModal({ log, onClose }: { log: Log; onClose: () => void }) {
 
 function Detail({ label, value, tone = "default" }: { label: string; value: string; tone?: "default" | "error" }) {
     return (
-        <div className="rounded-2xl border border-white/10 bg-white/[0.035] p-4">
+        <div className="rounded-2xl border border-border bg-white/[0.035] p-4">
             <p className="text-xs text-slate-500">{label}</p>
-            <p className={`mt-1 text-sm ${tone === "error" ? "text-rose-200" : "text-[#F6F8FC]"}`}>{value}</p>
+            <p className={`mt-1 text-sm ${tone === "error" ? "text-rose-200" : "text-primary"}`}>{value}</p>
         </div>
     );
 }

@@ -13,7 +13,7 @@ const InterviewCalendarView = dynamic(
     ssr: false,
     loading: () => (
       <div className="glass-card flex items-center justify-center h-[640px]">
-        <div className="w-6 h-6 border-2 border-[#7C8FFF]/30 border-t-[#7C8FFF] rounded-full animate-spin" />
+        <div className="w-6 h-6 border-2 border-border/30 border-t-border rounded-full animate-spin" />
       </div>
     ),
   }
@@ -81,10 +81,10 @@ function StatBadge({ label, count, color, icon: Icon, active, onClick }: { label
   return (
     <button
       onClick={onClick}
-      className={`glass-card relative flex items-center justify-between p-4 flex-1 overflow-hidden transition-all duration-300 ${active ? 'ring-1 ring-[#7C8FFF]/50 scale-[1.02]' : 'hover:bg-white/[0.03]'} cursor-pointer text-left`}
+      className={`glass-card relative flex items-center justify-between p-4 flex-1 overflow-hidden transition-all duration-300 ${active ? 'ring-1 ring-primary/50 scale-[1.02]' : 'hover:bg-white/[0.03]'} cursor-pointer text-left`}
     >
       {active && (
-        <div className="absolute inset-0 top-0 h-[2px] bg-gradient-to-r from-[#7C8FFF] to-[#B48EFF]" />
+        <div className="absolute inset-0 top-0 h-[2px] bg-gradient-to-r from-primary to-ai" />
       )}
       <div className="flex items-center gap-3">
         {Icon && (
@@ -93,8 +93,8 @@ function StatBadge({ label, count, color, icon: Icon, active, onClick }: { label
           </div>
         )}
         <div className="flex flex-col">
-          <span className="text-[10px] font-semibold text-[#8B99B0] uppercase tracking-widest">{label}</span>
-          <span className="font-display text-2xl font-light text-[#ECF0F7]">{count}</span>
+          <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest">{label}</span>
+          <span className="font-display text-2xl font-light text-foreground">{count}</span>
         </div>
       </div>
     </button>
@@ -107,13 +107,13 @@ function SkeletonCard() {
     <div className="glass-card p-5 outline-none relative overflow-hidden">
       <div className="flex items-start justify-between gap-3 animate-pulse">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-white/5 shrink-0" />
+          <div className="w-10 h-10 rounded-xl bg-muted shrink-0" />
           <div className="flex flex-col gap-2">
-            <div className="h-3.5 w-32 rounded bg-white/5" />
-            <div className="h-3 w-48 rounded bg-white/5" />
+            <div className="h-3.5 w-32 rounded bg-muted" />
+            <div className="h-3 w-48 rounded bg-muted" />
           </div>
         </div>
-        <div className="h-8 w-24 rounded-lg bg-white/5" />
+        <div className="h-8 w-24 rounded-lg bg-muted" />
       </div>
     </div>
   );
@@ -147,7 +147,7 @@ function InterviewAcceptanceActions({ scheduleId, onResponded }: { scheduleId: s
   };
 
   return (
-    <div className="flex flex-col gap-2 pt-3 border-t border-white/6">
+    <div className="flex flex-col gap-2 pt-3 border-t border-border">
       <div className="inline-flex items-center gap-2 text-xs text-amber-300 bg-amber-500/8 border border-amber-500/20 rounded-lg px-3 py-2 w-fit">
         <Clock className="w-3.5 h-3.5 shrink-0" />
         Chờ bạn xác nhận lịch này
@@ -167,24 +167,24 @@ function InterviewAcceptanceActions({ scheduleId, onResponded }: { scheduleId: s
         </button>
         <button
           onClick={() => setShowReschedule(!showReschedule)} disabled={loading}
-          className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-xs font-medium bg-white/5 border border-white/12 text-[#8B99B0] hover:bg-white/10 transition-colors cursor-pointer disabled:opacity-50"
+          className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-xs font-medium bg-muted border border-border text-muted-foreground hover:bg-muted transition-colors cursor-pointer disabled:opacity-50"
         >
           <RefreshCw className="w-3.5 h-3.5" /> Đề xuất đổi slot
         </button>
       </div>
       {showReschedule && (
-        <div className="flex flex-col gap-2 mt-1 p-3 rounded-xl border border-white/8 bg-white/3">
+        <div className="flex flex-col gap-2 mt-1 p-3 rounded-xl border border-border bg-muted">
           <input
             type="datetime-local" value={proposedAt} onChange={(e) => setProposedAt(e.target.value)}
-            className="h-9 rounded-lg border border-white/10 bg-transparent px-3 text-sm [color-scheme:dark] focus:outline-none focus:ring-2 focus:ring-[#7C8FFF]/40"
+            className="h-9 rounded-lg border border-border bg-transparent px-3 text-sm [color-scheme:dark] focus:outline-none focus:ring-2 focus:ring-primary/40"
           />
           <input
             type="text" placeholder="Lý do / ghi chú (tuỳ chọn)" value={note} onChange={(e) => setNote(e.target.value)}
-            className="h-9 rounded-lg border border-white/10 bg-transparent px-3 text-sm placeholder:text-[#5A6882] focus:outline-none focus:ring-2 focus:ring-[#7C8FFF]/40"
+            className="h-9 rounded-lg border border-border bg-transparent px-3 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40"
           />
           <button
             onClick={() => respond("reschedule")} disabled={!proposedAt || loading}
-            className="h-9 rounded-lg text-sm font-medium bg-[#5B6CF0] hover:bg-[#4958d6] text-white disabled:opacity-50 transition-colors cursor-pointer"
+            className="h-9 rounded-lg text-sm font-medium bg-primary hover:bg-primary text-white disabled:opacity-50 transition-colors cursor-pointer"
           >
             Gửi đề xuất
           </button>
@@ -209,10 +209,10 @@ function InterviewCard({ item, userRole, onResultSubmitted }: { item: InterviewI
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, scale: 0.95 }}
       whileHover={{ y: -2 }}
-      className="glass-card relative overflow-hidden group border border-white/5 hover:border-white/10 transition-all duration-300 cursor-default"
+      className="glass-card relative overflow-hidden group border border-border hover:border-border transition-all duration-300 cursor-default"
     >
       {/* Decorative top gradient on hover */}
-      <div className="absolute inset-0 top-0 h-[2px] bg-gradient-to-r from-[#7C8FFF] to-[#B48EFF] opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+      <div className="absolute inset-0 top-0 h-[2px] bg-gradient-to-r from-primary to-ai opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
       <div className="p-5 flex flex-col gap-4">
         {/* Top row */}
@@ -222,7 +222,7 @@ function InterviewCard({ item, userRole, onResultSubmitted }: { item: InterviewI
             <div
               className="w-12 h-12 rounded-[14px] flex items-center justify-center shrink-0 text-sm font-semibold text-white border shadow-inner"
               style={candidate?.full_name ? {
-                background: `linear-gradient(135deg, ${getAvatarColor(candidate.full_name).bg}, #161F35)`,
+                background: `linear-gradient(135deg, ${getAvatarColor(candidate.full_name).bg}, var(--card))`,
                 borderColor: getAvatarColor(candidate.full_name).border,
               } : {}}
             >
@@ -232,7 +232,7 @@ function InterviewCard({ item, userRole, onResultSubmitted }: { item: InterviewI
             {/* Candidate info */}
             <div className="flex flex-col gap-1 min-w-0">
               <div className="flex items-center gap-2 flex-wrap">
-                <span className="text-[15px] font-semibold text-[#ECF0F7] group-hover:text-white transition-colors">{candidate?.full_name ?? "—"}</span>
+                <span className="text-[15px] font-semibold text-foreground group-hover:text-foreground transition-colors">{candidate?.full_name ?? "—"}</span>
                 <span className={`inline-flex items-center gap-1.5 text-[10px] font-semibold px-2 py-0.5 rounded-md border ${cfg.badge} uppercase tracking-wider`}>
                   <span className={`w-1.5 h-1.5 rounded-full ${cfg.dot} shadow-[0_0_8px_currentColor]`} />
                   {cfg.label}
@@ -248,15 +248,15 @@ function InterviewCard({ item, userRole, onResultSubmitted }: { item: InterviewI
                   </span>
                 )}
               </div>
-              <div className="flex items-center gap-3 text-xs text-[#8B99B0]">
+              <div className="flex items-center gap-3 text-xs text-muted-foreground">
                 {jd && (
                   <span className="flex items-center gap-1">
-                    <span className="text-[#ECF0F7] font-medium">{jd.title}</span>
-                    {jd.department && <span className="text-[#5A6882]">・{jd.department}</span>}
+                    <span className="text-foreground font-medium">{jd.title}</span>
+                    {jd.department && <span className="text-muted-foreground">・{jd.department}</span>}
                   </span>
                 )}
-                <span className="w-1 h-1 rounded-full bg-[#5A6882]" />
-                <span className="inline-flex items-center gap-1.5 text-[#B48EFF]">
+                <span className="w-1 h-1 rounded-full bg-muted-foreground" />
+                <span className="inline-flex items-center gap-1.5 text-ai">
                   <Clock className="w-3.5 h-3.5" />
                   {formatDateTime(item.scheduled_at, item.timezone)}
                 </span>
@@ -269,7 +269,7 @@ function InterviewCard({ item, userRole, onResultSubmitted }: { item: InterviewI
             {item.job_applications?.id && (
               <a
                 href={`/dashboard/recruitment/${item.job_applications.id}`}
-                className="inline-flex items-center justify-center h-9 px-4 rounded-lg text-xs font-medium text-[#ECF0F7] bg-white/5 border border-white/10 hover:border-[#7C8FFF]/30 hover:bg-[#7C8FFF]/10 transition-all duration-200"
+                className="inline-flex items-center justify-center h-9 px-4 rounded-lg text-xs font-medium text-foreground bg-muted border border-border hover:border-border/30 hover:bg-primary/10 transition-all duration-200"
               >
                 Xem hồ sơ
               </a>
@@ -286,13 +286,13 @@ function InterviewCard({ item, userRole, onResultSubmitted }: { item: InterviewI
                 <span className={`text-xs font-medium px-3 py-1.5 rounded-lg border ${existingResult.result === "pass" ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" : "bg-rose-500/10 text-rose-400 border-rose-500/20"}`}>
                   {existingResult.result === "pass" ? "✓ Đạt" : "✗ Không đạt"}
                 </span>
-                {existingResult.note && <span className="text-xs text-[#8B99B0] italic bg-black/20 px-3 py-1.5 rounded-md border border-white/5">"{existingResult.note}"</span>}
+                {existingResult.note && <span className="text-xs text-muted-foreground italic bg-black/20 px-3 py-1.5 rounded-md border border-border">"{existingResult.note}"</span>}
               </div>
             )}
 
             {/* Recruiter note */}
             {item.recruiter_note && (
-              <p className="text-xs text-[#8B99B0] italic border-l-2 border-white/10 pl-3">"{item.recruiter_note}"</p>
+              <p className="text-xs text-muted-foreground italic border-l-2 border-border pl-3">"{item.recruiter_note}"</p>
             )}
 
             {/* Interviewer: pending actions */}
@@ -308,18 +308,18 @@ function InterviewCard({ item, userRole, onResultSubmitted }: { item: InterviewI
                 </div>
                 {item.interviewer_proposed_at && (
                   <div className="flex items-center gap-2 text-xs">
-                    <span className="text-[#8B99B0]">Giờ mong muốn:</span>
-                    <span className="text-[#ECF0F7] bg-black/20 px-2 py-1 rounded border border-white/5">
+                    <span className="text-muted-foreground">Giờ mong muốn:</span>
+                    <span className="text-foreground bg-black/20 px-2 py-1 rounded border border-border">
                       {formatDateTime(item.interviewer_proposed_at, item.timezone)}
                     </span>
                   </div>
                 )}
                 {item.interviewer_note && (
-                  <p className="text-xs text-[#8B99B0] italic bg-black/10 p-2 rounded-md border border-white/5">"{item.interviewer_note}"</p>
+                  <p className="text-xs text-muted-foreground italic bg-black/10 p-2 rounded-md border border-border">"{item.interviewer_note}"</p>
                 )}
                 <a
                   href={`/dashboard/recruitment/sessions?preselect=${item.job_applications?.id}`}
-                  className="inline-flex items-center justify-center h-8 gap-2 text-xs font-medium text-white bg-[#5B6CF0] hover:bg-[#4958d6] rounded-lg px-4 transition-colors w-fit shadow-[0_0_15px_rgba(91,108,240,0.3)] shadow-[#5B6CF0]/20"
+                  className="inline-flex items-center justify-center h-8 gap-2 text-xs font-medium text-white bg-primary hover:bg-primary rounded-lg px-4 transition-colors w-fit shadow-[0_0_15px_color-mix(in_srgb,var(--primary)_30%,transparent)] shadow-primary/20"
                 >
                   <Calendar className="w-3.5 h-3.5" /> Chuyển đến Scheduling
                 </a>
@@ -335,11 +335,11 @@ function InterviewCard({ item, userRole, onResultSubmitted }: { item: InterviewI
 // ─── Empty state ───────────────────────────────────────────────────────────────
 function EmptyState({ label }: { label: string }) {
   return (
-    <div className="glass-card flex flex-col items-center justify-center p-12 text-center rounded-2xl border border-white/5 border-dashed bg-white/[0.01]">
-      <div className="w-14 h-14 rounded-full bg-white/5 border border-white/10 flex items-center justify-center mb-4">
-        <Calendar className="w-6 h-6 text-[#5A6882]" />
+    <div className="glass-card flex flex-col items-center justify-center p-12 text-center rounded-2xl border border-border border-dashed bg-white/[0.01]">
+      <div className="w-14 h-14 rounded-full bg-muted border border-border flex items-center justify-center mb-4">
+        <Calendar className="w-6 h-6 text-muted-foreground" />
       </div>
-      <h3 className="text-[15px] font-medium text-[#8B99B0]">{label}</h3>
+      <h3 className="text-[15px] font-medium text-muted-foreground">{label}</h3>
     </div>
   );
 }
@@ -401,27 +401,27 @@ export default function InterviewsClient({ userRole }: Props) {
     return (
       <div className="py-12 text-center">
         <p className="text-sm text-rose-400">{error}</p>
-        <button onClick={fetchInterviews} className="mt-3 text-xs text-[#7C8FFF] hover:underline cursor-pointer">Thử lại</button>
+        <button onClick={fetchInterviews} className="mt-3 text-xs text-primary hover:underline cursor-pointer">Thử lại</button>
       </div>
     );
   }
 
   return (
     <div className="relative">
-      <div className="flex flex-col md:flex-row pb-6 justify-between gap-6 border-b border-white/10 mb-8">
+      <div className="flex flex-col md:flex-row pb-6 justify-between gap-6 border-b border-border mb-8">
         {/* Header */}
         <div className="flex items-center gap-4">
-          <div className="w-12 h-12 rounded-[14px] bg-gradient-to-br from-[#7C8FFF]/20 to-[#B48EFF]/20 border border-[#7C8FFF]/30 flex items-center justify-center shadow-[0_0_15px_rgba(124,143,255,0.15)]">
-            <Calendar className="w-6 h-6 text-[#7C8FFF]" />
+          <div className="w-12 h-12 rounded-[14px] bg-gradient-to-br from-primary/20 to-ai/20 border border-border/30 flex items-center justify-center shadow-[0_0_15px_color-mix(in_srgb,var(--primary)_15%,transparent)]">
+            <Calendar className="w-6 h-6 text-primary" />
           </div>
           <div>
-            <h1 className="font-display text-2xl font-light text-[#ECF0F7]">Command Center: <span className="font-medium">Interviews</span></h1>
-            <p className="text-sm text-[#8B99B0] mt-1 tracking-wide">Lịch trình & Đánh giá phỏng vấn</p>
+            <h1 className="font-display text-2xl font-light text-foreground">Command Center: <span className="font-medium">Interviews</span></h1>
+            <p className="text-sm text-muted-foreground mt-1 tracking-wide">Lịch trình & Đánh giá phỏng vấn</p>
           </div>
         </div>
 
         {/* Global Filter Toggles */}
-        <div className="flex items-center p-1 rounded-xl bg-black/40 border border-white/5 backdrop-blur-md self-start">
+        <div className="flex items-center p-1 rounded-xl bg-black/40 border border-border backdrop-blur-md self-start">
           {[
             { id: "all", label: "Tất cả" },
             { id: "upcoming", label: "Sắp tới" },
@@ -431,7 +431,7 @@ export default function InterviewsClient({ userRole }: Props) {
             <button
               key={f.id}
               onClick={() => setFilter(f.id as any)}
-              className={`px-4 py-2 rounded-lg text-[13px] font-medium transition-all duration-200 cursor-pointer ${filter === f.id ? "bg-[#1B253B] text-[#7C8FFF] shadow-md border border-[#7C8FFF]/20" : "text-[#8B99B0] hover:text-[#ECF0F7] hover:bg-white/5"}`}
+              className={`px-4 py-2 rounded-lg text-[13px] font-medium transition-all duration-200 cursor-pointer ${filter === f.id ? "bg-muted text-primary shadow-md border border-border/20" : "text-muted-foreground hover:text-foreground hover:bg-muted"}`}
             >
               {f.label}
             </button>
@@ -442,22 +442,22 @@ export default function InterviewsClient({ userRole }: Props) {
       {/* Data Stats */}
       {!loading && (
         <div className="flex flex-col md:flex-row gap-4 mb-8">
-          <StatBadge active={filter === 'upcoming'} onClick={() => setFilter('upcoming')} label="Sắp diễn ra" count={upcoming.length} color="border-amber-500/20 text-[#ECF0F7] bg-gradient-to-b from-[#1B253B] to-black/20" icon={Clock} />
-          <StatBadge active={filter === 'pending'} onClick={() => setFilter('pending')} label="Cần phản hồi" count={pending.length} color="border-rose-500/20 text-[#ECF0F7] bg-gradient-to-b from-[#1B253B] to-black/20" icon={ShieldAlert} />
-          <StatBadge active={filter === 'completed'} onClick={() => setFilter('completed')} label="Đã hoàn thành" count={completed.length} color="border-emerald-500/20 text-[#ECF0F7] bg-gradient-to-b from-[#1B253B] to-black/20" icon={CheckCircle} />
+          <StatBadge active={filter === 'upcoming'} onClick={() => setFilter('upcoming')} label="Sắp diễn ra" count={upcoming.length} color="border-amber-500/20 text-foreground bg-gradient-to-b from-muted to-black/20" icon={Clock} />
+          <StatBadge active={filter === 'pending'} onClick={() => setFilter('pending')} label="Cần phản hồi" count={pending.length} color="border-rose-500/20 text-foreground bg-gradient-to-b from-muted to-black/20" icon={ShieldAlert} />
+          <StatBadge active={filter === 'completed'} onClick={() => setFilter('completed')} label="Đã hoàn thành" count={completed.length} color="border-emerald-500/20 text-foreground bg-gradient-to-b from-muted to-black/20" icon={CheckCircle} />
         </div>
       )}
 
       {/* View toggle tabs */}
-      <div className="flex items-center gap-1 p-1 rounded-xl bg-white/4 border border-white/8 w-fit mb-6">
+      <div className="flex items-center gap-1 p-1 rounded-xl bg-muted border border-border w-fit mb-6">
         {(["list", "calendar"] as const).map((v) => (
           <button
             key={v}
             onClick={() => setView(v)}
             className={`inline-flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-xs font-medium transition-all duration-200 cursor-pointer ${
               activeView === v
-                ? "bg-[#7C8FFF]/15 text-[#B6C2FF] border border-[#7C8FFF]/30"
-                : "text-[#5A6882] hover:text-[#8B99B0] border border-transparent"
+                ? "bg-primary/15 text-primary border border-border/30"
+                : "text-muted-foreground hover:text-muted-foreground border border-transparent"
             }`}
           >
             {v === "list"

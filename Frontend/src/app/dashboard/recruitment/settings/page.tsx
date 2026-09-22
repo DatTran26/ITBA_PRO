@@ -17,7 +17,7 @@ export default async function RecruitmentSettingsPage() {
   if (!ALLOWED.includes(role)) redirect("/dashboard/recruitment");
 
   return (
-    <div className="min-h-screen bg-[#0A1120]">
+    <div className="min-h-screen bg-background">
       <AppNavbar
         user={profile ? { name: profile.name, email: profile.email, role } : null}
       />

@@ -21,7 +21,7 @@ const VIEWS: { mode: ViewMode; icon: typeof LayoutList; label: string }[] = [
 export default function ViewSwitcher({ value, onChange, views }: ViewSwitcherProps) {
   const visible = views ? VIEWS.filter((v) => views.includes(v.mode)) : VIEWS;
   return (
-    <div className="flex items-center gap-1.5 p-1.5 rounded-2xl bg-[#1B253B]/60 border border-white/5 backdrop-blur-md shadow-inner">
+    <div className="flex items-center gap-1.5 p-1.5 rounded-2xl bg-muted/60 border border-border backdrop-blur-md shadow-inner">
       {visible.map(({ mode, icon: Icon, label }) => (
         <Button
           key={mode}
@@ -31,8 +31,8 @@ export default function ViewSwitcher({ value, onChange, views }: ViewSwitcherPro
           onClick={() => onChange(mode)}
           className={`h-9 w-9 rounded-xl transition-all duration-300 ${
             value === mode
-              ? "bg-[#7C8FFF] text-white shadow-lg shadow-[#7C8FFF]/20 scale-105"
-              : "text-[#5A6882] hover:text-[#ECF0F7] hover:bg-white/5"
+              ? "bg-primary text-white shadow-lg shadow-primary/20 scale-105"
+              : "text-muted-foreground hover:text-foreground hover:bg-muted"
           }`}
         >
           <Icon className="w-4.5 h-4.5" />

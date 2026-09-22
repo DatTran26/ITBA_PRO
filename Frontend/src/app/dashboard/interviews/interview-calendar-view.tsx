@@ -43,7 +43,7 @@ export default function InterviewCalendarView({ interviews, userRole, onRefresh 
 
   const label = format(date, viewMode === "week" ? "'Tuần' w, MMMM yyyy" : "MMMM yyyy", { locale: vi });
 
-  const btnBase = "w-8 h-8 rounded-xl bg-white/5 border border-white/8 flex items-center justify-center text-[#5A6882] hover:text-[#ECF0F7] hover:bg-white/10 hover:border-white/15 transition-all duration-200 cursor-pointer";
+  const btnBase = "w-8 h-8 rounded-xl bg-white/5 border border-white/8 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-white/10 hover:border-white/15 transition-all duration-200 cursor-pointer";
   const tabBase = "inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-200 cursor-pointer";
 
   return (
@@ -56,25 +56,25 @@ export default function InterviewCalendarView({ interviews, userRole, onRefresh 
           </button>
           <button
             onClick={() => setDate(new Date())}
-            className="h-8 px-3 rounded-xl bg-white/5 border border-white/8 text-xs font-medium text-[#5A6882] hover:text-[#ECF0F7] hover:bg-white/10 hover:border-white/15 transition-all duration-200 cursor-pointer"
+            className="h-8 px-3 rounded-xl bg-muted border border-border text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-muted hover:border-border transition-all duration-200 cursor-pointer"
           >
             Hôm nay
           </button>
           <button onClick={() => navigate(1)} className={btnBase}>
             <ChevronRight className="w-4 h-4" />
           </button>
-          <span className="text-sm font-semibold text-[#ECF0F7] ml-1 capitalize tracking-wide">{label}</span>
+          <span className="text-sm font-semibold text-foreground ml-1 capitalize tracking-wide">{label}</span>
         </div>
 
         {/* View toggle */}
-        <div className="flex items-center gap-1 p-1 rounded-xl bg-white/4 border border-white/8">
+        <div className="flex items-center gap-1 p-1 rounded-xl bg-muted border border-border">
           {(["week", "month"] as ViewMode[]).map(v => (
             <button
               key={v}
               onClick={() => setViewMode(v)}
               className={`${tabBase} ${viewMode === v
-                ? "bg-[#7C8FFF]/15 text-[#B6C2FF] border border-[#7C8FFF]/30"
-                : "text-[#5A6882] hover:text-[#8B99B0] border border-transparent"
+                ? "bg-primary/15 text-primary border border-border/30"
+                : "text-muted-foreground hover:text-muted-foreground border border-transparent"
               }`}
             >
               {v === "week" ? "Tuần" : "Tháng"}

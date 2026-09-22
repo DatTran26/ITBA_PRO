@@ -53,23 +53,23 @@ export function AiApiTesterModal() {
             <DialogTrigger asChild>
                 <SharedDashboardButton
                     type="button"
-                    className="flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-semibold bg-[#36DDAB]/10 text-[#36DDAB] border border-[#36DDAB]/30 hover:bg-[#36DDAB]/20 transition-all cursor-pointer"
+                    className="flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-semibold bg-success/10 text-success border border-border/30 hover:bg-success/20 transition-all cursor-pointer"
                 >
                     <Zap className="w-3 h-3" /> Test API
                 </SharedDashboardButton>
             </DialogTrigger>
 
             <DialogContent
-                className="!max-w-none w-[92vw] max-w-[960px] sm:max-w-[960px] bg-[#0F1829] border border-white/[0.08] text-[#ECF0F7] p-0 overflow-hidden gap-0"
+                className="!max-w-none w-[92vw] max-w-[960px] sm:max-w-[960px] bg-background border border-white/[0.08] text-foreground p-0 overflow-hidden gap-0"
             >
                 {/* Header */}
-                <DialogHeader className="px-6 py-4 bg-gradient-to-r from-[#36DDAB]/8 to-[#7C8FFF]/4 border-b border-white/[0.06]">
-                    <DialogTitle className="flex items-center gap-2.5 text-[15px] font-bold text-[#ECF0F7]">
-                        <div className="w-7 h-7 rounded-lg bg-[#36DDAB]/15 border border-[#36DDAB]/25 flex items-center justify-center">
-                            <Zap className="w-3.5 h-3.5 text-[#36DDAB]" />
+                <DialogHeader className="px-6 py-4 bg-gradient-to-r from-success/8 to-primary/4 border-b border-white/[0.06]">
+                    <DialogTitle className="flex items-center gap-2.5 text-[15px] font-bold text-foreground">
+                        <div className="w-7 h-7 rounded-lg bg-success/15 border border-border/25 flex items-center justify-center">
+                            <Zap className="w-3.5 h-3.5 text-success" />
                         </div>
                         AI API Tester
-                        <span className="text-[11px] font-normal text-[#5A6882] ml-1">Send a prompt to verify your configured key and model</span>
+                        <span className="text-[11px] font-normal text-muted-foreground ml-1">Send a prompt to verify your configured key and model</span>
                     </DialogTitle>
                 </DialogHeader>
 
@@ -78,11 +78,11 @@ export function AiApiTesterModal() {
 
                     {/* LEFT - Result */}
                     <div className="flex flex-col gap-4 p-6 border-r border-white/[0.06]">
-                        <p className="text-[10px] font-bold uppercase tracking-widest text-[#5A6882]">Result</p>
+                        <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Result</p>
 
                         {!result && !loading && (
-                            <div className="flex-1 flex flex-col items-center justify-center gap-3 text-[#5A6882]">
-                                <div className="w-12 h-12 rounded-2xl bg-[#1E2840] flex items-center justify-center">
+                            <div className="flex-1 flex flex-col items-center justify-center gap-3 text-muted-foreground">
+                                <div className="w-12 h-12 rounded-2xl bg-muted flex items-center justify-center">
                                     <Zap className="w-5 h-5 opacity-30" />
                                 </div>
                                 <p className="text-sm text-center leading-relaxed">
@@ -92,7 +92,7 @@ export function AiApiTesterModal() {
                         )}
 
                         {loading && (
-                            <div className="flex-1 flex flex-col items-center justify-center gap-3 text-[#7C8FFF]">
+                            <div className="flex-1 flex flex-col items-center justify-center gap-3 text-primary">
                                 <Loader2 className="w-7 h-7 animate-spin opacity-60" />
                                 <p className="text-sm">Calling API...</p>
                             </div>
@@ -103,19 +103,19 @@ export function AiApiTesterModal() {
                                 {/* Status bar */}
                                 <div className={`flex items-center justify-between px-3 py-2 rounded-xl border ${
                                     result.success
-                                        ? "bg-[#36DDAB]/[0.07] border-[#36DDAB]/20"
-                                        : "bg-[#FF6B82]/[0.07] border-[#FF6B82]/20"
+                                        ? "bg-success/[0.07] border-border/20"
+                                        : "bg-danger/[0.07] border-border/20"
                                 }`}>
                                     <div className="flex items-center gap-2">
                                         {result.success
-                                            ? <CheckCircle2 className="w-4 h-4 text-[#36DDAB]" />
-                                            : <XCircle className="w-4 h-4 text-[#FF6B82]" />}
-                                        <span className={`text-sm font-semibold ${result.success ? "text-[#36DDAB]" : "text-[#FF6B82]"}`}>
+                                            ? <CheckCircle2 className="w-4 h-4 text-success" />
+                                            : <XCircle className="w-4 h-4 text-danger" />}
+                                        <span className={`text-sm font-semibold ${result.success ? "text-success" : "text-danger"}`}>
                                             {result.success ? "Success" : "Failed"}
                                         </span>
                                     </div>
                                     {result.latencyMs !== undefined && (
-                                        <span className="flex items-center gap-1 text-[11px] text-[#5A6882]">
+                                        <span className="flex items-center gap-1 text-[11px] text-muted-foreground">
                                             <Clock className="w-3 h-3" /> {result.latencyMs}ms
                                         </span>
                                     )}
@@ -125,15 +125,15 @@ export function AiApiTesterModal() {
                                 {result.success && (
                                     <div className="flex items-center gap-2 flex-wrap">
                                         {result.model && (
-                                            <span className="px-2.5 py-1 rounded-full text-[11px] font-mono bg-[#7C8FFF]/10 text-[#A9B4FF] border border-[#7C8FFF]/20">
+                                            <span className="px-2.5 py-1 rounded-full text-[11px] font-mono bg-primary/10 text-primary border border-border/20">
                                                 {result.model}
                                             </span>
                                         )}
                                         {result.tokensIn !== undefined && (
-                                            <span className="flex items-center gap-1 text-[11px] text-[#5A6882]">
+                                            <span className="flex items-center gap-1 text-[11px] text-muted-foreground">
                                                 <Hash className="w-3 h-3" />
-                                                <span className="text-[#8B99B0]">{result.tokensIn}</span> in /
-                                                <span className="text-[#8B99B0]">{result.tokensOut}</span> out
+                                                <span className="text-muted-foreground">{result.tokensIn}</span> in /
+                                                <span className="text-muted-foreground">{result.tokensOut}</span> out
                                             </span>
                                         )}
                                     </div>
@@ -142,8 +142,8 @@ export function AiApiTesterModal() {
                                 {/* Response */}
                                 <pre className={`text-xs font-mono whitespace-pre-wrap break-words leading-relaxed p-3.5 rounded-xl flex-1 overflow-y-auto max-h-64 ${
                                     result.success
-                                        ? "bg-[#0C1220] text-[#C8D3E6] border border-white/[0.04]"
-                                        : "bg-[#FF6B82]/[0.05] text-[#FF9BAB] border border-[#FF6B82]/15"
+                                        ? "bg-background text-primary border border-white/[0.04]"
+                                        : "bg-danger/[0.05] text-danger border border-border/15"
                                 }`}>
                                     {result.success ? result.response : result.error}
                                 </pre>
@@ -153,25 +153,25 @@ export function AiApiTesterModal() {
 
                     {/* RIGHT - Prompt */}
                     <div className="flex flex-col gap-4 p-6">
-                        <p className="text-[10px] font-bold uppercase tracking-widest text-[#5A6882]">Prompt</p>
+                        <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Prompt</p>
 
                         {/* Model override */}
                         <div className="flex flex-col gap-1.5">
-                            <label className="text-xs font-medium text-[#8B99B0]">
-                                Model <span className="text-[#5A6882] font-normal">- blank uses DB-configured model</span>
+                            <label className="text-xs font-medium text-muted-foreground">
+                                Model <span className="text-muted-foreground font-normal">- blank uses DB-configured model</span>
                             </label>
                             <div className="relative">
                                 <select
                                     value={model}
                                     onChange={(e) => setModel(e.target.value)}
-                                    className="w-full h-9 appearance-none rounded-lg px-3 pr-8 text-sm text-[#ECF0F7] bg-[#0C1220] border border-[#8B99B0]/15 outline-none focus:border-[#7C8FFF]/40 focus:ring-1 focus:ring-[#7C8FFF]/20 transition-all cursor-pointer"
+                                    className="w-full h-9 appearance-none rounded-lg px-3 pr-8 text-sm text-foreground bg-background border border-border/15 outline-none focus:border-border/40 focus:ring-1 focus:ring-primary/20 transition-all cursor-pointer"
                                 >
                                     <option value="">- Use configured model -</option>
                                     {MODEL_OPTIONS.map((m) => (
                                         <option key={m} value={m}>{m}</option>
                                     ))}
                                 </select>
-                                <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[#5A6882] pointer-events-none" />
+                                <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground pointer-events-none" />
                             </div>
                         </div>
 
@@ -184,8 +184,8 @@ export function AiApiTesterModal() {
                                     onClick={() => setPrompt(q.prompt)}
                                     className={`px-3 py-1 rounded-full text-xs font-medium border transition-all cursor-pointer ${
                                         prompt === q.prompt
-                                            ? "bg-[#7C8FFF]/15 border-[#7C8FFF]/35 text-[#A9B4FF]"
-                                            : "bg-[#1A2438] border-[#8B99B0]/12 text-[#5A6882] hover:border-[#7C8FFF]/25 hover:text-[#8B99B0]"
+                                            ? "bg-primary/15 border-border/35 text-primary"
+                                            : "bg-muted border-border/12 text-muted-foreground hover:border-border/25 hover:text-muted-foreground"
                                     }`}
                                 >
                                     {q.label}
@@ -198,7 +198,7 @@ export function AiApiTesterModal() {
                             value={prompt}
                             onChange={(e) => setPrompt(e.target.value)}
                             rows={7}
-                            className="flex-1 w-full rounded-xl px-4 py-3 text-sm font-mono text-[#ECF0F7] bg-[#0C1220] border border-[#8B99B0]/15 outline-none resize-none focus:border-[#7C8FFF]/40 focus:ring-1 focus:ring-[#7C8FFF]/20 transition-all placeholder:text-[#5A6882]/40"
+                            className="flex-1 w-full rounded-xl px-4 py-3 text-sm font-mono text-foreground bg-background border border-border/15 outline-none resize-none focus:border-border/40 focus:ring-1 focus:ring-primary/20 transition-all placeholder:text-muted-foreground/40"
                             placeholder="Enter a test prompt..."
                         />
 
@@ -207,7 +207,7 @@ export function AiApiTesterModal() {
                             type="button"
                             onClick={runTest}
                             disabled={loading || !prompt.trim()}
-                            className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl text-sm font-semibold bg-gradient-to-r from-[#36DDAB]/20 to-[#36DDAB]/10 text-[#36DDAB] border border-[#36DDAB]/30 hover:from-[#36DDAB]/30 hover:to-[#36DDAB]/15 disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer shadow-lg shadow-[#36DDAB]/5"
+                            className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl text-sm font-semibold bg-gradient-to-r from-success/20 to-success/10 text-success border border-border/30 hover:from-success/30 hover:to-success/15 disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer shadow-lg shadow-success/5"
                         >
                             {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Play className="w-4 h-4" />}
                             {loading ? "Running..." : "Run Test"}

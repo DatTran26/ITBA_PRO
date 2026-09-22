@@ -1,11 +1,16 @@
 "use client";
+import { alpha } from "@/lib/utils";
 
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { CalendarDays, Plus, Loader2, ChevronRight } from "lucide-react";
+import { CalendarDays, Plus, Loader2, ChevronRight, CalendarClock, Users, UserCheck, Clock, Percent } from "lucide-react";
 import SessionCard from "./session-card";
 import SessionCreateForm from "./session-create-form";
-import SessionStatCards from "./session-stat-cards";
+import KpiCardGrid from "@/components/crm/kpi-card-grid";
+import OverviewBand from "@/components/shares/overview-band";
+import { DonutStat, MiniBar } from "@/components/charts";
+import { SharedDashboardPageHeader } from "@/components/shares";
+
 import SessionsEmptyState from "./sessions-empty-state";
 
 interface Session {
@@ -21,7 +26,7 @@ type TimeFilter  = "all"  | "upcoming" | "past";
 type RoundFilter = 0 | 1 | 2 | 3;
 interface Props { userRole: string; }
 
-const ROUND_COLORS: Record<number, string> = { 1: "#7C8FFF", 2: "#F59E0B", 3: "#B48EFF" };
+const ROUND_COLORS: Record<number, string> = { 1: "var(--primary)", 2: "var(--warning)", 3: "var(--ai)" };
 
 export default function SessionsClient({ userRole }: Props) {
     const router = useRouter();
@@ -69,59 +74,79 @@ export default function SessionsClient({ userRole }: Props) {
         };
     }, [sessions]);
 
+
+    /* Sáu thẻ và dải biểu đồ, tất cả suy từ `sessions` đã tải. */
+    const sessionKpis = useMemo(() => {
+        const confirmed = sessions.reduce((a, s) => a + s.confirmed_count, 0);
+        const pending   = sessions.reduce((a, s) => a + s.pending_count, 0);
+        return [
+            { label: "Buổi phỏng vấn", value: stats.total, icon: CalendarDays },
+            { label: "Sắp tới", value: stats.upcoming, icon: CalendarClock },
+            { label: "Ứng viên", value: stats.totalCandidates, icon: Users },
+            { label: "Đã xác nhận", value: confirmed, icon: UserCheck },
+            { label: "Chờ xác nhận", value: pending, icon: Clock },
+            { label: "Tỉ lệ xác nhận", value: `${stats.confirmRate}%`, icon: Percent },
+        ];
+    }, [sessions, stats]);
+
+    const byConfirmation = useMemo(() => [
+        { label: "Đã xác nhận", value: sessions.reduce((a, s) => a + s.confirmed_count, 0), color: "var(--success)" },
+        { label: "Chờ xác nhận", value: sessions.reduce((a, s) => a + s.pending_count, 0), color: "var(--warning)" },
+        { label: "Đã từ chối",  value: sessions.reduce((a, s) => a + s.declined_count, 0), color: "var(--danger)" },
+    ], [sessions]);
+
+    const byRound = useMemo(() => ([1, 2, 3] as const).map((r) => ({
+        label: `Vòng ${r}`,
+        value: sessions.filter((s) => s.round === r).length,
+        color: r === 1 ? "var(--primary)" : r === 2 ? "var(--ai)" : "var(--success)",
+    })), [sessions]);
+
+    // Buổi phỏng vấn theo tuần, 8 tuần gần nhất.
+    const byWeek = useMemo(() => {
+        const weeks: { label: string; values: number[] }[] = [];
+        for (let i = 7; i >= 0; i--) {
+            const end = new Date(); end.setDate(end.getDate() - i * 7);
+            const start = new Date(end); start.setDate(start.getDate() - 6);
+            weeks.push({
+                label: `${start.getDate()}/${start.getMonth() + 1}`,
+                values: [sessions.filter((s) => {
+                    const t = new Date(s.scheduled_at).getTime();
+                    return t >= start.setHours(0, 0, 0, 0) && t <= end.setHours(23, 59, 59, 999);
+                }).length],
+            });
+        }
+        return weeks;
+    }, [sessions]);
+
     return (
         <div className="space-y-5">
 
-            {/* ── Hero Header ─────────────────────────────────────── */}
-            <div className="relative pb-4 border-b border-[#8B99B0]/8">
-                {/* Atmospheric background */}
-                <div className="absolute inset-0 pointer-events-none overflow-hidden">
-                    <div className="absolute top-0 right-0 w-96 h-48 opacity-[0.06]"
-                         style={{ background: "radial-gradient(ellipse at 100% 0%, #7C8FFF, transparent 70%)" }} />
-                    <div className="absolute bottom-0 left-1/3 w-64 h-24 opacity-[0.04]"
-                         style={{ background: "radial-gradient(ellipse, #B48EFF, transparent 70%)" }} />
-                </div>
+            <SharedDashboardPageHeader
+                className="mb-0"
+                title="Lịch phỏng vấn"
+                description="Tạo buổi phỏng vấn theo vòng, xếp ứng viên và theo dõi xác nhận"
+                actions={canManage ? (
+                    <button
+                        onClick={() => setTab("create")}
+                        className="flex items-center gap-2 px-4 py-2 rounded-full bg-primary text-primary-foreground text-xs font-semibold transition-opacity hover:opacity-90 active:scale-[0.98] shrink-0 cursor-pointer"
+                    >
+                        <Plus className="w-3.5 h-3.5" /> Tạo mới
+                    </button>
+                ) : undefined}
+            />
 
-                <div className="relative flex items-end justify-between gap-4">
-                    <div>
-                        {/* Breadcrumb */}
-                        <div className="flex items-center gap-1.5 mb-2">
-                            <span className="text-[11px] text-[#5A6882] font-medium">Tuyển dụng</span>
-                            <ChevronRight className="w-3 h-3 text-[#3D4F6A]" />
-                            <span className="text-[11px] font-bold px-2 py-0.5 rounded-full"
-                                  style={{ background: "rgba(124,143,255,0.12)", color: "#7C8FFF", border: "1px solid rgba(124,143,255,0.2)" }}>
-                                Schedule
-                            </span>
-                        </div>
+            <KpiCardGrid items={sessionKpis} />
 
-                        {/* Title */}
-                        <h1 className="text-xl font-bold leading-tight font-display mb-1"
-                            style={{ background: "linear-gradient(135deg, #ECF0F7 0%, #8B99B0 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
-                            Schedule Phỏng vấn
-                        </h1>
-                        <p className="text-xs text-[#5A6882]">
-                            Tạo buổi phỏng vấn theo vòng · Xếp ứng viên · Theo dõi xác nhận
-                        </p>
-                    </div>
-
-                    {canManage && (
-                        <button
-                            onClick={() => setTab("create")}
-                            className="flex items-center gap-2 px-4 py-2 rounded-xl text-white text-xs font-semibold transition-all duration-200 cursor-pointer hover:opacity-90 active:scale-[0.98] shrink-0"
-                            style={{ background: "linear-gradient(135deg, #7C8FFF, #5B6CF0)", boxShadow: "0 0 20px rgba(124,143,255,0.3)" }}
-                        >
-                            <Plus className="w-3.5 h-3.5" /> Tạo mới
-                        </button>
-                    )}
-                </div>
-            </div>
-
-            {/* ── Stats ───────────────────────────────────────────── */}
-            <SessionStatCards stats={stats} />
+            <OverviewBand className="mb-0">
+                <DonutStat title="Xác nhận của ứng viên" slices={byConfirmation} centerLabel="Ứng viên" />
+                <DonutStat title="Theo vòng phỏng vấn" slices={byRound} centerLabel="Buổi" />
+                <MiniBar title="Buổi phỏng vấn 8 tuần qua" groups={byWeek}
+                         series={[{ label: "Buổi", color: "var(--primary)" }]} />
+            </OverviewBand>
 
             {/* ── Command Bar ─────────────────────────────────────── */}
             <div className="flex flex-wrap items-center gap-3 p-1.5 rounded-2xl"
-                 style={{ background: "#080C17", border: "1px solid rgba(139,153,176,0.1)" }}>
+                 style={{ background: "var(--background)", border: "1px solid color-mix(in srgb, var(--primary) 10%, transparent)" }}>
 
                 {/* Tabs */}
                 <div className="flex items-center gap-0.5">
@@ -136,7 +161,7 @@ export default function SessionsClient({ userRole }: Props) {
                 </div>
 
                 {/* Vertical divider */}
-                {tab === "list" && <div className="w-px h-5 bg-[#8B99B0]/15 mx-1" />}
+                {tab === "list" && <div className="w-px h-5 bg-muted-foreground/15 mx-1" />}
 
                 {/* Filters */}
                 {tab === "list" && (
@@ -146,7 +171,7 @@ export default function SessionsClient({ userRole }: Props) {
                                 {{ all: "Tất cả", upcoming: "Sắp tới", past: "Đã qua" }[f]}
                             </Chip>
                         ))}
-                        <div className="w-px h-4 bg-[#8B99B0]/12 mx-0.5" />
+                        <div className="w-px h-4 bg-muted-foreground/12 mx-0.5" />
                         {([0, 1, 2, 3] as RoundFilter[]).map(r => (
                             <Chip key={r} active={roundFilter === r}
                                   accent={r !== 0 ? ROUND_COLORS[r] : undefined}
@@ -163,10 +188,10 @@ export default function SessionsClient({ userRole }: Props) {
                 loading ? (
                     <div className="flex flex-col items-center justify-center py-32 gap-4">
                         <div className="w-12 h-12 rounded-2xl flex items-center justify-center"
-                             style={{ background: "rgba(124,143,255,0.1)", border: "1px solid rgba(124,143,255,0.2)", boxShadow: "0 0 24px rgba(124,143,255,0.15)" }}>
-                            <Loader2 className="w-5 h-5 animate-spin" style={{ color: "#7C8FFF" }} />
+                             style={{ background: "color-mix(in srgb, var(--primary) 10%, transparent)", border: "1px solid color-mix(in srgb, var(--primary) 20%, transparent)", boxShadow: "0 0 24px color-mix(in srgb, var(--primary) 15%, transparent)" }}>
+                            <Loader2 className="w-5 h-5 animate-spin" style={{ color: "var(--primary)" }} />
                         </div>
-                        <p className="text-xs text-[#5A6882]">Đang tải danh sách buổi phỏng vấn...</p>
+                        <p className="text-xs text-muted-foreground">Đang tải danh sách buổi phỏng vấn...</p>
                     </div>
                 ) : filtered.length === 0 ? (
                     <SessionsEmptyState
@@ -179,11 +204,11 @@ export default function SessionsClient({ userRole }: Props) {
                     <div className="space-y-4">
                         {/* Count divider */}
                         <div className="flex items-center gap-3">
-                            <div className="h-px flex-1 bg-[#8B99B0]/8" />
-                            <span className="text-[11px] font-semibold text-[#5A6882] tracking-wide">
+                            <div className="h-px flex-1 bg-muted-foreground/8" />
+                            <span className="text-[11px] font-semibold text-muted-foreground tracking-wide">
                                 {filtered.length} buổi phỏng vấn{timeFilter !== "all" || roundFilter !== 0 ? " · đã lọc" : ""}
                             </span>
-                            <div className="h-px flex-1 bg-[#8B99B0]/8" />
+                            <div className="h-px flex-1 bg-muted-foreground/8" />
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
                             {filtered.map(s => <SessionCard key={s.id} session={s} onNotified={fetchSessions} />)}
@@ -193,17 +218,17 @@ export default function SessionsClient({ userRole }: Props) {
             ) : (
                 <div className="max-w-2xl">
                     <div className="relative rounded-2xl overflow-hidden"
-                         style={{ background: "#090D18", border: "1px solid rgba(139,153,176,0.12)" }}>
+                         style={{ background: "var(--background)", border: "1px solid color-mix(in srgb, var(--primary) 12%, transparent)" }}>
                         <div className="absolute top-0 left-0 right-0 h-[1px]"
-                             style={{ background: "linear-gradient(90deg, rgba(124,143,255,0.5), rgba(124,143,255,0.15), transparent)" }} />
+                             style={{ background: "linear-gradient(90deg, color-mix(in srgb, var(--primary) 50%, transparent), color-mix(in srgb, var(--primary) 15%, transparent), transparent)" }} />
                         <div className="px-6 py-4 flex items-center gap-3 border-b border-white/[0.04]">
                             <div className="w-8 h-8 rounded-xl flex items-center justify-center"
-                                 style={{ background: "rgba(124,143,255,0.12)", border: "1px solid rgba(124,143,255,0.22)" }}>
-                                <Plus className="w-3.5 h-3.5" style={{ color: "#7C8FFF" }} />
+                                 style={{ background: "color-mix(in srgb, var(--primary) 12%, transparent)", border: "1px solid color-mix(in srgb, var(--primary) 22%, transparent)" }}>
+                                <Plus className="w-3.5 h-3.5" style={{ color: "var(--primary)" }} />
                             </div>
                             <div>
-                                <p className="text-sm font-semibold text-[#ECF0F7]">Tạo buổi phỏng vấn mới</p>
-                                <p className="text-[11px] text-[#5A6882]">Điền thông tin · Sau đó assign ứng viên</p>
+                                <p className="text-sm font-semibold text-foreground">Tạo buổi phỏng vấn mới</p>
+                                <p className="text-[11px] text-muted-foreground">Điền thông tin · Sau đó assign ứng viên</p>
                             </div>
                         </div>
                         <div className="p-6"><SessionCreateForm onCreated={(id) => { fetchSessions(); router.push(`/dashboard/recruitment/sessions/${id}`); }} /></div>
@@ -220,11 +245,11 @@ function CmdTab({ active, onClick, children }: { active: boolean; onClick: () =>
     return (
         <button onClick={onClick} className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold transition-all duration-200 cursor-pointer"
                 style={active
-                    ? { background: "linear-gradient(135deg, #7C8FFF, #5B6CF0)", color: "#fff", boxShadow: "0 0 20px rgba(124,143,255,0.4)" }
-                    : { color: "#8B99B0" }
+                    ? { background: "linear-gradient(135deg, var(--primary), var(--primary))", color: "var(--primary-foreground)", boxShadow: "0 0 20px color-mix(in srgb, var(--primary) 40%, transparent)" }
+                    : { color: "var(--muted-foreground)" }
                 }
-                onMouseEnter={e => { if (!active) (e.currentTarget as HTMLElement).style.color = "#ECF0F7"; }}
-                onMouseLeave={e => { if (!active) (e.currentTarget as HTMLElement).style.color = "#8B99B0"; }}>
+                onMouseEnter={e => { if (!active) (e.currentTarget as HTMLElement).style.color = "var(--foreground)"; }}
+                onMouseLeave={e => { if (!active) (e.currentTarget as HTMLElement).style.color = "var(--muted-foreground)"; }}>
             {children}
         </button>
     );
@@ -235,10 +260,10 @@ function Chip({ active, accent, onClick, children }: { active: boolean; accent?:
         <button onClick={onClick}
                 className="px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-150 cursor-pointer border"
                 style={active && accent
-                    ? { background: `${accent}18`, color: accent, borderColor: `${accent}40`, boxShadow: `0 0 10px ${accent}25` }
+                    ? { background: `${alpha(accent, 9)}`, color: accent, borderColor: `${alpha(accent, 25)}`, boxShadow: `0 0 10px ${alpha(accent, 15)}` }
                     : active
-                    ? { background: "rgba(124,143,255,0.12)", color: "#ECF0F7", borderColor: "rgba(124,143,255,0.3)", boxShadow: "0 0 10px rgba(124,143,255,0.2)" }
-                    : { color: "#5A6882", borderColor: "transparent" }
+                    ? { background: "color-mix(in srgb, var(--primary) 12%, transparent)", color: "var(--foreground)", borderColor: "color-mix(in srgb, var(--primary) 30%, transparent)", boxShadow: "0 0 10px color-mix(in srgb, var(--primary) 20%, transparent)" }
+                    : { color: "var(--muted-foreground)", borderColor: "transparent" }
                 }>
             {children}
         </button>

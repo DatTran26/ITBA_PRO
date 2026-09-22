@@ -90,7 +90,7 @@ export default function JobApplicationPicker({ value, onChange, className = "" }
             </div>
 
             {open && results.length > 0 && (
-                <ul className="absolute z-20 mt-2 w-full overflow-hidden rounded-2xl border border-white/10 bg-[#0B1220] p-1 shadow-2xl shadow-black/40">
+                <ul className="absolute z-20 mt-2 w-full overflow-hidden rounded-2xl border border-border bg-background p-1 shadow-2xl shadow-black/40">
                     {results.map((app) => (
                         <li key={app.id}>
                             <SharedDashboardButton
@@ -102,7 +102,7 @@ export default function JobApplicationPicker({ value, onChange, className = "" }
                                     <FileText className="h-4 w-4" />
                                 </span>
                                 <span className="min-w-0">
-                                    <span className="block truncate text-sm font-medium text-[#F6F8FC]">{app.candidate_name}</span>
+                                    <span className="block truncate text-sm font-medium text-primary">{app.candidate_name}</span>
                                     <span className="block truncate text-xs text-slate-500">
                                         {app.position_title}
                                         {app.pipeline_status && (

@@ -1,0 +1,156 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&amp;family=JetBrains+Mono:wght@500;600&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap">
+  <style>
+    .display { font-family: "Bricolage Grotesque", "Plus Jakarta Sans", system-ui, sans-serif; font-optical-sizing: auto; letter-spacing: -0.02em; }
+    .dots { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24'%3E%3Ccircle cx='2' cy='2' r='1.2' fill='%23FFFFFF' fill-opacity='0.16'/%3E%3C/svg%3E"); }
+  </style>
+  <style>
+    body { margin: 0; background: #F6F8FB; color: #0F172A; font-family: "Plus Jakarta Sans", system-ui, -apple-system, "Segoe UI", sans-serif; font-size: 14px; line-height: 1.5; -webkit-font-smoothing: antialiased; }
+    a { color: #2F5BEA; text-decoration: none; }
+    a:hover { color: #2549C9; text-decoration: underline; }
+    .mono { font-family: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace; font-variant-numeric: tabular-nums; }
+    button { font: inherit; cursor: pointer; }
+    .demo { transition: background-color 120ms cubic-bezier(.2,.8,.2,1), transform 120ms cubic-bezier(.2,.8,.2,1); }
+    .demo:hover { filter: brightness(.9); }
+    .demo:active { transform: scale(.98); }
+    .lift { transition: transform 200ms cubic-bezier(.2,.8,.2,1), box-shadow 200ms cubic-bezier(.2,.8,.2,1); }
+    .lift:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(15,23,42,.08) !important; }
+    @media (prefers-reduced-motion: reduce) { .demo, .lift { transition: none; } }
+  </style>
+</helmet>
+<div style="width: 1440px; min-height: 1320px; background: #F6F8FB; padding: 56px 64px; box-sizing: border-box; display: flex; flex-direction: column; gap: 48px;">
+
+  <div style="display: flex; flex-direction: column; gap: 8px; max-width: 760px;">
+    <h1 class="display" style="margin: 0; font-size: 56px; font-weight: 700; line-height: 1.08;">DownTown Light UI</h1>
+    <p style="margin: 0; font-size: 16px; color: #5B6577;">Nền sáng lạnh, một màu nhấn cobalt, chữ Plus Jakarta Sans. Mọi cặp chữ và nền dưới đây đã được đo contrast theo WCAG.</p>
+  </div>
+
+  <section style="display: flex; flex-direction: column; gap: 16px;">
+    <h2 style="margin: 0; font-size: 20px; font-weight: 600;">Màu</h2>
+    <div style="display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 12px;">
+      <div style="background: #FFFFFF; border: 1px solid #E3E8EF; border-radius: 12px; overflow: hidden;"><div style="height: 64px; background: #F6F8FB; border-bottom: 1px solid #E3E8EF;"></div><div style="padding: 10px 12px; display: flex; flex-direction: column; gap: 2px;"><span style="font-weight: 600; font-size: 13px;">Canvas</span><span class="mono" style="font-size: 12px; color: #5B6577;">#F6F8FB</span></div></div>
+      <div style="background: #FFFFFF; border: 1px solid #E3E8EF; border-radius: 12px; overflow: hidden;"><div style="height: 64px; background: #FFFFFF; border-bottom: 1px solid #E3E8EF;"></div><div style="padding: 10px 12px; display: flex; flex-direction: column; gap: 2px;"><span style="font-weight: 600; font-size: 13px;">Surface</span><span class="mono" style="font-size: 12px; color: #5B6577;">#FFFFFF</span></div></div>
+      <div style="background: #FFFFFF; border: 1px solid #E3E8EF; border-radius: 12px; overflow: hidden;"><div style="height: 64px; background: #F1F4F8; border-bottom: 1px solid #E3E8EF;"></div><div style="padding: 10px 12px; display: flex; flex-direction: column; gap: 2px;"><span style="font-weight: 600; font-size: 13px;">Sidebar</span><span class="mono" style="font-size: 12px; color: #5B6577;">#F1F4F8</span></div></div>
+      <div style="background: #FFFFFF; border: 1px solid #E3E8EF; border-radius: 12px; overflow: hidden;"><div style="height: 64px; background: #EEF1F5;"></div><div style="padding: 10px 12px; display: flex; flex-direction: column; gap: 2px;"><span style="font-weight: 600; font-size: 13px;">Neutral tint</span><span class="mono" style="font-size: 12px; color: #5B6577;">#EEF1F5 chip, skeleton</span></div></div>
+      <div style="background: #FFFFFF; border: 1px solid #E3E8EF; border-radius: 12px; overflow: hidden;"><div style="height: 64px; background: #E3E8EF;"></div><div style="padding: 10px 12px; display: flex; flex-direction: column; gap: 2px;"><span style="font-weight: 600; font-size: 13px;">Hairline</span><span class="mono" style="font-size: 12px; color: #5B6577;">#E3E8EF trang trí</span></div></div>
+      <div style="background: #FFFFFF; border: 1px solid #E3E8EF; border-radius: 12px; overflow: hidden;"><div style="height: 64px; background: #848FA1;"></div><div style="padding: 10px 12px; display: flex; flex-direction: column; gap: 2px;"><span style="font-weight: 600; font-size: 13px;">Viền control</span><span class="mono" style="font-size: 12px; color: #5B6577;">#848FA1 3.27:1</span></div></div>
+
+      <div style="background: #FFFFFF; border: 1px solid #E3E8EF; border-radius: 12px; overflow: hidden;"><div style="height: 64px; background: #0F172A;"></div><div style="padding: 10px 12px; display: flex; flex-direction: column; gap: 2px;"><span style="font-weight: 600; font-size: 13px;">Chữ chính</span><span class="mono" style="font-size: 12px; color: #5B6577;">#0F172A 16.78:1</span></div></div>
+      <div style="background: #FFFFFF; border: 1px solid #E3E8EF; border-radius: 12px; overflow: hidden;"><div style="height: 64px; background: #5B6577;"></div><div style="padding: 10px 12px; display: flex; flex-direction: column; gap: 2px;"><span style="font-weight: 600; font-size: 13px;">Chữ phụ</span><span class="mono" style="font-size: 12px; color: #5B6577;">#5B6577 5.88:1</span></div></div>
+      <div style="background: #FFFFFF; border: 1px solid #E3E8EF; border-radius: 12px; overflow: hidden;"><div style="height: 64px; background: #6B7485;"></div><div style="padding: 10px 12px; display: flex; flex-direction: column; gap: 2px;"><span style="font-weight: 600; font-size: 13px;">Placeholder</span><span class="mono" style="font-size: 12px; color: #5B6577;">#6B7485 4.71:1</span></div></div>
+      <div style="background: #FFFFFF; border: 1px solid #E3E8EF; border-radius: 12px; overflow: hidden;"><div style="height: 64px; background: {{ accent }};"></div><div style="padding: 10px 12px; display: flex; flex-direction: column; gap: 2px;"><span style="font-weight: 600; font-size: 13px;">Cobalt</span><span class="mono" style="font-size: 12px; color: #5B6577;">#2F5BEA 5.52:1</span></div></div>
+      <div style="background: #FFFFFF; border: 1px solid #E3E8EF; border-radius: 12px; overflow: hidden;"><div style="height: 64px; background: #2549C9;"></div><div style="padding: 10px 12px; display: flex; flex-direction: column; gap: 2px;"><span style="font-weight: 600; font-size: 13px;">Cobalt hover</span><span class="mono" style="font-size: 12px; color: #5B6577;">#2549C9 7.30:1</span></div></div>
+      <div style="background: #FFFFFF; border: 1px solid #E3E8EF; border-radius: 12px; overflow: hidden;"><div style="height: 64px; background: #EEF2FD; border-bottom: 1px solid #D6E0FA;"></div><div style="padding: 10px 12px; display: flex; flex-direction: column; gap: 2px;"><span style="font-weight: 600; font-size: 13px;">AI tint</span><span class="mono" style="font-size: 12px; color: #5B6577;">#EEF2FD, viền #D6E0FA</span></div></div>
+    </div>
+    <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px;">
+      <div style="display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; border-radius: 12px; background: #EAF6EE;"><span style="font-weight: 600; color: #15803D;">Thành công, đạt</span><span class="mono" style="font-size: 12px; color: #15803D;">#15803D trên #EAF6EE 4.52:1</span></div>
+      <div style="display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; border-radius: 12px; background: #FDF3E6;"><span style="font-weight: 600; color: #B45309;">Cần chú ý</span><span class="mono" style="font-size: 12px; color: #B45309;">#B45309 trên #FDF3E6 4.58:1</span></div>
+      <div style="display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; border-radius: 12px; background: #FDECEC;"><span style="font-weight: 600; color: #B91C1C;">Lỗi, loại</span><span class="mono" style="font-size: 12px; color: #B91C1C;">#B91C1C trên #FDECEC 5.66:1</span></div>
+    </div>
+    <p style="margin: 0; font-size: 13px; color: #5B6577; max-width: 760px;">Không dùng #16A34A (3.30:1) và #D97706 (3.19:1) cho chữ. Nội dung AI và trạng thái thông tin cùng dùng cobalt, không có màu tím.</p>
+  </section>
+
+  <section style="display: grid; grid-template-columns: 5fr 7fr; gap: 32px; align-items: stretch;">
+    <div style="display: flex; flex-direction: column; gap: 14px;">
+      <h2 class="display" style="margin: 0; font-size: 32px; font-weight: 700; line-height: 1.15;">Dấu ấn: sợi chỉ căn cứ</h2>
+      <p style="margin: 0; color: #5B6577; max-width: 520px;">Mỗi kết luận của AI được nối về đúng vùng trong tài liệu gốc. Nét liền là tin cậy cao, nét đứt là cần người xác nhận. Dải mực #1B2F8F dùng cho trang giới thiệu, đăng nhập và header hồ sơ. Thanh điều hướng bên trái dùng cobalt #2549C9 (chữ trắng 7.30:1, chữ phụ #DCE3FA 5.71:1) để sáng hơn và tách khỏi header.</p>
+      <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px;">
+        <div style="display: flex; align-items: center; gap: 10px;"><span style="width: 36px; height: 36px; border-radius: 8px; background: #1B2F8F; flex-shrink: 0;"></span><span style="font-size: 12px;"><strong style="font-weight: 600;">Mực #1B2F8F</strong><br><span class="mono" style="color: #5B6577;">chữ trắng 11.35:1</span></span></div>
+        <div style="display: flex; align-items: center; gap: 10px;"><span style="width: 36px; height: 36px; border-radius: 8px; background: #BFC5E0; flex-shrink: 0;"></span><span style="font-size: 12px;"><strong style="font-weight: 600;">Chữ phụ trên mực</strong><br><span class="mono" style="color: #5B6577;">#BFC5E0 6.64:1</span></span></div>
+        <div style="display: flex; align-items: center; gap: 10px;"><span style="width: 36px; height: 36px; border-radius: 8px; background: #C9D6FF; flex-shrink: 0;"></span><span style="font-size: 12px;"><strong style="font-weight: 600;">Sợi chỉ trên mực</strong><br><span class="mono" style="color: #5B6577;">#C9D6FF 7.86:1</span></span></div>
+        <div style="display: flex; align-items: center; gap: 10px;"><span style="width: 36px; height: 36px; border-radius: 8px; background: #FBBF24; flex-shrink: 0;"></span><span style="font-size: 12px;"><strong style="font-weight: 600;">Cần xác nhận trên mực</strong><br><span class="mono" style="color: #5B6577;">#FBBF24 6.80:1</span></span></div>
+      </div>
+      <p style="margin: 0; font-size: 13px; color: #5B6577;">Không đặt cobalt #2F5BEA trên nền mực (2.06:1). Nút chính trên mực là nền trắng, chữ mực.</p>
+    </div>
+    <div class="dots" style="position: relative; background-color: #1B2F8F; border-radius: 12px; min-height: 280px; overflow: hidden;">
+      <div style="position: absolute; left: 32px; top: 56px; width: 220px; padding: 10px 12px; border-radius: 8px; background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.24); color: #FFFFFF; font-size: 13px;">CV, dòng 12: 6 năm backend</div>
+      <div style="position: absolute; left: 32px; top: 176px; width: 220px; padding: 10px 12px; border-radius: 8px; background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.24); color: #FFFFFF; font-size: 13px;">Kỹ năng: “IT Training Sldlls”</div>
+      <div style="position: absolute; right: 32px; top: 40px; width: 224px; padding: 10px 12px; border-radius: 8px; background: #FFFFFF; color: #0F172A; font-size: 13px;"><div style="display: flex; justify-content: space-between; color: #5B6577; font-size: 12px;"><span>Kinh nghiệm</span><span class="mono">0.93</span></div><strong style="font-weight: 600;">6 năm</strong></div>
+      <div style="position: absolute; right: 32px; top: 160px; width: 224px; padding: 10px 12px; border-radius: 8px; background: #FDF3E6; color: #0F172A; font-size: 13px;"><div style="display: flex; justify-content: space-between; color: #B45309; font-size: 12px;"><span>Kỹ năng</span><span class="mono">0.61</span></div><strong style="font-weight: 600;">Cần HR xác nhận</strong></div>
+      <svg aria-hidden="true" width="100%" height="100%" viewBox="0 0 746 280" preserveAspectRatio="none" style="position: absolute; left: 0; top: 0; pointer-events: none;">
+        <path d="M258 76 C 360 76, 388 66, 484 66" fill="none" stroke="#C9D6FF" stroke-width="1.5" stroke-linecap="round"></path>
+        <circle cx="258" cy="76" r="3.5" fill="#C9D6FF"></circle>
+        <circle cx="484" cy="66" r="3.5" fill="#C9D6FF"></circle>
+        <path d="M258 196 C 360 196, 388 186, 484 186" fill="none" stroke="#FBBF24" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="5 5"></path>
+        <circle cx="258" cy="196" r="3.5" fill="#FBBF24"></circle>
+        <circle cx="484" cy="186" r="3.5" fill="#FBBF24"></circle>
+      </svg>
+    </div>
+  </section>
+
+  <section style="display: grid; grid-template-columns: 7fr 5fr; gap: 48px;">
+    <div style="display: flex; flex-direction: column; gap: 16px;">
+      <h2 style="margin: 0; font-size: 20px; font-weight: 600;">Chữ</h2>
+      <div style="background: #FFFFFF; border: 1px solid #E3E8EF; border-radius: 12px; padding: 8px 24px;">
+        <div style="display: flex; justify-content: space-between; align-items: baseline; gap: 24px; padding: 14px 0; border-bottom: 1px solid #E3E8EF;"><span class="display" style="font-size: 34px; font-weight: 700; line-height: 1.15;">Tổng quan tuyển dụng</span><span class="mono" style="font-size: 12px; color: #5B6577; white-space: nowrap;">Tiêu đề Bricolage 34/700</span></div>
+        <div style="display: flex; justify-content: space-between; align-items: baseline; gap: 24px; padding: 14px 0; border-bottom: 1px solid #E3E8EF;"><span style="font-size: 20px; font-weight: 600;">Ứng viên cần xem xét</span><span class="mono" style="font-size: 12px; color: #5B6577; white-space: nowrap;">Tiêu đề mục 20/600</span></div>
+        <div style="display: flex; justify-content: space-between; align-items: baseline; gap: 24px; padding: 14px 0; border-bottom: 1px solid #E3E8EF;"><span style="font-size: 16px; font-weight: 600;">Nguyễn Thị Ngọc Hường</span><span class="mono" style="font-size: 12px; color: #5B6577; white-space: nowrap;">Tiêu đề card 16/600</span></div>
+        <div style="display: flex; justify-content: space-between; align-items: baseline; gap: 24px; padding: 14px 0; border-bottom: 1px solid #E3E8EF;"><span style="font-size: 14px;">Ứng viên có kinh nghiệm tích hợp cổng thanh toán với nhiều ngân hàng nội địa.</span><span class="mono" style="font-size: 12px; color: #5B6577; white-space: nowrap;">Nội dung 14/400</span></div>
+        <div style="display: flex; justify-content: space-between; align-items: baseline; gap: 24px; padding: 14px 0; border-bottom: 1px solid #E3E8EF;"><span style="font-size: 13px; font-weight: 500; color: #5B6577;">Cập nhật lúc 14:32, bởi Trần Thị Mai</span><span class="mono" style="font-size: 12px; color: #5B6577; white-space: nowrap;">Phụ 13/500</span></div>
+        <div style="display: flex; justify-content: space-between; align-items: baseline; gap: 24px; padding: 14px 0;"><span class="display" style="font-size: 44px; font-weight: 700; line-height: 1.1;">82 / 186 / 27.4</span><span class="mono" style="font-size: 12px; color: #5B6577; white-space: nowrap;">Số lớn Bricolage 44/700, mã và ID dùng JetBrains Mono</span></div>
+      </div>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 16px;">
+      <h2 style="margin: 0; font-size: 20px; font-weight: 600;">Bo góc và độ nổi</h2>
+      <div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px;">
+        <div style="display: flex; flex-direction: column; align-items: center; gap: 8px;"><div style="width: 56px; height: 56px; border-radius: 6px; background: #FFFFFF; border: 1.5px solid #848FA1;"></div><span style="font-size: 12px; color: #5B6577; text-align: center;">6 checkbox</span></div>
+        <div style="display: flex; flex-direction: column; align-items: center; gap: 8px;"><div style="width: 56px; height: 56px; border-radius: 8px; background: #FFFFFF; border: 1px solid #848FA1;"></div><span style="font-size: 12px; color: #5B6577; text-align: center;">8 input, nút</span></div>
+        <div style="display: flex; flex-direction: column; align-items: center; gap: 8px;"><div style="width: 56px; height: 56px; border-radius: 12px; background: #FFFFFF; border: 1px solid #E3E8EF;"></div><span style="font-size: 12px; color: #5B6577; text-align: center;">12 card, panel</span></div>
+        <div style="display: flex; flex-direction: column; align-items: center; gap: 8px;"><div style="width: 56px; height: 56px; border-radius: 9999px; background: #EEF1F5;"></div><span style="font-size: 12px; color: #5B6577; text-align: center;">Tròn chip, avatar</span></div>
+      </div>
+      <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin-top: 16px;">
+        <div class="lift" style="height: 96px; background: #FFFFFF; border: 1px solid #E3E8EF; border-radius: 12px; box-shadow: 0 1px 2px rgba(15,23,42,.05); display: flex; flex-direction: column; justify-content: flex-end; padding: 12px;"><span style="font-weight: 600; font-size: 13px;">e1</span><span style="font-size: 12px; color: #5B6577;">Card mặc định</span></div>
+        <div style="height: 96px; background: #FFFFFF; border: 1px solid #E3E8EF; border-radius: 12px; box-shadow: 0 8px 24px rgba(15,23,42,.08); display: flex; flex-direction: column; justify-content: flex-end; padding: 12px;"><span style="font-weight: 600; font-size: 13px;">e2</span><span style="font-size: 12px; color: #5B6577;">Popover, drawer</span></div>
+        <div style="height: 96px; background: #FFFFFF; border: 1px solid #E3E8EF; border-radius: 12px; box-shadow: 0 24px 48px rgba(15,23,42,.12); display: flex; flex-direction: column; justify-content: flex-end; padding: 12px;"><span style="font-weight: 600; font-size: 13px;">e3</span><span style="font-size: 12px; color: #5B6577;">Modal</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section style="display: flex; flex-direction: column; gap: 16px;">
+    <h2 style="margin: 0; font-size: 20px; font-weight: 600;">Chuyển động</h2>
+    <div style="display: grid; grid-template-columns: 8fr 4fr; gap: 24px; align-items: start;">
+      <div style="background: #FFFFFF; border: 1px solid #E3E8EF; border-radius: 12px; overflow: hidden;">
+        <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
+          <thead>
+            <tr style="background: #F8FAFC; border-bottom: 1px solid #E3E8EF;">
+              <th style="text-align: left; padding: 10px 20px; font-size: 12px; font-weight: 600; color: #5B6577; text-transform: uppercase; letter-spacing: 0.04em;">Token</th>
+              <th style="text-align: left; padding: 10px 16px; font-size: 12px; font-weight: 600; color: #5B6577; text-transform: uppercase; letter-spacing: 0.04em;">Giá trị</th>
+              <th style="text-align: left; padding: 10px 20px; font-size: 12px; font-weight: 600; color: #5B6577; text-transform: uppercase; letter-spacing: 0.04em;">Dùng cho</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr style="border-bottom: 1px solid #E3E8EF;"><td class="mono" style="padding: 12px 20px;">dur-micro</td><td class="mono" style="padding: 12px 16px;">120ms</td><td style="padding: 12px 20px; color: #5B6577;">Hover, nhấn nút thu nhỏ 0.98, đổi màu chip</td></tr>
+            <tr style="border-bottom: 1px solid #E3E8EF;"><td class="mono" style="padding: 12px 20px;">dur-panel</td><td class="mono" style="padding: 12px 16px;">200ms</td><td style="padding: 12px 20px; color: #5B6577;">Drawer, popover, thanh thao tác hàng loạt</td></tr>
+            <tr style="border-bottom: 1px solid #E3E8EF;"><td class="mono" style="padding: 12px 20px;">dur-page</td><td class="mono" style="padding: 12px 16px;">280ms</td><td style="padding: 12px 20px; color: #5B6577;">Chuyển trang, dashboard hiện lần lượt 40ms</td></tr>
+            <tr style="border-bottom: 1px solid #E3E8EF;"><td class="mono" style="padding: 12px 20px;">ease-out</td><td class="mono" style="padding: 12px 16px;">cubic-bezier(.2,.8,.2,1)</td><td style="padding: 12px 20px; color: #5B6577;">Mặc định cho mọi chuyển động</td></tr>
+            <tr><td class="mono" style="padding: 12px 20px;">signature</td><td class="mono" style="padding: 12px 16px;">600ms</td><td style="padding: 12px 20px; color: #5B6577;">Điểm CV đếm lên, thanh thành phần mọc lần lượt 60ms</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div style="background: #FFFFFF; border: 1px solid #E3E8EF; border-radius: 12px; padding: 20px; display: flex; flex-direction: column; gap: 12px;">
+        <span style="font-weight: 600;">Thử nút</span>
+        <p style="margin: 0; font-size: 13px; color: #5B6577;">Rê chuột và nhấn giữ để cảm nhận 120ms. Khi người dùng bật giảm chuyển động, mọi hiệu ứng tắt.</p>
+        <button class="demo" style="height: 40px; border-radius: 8px; border: 0; background: {{ accent }}; color: #FFFFFF; font-weight: 600;">Tạo tin tuyển</button>
+      </div>
+    </div>
+  </section>
+</div>
+</x-dc>
+<script data-dc-script data-props='{"accent":{"editor":"color","default":"#2F5BEA","options":["#2F5BEA","#2549C9","#1F4FD1"],"section":"Màu nhấn"}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return { accent: this.props.accent ?? '#2F5BEA' };
+  }
+}
+</script>
+</body>
+</html>

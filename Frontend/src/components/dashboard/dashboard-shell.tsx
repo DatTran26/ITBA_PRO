@@ -22,7 +22,7 @@ interface DashboardShellProps {
  */
 export default function DashboardShell({ user, mode, children }: DashboardShellProps) {
     return (
-        <PageTransition className="min-h-screen bg-transparent text-[#ECF0F7] font-body pb-12">
+        <PageTransition className="min-h-screen bg-transparent text-foreground font-body pb-12">
             <AppNavbar user={user} />
             <BackgroundOrbs />
             <PageContainer className="relative z-10">

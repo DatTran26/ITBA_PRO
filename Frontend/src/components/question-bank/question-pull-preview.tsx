@@ -91,7 +91,7 @@ export default function QuestionPullPreview({ questions: initial, config, shorta
             <Button
               onClick={onAcceptSubstitution}
               disabled={!onAcceptSubstitution}
-              className="h-8 px-3 rounded-lg bg-orange-500 hover:bg-orange-600 text-white border-0 text-xs"
+              className="h-8 px-3 rounded-lg bg-orange-500 hover:bg-orange-600 text-foreground border-0 text-xs"
             >
               Chấp nhận phương án thay thế
             </Button>
@@ -101,14 +101,14 @@ export default function QuestionPullPreview({ questions: initial, config, shorta
 
       {/* Summary row */}
       <div className="flex flex-wrap items-center justify-between gap-3 text-sm">
-        <span className="text-[#8B99B0] whitespace-nowrap">
+        <span className="text-muted-foreground whitespace-nowrap">
           {questions.length} question{questions.length !== 1 ? "s" : ""} ready to add
         </span>
         <div className="flex flex-wrap gap-2">
           <Button
             variant="outline"
             onClick={() => setShowQuestions((v) => !v)}
-            className="h-8 px-3 rounded-lg border border-white/5 bg-white/5 text-[#8B99B0] hover:text-[#ECF0F7] hover:bg-white/10 gap-1.5 text-xs"
+            className="h-8 px-3 rounded-lg border border-border bg-muted text-muted-foreground hover:text-foreground hover:bg-muted gap-1.5 text-xs"
           >
             {showQuestions ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
             {showQuestions ? "Hide questions" : "Preview questions"}
@@ -116,7 +116,7 @@ export default function QuestionPullPreview({ questions: initial, config, shorta
           <Button
             variant="outline"
             onClick={onBack}
-            className="h-8 px-3 rounded-lg border border-white/5 bg-white/5 text-[#8B99B0] hover:text-[#ECF0F7] hover:bg-white/10 gap-1.5 text-xs"
+            className="h-8 px-3 rounded-lg border border-border bg-muted text-muted-foreground hover:text-foreground hover:bg-muted gap-1.5 text-xs"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
             Reconfigure
@@ -124,7 +124,7 @@ export default function QuestionPullPreview({ questions: initial, config, shorta
           <Button
             onClick={() => onConfirmed(questions)}
             disabled={questions.length === 0 || !!shortageProposal}
-            className="h-8 px-4 rounded-lg bg-[#10B981] hover:bg-[#0D9E6E] text-white border-0 gap-1.5 text-xs"
+            className="h-8 px-4 rounded-lg bg-success hover:bg-success text-white border-0 gap-1.5 text-xs"
           >
             <CheckCircle2 className="w-3.5 h-3.5" />
             Confirm {questions.length} questions
@@ -142,15 +142,15 @@ export default function QuestionPullPreview({ questions: initial, config, shorta
           return (
             <div
               key={q.id}
-              className="rounded-xl border border-[#8B99B0]/10 bg-[#1E2840]/40"
+              className="rounded-xl border border-border/10 bg-muted/40"
             >
               <div className="flex items-start gap-3 p-4">
                 <div className="flex-1 min-w-0">
                   <div className="flex items-start justify-between gap-3">
-                    <p className="text-sm text-[#ECF0F7] leading-snug">{q.question_text}</p>
+                    <p className="text-sm text-foreground leading-snug">{q.question_text}</p>
                     <div className="flex items-center gap-2 flex-shrink-0">
                       {q.topic_tag && (
-                        <span className="text-xs bg-[#8B99B0]/10 text-[#8B99B0] px-2 py-0.5 rounded-full">
+                        <span className="text-xs bg-muted-foreground/10 text-muted-foreground px-2 py-0.5 rounded-full">
                           {q.topic_tag}
                         </span>
                       )}
@@ -163,7 +163,7 @@ export default function QuestionPullPreview({ questions: initial, config, shorta
                   <div className="mt-2 flex items-center gap-3">
                     <button
                       onClick={() => toggleExpand(q.id)}
-                      className="flex items-center gap-1 text-xs text-[#5A6882] hover:text-[#8B99B0] transition-colors"
+                      className="flex items-center gap-1 text-xs text-muted-foreground hover:text-muted-foreground transition-colors"
                     >
                       {isExpanded ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
                       {isExpanded ? "Hide" : "Show"} answers
@@ -172,7 +172,7 @@ export default function QuestionPullPreview({ questions: initial, config, shorta
                     <button
                       onClick={() => handleSwap(q)}
                       disabled={isSwapping}
-                      className="flex items-center gap-1 text-xs text-[#5A6882] hover:text-[#8B99B0] transition-colors disabled:opacity-50"
+                      className="flex items-center gap-1 text-xs text-muted-foreground hover:text-muted-foreground transition-colors disabled:opacity-50"
                     >
                       <RefreshCw className={`w-3 h-3 ${isSwapping ? "animate-spin" : ""}`} />
                       {isSwapping ? "Swapping..." : "Swap"}
@@ -189,8 +189,8 @@ export default function QuestionPullPreview({ questions: initial, config, shorta
                         key={opt}
                         className={`text-xs px-3 py-2 rounded-lg border ${
                           q.correct_answer === opt
-                            ? "border-[#10B981]/40 bg-[#10B981]/10 text-[#10B981]"
-                            : "border-[#8B99B0]/10 bg-[#0C1220]/60 text-[#8B99B0]"
+                            ? "border-border/40 bg-success/10 text-success"
+                            : "border-border/10 bg-background/60 text-muted-foreground"
                         }`}
                       >
                         <span className="font-mono font-bold uppercase mr-2">{opt}.</span>
@@ -199,7 +199,7 @@ export default function QuestionPullPreview({ questions: initial, config, shorta
                     ))}
                   </div>
                   {q.explanation && (
-                    <p className="text-xs text-[#5A6882] bg-[#8B99B0]/5 rounded-lg px-3 py-2">
+                    <p className="text-xs text-muted-foreground bg-muted-foreground/5 rounded-lg px-3 py-2">
                       {q.explanation}
                     </p>
                   )}

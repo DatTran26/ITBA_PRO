@@ -30,7 +30,7 @@ export default function PageHeader({
                         const isLast = index === breadcrumbs.length - 1;
                         return (
                             <div key={`${item.label}-${index}`} className="flex items-center gap-2 min-w-0">
-                                {index > 0 && <ChevronRight className="h-3.5 w-3.5 shrink-0 text-[#5A6882]" />}
+                                {index > 0 && <ChevronRight className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />}
                                 {item.href && !isLast ? (
                                     <Link href={item.href} className="truncate text-muted-foreground transition-colors hover:text-foreground">
                                         {item.label}

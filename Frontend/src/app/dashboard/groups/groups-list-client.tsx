@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import AppNavbar from "@/components/ui/app-navbar";
 import PageBreadcrumb from "@/components/ui/page-breadcrumb";
 import PageContainer from "@/components/ui/page-container";
+import { SharedDashboardPageHeader } from "@/components/shares";
 import { Button } from "@/components/ui/button";
 import { Plus, FolderKanban, Users, ShieldAlert, CheckCircle } from "lucide-react";
 import KpiCardGrid from "@/components/crm/kpi-card-grid";
@@ -58,22 +59,22 @@ export default function GroupsListClient({ groups, kpis }: Props) {
   const handleEdit = (g: GroupListItem) => setEditTarget(g);
 
   return (
-    <div className="bg-transparent text-[#ECF0F7] pb-12">
+    <div className="bg-transparent text-foreground pb-12">
       <AppNavbar />
       <PageContainer>
         <PageBreadcrumb breadcrumbs={[{ label: "Dashboard", href: "/dashboard" }, { label: "Groups" }]} />
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-10">
-          <div className="space-y-1">
-            <h1 className="text-4xl font-extralight tracking-tight text-[#ECF0F7] font-display">Team Workspaces</h1>
-            <p className="text-sm text-[#5A6882] font-light">Structure your organization into departments, batches, and high-impact campaigns</p>
-          </div>
+        <SharedDashboardPageHeader
+          title="Không gian làm việc của nhóm"
+          description="Chia tổ chức thành phòng ban, đợt tuyển và các chiến dịch trọng điểm"
+          actions={<>
           <Button
             onClick={() => setDialogOpen(true)}
-            className="bg-[#7C8FFF] hover:bg-[#5B6CF0] text-white h-12 px-8 rounded-xl shadow-lg shadow-[#7C8FFF]/20 transition-all font-semibold gap-2 border-0"
+            className="bg-primary hover:bg-primary text-white h-12 px-8 rounded-xl shadow-lg shadow-primary/20 transition-all font-semibold gap-2 border-0"
           >
             <Plus className="w-5 h-5" /> Create New Group
           </Button>
-        </div>
+          </>}
+        />
 
         <KpiCardGrid items={kpiCards} />
 

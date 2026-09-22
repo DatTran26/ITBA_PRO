@@ -70,7 +70,7 @@ export const NAV_GROUPS: NavGroup[] = [
             { href: "/dashboard/groups", label: "Groups", icon: FolderKanban },
         ],
         allowedRoles: ["recruiter", "leader", "admin", "super_admin"],
-        accentColor: "#7C8FFF",
+        accentColor: "var(--primary)",
     },
     {
         id: "recruitment",
@@ -85,7 +85,7 @@ export const NAV_GROUPS: NavGroup[] = [
             { href: "/dashboard/ocr", label: "Vision OCR", icon: ScanText, allowedRoles: ["hr", "interviewer", "leader", "admin", "super_admin"] as UserRole[] },
         ],
         allowedRoles: ["hr", "interviewer", "leader", "admin", "super_admin"],
-        accentColor: "#7C8FFF",
+        accentColor: "var(--primary)",
     },
     {
         id: "interviews",
@@ -95,7 +95,7 @@ export const NAV_GROUPS: NavGroup[] = [
             { href: "/dashboard/interview-room", label: "Interview Room", icon: Calendar },
         ],
         allowedRoles: ["interviewer", "admin", "super_admin"],
-        accentColor: "#F59E0B",
+        accentColor: "var(--warning)",
     },
     {
         id: "system",
@@ -110,7 +110,7 @@ export const NAV_GROUPS: NavGroup[] = [
             { href: "/dashboard/settings", label: "Settings", icon: Settings },
         ],
         allowedRoles: ["admin", "super_admin"],
-        accentColor: "#B48EFF",
+        accentColor: "var(--ai)",
     },
     {
         id: "emails",
@@ -127,7 +127,7 @@ export const NAV_GROUPS: NavGroup[] = [
             },
         ],
         allowedRoles: ["hr", "interviewer", "recruiter", "leader", "admin", "super_admin"] as UserRole[],
-        accentColor: "#36DDAB",
+        accentColor: "var(--success)",
     },
 ];
 

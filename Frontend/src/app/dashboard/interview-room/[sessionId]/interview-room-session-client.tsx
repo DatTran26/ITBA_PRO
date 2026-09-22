@@ -350,27 +350,27 @@ export default function InterviewRoomSessionClient({ sessionId }: { sessionId: s
 
   // Custom simple Markdown Parser
   const parseMarkdown = (text: string) => {
-    if (!text) return <p className="text-sm italic text-[#5A6882]">Chưa có thông tin phân tích.</p>;
+    if (!text) return <p className="text-sm italic text-muted-foreground">Chưa có thông tin phân tích.</p>;
     return text.split("\n").map((line, idx) => {
       if (line.startsWith("### ")) {
-        return <h4 key={idx} className="mt-4 mb-2 text-md font-bold text-[#ECF0F7]">{line.replace("### ", "")}</h4>;
+        return <h4 key={idx} className="mt-4 mb-2 text-md font-bold text-foreground">{line.replace("### ", "")}</h4>;
       }
       if (line.startsWith("## ")) {
-        return <h3 key={idx} className="mt-5 mb-2 text-lg font-bold text-[#ECF0F7]">{line.replace("## ", "")}</h3>;
+        return <h3 key={idx} className="mt-5 mb-2 text-lg font-bold text-foreground">{line.replace("## ", "")}</h3>;
       }
       if (line.startsWith("# ")) {
-        return <h2 key={idx} className="mt-6 mb-3 text-xl font-bold text-[#ECF0F7]">{line.replace("# ", "")}</h2>;
+        return <h2 key={idx} className="mt-6 mb-3 text-xl font-bold text-foreground">{line.replace("# ", "")}</h2>;
       }
 
       let content: React.ReactNode = line;
       if (line.includes("**")) {
         const parts = line.split("**");
-        content = parts.map((part, i) => i % 2 === 1 ? <strong key={i} className="text-[#ECF0F7] font-semibold">{part}</strong> : part);
+        content = parts.map((part, i) => i % 2 === 1 ? <strong key={i} className="text-foreground font-semibold">{part}</strong> : part);
       }
 
       if (line.trim().startsWith("- ") || line.trim().startsWith("* ")) {
         return (
-          <li key={idx} className="ml-4 list-disc text-sm text-[#8B99B0] py-0.5">
+          <li key={idx} className="ml-4 list-disc text-sm text-muted-foreground py-0.5">
             {typeof content === "string" ? content.trim().substring(2) : content}
           </li>
         );
@@ -378,7 +378,7 @@ export default function InterviewRoomSessionClient({ sessionId }: { sessionId: s
       if (line.trim() === "") {
         return <div key={idx} className="h-2" />;
       }
-      return <p key={idx} className="text-sm text-[#8B99B0] leading-relaxed mb-1">{content}</p>;
+      return <p key={idx} className="text-sm text-muted-foreground leading-relaxed mb-1">{content}</p>;
     });
   };
 
@@ -405,73 +405,73 @@ export default function InterviewRoomSessionClient({ sessionId }: { sessionId: s
   const testLink = session?.tests?.share_token ? `${window.location.origin}/test/${session.tests.share_token}` : null;
 
   if (loading) {
-    return <div className="flex justify-center py-24"><Loader2 className="h-6 w-6 animate-spin text-[#7C8FFF]" /></div>;
+    return <div className="flex justify-center py-24"><Loader2 className="h-6 w-6 animate-spin text-primary" /></div>;
   }
 
   if (!session) return null;
 
   return (
     <div className="space-y-5">
-      <button onClick={() => router.push("/dashboard/interview-room")} className="inline-flex items-center gap-2 text-sm text-[#8B99B0] hover:text-[#ECF0F7]"><ArrowLeft className="h-4 w-4" />Interview Room</button>
+      <button onClick={() => router.push("/dashboard/interview-room")} className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground"><ArrowLeft className="h-4 w-4" />Interview Room</button>
 
-      <div className="rounded-2xl border border-[#8B99B0]/12 bg-[#0C1422] p-5">
-        <p className="text-xs uppercase tracking-[0.2em] text-[#7C8FFF]">Round {session.round}</p>
-        <h1 className="mt-2 text-2xl font-semibold text-[#ECF0F7]">{session.job_descriptions?.title ?? "Interview Session"}</h1>
-        <p className="mt-1 text-sm text-[#8B99B0]">{new Date(session.scheduled_at).toLocaleString("vi-VN")} · {session.duration_minutes} phút</p>
+      <div className="rounded-2xl border border-border/12 bg-background p-5">
+        <p className="text-xs uppercase tracking-[0.2em] text-primary">Round {session.round}</p>
+        <h1 className="mt-2 text-2xl font-semibold text-foreground">{session.job_descriptions?.title ?? "Interview Session"}</h1>
+        <p className="mt-1 text-sm text-muted-foreground">{new Date(session.scheduled_at).toLocaleString("vi-VN")} · {session.duration_minutes} phút</p>
       </div>
 
       <div className="grid gap-5 lg:grid-cols-[360px_1fr]">
-        <div className="rounded-2xl border border-[#8B99B0]/12 bg-[#0C1422] p-4">
+        <div className="rounded-2xl border border-border/12 bg-background p-4">
           <div className="relative mb-3">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#5A6882]" />
-            <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Tìm tên/email candidate..." className="w-full rounded-lg border border-[#8B99B0]/15 bg-[#0A1120] py-2 pl-9 pr-3 text-sm text-[#ECF0F7] focus:border-[#7C8FFF]/50 focus:outline-none" />
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Tìm tên/email candidate..." className="w-full rounded-lg border border-border/15 bg-background py-2 pl-9 pr-3 text-sm text-foreground focus:border-border/50 focus:outline-none" />
           </div>
           <div className="space-y-2">
             {filtered.map((item) => {
               const itemPerson = item.job_applications?.persons;
               const active = selected?.id === item.id;
               return (
-                <button key={item.id} onClick={() => setSelectedId(item.id)} className={`w-full rounded-lg border p-3 text-left transition-colors ${active ? "border-[#7C8FFF]/40 bg-[#7C8FFF]/10" : "border-[#8B99B0]/12 bg-[#0A1120] hover:border-[#8B99B0]/25"}`}>
-                  <p className="truncate text-sm font-semibold text-[#ECF0F7]">{itemPerson?.full_name ?? "Candidate"}</p>
-                  <p className="truncate text-xs text-[#8B99B0]">{itemPerson?.email ?? "-"}</p>
+                <button key={item.id} onClick={() => setSelectedId(item.id)} className={`w-full rounded-lg border p-3 text-left transition-colors ${active ? "border-border/40 bg-background/10" : "border-border/12 bg-primary hover:border-border/25"}`}>
+                  <p className="truncate text-sm font-semibold text-foreground">{itemPerson?.full_name ?? "Candidate"}</p>
+                  <p className="truncate text-xs text-muted-foreground">{itemPerson?.email ?? "-"}</p>
                 </button>
               );
             })}
-            {filtered.length === 0 && <p className="py-8 text-center text-sm text-[#8B99B0]">Không có candidate phù hợp.</p>}
+            {filtered.length === 0 && <p className="py-8 text-center text-sm text-muted-foreground">Không có candidate phù hợp.</p>}
           </div>
         </div>
 
-        <div className="rounded-2xl border border-[#8B99B0]/12 bg-[#0C1422] p-5">
+        <div className="rounded-2xl border border-border/12 bg-background p-5">
           {!selected || !person ? (
-            <p className="text-sm text-[#8B99B0]">Chọn candidate để xem chi tiết.</p>
+            <p className="text-sm text-muted-foreground">Chọn candidate để xem chi tiết.</p>
           ) : (
             <div className="space-y-5">
               <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                 <div>
-                  <h2 className="text-xl font-semibold text-[#ECF0F7]">{person.full_name}</h2>
-                  <p className="text-sm text-[#8B99B0]">{person.email}</p>
+                  <h2 className="text-xl font-semibold text-foreground">{person.full_name}</h2>
+                  <p className="text-sm text-muted-foreground">{person.email}</p>
                 </div>
                 <div className="flex flex-wrap gap-2">
                   <button
                     onClick={handleExportPdf}
                     disabled={isExporting}
-                    className="inline-flex items-center gap-2 rounded-lg border border-[#7C8FFF]/30 bg-[#7C8FFF]/10 px-3 py-2 text-sm text-[#B6C2FF] hover:bg-[#7C8FFF]/20 disabled:opacity-50 transition-colors"
+                    className="inline-flex items-center gap-2 rounded-lg border border-border/30 bg-primary/10 px-3 py-2 text-sm text-primary hover:bg-primary/20 disabled:opacity-50 transition-colors"
                   >
                     {isExporting ? <Loader2 className="h-4 w-4 animate-spin" /> : <FileText className="h-4 w-4" />}
                     Xuất PDF Report
                   </button>
-                  <button onClick={() => router.push(`/dashboard/recruitment/${selected.job_application_id}`)} className="inline-flex items-center gap-2 rounded-lg border border-[#7C8FFF]/30 bg-[#7C8FFF]/10 px-3 py-2 text-sm text-[#B6C2FF] hover:bg-[#7C8FFF]/20 transition-colors"><FileText className="h-4 w-4" />Mở hồ sơ CV</button>
+                  <button onClick={() => router.push(`/dashboard/recruitment/${selected.job_application_id}`)} className="inline-flex items-center gap-2 rounded-lg border border-border/30 bg-primary/10 px-3 py-2 text-sm text-primary hover:bg-primary/20 transition-colors"><FileText className="h-4 w-4" />Mở hồ sơ CV</button>
                 </div>
               </div>
 
               {/* Navigation Tabs */}
-              <div className="flex border-b border-[#8B99B0]/12">
+              <div className="flex border-b border-border/12">
                 <button
                   onClick={() => setActiveTab("info")}
                   className={`px-4 py-2.5 text-sm font-semibold border-b-2 transition-all duration-200 ${
                     activeTab === "info"
-                      ? "border-[#7C8FFF] text-[#7C8FFF] bg-[#7C8FFF]/5"
-                      : "border-transparent text-[#8B99B0] hover:text-[#ECF0F7]"
+                      ? "border-border text-primary bg-primary/5"
+                      : "border-transparent text-muted-foreground hover:text-foreground"
                   }`}
                 >
                   Hồ sơ & Đánh giá
@@ -480,8 +480,8 @@ export default function InterviewRoomSessionClient({ sessionId }: { sessionId: s
                   onClick={() => setActiveTab("recording")}
                   className={`px-4 py-2.5 text-sm font-semibold border-b-2 transition-all duration-200 ${
                     activeTab === "recording"
-                      ? "border-[#7C8FFF] text-[#7C8FFF] bg-[#7C8FFF]/5"
-                      : "border-transparent text-[#8B99B0] hover:text-[#ECF0F7]"
+                      ? "border-border text-primary bg-primary/5"
+                      : "border-transparent text-muted-foreground hover:text-foreground"
                   }`}
                 >
                   Ghi âm & Phân tích AI
@@ -496,28 +496,28 @@ export default function InterviewRoomSessionClient({ sessionId }: { sessionId: s
                     <Metric label="Test Status" value={sessionResult?.status ?? "not_started"} />
                   </div>
 
-                  <div className="rounded-xl border border-[#8B99B0]/12 bg-[#0A1120] p-4">
-                    <h3 className="text-sm font-semibold text-[#ECF0F7]">CV Analysis</h3>
-                    <p className="mt-2 text-sm text-[#8B99B0]">{screening?.summary ?? "Chưa có summary CV analysis."}</p>
+                  <div className="rounded-xl border border-border/12 bg-background p-4">
+                    <h3 className="text-sm font-semibold text-foreground">CV Analysis</h3>
+                    <p className="mt-2 text-sm text-muted-foreground">{screening?.summary ?? "Chưa có summary CV analysis."}</p>
                   </div>
 
-                  <div className="rounded-xl border border-[#8B99B0]/12 bg-[#0A1120] p-4">
-                    <h3 className="text-sm font-semibold text-[#ECF0F7]">Session Test</h3>
+                  <div className="rounded-xl border border-border/12 bg-background p-4">
+                    <h3 className="text-sm font-semibold text-foreground">Session Test</h3>
                     {session.tests ? (
                       <div className="mt-2 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                         <div>
-                          <p className="text-sm text-[#ECF0F7]">{session.tests.title ?? session.tests.job_role ?? "Session Test"}</p>
-                          <p className="text-xs text-[#8B99B0]">Candidate làm bài trong suốt buổi phỏng vấn.</p>
+                          <p className="text-sm text-foreground">{session.tests.title ?? session.tests.job_role ?? "Session Test"}</p>
+                          <p className="text-xs text-muted-foreground">Candidate làm bài trong suốt buổi phỏng vấn.</p>
                         </div>
-                        {testLink && <button onClick={() => navigator.clipboard.writeText(testLink).then(() => toast.success("Đã copy test link"))} className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#7C8FFF] px-3 py-2 text-sm font-semibold text-white"><Copy className="h-4 w-4" />Copy test link</button>}
+                        {testLink && <button onClick={() => navigator.clipboard.writeText(testLink).then(() => toast.success("Đã copy test link"))} className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-3 py-2 text-sm font-semibold text-white"><Copy className="h-4 w-4" />Copy test link</button>}
                       </div>
-                    ) : <p className="mt-2 text-sm text-[#F8C56B]">Session chưa gắn test.</p>}
+                    ) : <p className="mt-2 text-sm text-warning">Session chưa gắn test.</p>}
                   </div>
 
                   {sessionResult && (
-                    <div className="rounded-xl border border-[#36DDAB]/20 bg-[#36DDAB]/10 p-4 text-sm text-[#B8F5E3]">
+                    <div className="rounded-xl border border-border/20 bg-success/10 p-4 text-sm text-success">
                       Submitted: {sessionResult.submitted_at ? new Date(sessionResult.submitted_at).toLocaleString("vi-VN") : "-"}
-                      <button onClick={() => router.push(`/dashboard/results/${sessionResult.id}`)} className="ml-3 inline-flex items-center gap-1 text-[#ECF0F7] underline"><ExternalLink className="h-3 w-3" />View result</button>
+                      <button onClick={() => router.push(`/dashboard/results/${sessionResult.id}`)} className="ml-3 inline-flex items-center gap-1 text-foreground underline"><ExternalLink className="h-3 w-3" />View result</button>
                     </div>
                   )}
                 </div>
@@ -526,11 +526,11 @@ export default function InterviewRoomSessionClient({ sessionId }: { sessionId: s
               {activeTab === "recording" && (
                 <div className="space-y-6">
                   {/* Voice Recorder Control Panel */}
-                  <div className="rounded-xl border border-[#8B99B0]/12 bg-[#0A1120] p-5">
+                  <div className="rounded-xl border border-border/12 bg-background p-5">
                     <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                       <div>
-                        <h3 className="text-sm font-semibold text-[#ECF0F7]">Ghi âm cuộc phỏng vấn</h3>
-                        <p className="text-xs text-[#8B99B0] mt-1">Lưu trữ giọng nói và phân tích tự động bằng OpenAI AI</p>
+                        <h3 className="text-sm font-semibold text-foreground">Ghi âm cuộc phỏng vấn</h3>
+                        <p className="text-xs text-muted-foreground mt-1">Lưu trữ giọng nói và phân tích tự động bằng OpenAI AI</p>
                       </div>
 
                       {/* State visual indicator */}
@@ -541,10 +541,10 @@ export default function InterviewRoomSessionClient({ sessionId }: { sessionId: s
                             <span className="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
                           </span>
                         )}
-                        <span className="text-lg font-mono text-[#ECF0F7]">
+                        <span className="text-lg font-mono text-foreground">
                           {recordingState !== "idle" && formatTimer(duration)}
                         </span>
-                        <span className="text-xs uppercase tracking-wider text-[#8B99B0] bg-[#0C1422] border border-[#8B99B0]/15 px-2 py-1 rounded">
+                        <span className="text-xs uppercase tracking-wider text-muted-foreground bg-background border border-border/15 px-2 py-1 rounded">
                           {recordingState}
                         </span>
                       </div>
@@ -555,7 +555,7 @@ export default function InterviewRoomSessionClient({ sessionId }: { sessionId: s
                       {recordingState === "idle" && !session.recording_url && !audioUrl && (
                         <button
                           onClick={startRecording}
-                          className="inline-flex items-center gap-2 rounded-lg bg-[#7C8FFF] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#687BE6] transition-colors"
+                          className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-white hover:bg-primary transition-colors"
                         >
                           <Mic className="h-4.5 w-4.5" /> Bắt đầu ghi âm
                         </button>
@@ -565,13 +565,13 @@ export default function InterviewRoomSessionClient({ sessionId }: { sessionId: s
                         <>
                           <button
                             onClick={pauseRecording}
-                            className="inline-flex items-center gap-2 rounded-lg bg-[#F8C56B] px-4 py-2.5 text-sm font-semibold text-[#0C1422] hover:bg-[#E5B259] transition-colors"
+                            className="inline-flex items-center gap-2 rounded-lg bg-warning px-4 py-2.5 text-sm font-semibold text-background hover:bg-warning transition-colors"
                           >
                             <Pause className="h-4.5 w-4.5" /> Tạm dừng
                           </button>
                           <button
                             onClick={stopRecording}
-                            className="inline-flex items-center gap-2 rounded-lg bg-red-500 px-4 py-2.5 text-sm font-semibold text-white hover:bg-red-600 transition-colors"
+                            className="inline-flex items-center gap-2 rounded-lg bg-red-500 px-4 py-2.5 text-sm font-semibold text-foreground hover:bg-red-600 transition-colors"
                           >
                             <Square className="h-4.5 w-4.5" /> Dừng & Lưu
                           </button>
@@ -582,13 +582,13 @@ export default function InterviewRoomSessionClient({ sessionId }: { sessionId: s
                         <>
                           <button
                             onClick={resumeRecording}
-                            className="inline-flex items-center gap-2 rounded-lg bg-[#7C8FFF] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#687BE6] transition-colors"
+                            className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-white hover:bg-primary transition-colors"
                           >
                             <Play className="h-4.5 w-4.5" /> Tiếp tục
                           </button>
                           <button
                             onClick={stopRecording}
-                            className="inline-flex items-center gap-2 rounded-lg bg-red-500 px-4 py-2.5 text-sm font-semibold text-white hover:bg-red-600 transition-colors"
+                            className="inline-flex items-center gap-2 rounded-lg bg-red-500 px-4 py-2.5 text-sm font-semibold text-foreground hover:bg-red-600 transition-colors"
                           >
                             <Square className="h-4.5 w-4.5" /> Dừng & Lưu
                           </button>
@@ -598,13 +598,13 @@ export default function InterviewRoomSessionClient({ sessionId }: { sessionId: s
                       {/* Preview recorded but not yet uploaded */}
                       {audioUrl && (
                         <div className="w-full space-y-3 mt-2">
-                          <p className="text-xs text-[#8B99B0]">Bản ghi âm hoàn tất. Bạn có thể nghe thử trước khi upload:</p>
+                          <p className="text-xs text-muted-foreground">Bản ghi âm hoàn tất. Bạn có thể nghe thử trước khi upload:</p>
                           <div className="flex items-center gap-3">
-                            <audio src={audioUrl} controls className="w-full h-10 rounded bg-[#0C1422]" />
+                            <audio src={audioUrl} controls className="w-full h-10 rounded bg-background" />
                             <button
                               onClick={uploadAudio}
                               disabled={isUploading}
-                              className="inline-flex items-center gap-2 rounded-lg bg-[#36DDAB] px-4 py-2 text-sm font-semibold text-[#0C1422] hover:bg-[#2EC497] disabled:opacity-50"
+                              className="inline-flex items-center gap-2 rounded-lg bg-success px-4 py-2 text-sm font-semibold text-background hover:bg-success disabled:opacity-50"
                             >
                               {isUploading ? (
                                 <Loader2 className="h-4 w-4 animate-spin" />
@@ -628,7 +628,7 @@ export default function InterviewRoomSessionClient({ sessionId }: { sessionId: s
                       {session.signed_recording_url && (
                         <div className="w-full space-y-4 mt-2">
                           <div className="flex items-center justify-between">
-                            <span className="inline-flex items-center gap-1.5 text-xs text-[#36DDAB] bg-[#36DDAB]/10 px-2.5 py-1 rounded-full border border-[#36DDAB]/25">
+                            <span className="inline-flex items-center gap-1.5 text-xs text-success bg-success/10 px-2.5 py-1 rounded-full border border-border/25">
                               <Volume2 className="h-3.5 w-3.5" /> Đã lưu trên cloud
                             </span>
 
@@ -644,11 +644,11 @@ export default function InterviewRoomSessionClient({ sessionId }: { sessionId: s
                           </div>
 
                           <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-                            <audio src={session.signed_recording_url} controls className="w-full h-10 rounded bg-[#0C1422]" />
+                            <audio src={session.signed_recording_url} controls className="w-full h-10 rounded bg-background" />
                             <button
                               onClick={analyzeSession}
                               disabled={isAnalyzing}
-                              className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#7C8FFF] px-5 py-2 text-sm font-semibold text-white hover:bg-[#687BE6] disabled:opacity-50 whitespace-nowrap"
+                              className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-5 py-2 text-sm font-semibold text-white hover:bg-primary disabled:opacity-50 whitespace-nowrap"
                             >
                               {isAnalyzing ? (
                                 <>
@@ -670,10 +670,10 @@ export default function InterviewRoomSessionClient({ sessionId }: { sessionId: s
                   <div className="grid grid-cols-1 xl:grid-cols-2 gap-5">
 
                     {/* Transcript Panel */}
-                    <div className="rounded-xl border border-[#8B99B0]/12 bg-[#0A1120] p-4 flex flex-col min-h-[400px]">
-                      <div className="flex items-center justify-between border-b border-[#8B99B0]/12 pb-3 mb-3">
-                        <h3 className="text-sm font-semibold text-[#ECF0F7] flex items-center gap-1.5">
-                          <FileText className="h-4 w-4 text-[#7C8FFF]" /> Transcript cuộc phỏng vấn
+                    <div className="rounded-xl border border-border/12 bg-background p-4 flex flex-col min-h-[400px]">
+                      <div className="flex items-center justify-between border-b border-border/12 pb-3 mb-3">
+                        <h3 className="text-sm font-semibold text-foreground flex items-center gap-1.5">
+                          <FileText className="h-4 w-4 text-primary" /> Transcript cuộc phỏng vấn
                         </h3>
                         {!isEditingTranscript ? (
                           <button
@@ -681,7 +681,7 @@ export default function InterviewRoomSessionClient({ sessionId }: { sessionId: s
                               setEditedTranscript(session.transcript || "");
                               setIsEditingTranscript(true);
                             }}
-                            className="inline-flex items-center gap-1 text-xs text-[#7C8FFF] hover:text-[#ECF0F7]"
+                            className="inline-flex items-center gap-1 text-xs text-primary hover:text-foreground"
                           >
                             <Edit3 className="h-3.5 w-3.5" /> Sửa thủ công
                           </button>
@@ -690,7 +690,7 @@ export default function InterviewRoomSessionClient({ sessionId }: { sessionId: s
                             <button
                               onClick={saveTranscript}
                               disabled={isSavingTranscript}
-                              className="inline-flex items-center gap-1 text-xs text-[#36DDAB] hover:text-white"
+                              className="inline-flex items-center gap-1 text-xs text-success hover:text-foreground"
                             >
                               {isSavingTranscript ? <Loader2 className="h-3 w-3 animate-spin" /> : <Save className="h-3.5 w-3.5" />}
                               Lưu
@@ -698,7 +698,7 @@ export default function InterviewRoomSessionClient({ sessionId }: { sessionId: s
                             <button
                               onClick={() => setIsEditingTranscript(false)}
                               disabled={isSavingTranscript}
-                              className="inline-flex items-center gap-1 text-xs text-red-400 hover:text-white"
+                              className="inline-flex items-center gap-1 text-xs text-red-400 hover:text-foreground"
                             >
                               <X className="h-3.5 w-3.5" /> Hủy
                             </button>
@@ -711,13 +711,13 @@ export default function InterviewRoomSessionClient({ sessionId }: { sessionId: s
                           <textarea
                             value={editedTranscript}
                             onChange={(e) => setEditedTranscript(e.target.value)}
-                            className="w-full flex-1 min-h-[300px] rounded-lg border border-[#8B99B0]/15 bg-[#0C1422] p-3 text-sm text-[#ECF0F7] focus:border-[#7C8FFF]/50 focus:outline-none resize-none font-sans"
+                            className="w-full flex-1 min-h-[300px] rounded-lg border border-border/15 bg-background p-3 text-sm text-foreground focus:border-border/50 focus:outline-none resize-none font-sans"
                             placeholder="Nhập nội dung transcript cuộc phỏng vấn..."
                           />
                         ) : (
-                          <div className="max-h-[400px] overflow-y-auto pr-1 text-sm text-[#8B99B0] leading-relaxed whitespace-pre-wrap font-sans">
+                          <div className="max-h-[400px] overflow-y-auto pr-1 text-sm text-muted-foreground leading-relaxed whitespace-pre-wrap font-sans">
                             {session.transcript || (
-                              <p className="italic text-[#5A6882] text-center mt-12">
+                              <p className="italic text-muted-foreground text-center mt-12">
                                 Chưa có bản ghi transcript. Hãy ghi âm và thực hiện Phân tích AI.
                               </p>
                             )}
@@ -727,10 +727,10 @@ export default function InterviewRoomSessionClient({ sessionId }: { sessionId: s
                     </div>
 
                     {/* AI Summary Panel */}
-                    <div className="rounded-xl border border-[#8B99B0]/12 bg-[#0A1120] p-4 flex flex-col min-h-[400px]">
-                      <div className="flex items-center justify-between border-b border-[#8B99B0]/12 pb-3 mb-3">
-                        <h3 className="text-sm font-semibold text-[#ECF0F7] flex items-center gap-1.5">
-                          <Sparkles className="h-4 w-4 text-[#F8C56B]" /> AI Summary & Đánh giá
+                    <div className="rounded-xl border border-border/12 bg-background p-4 flex flex-col min-h-[400px]">
+                      <div className="flex items-center justify-between border-b border-border/12 pb-3 mb-3">
+                        <h3 className="text-sm font-semibold text-foreground flex items-center gap-1.5">
+                          <Sparkles className="h-4 w-4 text-warning" /> AI Summary & Đánh giá
                         </h3>
                         {!isEditingAiSummary ? (
                           <button
@@ -738,7 +738,7 @@ export default function InterviewRoomSessionClient({ sessionId }: { sessionId: s
                               setEditedAiSummary(session.ai_summary || "");
                               setIsEditingAiSummary(true);
                             }}
-                            className="inline-flex items-center gap-1 text-xs text-[#7C8FFF] hover:text-[#ECF0F7]"
+                            className="inline-flex items-center gap-1 text-xs text-primary hover:text-foreground"
                           >
                             <Edit3 className="h-3.5 w-3.5" /> Sửa nội dung
                           </button>
@@ -747,7 +747,7 @@ export default function InterviewRoomSessionClient({ sessionId }: { sessionId: s
                             <button
                               onClick={saveAiSummary}
                               disabled={isSavingAiSummary}
-                              className="inline-flex items-center gap-1 text-xs text-[#36DDAB] hover:text-white"
+                              className="inline-flex items-center gap-1 text-xs text-success hover:text-foreground"
                             >
                               {isSavingAiSummary ? <Loader2 className="h-3 w-3 animate-spin" /> : <Save className="h-3.5 w-3.5" />}
                               Lưu
@@ -755,7 +755,7 @@ export default function InterviewRoomSessionClient({ sessionId }: { sessionId: s
                             <button
                               onClick={() => setIsEditingAiSummary(false)}
                               disabled={isSavingAiSummary}
-                              className="inline-flex items-center gap-1 text-xs text-red-400 hover:text-white"
+                              className="inline-flex items-center gap-1 text-xs text-red-400 hover:text-foreground"
                             >
                               <X className="h-3.5 w-3.5" /> Hủy
                             </button>
@@ -768,7 +768,7 @@ export default function InterviewRoomSessionClient({ sessionId }: { sessionId: s
                           <textarea
                             value={editedAiSummary}
                             onChange={(e) => setEditedAiSummary(e.target.value)}
-                            className="w-full flex-1 min-h-[300px] rounded-lg border border-[#8B99B0]/15 bg-[#0C1422] p-3 text-sm text-[#ECF0F7] focus:border-[#7C8FFF]/50 focus:outline-none resize-none font-sans"
+                            className="w-full flex-1 min-h-[300px] rounded-lg border border-border/15 bg-background p-3 text-sm text-foreground focus:border-border/50 focus:outline-none resize-none font-sans"
                             placeholder="Nhập nội dung đánh giá bằng định dạng Markdown..."
                           />
                         ) : (
@@ -791,5 +791,5 @@ export default function InterviewRoomSessionClient({ sessionId }: { sessionId: s
 }
 
 function Metric({ label, value }: { label: string; value: string | number }) {
-  return <div className="rounded-xl border border-[#8B99B0]/12 bg-[#0A1120] p-4"><p className="text-xs uppercase tracking-wide text-[#8B99B0]">{label}</p><p className="mt-1 text-xl font-bold text-[#ECF0F7]">{value}</p></div>;
+  return <div className="rounded-xl border border-border/12 bg-background p-4"><p className="text-xs uppercase tracking-wide text-muted-foreground">{label}</p><p className="mt-1 text-xl font-bold text-foreground">{value}</p></div>;
 }

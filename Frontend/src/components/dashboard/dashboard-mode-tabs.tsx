@@ -46,7 +46,7 @@ export default function DashboardModeTabs({ activeMode, role }: DashboardModeTab
 
     return (
         <div className="mb-6 mt-1 px-1 flex flex-wrap items-center gap-3">
-            <div className="inline-flex items-center p-1 bg-[#111827]/90 border border-[#8B99B0]/15 rounded-[1rem] relative shadow-lg overflow-hidden group">
+            <div className="inline-flex items-center p-1 bg-card/90 border border-muted-foreground/15 rounded-[1rem] relative shadow-lg overflow-hidden group">
                 <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent pointer-events-none" />
 
                 {tabs.map((tab) => {
@@ -57,13 +57,13 @@ export default function DashboardModeTabs({ activeMode, role }: DashboardModeTab
                             key={tab.id}
                             onClick={() => handleModeChange(tab.id)}
                             className={`relative px-4 py-2 rounded-xl flex items-center gap-2 transition-all duration-500 cursor-pointer group/item overflow-hidden ${
-                                isActive ? "text-[#ECF0F7]" : "text-[#5A6882] hover:text-[#8B99B0]"
+                                isActive ? "text-foreground" : "text-muted-foreground hover:text-muted-foreground"
                             }`}
                         >
                             {isActive && (
                                 <motion.div
                                     layoutId="active-tab"
-                                    className="absolute inset-0 bg-[#3B82F6]/25 border border-[#3B82F6]/40 shadow-[inset_0_0_15px_rgba(59,130,246,0.2)]"
+                                    className="absolute inset-0 bg-primary/25 border border-primary/40 shadow-[inset_0_0_15px_color-mix(in_srgb,var(--primary)_20%,transparent)]"
                                     transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
                                     style={{ borderRadius: "0.75rem" }}
                                 />
@@ -71,12 +71,12 @@ export default function DashboardModeTabs({ activeMode, role }: DashboardModeTab
                             {isActive && (
                                 <motion.div
                                     layoutId="active-glow"
-                                    className="absolute -inset-2 bg-[#3B82F6]/15 blur-lg opacity-60"
+                                    className="absolute -inset-2 bg-primary/15 blur-lg opacity-60"
                                     transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
                                 />
                             )}
                             <div className={`relative z-10 p-1.5 rounded-md transition-colors duration-500 ${
-                                isActive ? "bg-[#3B82F6] text-white shadow-[0_0_12px_rgba(59,130,246,0.6)]" : "bg-transparent group-hover/item:bg-white/5"
+                                isActive ? "bg-primary text-white shadow-[0_0_12px_color-mix(in_srgb,var(--primary)_60%,transparent)]" : "bg-transparent group-hover/item:bg-muted"
                             }`}>
                                 <Icon className="w-3.5 h-3.5" />
                             </div>
@@ -91,12 +91,12 @@ export default function DashboardModeTabs({ activeMode, role }: DashboardModeTab
             </div>
             {role === "hr" && (
                 <div className="ml-auto flex flex-wrap items-center justify-end gap-3">
-                    <Link href="/dashboard/recruitment/sessions" className="group flex items-center gap-2 h-11 px-5 rounded-xl bg-white/5 border border-white/10 text-[#ECF0F7] font-black text-sm shadow-lg transition-all duration-300 hover:bg-white/10 hover:border-[#F59E0B]/40 hover:scale-[1.02] active:scale-[0.98]">
-                        <Calendar className="w-4 h-4 text-[#F59E0B] group-hover:scale-110 transition-transform" />
+                    <Link href="/dashboard/recruitment/sessions" className="group flex items-center gap-2 h-11 px-5 rounded-xl bg-muted border border-border text-foreground font-black text-sm shadow-lg transition-all duration-300 hover:bg-muted hover:border-warning/40 hover:scale-[1.02] active:scale-[0.98]">
+                        <Calendar className="w-4 h-4 text-warning group-hover:scale-110 transition-transform" />
                         <span>Lên lịch PV</span>
                     </Link>
-                    <Link href="/dashboard/recruitment/report" className="group flex items-center gap-2 h-11 px-5 rounded-xl bg-white/5 border border-white/10 text-[#ECF0F7] font-black text-sm shadow-lg transition-all duration-300 hover:bg-white/10 hover:border-[#B48EFF]/40 hover:scale-[1.02] active:scale-[0.98]">
-                        <BarChart3 className="w-4 h-4 text-[#B48EFF] group-hover:scale-110 transition-transform" />
+                    <Link href="/dashboard/recruitment/report" className="group flex items-center gap-2 h-11 px-5 rounded-xl bg-muted border border-border text-foreground font-black text-sm shadow-lg transition-all duration-300 hover:bg-muted hover:border-ai/40 hover:scale-[1.02] active:scale-[0.98]">
+                        <BarChart3 className="w-4 h-4 text-ai group-hover:scale-110 transition-transform" />
                         <span>Báo cáo</span>
                     </Link>
                 </div>

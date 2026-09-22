@@ -55,21 +55,21 @@ export default function AssessmentGridBulkBar({
                     exit={{ y: 100, opacity: 0 }}
                     className="fixed bottom-10 left-1/2 -translate-x-1/2 z-50 w-full max-w-2xl px-4"
                 >
-                    <div className="bg-[#0F172A]/90 backdrop-blur-2xl border border-[#7C8FFF]/40 shadow-[0_20px_50px_rgba(0,0,0,0.5)] rounded-[2rem] p-4 flex items-center justify-between">
+                    <div className="bg-background/90 backdrop-blur-2xl border border-primary/40 shadow-[0_20px_50px_rgba(0,0,0,0.5)] rounded-[2rem] p-4 flex items-center justify-between">
                         <div className="flex items-center gap-5 ml-2">
                             <Checkbox
                                 checked={selectedCount === filteredCount && filteredCount > 0}
                                 onCheckedChange={onToggleSelectAll}
-                                className="data-[checked=true]:bg-[#7C8FFF] data-[checked=true]:border-[#7C8FFF] border-[#8B99B0]/30 w-5 h-5 rounded-lg"
+                                className="data-[checked=true]:bg-primary data-[checked=true]:border-primary border-muted-foreground/30 w-5 h-5 rounded-lg"
                             />
                             <div className="flex flex-col">
-                                <span className="text-base font-bold text-[#ECF0F7]">{selectedCount} Selected</span>
-                                <span className="text-[10px] text-[#7C8FFF] font-bold uppercase tracking-widest">Active Operations</span>
+                                <span className="text-base font-bold text-foreground">{selectedCount} Selected</span>
+                                <span className="text-[10px] text-primary font-bold uppercase tracking-widest">Active Operations</span>
                             </div>
                         </div>
 
                         <div className="flex items-center gap-2">
-                            <div className="flex items-center gap-2 bg-[#1B253B]/50 p-1.5 rounded-2xl border border-[#8B99B0]/5">
+                            <div className="flex items-center gap-2 bg-muted/50 p-1.5 rounded-2xl border border-muted-foreground/5">
                                 <BulkActionButton
                                     icon={CheckCircle2}
                                     label="Live"
@@ -86,7 +86,7 @@ export default function AssessmentGridBulkBar({
                                     disabled={isBulkActing || selectedCount === 0}
                                     onClick={() => onBulkAction('deactivate')}
                                 />
-                                <div className="w-px h-6 bg-[#8B99B0]/10 mx-1" />
+                                <div className="w-px h-6 bg-muted-foreground/10 mx-1" />
                                 <BulkActionButton
                                     icon={Trash2}
                                     label="Delete"
@@ -100,7 +100,7 @@ export default function AssessmentGridBulkBar({
                                 variant="ghost"
                                 size="icon"
                                 onClick={onClose}
-                                className="h-10 w-10 rounded-2xl hover:bg-rose-500/10 text-[#5A6882] hover:text-rose-400 border border-transparent hover:border-rose-400/20"
+                                className="h-10 w-10 rounded-2xl hover:bg-rose-500/10 text-muted-foreground hover:text-rose-400 border border-transparent hover:border-rose-400/20"
                             >
                                 <X className="w-5 h-5" />
                             </Button>

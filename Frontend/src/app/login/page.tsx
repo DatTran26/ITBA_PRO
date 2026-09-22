@@ -82,152 +82,152 @@ export default function LoginPage() {
     };
 
     return (
-        <PageTransition className="min-h-screen bg-[#121A2E] text-[#ECF0F7] flex overflow-hidden font-body selection:bg-[#7C8FFF]/30 relative">
+        <PageTransition className="tg min-h-screen flex overflow-hidden relative">
 
-            {/* Background Decor */}
-            <div className="absolute inset-0 z-0 pointer-events-none opacity-40">
-                <div className="absolute top-0 right-0 w-1/2 h-full bg-[radial-gradient(circle_at_70%_30%,rgba(91,108,240,0.08)_0%,transparent_50%)]" />
-            </div>
-
-            {/* Left: Decorative Brand Side (Hidden on Mobile) */}
-            <div className="hidden lg:flex w-[45%] relative bg-[#161F35] items-center justify-center border-r border-white/5 overflow-hidden">
-                {/* Decorative Elements */}
-                <div className="absolute top-[-10%] left-[-10%] w-80 h-80 bg-[#7C8FFF]/15 blur-[120px] rounded-full" />
-                <div className="absolute bottom-[-5%] right-[-5%] w-64 h-64 bg-[#B48EFF]/10 blur-[100px] rounded-full" />
+            {/* Bên trái: mảng thương hiệu, ẩn trên mobile */}
+            <div className="hidden lg:flex w-[46%] relative items-center justify-center overflow-hidden bg-gradient-to-br from-primary to-primary">
+                <div className="absolute -top-[12%] -left-[8%] w-96 h-96 rounded-full bg-white/15 blur-[110px]" aria-hidden="true" />
+                <div className="absolute -bottom-[10%] -right-[6%] w-80 h-80 rounded-full bg-primary/25 blur-[100px]" aria-hidden="true" />
 
                 <div className="relative z-10 p-16 max-w-xl">
-                    <Link href="/" className="inline-flex items-center gap-4 group cursor-pointer mb-20 animate-in fade-in slide-in-from-left duration-700">
-                        <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#5B6CF0] to-[#7C8FFF] flex items-center justify-center text-white font-black text-lg shadow-[0_10px_25px_-5px_rgba(91,108,240,0.5)] group-hover:scale-110 transition-all duration-500 overflow-hidden relative">
-                            <div className="absolute inset-0 bg-gradient-to-tr from-white/0 via-white/20 to-white/0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-in-out" />
-                            AI
+                    <Link href="/" className="inline-flex items-center gap-3 group mb-16">
+                        <div className="w-12 h-12 rounded-2xl bg-white/95 flex items-center justify-center text-primary tg-display text-base shadow-lg group-hover:scale-105 transition-transform">
+                            IT
                         </div>
-                        <span className="text-2xl font-bold tracking-tighter text-[#ECF0F7] group-hover:text-white transition-colors font-display uppercase italic">
-                            ITBA<span className="text-[#7C8FFF]">.CORE</span>
-                        </span>
+                        <span className="tg-display text-2xl text-white">ITBA</span>
                     </Link>
 
-                    <h1 className="text-5xl font-light font-display leading-[1.1] tracking-tighter mb-8 animate-in fade-in slide-in-from-bottom duration-700 delay-100">
-                        Automate the <br />
-                        <span className="relative inline-block mt-2">
-                             <span className="absolute -inset-1 block bg-[#5B6CF0]/20 blur-xl rounded-full" aria-hidden="true" />
-                             <span className="relative text-transparent bg-clip-text bg-gradient-to-r from-[#7C8FFF] to-[#B48EFF] font-semibold">Technical Protocol.</span>
-                        </span>
+                    <h1 className="tg-display text-[2.75rem] leading-[1.14] text-white mb-7">
+                        Tuyển đúng người,<br />
+                        <span className="text-primary">nhanh hơn một nửa</span>
                     </h1>
 
-                    <p className="text-[#8B99B0] font-light text-xl leading-relaxed mb-12 max-w-md animate-in fade-in slide-in-from-bottom duration-700 delay-200">
-                        The definitive command center for engineering excellence and autonomous technical screening.
+                    <p className="text-white/85 text-lg leading-relaxed mb-10 max-w-md">
+                        AI chấm CV và bài test kỹ thuật, ghi lại căn cứ cho từng quyết định.
+                        Quyền quyết định cuối cùng vẫn thuộc về bạn.
                     </p>
 
-                    <div className="flex items-center gap-4 text-xs font-bold uppercase tracking-[0.3em] text-[#5A6882] animate-in fade-in duration-1000 delay-500">
-                        <Fingerprint className="w-5 h-5 text-[#7C8FFF]/40" />
-                        <span>Biometric-Grade Intelligence</span>
+                    <div className="flex items-center gap-3 text-sm text-white/80">
+                        <Fingerprint className="w-5 h-5" />
+                        <span>Dữ liệu ứng viên được phân quyền theo vai trò</span>
                     </div>
                 </div>
             </div>
 
-            {/* Right: Auth Form */}
+            {/* Bên phải: biểu mẫu đăng nhập */}
             <div className="flex-1 flex items-center justify-center relative p-6">
                 <div className="w-full max-w-md relative z-10">
-
                     <FadeIn delay={0.1}>
-                        <div className="mb-12 lg:hidden flex justify-center">
+                        <div className="mb-10 lg:hidden flex justify-center">
                             <Link href="/">
-                                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#5B6CF0] to-[#7C8FFF] flex items-center justify-center text-white font-black text-xl shadow-[0_10px_25px_-5px_rgba(91,108,240,0.5)]">
-                                    AI
+                                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary to-primary flex items-center justify-center text-white tg-display text-lg shadow-[var(--sh-m)]">
+                                    IT
                                 </div>
                             </Link>
                         </div>
 
-                        <div className="mb-10 text-center lg:text-left">
-                            <h2 className="text-4xl font-semibold font-display text-[#ECF0F7] mb-3 tracking-tight">
-                                Establish Link
-                            </h2>
-                            <p className="text-[#8B99B0] text-lg font-light">
-                                Enter your designated credentials to access the recruitment matrix.
-                            </p>
-                        </div>
-
-                        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-                            <div className="space-y-2.5 group">
-                                <Label htmlFor="email" className="text-[11px] font-bold text-[#5A6882] uppercase tracking-[0.2em] group-focus-within:text-[#7C8FFF] transition-colors ml-1">Communication Link</Label>
-                                <Input
-                                    id="email"
-                                    type="email"
-                                    placeholder="agent@itba.system"
-                                    className="bg-[#1B253B]/60 border-white/5 hover:border-[#7C8FFF]/30 focus:border-[#7C8FFF]/50 text-[#ECF0F7] placeholder:text-[#5A6882]/50 h-12 rounded-[1rem] transition-all duration-300"
-                                    {...register("email")}
-                                />
-                                {errors.email && (
-                                    <p className="text-xs text-[#FF6B82] mt-1.5 flex items-center gap-1.5 font-medium ml-1">
-                                        <span className="w-1.5 h-1.5 rounded-full bg-[#FF6B82]" />
-                                        {errors.email.message as string}
-                                    </p>
-                                )}
+                        <div className="tg-card p-8 sm:p-10">
+                            <div className="mb-8">
+                                <h2 className="tg-heading text-3xl text-[var(--tg-text)] mb-2">
+                                    Đăng nhập
+                                </h2>
+                                <p className="text-[15px] text-[var(--tg-muted)]">
+                                    Nhập tài khoản được cấp để vào hệ thống tuyển dụng.
+                                </p>
                             </div>
 
-                            <div className="space-y-2.5 group">
-                                <div className="flex items-center justify-between ml-1">
-                                    <Label htmlFor="password" className="text-[11px] font-bold text-[#5A6882] uppercase tracking-[0.2em] group-focus-within:text-[#7C8FFF] transition-colors">Security Passphrase</Label>
-                                    <Link href="#" className="text-[11px] font-bold text-[#7C8FFF]/60 hover:text-[#7C8FFF] transition-colors uppercase tracking-widest">Lost access?</Link>
-                                </div>
-                                <Input
-                                    id="password"
-                                    type="password"
-                                    placeholder="••••••••"
-                                    className="bg-[#1B253B]/60 border-white/5 hover:border-[#7C8FFF]/30 focus:border-[#7C8FFF]/50 text-[#ECF0F7] placeholder:text-[#5A6882]/50 h-12 rounded-[1rem] transition-all duration-300"
-                                    {...register("password")}
-                                />
-                                {errors.password && (
-                                    <p className="text-xs text-[#FF6B82] mt-1.5 flex items-center gap-1.5 font-medium ml-1">
-                                         <span className="w-1.5 h-1.5 rounded-full bg-[#FF6B82]" />
-                                         {errors.password.message as string}
-                                    </p>
-                                )}
-                            </div>
-
-                            {isTurnstileEnabled && (
-                                <div className="py-2">
-                                    {turnstileSiteKey ? (
-                                        <Turnstile
-                                            ref={turnstileRef}
-                                            siteKey={turnstileSiteKey}
-                                            onSuccess={(token) => setCaptchaToken(token)}
-                                            onExpire={() => {
-                                                setCaptchaToken(undefined);
-                                                turnstileRef.current?.reset();
-                                            }}
-                                            onError={() => {
-                                                setCaptchaToken(undefined);
-                                                turnstileRef.current?.reset();
-                                            }}
-                                            options={{ theme: "dark", size: "flexible" }}
-                                        />
-                                    ) : (
-                                        <p className="text-sm text-[#FF6B82]" role="alert">
-                                            Captcha protection is not configured. Please contact support.
+                            <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+                                <div className="space-y-2 group">
+                                    <Label htmlFor="email" className="text-[13px] font-semibold text-[var(--tg-text)]">
+                                        Email công việc
+                                    </Label>
+                                    <Input
+                                        id="email"
+                                        type="email"
+                                        placeholder="ten.ban@congty.vn"
+                                        className="bg-[var(--stub)] border-[var(--tg-border)] hover:border-border focus:border-border text-[var(--tg-text)] placeholder:text-[var(--tg-faint)] h-12 rounded-xl transition-all"
+                                        {...register("email")}
+                                    />
+                                    {errors.email && (
+                                        <p className="text-[13px] text-[var(--tg-error)] mt-1.5 flex items-center gap-1.5 font-medium">
+                                            <span className="w-1.5 h-1.5 rounded-full bg-[var(--tg-error)]" />
+                                            {errors.email.message as string}
                                         </p>
                                     )}
                                 </div>
-                            )}
 
-                            <Button
-                                type="submit"
-                                disabled={isLoading || (isTurnstileEnabled && (!turnstileSiteKey || !captchaToken))}
-                                className="w-full h-14 bg-[#5B6CF0] hover:bg-[#4F5FE0] text-white font-bold text-base border-0 transition-all hover:scale-[1.01] active:scale-[0.99] hover:shadow-[0_15px_30px_-5px_rgba(91,108,240,0.5)] flex items-center justify-center gap-3 group/btn rounded-[1.25rem]"
-                            >
-                                {isLoading ? (
-                                    <>
-                                        <Loader2 className="h-5 w-5 animate-spin" />
-                                        <span>Initiating Handshake...</span>
-                                    </>
-                                ) : (
-                                    <>
-                                        <span>Establish Connection</span>
-                                        <ArrowRight className="w-5 h-5 group-hover/btn:translate-x-1 transition-transform" />
-                                    </>
+                                <div className="space-y-2 group">
+                                    <div className="flex items-center justify-between">
+                                        <Label htmlFor="password" className="text-[13px] font-semibold text-[var(--tg-text)]">
+                                            Mật khẩu
+                                        </Label>
+                                        <Link href="/reset-password" className="text-[13px] font-semibold text-[var(--p-deep)] hover:text-[var(--p-ink)] transition-colors">
+                                            Quên mật khẩu?
+                                        </Link>
+                                    </div>
+                                    <Input
+                                        id="password"
+                                        type="password"
+                                        placeholder="••••••••"
+                                        className="bg-[var(--stub)] border-[var(--tg-border)] hover:border-border focus:border-border text-[var(--tg-text)] placeholder:text-[var(--tg-faint)] h-12 rounded-xl transition-all"
+                                        {...register("password")}
+                                    />
+                                    {errors.password && (
+                                        <p className="text-[13px] text-[var(--tg-error)] mt-1.5 flex items-center gap-1.5 font-medium">
+                                            <span className="w-1.5 h-1.5 rounded-full bg-[var(--tg-error)]" />
+                                            {errors.password.message as string}
+                                        </p>
+                                    )}
+                                </div>
+
+                                {isTurnstileEnabled && (
+                                    <div className="py-1">
+                                        {turnstileSiteKey ? (
+                                            <Turnstile
+                                                ref={turnstileRef}
+                                                siteKey={turnstileSiteKey}
+                                                onSuccess={(token) => setCaptchaToken(token)}
+                                                onExpire={() => {
+                                                    setCaptchaToken(undefined);
+                                                    turnstileRef.current?.reset();
+                                                }}
+                                                onError={() => {
+                                                    setCaptchaToken(undefined);
+                                                    turnstileRef.current?.reset();
+                                                }}
+                                                options={{ theme: "light", size: "flexible" }}
+                                            />
+                                        ) : (
+                                            <p className="text-sm text-[var(--tg-error)]" role="alert">
+                                                Chưa cấu hình captcha. Vui lòng liên hệ quản trị viên.
+                                            </p>
+                                        )}
+                                    </div>
                                 )}
-                            </Button>
-                        </form>
+
+                                <Button
+                                    type="submit"
+                                    disabled={isLoading || (isTurnstileEnabled && (!turnstileSiteKey || !captchaToken))}
+                                    className="tg-pill w-full h-13 py-3.5 text-[15px] font-semibold border-0 flex items-center justify-center gap-2.5 group/btn hover:-translate-y-[1px] active:translate-y-0 transition-transform"
+                                >
+                                    {isLoading ? (
+                                        <>
+                                            <Loader2 className="h-5 w-5 animate-spin" />
+                                            <span>Đang đăng nhập...</span>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <span>Đăng nhập</span>
+                                            <ArrowRight className="w-[18px] h-[18px] group-hover/btn:translate-x-1 transition-transform" />
+                                        </>
+                                    )}
+                                </Button>
+                            </form>
+                        </div>
+
+                        <p className="mt-6 text-center text-[13px] text-[var(--tg-muted)]">
+                            Chưa có tài khoản? Liên hệ quản trị viên của công ty bạn.
+                        </p>
                     </FadeIn>
                 </div>
             </div>

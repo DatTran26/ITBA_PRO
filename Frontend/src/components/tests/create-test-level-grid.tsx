@@ -14,10 +14,10 @@ const LEVELS = [
 export const LEVEL_NAMES = LEVELS.map((l) => l.name);
 
 const levelThemeMap: Record<string, string> = {
-    Junior: "hover:bg-emerald-500/10 hover:border-emerald-500/50 text-emerald-400/50 hover:text-emerald-400 data-[state=active]:bg-emerald-500/10 data-[state=active]:border-emerald-500 data-[state=active]:text-emerald-400 data-[state=active]:shadow-[0_0_20px_-5px_rgba(16,185,129,0.3)]",
-    Mid: "hover:bg-sky-500/10 hover:border-sky-500/50 text-sky-400/50 hover:text-sky-400 data-[state=active]:bg-sky-500/10 data-[state=active]:border-sky-500 data-[state=active]:text-sky-400 data-[state=active]:shadow-[0_0_20px_-5px_rgba(14,165,233,0.3)]",
-    Senior: "hover:bg-rose-500/10 hover:border-rose-500/50 text-rose-400/50 hover:text-rose-400 data-[state=active]:bg-rose-500/10 data-[state=active]:border-rose-500 data-[state=active]:text-rose-400 data-[state=active]:shadow-[0_0_20px_-5px_rgba(244,63,94,0.3)]",
-    Other: "hover:bg-amber-500/10 hover:border-amber-500/50 text-amber-400/50 hover:text-amber-400 data-[state=active]:bg-amber-500/10 data-[state=active]:border-amber-500 data-[state=active]:text-amber-400 data-[state=active]:shadow-[0_0_20px_-5px_rgba(245,158,11,0.3)]",
+    Junior: "hover:bg-emerald-500/10 hover:border-emerald-500/50 text-emerald-400/50 hover:text-emerald-400 data-[state=active]:bg-emerald-500/10 data-[state=active]:border-emerald-500 data-[state=active]:text-emerald-400 data-[state=active]:shadow-[0_0_20px_-5px_color-mix(in_srgb,var(--success)_30%,transparent)]",
+    Mid: "hover:bg-sky-500/10 hover:border-sky-500/50 text-sky-400/50 hover:text-sky-400 data-[state=active]:bg-sky-500/10 data-[state=active]:border-sky-500 data-[state=active]:text-sky-400 data-[state=active]:shadow-[0_0_20px_-5px_color-mix(in_srgb,var(--primary)_30%,transparent)]",
+    Senior: "hover:bg-rose-500/10 hover:border-rose-500/50 text-rose-400/50 hover:text-rose-400 data-[state=active]:bg-rose-500/10 data-[state=active]:border-rose-500 data-[state=active]:text-rose-400 data-[state=active]:shadow-[0_0_20px_-5px_color-mix(in_srgb,var(--danger)_30%,transparent)]",
+    Other: "hover:bg-amber-500/10 hover:border-amber-500/50 text-amber-400/50 hover:text-amber-400 data-[state=active]:bg-amber-500/10 data-[state=active]:border-amber-500 data-[state=active]:text-amber-400 data-[state=active]:shadow-[0_0_20px_-5px_color-mix(in_srgb,var(--warning)_30%,transparent)]",
 };
 
 interface Props {
@@ -34,8 +34,8 @@ export default function CreateTestLevelGrid({ selectedLevel, setSelectedLevel, c
         <div>
             <FadeIn delay={0.3} className="opacity-100">
                 <div className="flex items-center gap-3 mb-6">
-                    <div className="w-10 h-10 rounded-xl bg-[#1B253B] border border-white/5 flex items-center justify-center text-xs font-mono text-[#7C8FFF] shadow-lg">02</div>
-                    <h2 className="text-xl font-medium font-display text-white">Determine Grade</h2>
+                    <div className="w-10 h-10 rounded-xl bg-muted border border-border flex items-center justify-center text-xs font-mono text-primary shadow-lg">02</div>
+                    <h2 className="text-xl font-medium font-display text-foreground">Determine Grade</h2>
                 </div>
 
                 <StaggerContainer className="flex flex-col gap-3">
@@ -44,7 +44,7 @@ export default function CreateTestLevelGrid({ selectedLevel, setSelectedLevel, c
                             <div
                                 data-state={selectedLevel === level.name ? 'active' : 'inactive'}
                                 onClick={() => setSelectedLevel(level.name)}
-                                className={`group cursor-pointer p-5 rounded-2xl border border-white/5 bg-[#1B253B]/40 backdrop-blur-sm transition-all duration-300 flex items-center justify-between ${levelThemeMap[level.name]}`}
+                                className={`group cursor-pointer p-5 rounded-2xl border border-border bg-muted/40 backdrop-blur-sm transition-all duration-300 flex items-center justify-between ${levelThemeMap[level.name]}`}
                             >
                                 <div>
                                     <div className="text-lg font-medium font-display mb-1">{level.name}</div>
@@ -54,9 +54,9 @@ export default function CreateTestLevelGrid({ selectedLevel, setSelectedLevel, c
                                     </div>
                                 </div>
                                 <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-colors
-                                    ${selectedLevel === level.name ? 'border-current bg-current' : 'border-[#8B99B0]/15 group-hover:border-current'}
+                                    ${selectedLevel === level.name ? 'border-current bg-current' : 'border-border/15 group-hover:border-current'}
                                 `}>
-                                    {selectedLevel === level.name && <div className="w-2 h-2 rounded-full bg-[#1B253B]" />}
+                                    {selectedLevel === level.name && <div className="w-2 h-2 rounded-full bg-muted" />}
                                 </div>
                             </div>
                         </StaggerItem>
@@ -70,7 +70,7 @@ export default function CreateTestLevelGrid({ selectedLevel, setSelectedLevel, c
                             placeholder="E.g., Principal, Lead, Intern..."
                             value={customLevel}
                             onChange={(e) => setCustomLevel(e.target.value)}
-                            className="bg-[#1B253B]/40 border-white/5 text-[#ECF0F7] placeholder:text-[#5A6882] h-12 rounded-xl focus-visible:ring-[#7C8FFF]/30 font-mono text-sm backdrop-blur-md"
+                            className="bg-muted/40 border-border text-foreground placeholder:text-muted-foreground h-12 rounded-xl focus-visible:ring-primary/30 font-mono text-sm backdrop-blur-md"
                         />
                     </FadeIn>
                 )}

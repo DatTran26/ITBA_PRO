@@ -8,6 +8,8 @@ import PageContainer from "@/components/ui/page-container";
 import { SharedDashboardButton, SharedDashboardPageHeader } from "@/components/shares";
 import { Plus, Users, AlertTriangle, UserCheck, UserX, Briefcase, FolderKanban, Trash2, Tag } from "lucide-react";
 import KpiCardGrid from "@/components/crm/kpi-card-grid";
+import OverviewBand from "@/components/shares/overview-band";
+import { DonutStat, HBarList } from "@/components/charts";
 import FilterBar from "@/components/crm/filter-bar";
 import ViewSwitcher from "@/components/crm/view-switcher";
 import BulkActionBar from "@/components/crm/bulk-action-bar";
@@ -18,6 +20,7 @@ import PersonFormDialog from "@/components/management/person-form-dialog";
 import { PERSON_STATUSES } from "@/lib/crm/constants";
 import type { PersonListItem } from "@/app/dashboard/management-types";
 import type { KpiCardData, FilterOption } from "@/lib/crm/types";
+import { colorAt } from "@/components/charts";
 
 interface Props { persons: PersonListItem[] }
 
@@ -53,6 +56,27 @@ export default function PersonsListClient({ persons }: Props) {
     { label: "No Position", value: persons.filter((p) => !p.position_id).length, icon: UserX },
   ], [persons]);
 
+
+  /* Dải tổng quan: tất cả đều suy ra từ `persons` đã fetch, không thêm truy vấn. */
+  const byStatus = useMemo(() => Object.entries(PERSON_STATUSES).map(([key, meta], i) => ({
+    label: meta.label,
+    value: persons.filter((p) => p.status === key).length,
+    color: colorAt(i),
+  })).filter((s) => s.value > 0), [persons]);
+
+  const byGroup = useMemo(() => {
+    const counts = new Map<string, number>();
+    for (const p of persons) {
+      for (const g of p.group_names ?? []) counts.set(g, (counts.get(g) ?? 0) + 1);
+    }
+    return [...counts].map(([label, value]) => ({ label, value }));
+  }, [persons]);
+
+  const byType = useMemo(() => [
+    { label: "Ứng viên", value: persons.filter((p) => p.type === "candidate").length, color: "var(--primary)" },
+    { label: "Nhân viên", value: persons.filter((p) => p.type === "employee").length, color: "var(--success)" },
+  ], [persons]);
+
   /* Filter options */
   const statusOptions: FilterOption[] = Object.entries(PERSON_STATUSES).map(([k, v]) => ({ value: k, label: v.label }));
   const typeOptions: FilterOption[] = [{ value: "candidate", label: "Candidate" }, { value: "employee", label: "Employee" }];
@@ -68,7 +92,7 @@ export default function PersonsListClient({ persons }: Props) {
   ];
 
   return (
-    <div className="bg-transparent text-[#ECF0F7] pb-12">
+    <div className="bg-transparent text-foreground pb-12">
       <AppNavbar />
       <PageContainer>
         <PageBreadcrumb breadcrumbs={[{ label: "Dashboard", href: "/dashboard" }, { label: "Persons" }]} />
@@ -79,7 +103,7 @@ export default function PersonsListClient({ persons }: Props) {
           actions={(
             <SharedDashboardButton
               onClick={() => setDialogOpen(true)}
-              className="bg-[#7C8FFF] hover:bg-[#5B6CF0] text-white h-12 px-8 rounded-xl shadow-lg shadow-[#7C8FFF]/20 transition-all font-semibold gap-2 border-0"
+              className="bg-primary hover:bg-primary text-white h-12 px-8 rounded-xl shadow-lg shadow-primary/20 transition-all font-semibold gap-2 border-0"
               leadingIcon={<Plus className="h-5 w-5" />}
             >
               Add New Entry
@@ -89,7 +113,13 @@ export default function PersonsListClient({ persons }: Props) {
 
         <KpiCardGrid items={kpis} />
 
-        <div className="flex items-center justify-between gap-3 mt-6 mb-4">
+        <OverviewBand className="mt-6">
+          <DonutStat title="Theo trạng thái" slices={byStatus} centerLabel="Người" />
+          <DonutStat title="Ứng viên và nhân viên" slices={byType} centerLabel="Người" />
+          <HBarList title="Theo nhóm" items={byGroup} />
+        </OverviewBand>
+
+        <div className="flex items-center justify-between gap-3 mb-4">
           <FilterBar
             search={search}
             onSearchChange={setSearch}

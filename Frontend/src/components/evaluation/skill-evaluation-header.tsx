@@ -25,10 +25,10 @@ export default function SkillEvaluationHeader({ positionName, items, isSaving, o
     return (
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-4">
             <div>
-                <h3 className="text-lg font-display font-medium text-[#ECF0F7]">
+                <h3 className="text-lg font-display font-medium text-foreground">
                     Skill Evaluation
                 </h3>
-                <p className="text-xs text-[#5A6882] mt-0.5">Position: {positionName}</p>
+                <p className="text-xs text-muted-foreground mt-0.5">Position: {positionName}</p>
             </div>
 
             <div className="flex items-center gap-2 flex-wrap">
@@ -40,7 +40,7 @@ export default function SkillEvaluationHeader({ positionName, items, isSaving, o
                         {mandatoryRemaining} Required Remaining
                     </Badge>
                 )}
-                <Badge variant="outline" className="text-[#8B99B0] border-[#8B99B0]/20">
+                <Badge variant="outline" className="text-muted-foreground border-border/20">
                     {completionPct}% Evaluated
                 </Badge>
 
@@ -48,7 +48,7 @@ export default function SkillEvaluationHeader({ positionName, items, isSaving, o
                     size="sm"
                     disabled={!hasDirty || isSaving}
                     onClick={onSave}
-                    className="bg-[#5B6CF0] hover:bg-[#5B6CF0]/80 text-white h-8 px-4 rounded-lg cursor-pointer disabled:opacity-40"
+                    className="bg-primary hover:bg-primary/80 text-white h-8 px-4 rounded-lg cursor-pointer disabled:opacity-40"
                 >
                     {isSaving ? <Loader2 className="w-3.5 h-3.5 animate-spin mr-1.5" /> : <Save className="w-3.5 h-3.5 mr-1.5" />}
                     Save All

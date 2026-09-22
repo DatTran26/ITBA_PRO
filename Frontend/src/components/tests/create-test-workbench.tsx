@@ -477,7 +477,7 @@ export function CreateTestWorkbench({ embedded = false, onCreated }: { embedded?
                                 setBankStep("config");
                                 setIsConstraintsOpen(true);
                             }}
-                            className="bg-[#10B981]/15 border border-[#10B981]/35 text-[#10B981] hover:bg-[#10B981]/25 rounded-xl h-9 px-4 gap-2"
+                            className="bg-success/15 border border-border/35 text-success hover:bg-success/25 rounded-xl h-9 px-4 gap-2"
                         >
                             <Database className="w-4 h-4" />
                             Question Bank
@@ -488,7 +488,7 @@ export function CreateTestWorkbench({ embedded = false, onCreated }: { embedded?
                                 setQuestionSource("skills");
                                 setTargetType("employee");
                             }}
-                            className="bg-[#7C8FFF]/15 border border-[#7C8FFF]/35 text-[#9BABFF] hover:bg-[#7C8FFF]/25 rounded-xl h-9 px-4 gap-2"
+                            className="bg-primary/15 border border-border/35 text-primary hover:bg-primary/25 rounded-xl h-9 px-4 gap-2"
                         >
                             <Database className="w-4 h-4" />
                             From Skills
@@ -497,12 +497,12 @@ export function CreateTestWorkbench({ embedded = false, onCreated }: { embedded?
                 </div>
             )}
                 <FadeIn className="text-center mb-12">
-                    <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#7C8FFF]/10 text-[#7C8FFF] text-xs font-semibold uppercase tracking-wider border border-[#7C8FFF]/20 mb-6">
+                    <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 text-primary text-xs font-semibold uppercase tracking-wider border border-border/20 mb-6">
                         <Bot className="w-3.5 h-3.5" />
                         Deployment Configuration
                     </div>
-                    <h1 className="text-4xl md:text-5xl font-extralight font-display text-white mb-4 tracking-tight">Target Parameters</h1>
-                    <p className="text-[#8B99B0] font-light max-w-lg mx-auto text-base leading-relaxed">Define the objective constraints. Our AI engine will synthesize an origin-specific 10-question evaluation matrix.</p>
+                    <h1 className="text-4xl md:text-5xl font-extralight font-display text-foreground mb-4 tracking-tight">Target Parameters</h1>
+                    <p className="text-muted-foreground font-light max-w-lg mx-auto text-base leading-relaxed">Define the objective constraints. Our AI engine will synthesize an origin-specific 10-question evaluation matrix.</p>
                 </FadeIn>
 
                 <div className="grid grid-cols-1 xl:grid-cols-[4fr_1px_8fr] gap-12 xl:gap-16 relative">
@@ -548,35 +548,35 @@ export function CreateTestWorkbench({ embedded = false, onCreated }: { embedded?
                 <AnimatePresence>
                     {(isReady || questionSource === 'bank') && (
                         <FadeIn delay={0.1} className="mt-16 max-w-3xl mx-auto">
-                            <Card className="border-[#7C8FFF]/30 bg-[#1B253B]/40 backdrop-blur-2xl overflow-hidden relative shadow-2xl rounded-3xl">
-                                <div className="absolute inset-0 bg-gradient-to-br from-[#7C8FFF]/5 via-transparent to-transparent pointer-events-none" />
+                            <Card className="border-border/30 bg-muted/40 backdrop-blur-2xl overflow-hidden relative shadow-2xl rounded-3xl">
+                                <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent pointer-events-none" />
                                 <CardContent className="p-10 relative z-10">
 
                             <div className="flex flex-col md:flex-row items-center justify-between gap-8">
                                 <div className="flex-1 text-center md:text-left">
-                                    <Label className="text-[#7C8FFF]/60 text-xs font-mono uppercase tracking-wider mb-2 block">Synthesis Target</Label>
-                                    <div className="text-2xl text-[#ECF0F7] font-light font-display line-clamp-2">
+                                    <Label className="text-primary/60 text-xs font-mono uppercase tracking-wider mb-2 block">Synthesis Target</Label>
+                                    <div className="text-2xl text-foreground font-light font-display line-clamp-2">
                                         {testTitle || (questionSource === 'bank' ? `${displayLevel || 'Junior'} Question Bank Test` : `${displayLevel} ${displayRole}`)}
                                     </div>
                                     {testTitle && (
-                                        <div className="text-sm text-[#8B99B0] mt-1.5 flex items-center gap-2">
-                                            <span className="border border-[#8B99B0]/20 text-[#8B99B0] bg-transparent text-xs font-medium px-2.5 py-0.5 rounded-full uppercase tracking-wider">
+                                        <div className="text-sm text-muted-foreground mt-1.5 flex items-center gap-2">
+                                            <span className="border border-border/20 text-muted-foreground bg-transparent text-xs font-medium px-2.5 py-0.5 rounded-full uppercase tracking-wider">
                                                 {questionSource === 'bank' ? 'Question Bank • Employee' : `${displayLevel} ${displayRole}`}
                                             </span>
                                         </div>
                                     )}
-                                    <div className="flex flex-wrap items-center justify-center md:justify-start gap-x-4 gap-y-2 mt-4 text-sm text-[#8B99B0]">
+                                    <div className="flex flex-wrap items-center justify-center md:justify-start gap-x-4 gap-y-2 mt-4 text-sm text-muted-foreground">
                                         <span className="flex items-center gap-1.5">{questionSource === 'bank' ? <Database className="w-4 h-4" /> : <Brain className="w-4 h-4" />} {questionSource === 'bank' ? 'Question Bank Pool' : 'Neural Draft Matrix'}</span>
-                                        <span className="hidden sm:block w-1 h-1 rounded-full bg-white/20" />
+                                        <span className="hidden sm:block w-1 h-1 rounded-full bg-muted" />
                                         <span className="font-mono flex items-center gap-1"><Zap className="w-3.5 h-3.5" /> {questionCount} Questions</span>
-                                        <span className="hidden sm:block w-1 h-1 rounded-full bg-white/20" />
+                                        <span className="hidden sm:block w-1 h-1 rounded-full bg-muted" />
                                         <span className="font-mono">T-{String(timeLimit).padStart(2, '0')}:00 TIMELIMIT</span>
                                     </div>
                                 </div>
                                 <Button
                                     onClick={() => questionSource === 'bank' ? handlePullFromBank(levelConfig ?? buildBankLevelConfig()) : handleCreate()}
                                     disabled={questionSource === 'bank' ? (!isSumValid || isPulling) : ((!selectedRole) || (selectedRole === 'Other' && !customRole) || (!selectedLevel) || (selectedLevel === 'Other' && !customLevel) || isCreating)}
-                                    className="bg-white text-black hover:bg-[#F2F4F7] rounded-2xl h-14 px-10 text-base font-semibold shadow-[0_0_30px_rgba(255,255,255,0.2)] hover:shadow-[0_0_50px_rgba(255,255,255,0.4)] transition-all duration-300 gap-3 overflow-hidden relative group w-full md:w-auto shrink-0 border-none"
+                                    className="bg-white text-black hover:bg-foreground rounded-2xl h-14 px-10 text-base font-semibold shadow-[0_0_30px_rgba(255,255,255,0.2)] hover:shadow-[0_0_50px_rgba(255,255,255,0.4)] transition-all duration-300 gap-3 overflow-hidden relative group w-full md:w-auto shrink-0 border-none"
                                 >
                                     <div className="absolute inset-0 bg-gradient-to-r from-indigo-500/0 via-indigo-500/10 to-indigo-500/0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
                                     {isCreating || isPulling ? (
@@ -607,7 +607,7 @@ export function CreateTestWorkbench({ embedded = false, onCreated }: { embedded?
                             )}
 
                             {(questionSource === 'ai' || questionSource === 'bank') && (
-                            <div className="mt-8 pt-6 border-t border-[#7C8FFF]/10 flex items-center justify-between">
+                            <div className="mt-8 pt-6 border-t border-border/10 flex items-center justify-between">
                                 {/* Notification Toggle */}
                                 <div className={`flex items-center gap-3 ${questionSource === 'bank' ? 'opacity-0 pointer-events-none' : ''}`}>
                                     <button
@@ -615,40 +615,40 @@ export function CreateTestWorkbench({ embedded = false, onCreated }: { embedded?
                                         role="switch"
                                         aria-checked={notifyOnCreated}
                                         onClick={() => setNotifyOnCreated(!notifyOnCreated)}
-                                        className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:ring-offset-2 focus-visible:ring-offset-[#1B253B] ${notifyOnCreated ? "bg-white" : "bg-[#222C4A]"}`}
+                                        className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--muted)] ${notifyOnCreated ? "bg-white" : "bg-accent"}`}
                                     >
                                         <span
-                                            className={`pointer-events-none inline-block h-5 w-5 transform rounded-full shadow-lg ring-0 transition-transform duration-200 ${notifyOnCreated ? "translate-x-5 bg-[#1B253B]" : "translate-x-0 bg-white"}`}
+                                            className={`pointer-events-none inline-block h-5 w-5 transform rounded-full shadow-lg ring-0 transition-transform duration-200 ${notifyOnCreated ? "translate-x-5 bg-muted" : "translate-x-0 bg-white"}`}
                                         />
                                     </button>
                                     <div className="flex flex-col">
-                                        <span className="text-xs text-[#8B99B0] flex items-center gap-1.5">
+                                        <span className="text-xs text-muted-foreground flex items-center gap-1.5">
                                             <Bell className="w-3 h-3" />
                                             Notification when the questionnaire is created
                                         </span>
-                                        <span className={`text-[10px] mt-0.5 ${notifyOnCreated ? "text-[#7C8FFF]" : "text-[#5A6882]"}`}>
+                                        <span className={`text-[10px] mt-0.5 ${notifyOnCreated ? "text-primary" : "text-muted-foreground"}`}>
                                             {notifyOnCreated ? "Active" : "Inactive"}
                                         </span>
                                     </div>
                                 </div>
                                 <Dialog open={isConstraintsOpen} onOpenChange={setIsConstraintsOpen}>
                                     <DialogTrigger asChild>
-                                        <Button variant="outline" className="bg-transparent border-[#7C8FFF]/30 text-[#7C8FFF] hover:bg-[#7C8FFF]/10 rounded-2xl px-6 h-12 transition-all cursor-pointer">
+                                        <Button variant="outline" className="bg-transparent border-border/30 text-primary hover:bg-primary/10 rounded-2xl px-6 h-12 transition-all cursor-pointer">
                                             <Settings className="w-4 h-4 mr-2" />
                                             Test Constraints & Settings
                                         </Button>
                                     </DialogTrigger>
-                                    <DialogContent className="!max-w-[95vw] md:!max-w-[850px] lg:!max-w-[960px] w-full max-h-[88vh] bg-[#0F1626]/95 border border-white/10 text-[#ECF0F7] rounded-[1.5rem] shadow-2xl p-0 overflow-hidden backdrop-blur-3xl">
-                                        <DialogHeader className="px-6 pt-6 pb-4 border-b border-white/5 bg-[#172136]/30">
+                                    <DialogContent className="!max-w-[95vw] md:!max-w-[850px] lg:!max-w-[960px] w-full max-h-[88vh] bg-background/95 border border-border text-foreground rounded-[1.5rem] shadow-2xl p-0 overflow-hidden backdrop-blur-3xl">
+                                        <DialogHeader className="px-6 pt-6 pb-4 border-b border-border bg-card/30">
                                             <div className="flex items-center justify-between">
-                                                <DialogTitle className="text-xl font-display font-medium text-white">Test Constraints & Design</DialogTitle>
+                                                <DialogTitle className="text-xl font-display font-medium text-foreground">Test Constraints & Design</DialogTitle>
                                                 <div className="flex items-center gap-2">
                                                     {questionSource === 'bank' && (
                                                         <Button
                                                             type="button"
                                                             variant="outline"
                                                             onClick={() => { setQuestionSource('ai'); setBankStep('config'); setIsConstraintsOpen(false); }}
-                                                            className="h-7 rounded-full border-[#7C8FFF]/25 bg-[#7C8FFF]/10 px-3 text-[10px] font-bold uppercase tracking-wider text-[#9BABFF] hover:bg-[#7C8FFF]/20 hover:text-white"
+                                                            className="h-7 rounded-full border-border/25 bg-primary/10 px-3 text-[10px] font-bold uppercase tracking-wider text-primary hover:bg-primary/20 hover:text-white"
                                                         >
                                                             Back to AI Generate
                                                         </Button>
@@ -668,7 +668,7 @@ export function CreateTestWorkbench({ embedded = false, onCreated }: { embedded?
                                                     )}
                                                 </div>
                                             </div>
-                                            <DialogDescription className="text-[#5A6882] text-[13px] mt-1.5">
+                                            <DialogDescription className="text-muted-foreground text-[13px] mt-1.5">
                                                 Configure structural boundaries, timings, and intelligence constraints for generation.
                                             </DialogDescription>
                                         </DialogHeader>
@@ -677,7 +677,7 @@ export function CreateTestWorkbench({ embedded = false, onCreated }: { embedded?
                                             {/* Left Column: Settings */}
                                             <div className="p-6 space-y-6 bg-transparent overflow-y-auto custom-scrollbar">
                                                 <div>
-                                                    <h3 className="text-[10px] font-bold text-[#7C8FFF] uppercase tracking-widest mb-3 flex items-center gap-2">
+                                                    <h3 className="text-[10px] font-bold text-primary uppercase tracking-widest mb-3 flex items-center gap-2">
                                                         Assessment Target
                                                     </h3>
                                                     <div className="space-y-3">
@@ -703,23 +703,23 @@ export function CreateTestWorkbench({ embedded = false, onCreated }: { embedded?
                                                 </div>
 
                                                 <div>
-                                                    <h3 className="text-[10px] font-bold text-[#7C8FFF] uppercase tracking-widest mb-3 flex items-center gap-2">
+                                                    <h3 className="text-[10px] font-bold text-primary uppercase tracking-widest mb-3 flex items-center gap-2">
                                                         Temporal & Boundary
                                                     </h3>
                                                     <div className="space-y-3">
                                                         <div className="space-y-1.5">
-                                                            <Label className="text-[10px] font-medium text-[#5A6882] uppercase tracking-wide ml-1">Manual Title</Label>
+                                                            <Label className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide ml-1">Manual Title</Label>
                                                             <Input
                                                                 type="text"
                                                                 value={testTitle}
                                                                 onChange={(e) => setTestTitle(e.target.value)}
                                                                 placeholder="Optional display name override..."
-                                                                className="bg-black/30 border-white/5 h-10 rounded-xl text-white placeholder:text-[#5A6882] focus-visible:ring-[#7C8FFF]/30 text-xs"
+                                                                className="bg-black/30 border-border h-10 rounded-xl text-foreground placeholder:text-muted-foreground focus-visible:ring-primary/30 text-xs"
                                                             />
                                                         </div>
                                                         <div className="grid grid-cols-3 gap-3">
                                                             <div className="space-y-1.5">
-                                                                <Label className="text-[10px] font-medium text-[#5A6882] uppercase tracking-wide ml-1">Question<span className="text-rose-500 text-base font-black ml-1 leading-none">*</span></Label>
+                                                                <Label className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide ml-1">Question<span className="text-rose-500 text-base font-black ml-1 leading-none">*</span></Label>
                                                                 <Input
                                                                     type="text"
                                                                     inputMode="numeric"
@@ -737,10 +737,10 @@ export function CreateTestWorkbench({ embedded = false, onCreated }: { embedded?
                                                                         setQuestionCountInput(String(clamped));
                                                                         handleQuestionCountChange(clamped);
                                                                     }}
-                                                                    className="bg-black/30 border-white/5 h-10 rounded-xl text-white focus-visible:ring-[#7C8FFF]/30 text-xs text-center font-mono" />
+                                                                    className="bg-black/30 border-border h-10 rounded-xl text-foreground focus-visible:ring-primary/30 text-xs text-center font-mono" />
                                                             </div>
                                                             <div className="space-y-1.5">
-                                                                <Label className="text-[10px] font-medium text-[#5A6882] uppercase tracking-wide ml-1">Time (m)<span className="text-rose-500 text-base font-black ml-1 leading-none">*</span></Label>
+                                                                <Label className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide ml-1">Time (m)<span className="text-rose-500 text-base font-black ml-1 leading-none">*</span></Label>
                                                                 <Input
                                                                     type="text"
                                                                     inputMode="numeric"
@@ -757,10 +757,10 @@ export function CreateTestWorkbench({ embedded = false, onCreated }: { embedded?
                                                                         setTimeLimit(clamped);
                                                                         setTimeLimitInput(String(clamped));
                                                                     }}
-                                                                    className="bg-black/30 border-white/5 h-10 rounded-xl text-white focus-visible:ring-[#7C8FFF]/30 text-xs text-center font-mono" />
+                                                                    className="bg-black/30 border-border h-10 rounded-xl text-foreground focus-visible:ring-primary/30 text-xs text-center font-mono" />
                                                             </div>
                                                             <div className="space-y-1.5">
-                                                                <Label className="text-[10px] font-medium text-[#5A6882] uppercase tracking-wide ml-1">Participants<span className="text-rose-500 text-base font-black ml-1 leading-none">*</span></Label>
+                                                                <Label className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide ml-1">Participants<span className="text-rose-500 text-base font-black ml-1 leading-none">*</span></Label>
                                                                 <Input
                                                                     type="text"
                                                                     inputMode="numeric"
@@ -774,41 +774,41 @@ export function CreateTestWorkbench({ embedded = false, onCreated }: { embedded?
                                                                         const clamped = isNaN(num) || num < 1 ? 1 : num;
                                                                         setMaxParticipants(String(clamped));
                                                                     }}
-                                                                    className="bg-black/30 border-white/5 h-10 rounded-xl text-white focus-visible:ring-[#7C8FFF]/30 text-xs text-center font-mono" />
+                                                                    className="bg-black/30 border-border h-10 rounded-xl text-foreground focus-visible:ring-primary/30 text-xs text-center font-mono" />
                                                             </div>
                                                         </div>
 
                                                         <div className="grid grid-cols-2 gap-3">
                                                             <div className="space-y-1.5">
-                                                                <Label className="text-[10px] font-medium text-[#5A6882] uppercase tracking-wide ml-1">Start Day</Label>
+                                                                <Label className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide ml-1">Start Day</Label>
                                                                 <Input type="datetime-local"
                                                                     value={startTime}
                                                                     onChange={(e) => setStartTime(e.target.value)}
-                                                                    className="bg-black/30 border-white/5 h-10 rounded-xl text-white text-[11px] [&::-webkit-calendar-picker-indicator]:invert px-2.5 focus-visible:ring-[#7C8FFF]/30 cursor-pointer font-mono" />
+                                                                    className="bg-black/30 border-border h-10 rounded-xl text-foreground text-[11px] [&::-webkit-calendar-picker-indicator]:invert px-2.5 focus-visible:ring-primary/30 cursor-pointer font-mono" />
                                                             </div>
                                                             <div className="space-y-1.5">
-                                                                <Label className="text-[10px] font-medium text-[#5A6882] uppercase tracking-wide ml-1">Expired Day</Label>
+                                                                <Label className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide ml-1">Expired Day</Label>
                                                                 <Input type="datetime-local"
                                                                     value={expiresAt}
                                                                     onChange={(e) => setExpiresAt(e.target.value)}
-                                                                    className="bg-black/30 border-white/5 h-10 rounded-xl text-white text-[11px] [&::-webkit-calendar-picker-indicator]:invert px-2.5 focus-visible:ring-[#7C8FFF]/30 cursor-pointer font-mono" />
+                                                                    className="bg-black/30 border-border h-10 rounded-xl text-foreground text-[11px] [&::-webkit-calendar-picker-indicator]:invert px-2.5 focus-visible:ring-primary/30 cursor-pointer font-mono" />
                                                             </div>
                                                         </div>
 
                                                         <div className="space-y-1.5">
-                                                            <Label className="text-[10px] font-medium text-[#5A6882] uppercase tracking-wide ml-1">Core Instruction</Label>
+                                                            <Label className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide ml-1">Core Instruction</Label>
                                                             <div className="relative">
                                                                 <Textarea
                                                                     value={testDescription}
                                                                     onChange={(e) => setTestDescription(e.target.value)}
                                                                     placeholder="E.g. Focus on logical thinking..."
-                                                                    className="bg-black/30 border-white/5 min-h-[60px] max-h-[80px] overflow-y-auto rounded-xl text-white placeholder:text-[#5A6882] resize-none text-[12px] pr-10 focus-visible:ring-[#7C8FFF]/30 custom-scrollbar" />
+                                                                    className="bg-black/30 border-border min-h-[60px] max-h-[80px] overflow-y-auto rounded-xl text-foreground placeholder:text-muted-foreground resize-none text-[12px] pr-10 focus-visible:ring-primary/30 custom-scrollbar" />
                                                                 {testDescription.trim().length > 0 && (
                                                                     <button
                                                                         type="button"
                                                                         onClick={handleEnhanceInstruction}
                                                                         disabled={isEnhancingInstruction}
-                                                                        className="absolute bottom-1.5 right-1.5 h-6 px-2 flex items-center justify-center gap-1.5 rounded-lg bg-[#7C8FFF]/20 hover:bg-[#7C8FFF]/40 text-[#9BABFF] transition-all"
+                                                                        className="absolute bottom-1.5 right-1.5 h-6 px-2 flex items-center justify-center gap-1.5 rounded-lg bg-primary/20 hover:bg-primary/40 text-primary transition-all"
                                                                         title="Enhance with AI"
                                                                     >
                                                                         {isEnhancingInstruction ? (
@@ -830,8 +830,8 @@ export function CreateTestWorkbench({ embedded = false, onCreated }: { embedded?
                                                 </div>
 
                                                 {questionSource === 'bank' && (
-                                                    <div className="pt-6 mt-2 border-t border-white/5">
-                                                        <h3 className="text-[10px] font-bold text-[#7C8FFF] uppercase tracking-widest mb-3 flex items-center gap-2">
+                                                    <div className="pt-6 mt-2 border-t border-border">
+                                                        <h3 className="text-[10px] font-bold text-primary uppercase tracking-widest mb-3 flex items-center gap-2">
                                                             Question Bank Pull Settings
                                                         </h3>
                                                         <LevelConfigStep
@@ -851,34 +851,34 @@ export function CreateTestWorkbench({ embedded = false, onCreated }: { embedded?
                                             {/* Right Column: Question Format Breakdown */}
                                             <div className="p-6 bg-black/40 flex flex-col h-full overflow-y-auto custom-scrollbar">
                                                 <div className="flex items-center justify-between mb-4">
-                                                    <h3 className="text-[10px] font-bold text-[#7C8FFF] uppercase tracking-widest">Format Weights</h3>
+                                                    <h3 className="text-[10px] font-bold text-primary uppercase tracking-widest">Format Weights</h3>
                                                     <div className={`px-3 py-1 rounded-full border inline-flex items-center gap-1.5 transition-all duration-500 ${isSumValid ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400' : 'bg-rose-500/10 border-rose-500/30 text-rose-400 animate-pulse'}`}>
-                                                        <div className={`w-1 h-1 rounded-full ${isSumValid ? 'bg-emerald-500' : 'bg-rose-500 shadow-[0_0_8px_rgba(244,63,94,0.8)]'}`} />
+                                                        <div className={`w-1 h-1 rounded-full ${isSumValid ? 'bg-emerald-500' : 'bg-rose-500 shadow-[0_0_8px_color-mix(in_srgb,var(--danger)_80%,transparent)]'}`} />
                                                         <span className="text-[9px] font-mono font-bold tracking-wider uppercase">Pool: {currentSum} / {questionCount}</span>
                                                     </div>
                                                 </div>
 
                                                 <div className="mb-4 space-y-3 shrink-0">
-                                                    <div className="flex bg-[#121A2E]/50 p-1 rounded-xl gap-1 border border-white/5">
+                                                    <div className="flex bg-background/50 p-1 rounded-xl gap-1 border border-border">
                                                         {presetsList.map(p => (
                                                             <button
                                                                 key={p.id}
                                                                 onClick={() => handleApplyPreset(p.id)}
-                                                                className={`flex-1 text-[9px] font-bold py-1.5 rounded-lg transition-all duration-300 uppercase tracking-widest ${activePreset === p.id ? 'bg-[#5B6CF0] text-white shadow-md' : 'text-[#5A6882] hover:text-[#8B99B0] hover:bg-white/5'}`}
+                                                                className={`flex-1 text-[9px] font-bold py-1.5 rounded-lg transition-all duration-300 uppercase tracking-widest ${activePreset === p.id ? 'bg-primary text-white shadow-md' : 'text-muted-foreground hover:text-muted-foreground hover:bg-muted'}`}
                                                             >
                                                                 {p.name}
                                                             </button>
                                                         ))}
                                                     </div>
-                                                    <div className="text-[10px] text-[#8B99B0] bg-[#121A2E]/30 px-3 py-2 rounded-xl border border-white/5 leading-relaxed min-h-[40px] flex items-center justify-center text-center italic">
+                                                    <div className="text-[10px] text-muted-foreground bg-background/30 px-3 py-2 rounded-xl border border-border leading-relaxed min-h-[40px] flex items-center justify-center text-center italic">
                                                         {activePreset !== "custom" ? presetsList.find(p => p.id === activePreset)?.description : "Custom setup active. Exact counts will be met."}
                                                     </div>
                                                 </div>
 
                                                 <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-x-3 gap-y-2">
                                                     {Object.entries(matrix).map(([formatKey, count]) => (
-                                                        <div key={formatKey} className="flex items-center justify-between group bg-[#121A2E]/40 hover:bg-[#1B253B]/60 p-1.5 pl-2.5 rounded-lg border border-white/5 hover:border-[#7C8FFF]/20 transition-all cursor-pointer">
-                                                            <Label className="text-[10px] font-medium text-[#8B99B0] group-hover:text-white transition-colors cursor-pointer w-full leading-tight pr-1" htmlFor={`matrix-${formatKey}`}>
+                                                        <div key={formatKey} className="flex items-center justify-between group bg-background/40 hover:bg-muted/60 p-1.5 pl-2.5 rounded-lg border border-border hover:border-border/20 transition-all cursor-pointer">
+                                                            <Label className="text-[10px] font-medium text-muted-foreground group-hover:text-foreground transition-colors cursor-pointer w-full leading-tight pr-1" htmlFor={`matrix-${formatKey}`}>
                                                                 {formatKey}
                                                             </Label>
                                                             <Input
@@ -892,7 +892,7 @@ export function CreateTestWorkbench({ embedded = false, onCreated }: { embedded?
                                                                     setMatrix(prev => ({ ...prev, [formatKey]: val }));
                                                                     setActivePreset("custom");
                                                                 }}
-                                                                className="w-10 h-6 bg-black/60 border-white/10 text-center text-[10px] p-0 focus-visible:ring-1 focus-visible:ring-[#7C8FFF]/50 shrink-0 rounded-md hover:border-[#7C8FFF]/30 transition-all font-mono"
+                                                                className="w-10 h-6 bg-black/60 border-border text-center text-[10px] p-0 focus-visible:ring-1 focus-visible:ring-primary/50 shrink-0 rounded-md hover:border-border/30 transition-all font-mono"
                                                             />
                                                         </div>
                                                     ))}
@@ -916,7 +916,7 @@ export function CreateTestWorkbench({ embedded = false, onCreated }: { embedded?
     );
 
     return (
-        <PageTransition className={`${isEmbed ? "h-full bg-[#101828] overflow-hidden rounded-xl" : "min-h-screen bg-transparent overflow-hidden"} text-[#ECF0F7] font-body selection:bg-[#5B6CF0]/30 relative`}>
+        <PageTransition className={`${isEmbed ? "h-full bg-background overflow-hidden rounded-xl" : "min-h-screen bg-transparent overflow-hidden"} text-foreground font-body selection:bg-primary/30 relative`}>
             {isEmbed ? <EmbeddedPremiumBackground /> : <PremiumBackground />}
 
             {!isEmbed && <AppNavbar />}
@@ -936,7 +936,7 @@ export function CreateTestWorkbench({ embedded = false, onCreated }: { embedded?
 
 function EmbeddedPremiumBackground() {
     return (
-        <div className="absolute inset-0 z-0 overflow-hidden bg-[#0A0F1E]">
+        <div className="absolute inset-0 z-0 overflow-hidden bg-background">
             <div
                 className="absolute inset-0 opacity-[0.04] pointer-events-none mix-blend-overlay"
                 style={{

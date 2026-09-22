@@ -13,9 +13,9 @@ const sharedDashboardButtonVariants = cva(
     variants: {
       variant: {
         default:
-          "border border-transparent bg-primary text-primary-foreground shadow-[0_8px_28px_rgba(91,108,240,0.35)] hover:bg-primary/90",
+          "border border-transparent bg-primary text-primary-foreground shadow-[0_8px_28px_color-mix(in_srgb,var(--primary)_35%,transparent)] hover:bg-primary/90",
         primary:
-          "border border-transparent bg-primary text-primary-foreground shadow-[0_8px_28px_rgba(91,108,240,0.35)] hover:bg-primary/90",
+          "border border-transparent bg-primary text-primary-foreground shadow-[0_8px_28px_color-mix(in_srgb,var(--primary)_35%,transparent)] hover:bg-primary/90",
         outline:
           "border border-border bg-white/[0.04] text-foreground hover:bg-white/[0.08]",
         secondary:

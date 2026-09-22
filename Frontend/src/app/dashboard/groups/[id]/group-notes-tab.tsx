@@ -13,11 +13,11 @@ export default function GroupNotesTab({ entityId, activityLogs }: Props) {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
       <div>
-        <h3 className="text-xs font-semibold text-[#5A6882] uppercase tracking-wide mb-3">Notes</h3>
+        <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-3">Notes</h3>
         <NotesPanel entityType="group" entityId={entityId} />
       </div>
       <div>
-        <h3 className="text-xs font-semibold text-[#5A6882] uppercase tracking-wide mb-3">Activity</h3>
+        <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-3">Activity</h3>
         <ActivityTimeline items={activityLogs} />
       </div>
     </div>

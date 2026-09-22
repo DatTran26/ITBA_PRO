@@ -1,0 +1,473 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&amp;family=JetBrains+Mono:wght@500;600&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap">
+  <style>
+    body { margin: 0; background: #F6F8FB; color: #0F172A; font-family: "Plus Jakarta Sans", system-ui, -apple-system, "Segoe UI", sans-serif; font-size: 14px; line-height: 1.5; -webkit-font-smoothing: antialiased; }
+    a { color: #2F5BEA; text-decoration: none; }
+    a:hover { color: #2549C9; text-decoration: underline; }
+    .display { font-family: "Bricolage Grotesque", "Plus Jakarta Sans", system-ui, sans-serif; font-optical-sizing: auto; letter-spacing: -0.02em; }
+    .mono { font-family: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace; font-variant-numeric: tabular-nums; }
+    .dots { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24'%3E%3Ccircle cx='2' cy='2' r='1.2' fill='%23FFFFFF' fill-opacity='0.16'/%3E%3C/svg%3E"); }
+    button, input, textarea { font: inherit; color: inherit; }
+    button { cursor: pointer; }
+    .btn { transition: background-color 120ms cubic-bezier(.2,.8,.2,1), transform 120ms cubic-bezier(.2,.8,.2,1); }
+    .btn:active { transform: scale(.98); }
+    .btn-primary:hover { background: #2549C9 !important; }
+    .btn-quiet:hover { background: #F1F4F8 !important; }
+    .btn-white:hover { background: #EEF2FD !important; }
+    .btn-ink-quiet:hover { background: rgba(255,255,255,.1) !important; }
+    .nav:hover { background: rgba(255,255,255,.08); }
+    aside :focus-visible { outline-color: #FFFFFF; }
+    .part { transition: background-color 200ms cubic-bezier(.2,.8,.2,1); border-radius: 8px; }
+    .bar { transform-origin: left center; transition: transform 600ms cubic-bezier(.2,.8,.2,1); }
+    .fade { animation: fade 200ms cubic-bezier(.2,.8,.2,1) both; }
+    @keyframes fade { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+    .thread { fill: none; stroke-linecap: round; transition: stroke-dashoffset 600ms cubic-bezier(.2,.8,.2,1), opacity 200ms cubic-bezier(.2,.8,.2,1), stroke-width 200ms cubic-bezier(.2,.8,.2,1); }
+    .thread-dot { transition: opacity 200ms cubic-bezier(.2,.8,.2,1); }
+    .src { transition: background-color 200ms cubic-bezier(.2,.8,.2,1), box-shadow 200ms cubic-bezier(.2,.8,.2,1); border-radius: 4px; }
+    .field:focus { outline: 2px solid #2F5BEA; outline-offset: 1px; border-color: #2F5BEA !important; }
+    :focus-visible { outline: 2px solid #2F5BEA; outline-offset: 2px; }
+    input::placeholder, textarea::placeholder { color: #6B7485; }
+    @media (prefers-reduced-motion: reduce) { .bar, .part, .btn, .thread, .thread-dot, .src { transition: none; } .fade { animation: none; } }
+  </style>
+</helmet>
+<div style="display: flex; width: 1440px; height: 960px; background: #F6F8FB; overflow: hidden;">
+
+  <aside style="width: 248px; flex-shrink: 0; background: #2549C9; color: #FFFFFF; border-right: 1px solid rgba(255,255,255,.12); display: flex; flex-direction: column; padding: 16px 12px; gap: 20px; box-sizing: border-box;">
+    <div style="display: flex; align-items: center; gap: 10px; padding: 4px 8px;">
+      <div style="width: 28px; height: 28px; border-radius: 8px; background: #FFFFFF; color: #1B2F8F; display: flex; align-items: center; justify-content: center; font-weight: 700;">D</div>
+      <span class="display" style="font-size: 17px; font-weight: 700;">DownTown</span>
+    </div>
+    <div class="nav" style="display: flex; align-items: center; gap: 10px; height: 36px; padding: 0 10px; border-radius: 8px; color: #DCE3FA; font-weight: 500;">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"></path></svg>
+      <span>Tổng quan</span>
+    </div>
+    <div style="display: flex; flex-direction: column; gap: 2px;">
+      <div style="font-size: 12px; font-weight: 600; color: #DCE3FA; padding: 0 10px 4px;">Tuyển dụng</div>
+      <div class="nav" style="display: flex; align-items: center; gap: 10px; height: 36px; padding: 0 10px; border-radius: 8px; background: rgba(255,255,255,.14); color: #FFFFFF; font-weight: 600;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"></rect><path d="M9 3v18M15 3v18"></path></svg>
+        <span>Pipeline</span>
+      </div>
+      <div class="nav" style="display: flex; align-items: center; gap: 10px; height: 36px; padding: 0 10px; border-radius: 8px; color: #DCE3FA; font-weight: 500;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"></rect><path d="M3 10h18M8 3v4M16 3v4"></path></svg>
+        <span>Lịch phỏng vấn</span>
+      </div>
+    </div>
+  </aside>
+
+  <main style="flex: 1; display: flex; flex-direction: column; min-width: 0;">
+    <header class="dots" style="background-color: #1B2F8F; color: #FFFFFF; padding: 18px 32px 20px; display: flex; flex-direction: column; gap: 12px;">
+      <span style="font-size: 13px; color: #BFC5E0;">Tuyển dụng / Backend Engineer</span>
+      <div style="display: flex; justify-content: space-between; align-items: flex-end; gap: 24px;">
+        <div style="display: flex; flex-direction: column; gap: 4px;">
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <h1 class="display" style="margin: 0; font-size: 34px; font-weight: 700; line-height: 1.1; color: #FFFFFF;">Phạm Quốc Huy</h1>
+            <span style="display: inline-flex; align-items: center; height: 24px; padding: 0 10px; border-radius: 9999px; font-size: 12px; font-weight: 600; background: rgba(255,255,255,.14); color: #FFFFFF;">{{ statusLabel }}</span>
+          </div>
+          <span style="color: #BFC5E0;">Ứng tuyển ngày 15/09, nguồn: trang tuyển dụng công ty</span>
+        </div>
+        <div style="display: flex; gap: 8px;">
+          <button class="btn btn-ink-quiet" style="height: 40px; padding: 0 16px; border-radius: 8px; border: 1px solid rgba(255,255,255,.32); background: transparent; color: #FFFFFF; font-weight: 600;">Tải CV gốc</button>
+          <button class="btn btn-white" style="height: 40px; padding: 0 16px; border-radius: 8px; border: 0; background: #FFFFFF; color: #1B2F8F; font-weight: 600;">Hẹn phỏng vấn</button>
+        </div>
+      </div>
+      <ol aria-label="Hành trình hồ sơ" style="list-style: none; margin: 0; padding: 0; display: flex; align-items: center; gap: 10px; font-size: 13px;">
+        <sc-for list="{{ journey }}" as="j" hint-placeholder-count="4">
+          <li style="display: flex; align-items: center; gap: 8px; color: {{ j.color }};">
+            <span style="width: 20px; height: 20px; border-radius: 9999px; border: 1.5px solid {{ j.ring }}; background: {{ j.fill }}; color: #1B2F8F; display: flex; align-items: center; justify-content: center; box-sizing: border-box;">
+              <sc-if value="{{ j.done }}" hint-placeholder-val="{{ false }}">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-10"></path></svg>
+              </sc-if>
+            </span>
+            <span style="font-weight: {{ j.weight }};">{{ j.label }}</span>
+            <sc-if value="{{ j.notLast }}" hint-placeholder-val="{{ true }}">
+              <span style="width: 40px; height: 1.5px; background: rgba(255,255,255,.32);"></span>
+            </sc-if>
+          </li>
+        </sc-for>
+      </ol>
+    </header>
+
+    <div data-thread-root="cv" style="position: relative; flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(0, 1fr) 540px; gap: 72px; padding: 20px 32px 24px;">
+      <section style="background: #EEF1F5; border-radius: 12px; padding: 14px; display: flex; flex-direction: column; gap: 10px; min-height: 0;">
+        <div style="display: flex; justify-content: space-between; font-size: 13px;">
+          <span style="font-weight: 600; display: flex; align-items: center; gap: 8px;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#5B6577" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path><path d="M14 3v6h6"></path></svg>
+            CV_PhamQuocHuy.pdf
+          </span>
+          <span style="color: #5B6577;">Trang 1 trên 2</span>
+        </div>
+        <article data-thread-edge style="flex: 1; min-height: 0; background: #FFFFFF; border-radius: 8px; box-shadow: 0 1px 2px rgba(15,23,42,.05); display: grid; grid-template-columns: 168px minmax(0, 1fr); overflow: hidden; font-size: 12.5px; line-height: 1.55;">
+          <div style="background: #0F172A; color: #FFFFFF; padding: 20px 14px; display: flex; flex-direction: column; gap: 16px;">
+            <div style="width: 56px; height: 56px; border-radius: 9999px; background: #EEF1F5; color: #0F172A; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 16px;">PH</div>
+            <div style="display: flex; flex-direction: column; gap: 2px;">
+              <span style="font-size: 15px; font-weight: 700; line-height: 1.3;">Phạm Quốc Huy</span>
+              <span style="color: #C9D6FF;">Senior Backend Developer</span>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 3px; color: #BFC5E0; font-size: 11.5px;">
+              <span style="font-weight: 600; color: #FFFFFF; font-size: 12.5px;">Liên hệ</span>
+              <span style="word-break: break-all;">huy.pham.q@outlook.com</span>
+              <span>0912 408 317</span>
+              <span>Hà Nội</span>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 3px; color: #BFC5E0; align-items: flex-start;">
+              <span style="font-weight: 600; color: #FFFFFF;">Học vấn</span>
+              <span class="src" data-src="edu" style="padding: 1px 3px; background: {{ hlEdu }}; box-shadow: {{ ringEdu }};">Kỹ sư Công nghệ Thông tin, Đại học Bách khoa Hà Nội, 2018</span>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 3px; color: #BFC5E0;">
+              <span style="font-weight: 600; color: #FFFFFF;">Ngoại ngữ</span>
+              <span>Tiếng Anh, IELTS 7.0</span>
+            </div>
+          </div>
+          <div style="padding: 20px 18px; display: flex; flex-direction: column; gap: 14px; color: #0F172A;">
+            <div>
+              <div style="font-weight: 700; font-size: 13.5px;">Tóm tắt</div>
+              <p style="margin: 2px 0 0; color: #5B6577;">Lập trình viên backend 6 năm, làm hệ thống thanh toán và kho vận quy mô lớn.</p>
+            </div>
+            <div style="display: flex; flex-direction: column; align-items: flex-start;">
+              <div style="font-weight: 700; font-size: 13.5px;">Kỹ năng</div>
+              <span class="src" data-src="skill" style="margin-top: 2px; padding: 1px 3px; background: {{ hlSkill }}; box-shadow: {{ ringSkill }};">Node.js, TypeScript, PostgreSQL, Redis, RabbitMQ, Docker, Kubernetes cơ bản</span>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 4px; align-items: flex-start;">
+              <div style="font-weight: 700; font-size: 13.5px;">Kinh nghiệm</div>
+              <span style="font-weight: 600;">VNPay Labs, 2021 đến nay</span>
+              <span class="src" data-src="exp" style="padding: 1px 3px; background: {{ hlExp }}; box-shadow: {{ ringExp }};">Thiết kế lại dịch vụ đối soát bằng Node.js và PostgreSQL, 3 triệu giao dịch mỗi ngày.</span>
+              <span class="src" data-src="domain" style="padding: 1px 3px; background: {{ hlDomain }}; box-shadow: {{ ringDomain }};">Tích hợp cổng thanh toán với 14 ngân hàng nội địa.</span>
+              <span style="font-weight: 600; margin-top: 6px;">Hoà Bình Software, 2018 đến 2021</span>
+              <span style="color: #5B6577;">API quản lý kho cho chuỗi bán lẻ, thời gian phản hồi 180ms.</span>
+            </div>
+            <div style="display: flex; flex-direction: column; align-items: flex-start;">
+              <div style="font-weight: 700; font-size: 13.5px;">Hoạt động</div>
+              <span class="src" data-src="culture" style="margin-top: 2px; padding: 1px 3px; background: {{ hlCulture }}; box-shadow: {{ ringCulture }};">Mentor 4 lập trình viên mới, tổ chức buổi chia sẻ kỹ thuật hằng tháng.</span>
+            </div>
+          </div>
+        </article>
+      </section>
+
+      <section style="background: #FFFFFF; border: 1px solid #E3E8EF; border-radius: 12px; box-shadow: 0 1px 2px rgba(15,23,42,.05); display: flex; flex-direction: column; min-height: 0; overflow: hidden;">
+        <div style="height: 48px; flex-shrink: 0; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; border-bottom: 1px solid #E3E8EF;">
+          <span style="font-weight: 600; font-size: 13px;">Đối chiếu với JD Backend Engineer</span>
+          <span style="font-size: 13px; color: #5B6577;">Ngưỡng vị trí: <span class="mono" style="font-weight: 600; color: #0F172A;">70</span></span>
+        </div>
+
+        <div data-thread-scroll style="flex: 1; min-height: 0; overflow: auto; padding: 20px;">
+          <sc-if value="{{ isIdle }}" hint-placeholder-val="{{ true }}">
+            <div style="min-height: 480px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; text-align: center;">
+              <div style="width: 48px; height: 48px; border-radius: 12px; background: #EEF2FD; color: #2F5BEA; display: flex; align-items: center; justify-content: center;">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"></path></svg>
+              </div>
+              <h2 class="display" style="margin: 0; font-size: 22px; font-weight: 700;">Chưa phân tích hồ sơ này</h2>
+              <p style="margin: 0; color: #5B6577; max-width: 380px;">AI chấm theo 5 tiêu chí của JD và nối từng điểm về đúng đoạn trong CV. HR là người quyết định.</p>
+              <button class="btn btn-primary" onClick="{{ analyze }}" style="margin-top: 8px; height: 44px; padding: 0 20px; border-radius: 8px; border: 0; background: #2F5BEA; color: #FFFFFF; font-weight: 600; display: flex; align-items: center; gap: 8px;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"></path></svg>
+                Phân tích
+              </button>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ isLoading }}" hint-placeholder-val="{{ false }}">
+            <div role="status" style="display: flex; flex-direction: column; gap: 20px;">
+              <span style="color: #5B6577; font-weight: 500;">Đang đọc CV và đối chiếu JD…</span>
+              <div style="display: flex; gap: 16px; align-items: center;">
+                <div style="width: 96px; height: 64px; border-radius: 8px; background: #EEF1F5;"></div>
+                <div style="flex: 1; display: flex; flex-direction: column; gap: 8px;">
+                  <div style="width: 40%; height: 12px; border-radius: 9999px; background: #EEF1F5;"></div>
+                  <div style="width: 65%; height: 12px; border-radius: 9999px; background: #EEF1F5;"></div>
+                </div>
+              </div>
+              <div style="display: flex; flex-direction: column; gap: 12px;">
+                <div style="height: 36px; border-radius: 8px; background: #EEF1F5;"></div>
+                <div style="height: 36px; border-radius: 8px; background: #EEF1F5;"></div>
+                <div style="height: 36px; border-radius: 8px; background: #EEF1F5;"></div>
+                <div style="height: 36px; border-radius: 8px; background: #EEF1F5;"></div>
+                <div style="height: 36px; border-radius: 8px; background: #EEF1F5;"></div>
+              </div>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ isDone }}" hint-placeholder-val="{{ false }}">
+            <div style="display: flex; flex-direction: column; gap: 18px;">
+              <div style="display: flex; align-items: flex-end; justify-content: space-between; gap: 16px;">
+                <div style="display: flex; flex-direction: column; gap: 6px;">
+                  <span style="display: flex; align-items: center; gap: 8px; color: #2F5BEA; font-weight: 600; font-size: 13px;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"></path></svg>
+                    {{ scoreSource }}
+                  </span>
+                  <div style="display: flex; align-items: baseline; gap: 6px;">
+                    <span class="display" aria-live="polite" style="font-size: 72px; font-weight: 700; line-height: 1;">{{ scoreShown }}</span>
+                    <span class="display" style="font-size: 22px; font-weight: 600; color: #5B6577;">/100</span>
+                  </div>
+                </div>
+                <span style="display: inline-flex; align-items: center; height: 28px; padding: 0 12px; border-radius: 9999px; font-size: 13px; font-weight: 600; background: {{ gateBg }}; color: {{ gateFg }};">{{ gateLabel }}</span>
+              </div>
+              <sc-if value="{{ overridden }}" hint-placeholder-val="{{ false }}">
+                <span style="font-size: 13px; padding: 10px 12px; border-radius: 8px; background: #EEF2FD;">Điểm AI gốc 82. Lý do điều chỉnh: {{ reason }}</span>
+              </sc-if>
+
+              <div style="display: flex; flex-direction: column; gap: 2px;">
+                <span style="font-size: 12px; font-weight: 600; color: #5B6577; padding: 0 8px 4px;">Rê chuột vào từng tiêu chí để xem căn cứ trong CV</span>
+                <sc-for list="{{ parts }}" as="p" hint-placeholder-count="5">
+                  <div class="part" data-dst="{{ p.key }}" onMouseEnter="{{ p.enter }}" onMouseLeave="{{ leave }}" style="display: grid; grid-template-columns: 138px minmax(0, 1fr) 36px; gap: 12px; align-items: center; min-height: 44px; padding: 0 8px; background: {{ p.bg }};">
+                    <span style="font-weight: 500;">{{ p.label }}</span>
+                    <div style="height: 8px;">
+                      <div class="bar" style="width: {{ p.width }}; height: 8px; border-radius: 0 4px 4px 0; background: {{ p.barColor }}; transform: scaleX({{ p.scale }}); transition-delay: {{ p.delay }};"></div>
+                    </div>
+                    <span class="display" style="font-weight: 700; font-size: 18px; text-align: right;">{{ p.value }}</span>
+                  </div>
+                </sc-for>
+                <span style="font-size: 12px; color: #B45309; padding: 4px 8px 0;">Phù hợp văn hoá là tiêu chí chủ quan, người phỏng vấn cần đánh giá trực tiếp.</span>
+              </div>
+
+              <div style="display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 16px;">
+                <div style="display: flex; flex-direction: column; gap: 6px;">
+                  <span style="font-weight: 600; font-size: 13px;">Điểm mạnh</span>
+                  <ul style="margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 4px; font-size: 13px;">
+                    <li>6 năm backend với hệ thống giao dịch lớn</li>
+                    <li>Kinh nghiệm tích hợp ngân hàng khớp domain</li>
+                  </ul>
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 6px;">
+                  <span style="font-weight: 600; font-size: 13px; color: #B45309;">Còn thiếu so với JD</span>
+                  <ul style="margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 4px; font-size: 13px;">
+                    <li>Chưa thấy kinh nghiệm Go</li>
+                    <li>Không nêu kinh nghiệm Kafka</li>
+                  </ul>
+                </div>
+              </div>
+
+              <sc-if value="{{ editing }}" hint-placeholder-val="{{ false }}">
+                <div class="fade" style="border: 1px solid #E3E8EF; border-radius: 12px; padding: 16px; display: flex; flex-direction: column; gap: 14px;">
+                  <div style="display: flex; flex-direction: column; gap: 6px;">
+                    <label for="new-score" style="font-size: 13px; font-weight: 600;">Điểm sau điều chỉnh</label>
+                    <input id="new-score" class="field mono" type="number" min="0" max="100" value="{{ newScore }}" onChange="{{ onScore }}" style="width: 120px; height: 40px; padding: 0 12px; border: 1px solid #848FA1; border-radius: 8px; box-sizing: border-box; background: #FFFFFF;">
+                  </div>
+                  <div style="display: flex; flex-direction: column; gap: 6px;">
+                    <label for="reason" style="font-size: 13px; font-weight: 600;">Lý do điều chỉnh (bắt buộc)</label>
+                    <textarea id="reason" class="field" rows="3" value="{{ reason }}" onChange="{{ onReason }}" placeholder="Ví dụ: ứng viên có dự án Go cá nhân chưa ghi trong CV" style="padding: 10px 12px; border: 1px solid {{ reasonBorder }}; border-radius: 8px; resize: vertical; background: #FFFFFF;"></textarea>
+                    <sc-if value="{{ err }}" hint-placeholder-val="{{ false }}">
+                      <span style="font-size: 13px; color: #B91C1C;">Nhập lý do trước khi lưu. Lý do được ghi vào lịch sử hồ sơ.</span>
+                    </sc-if>
+                  </div>
+                  <div style="display: flex; gap: 8px; justify-content: flex-end;">
+                    <button class="btn btn-quiet" onClick="{{ cancelEdit }}" style="height: 36px; padding: 0 14px; border-radius: 8px; border: 1px solid #E3E8EF; background: #FFFFFF; font-weight: 600;">Huỷ</button>
+                    <button class="btn btn-primary" onClick="{{ saveEdit }}" style="height: 36px; padding: 0 14px; border-radius: 8px; border: 0; background: #2F5BEA; color: #FFFFFF; font-weight: 600;">Lưu điểm</button>
+                  </div>
+                </div>
+              </sc-if>
+            </div>
+          </sc-if>
+        </div>
+
+        <sc-if value="{{ showActions }}" hint-placeholder-val="{{ false }}">
+          <div style="border-top: 1px solid #E3E8EF; padding: 12px 20px; display: flex; justify-content: flex-end; gap: 8px;">
+            <button class="btn btn-quiet" onClick="{{ startEdit }}" style="height: 40px; padding: 0 16px; border-radius: 8px; border: 1px solid #E3E8EF; background: #FFFFFF; font-weight: 600;">Sửa điểm</button>
+            <button class="btn btn-primary" onClick="{{ confirm }}" style="height: 40px; padding: 0 16px; border-radius: 8px; border: 0; background: #2F5BEA; color: #FFFFFF; font-weight: 600;">Xác nhận đánh giá</button>
+          </div>
+        </sc-if>
+        <sc-if value="{{ confirmed }}" hint-placeholder-val="{{ false }}">
+          <div class="fade" style="border-top: 1px solid #E3E8EF; padding: 14px 20px; display: flex; align-items: center; gap: 8px; color: #15803D; font-weight: 500; font-size: 13px;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-10"></path></svg>
+            Trần Thị Mai đã xác nhận lúc 14:32, 15/09. Hồ sơ chuyển sang Đã sàng lọc.
+          </div>
+        </sc-if>
+      </section>
+
+      <svg aria-hidden="true" style="position: absolute; left: 0; top: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; z-index: 2;">
+        <sc-for list="{{ threads }}" as="t" hint-placeholder-count="0">
+          <path class="thread" d="{{ t.d }}" pathLength="1" style="stroke: {{ t.color }}; stroke-width: {{ t.width }}px; stroke-dasharray: {{ t.dash }}; stroke-dashoffset: {{ t.offset }}; opacity: {{ t.opacity }}; transition-delay: {{ t.delay }};"></path>
+          <circle class="thread-dot" cx="{{ t.x1 }}" cy="{{ t.y1 }}" r="3.5" style="fill: {{ t.color }}; opacity: {{ t.dotOpacity }};"></circle>
+          <circle class="thread-dot" cx="{{ t.x2 }}" cy="{{ t.y2 }}" r="3.5" style="fill: {{ t.color }}; opacity: {{ t.dotOpacity }};"></circle>
+        </sc-for>
+      </svg>
+    </div>
+  </main>
+</div>
+</x-dc>
+<script data-dc-script>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { geo: {}, phase: 'idle', shown: 0, grow: false, drawn: false, settled: false, editing: false, newScore: '82', reason: '', err: false, overridden: false, confirmed: false, hover: null };
+    this.timers = [];
+    this.raf = null;
+  }
+  componentDidMount() {
+    this.initThreads();
+  }
+  componentDidUpdate() {
+    if (this.onLayout) this.onLayout();
+  }
+  componentWillUnmount() {
+    this.timers.forEach((t) => clearTimeout(t));
+    cancelAnimationFrame(this.raf);
+    this.destroyThreads();
+  }
+  initThreads() {
+    this.onLayout = () => {
+      cancelAnimationFrame(this.layoutRaf);
+      this.layoutRaf = requestAnimationFrame(() => this.measureThreads());
+    };
+    if (window.ResizeObserver) {
+      this.ro = new ResizeObserver(this.onLayout);
+      document.querySelectorAll('[data-thread-root]').forEach((el) => this.ro.observe(el));
+    }
+    this.scrollers = Array.prototype.slice.call(document.querySelectorAll('[data-thread-scroll]'));
+    this.scrollers.forEach((el) => el.addEventListener('scroll', this.onLayout, { passive: true }));
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(this.onLayout);
+    this.onLayout();
+  }
+  destroyThreads() {
+    cancelAnimationFrame(this.layoutRaf);
+    if (this.ro) this.ro.disconnect();
+    (this.scrollers || []).forEach((el) => el.removeEventListener('scroll', this.onLayout));
+  }
+  measureThreads() {
+    const out = {};
+    document.querySelectorAll('[data-thread-root]').forEach((root) => {
+      const rr = root.getBoundingClientRect();
+      root.querySelectorAll('[data-src]').forEach((s) => {
+        const k = s.getAttribute('data-src');
+        const d = root.querySelector('[data-dst="' + k + '"]');
+        if (!d) return;
+        const a = s.getBoundingClientRect();
+        const b = d.getBoundingClientRect();
+        if (!a.width || !b.width) return;
+        const edge = s.closest('[data-thread-edge]');
+        const right = edge ? edge.getBoundingClientRect().right : a.right;
+        const x1 = Math.round(right - rr.left + 6);
+        const y1 = Math.round(a.top + a.height / 2 - rr.top);
+        const x2 = Math.round(b.left - rr.left - 6);
+        const y2 = Math.round(b.top + b.height / 2 - rr.top);
+        const bend = Math.max(32, Math.abs(x2 - x1) * 0.5);
+        out[k] = {
+          x1: x1, y1: y1, x2: x2, y2: y2, len: Math.hypot(x2 - x1, y2 - y1) * 1.15 + 1,
+          d: 'M' + x1 + ' ' + y1 + ' C' + (x1 + bend) + ' ' + y1 + ' ' + (x2 - bend) + ' ' + y2 + ' ' + x2 + ' ' + y2
+        };
+      });
+    });
+    if (JSON.stringify(out) !== JSON.stringify(this.state.geo || {})) this.setState({ geo: out });
+  }
+  thread(key, opt) {
+    const g = (this.state.geo || {})[key];
+    if (!g) return null;
+    const drawn = !!opt.drawn;
+    const warn = !!opt.warn;
+    const unit = (5 / g.len).toFixed(4);
+    return {
+      d: g.d, x1: g.x1, y1: g.y1, x2: g.x2, y2: g.y2,
+      color: warn ? opt.warnColor : opt.color,
+      width: opt.active ? '2.5' : '1.5',
+      dash: warn && drawn ? unit + ' ' + unit : '1 1',
+      offset: drawn ? '0' : '1',
+      opacity: opt.dim ? '0.25' : '1',
+      delay: drawn && !opt.settled ? ((opt.index || 0) * 120) + 'ms' : '0ms',
+      dotOpacity: drawn ? (opt.dim ? '0.25' : '1') : '0'
+    };
+  }
+  runAnalysis() {
+    const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduce) { this.setState({ phase: 'done', shown: 82, grow: true, drawn: true, settled: true }); return; }
+    this.setState({ phase: 'analyzing' });
+    this.timers.push(setTimeout(() => {
+      this.setState({ phase: 'done', shown: 0, grow: false });
+      this.raf = requestAnimationFrame(() => {
+        this.setState({ grow: true });
+        const t0 = performance.now();
+        const tick = (now) => {
+          const k = Math.min(1, (now - t0) / 600);
+          const eased = 1 - Math.pow(1 - k, 3);
+          this.setState({ shown: Math.round(82 * eased) });
+          if (k < 1) this.raf = requestAnimationFrame(tick);
+        };
+        this.raf = requestAnimationFrame(tick);
+      });
+      this.timers.push(setTimeout(() => this.setState({ drawn: true }), 320));
+      this.timers.push(setTimeout(() => this.setState({ settled: true }), 320 + 600 + 5 * 120));
+    }, 900));
+  }
+  renderVals() {
+    const s = this.state;
+    const done = s.phase === 'done';
+    const partsData = [
+      { key: 'skill', label: 'Kỹ năng', value: 84 },
+      { key: 'exp', label: 'Kinh nghiệm', value: 88 },
+      { key: 'domain', label: 'Lĩnh vực', value: 90 },
+      { key: 'edu', label: 'Học vấn', value: 70 },
+      { key: 'culture', label: 'Phù hợp văn hoá', value: 72 }
+    ];
+    const warnKey = (k) => k === 'culture' && !s.confirmed;
+    const hl = (k) => {
+      if (!done || !s.drawn) return 'transparent';
+      if (warnKey(k)) return '#FDF3E6';
+      return k === 'edu' ? 'rgba(201,214,255,.2)' : '#EEF2FD';
+    };
+    const ring = (k) => {
+      if (s.hover !== k) return 'none';
+      if (k === 'edu') return '0 0 0 2px #C9D6FF';
+      return '0 0 0 2px ' + (warnKey(k) ? '#B45309' : '#2F5BEA');
+    };
+    const finalScore = s.overridden ? Number(s.newScore) : 82;
+    const gate = finalScore >= 70 ? ['Trên ngưỡng', '#EAF6EE', '#15803D'] : ['Dưới ngưỡng, cần HR xem', '#FDF3E6', '#B45309'];
+    const steps = ['Tiếp nhận', 'Review dữ liệu', 'Đánh giá', 'Quyết định'];
+    const current = s.confirmed ? 2 : 1;
+    const journey = steps.map((label, i) => {
+      const isDone = i < current;
+      const isCur = i === current;
+      return {
+        label: label, done: isDone, notLast: i < steps.length - 1,
+        color: isDone || isCur ? '#FFFFFF' : '#BFC5E0',
+        ring: isDone ? '#C9D6FF' : (isCur ? '#FFFFFF' : 'rgba(255,255,255,.32)'),
+        fill: isDone ? '#C9D6FF' : 'transparent',
+        weight: isCur ? '600' : '500'
+      };
+    });
+    const threads = done ? partsData.map((p, i) => this.thread(p.key, {
+      drawn: s.drawn, settled: s.settled, index: i,
+      warn: warnKey(p.key), color: '#2F5BEA', warnColor: '#B45309',
+      active: s.hover === p.key, dim: !!s.hover && s.hover !== p.key
+    })).filter(Boolean) : [];
+    return {
+      journey: journey, threads: threads,
+      isIdle: s.phase === 'idle', isLoading: s.phase === 'analyzing', isDone: done,
+      analyze: () => this.runAnalysis(),
+      scoreShown: s.overridden ? String(s.newScore) : String(s.shown),
+      scoreSource: s.overridden ? 'HR đã điều chỉnh điểm AI' : 'AI đề xuất',
+      overridden: s.overridden, reason: s.reason,
+      gateLabel: gate[0], gateBg: gate[1], gateFg: gate[2],
+      parts: partsData.map((p, i) => ({
+        key: p.key, label: p.label, value: String(p.value), width: p.value + '%',
+        scale: s.grow ? '1' : '0', delay: (i * 60) + 'ms',
+        barColor: warnKey(p.key) ? '#B45309' : '#2F5BEA',
+        bg: s.hover === p.key ? '#F1F4F8' : 'transparent',
+        enter: () => this.setState({ hover: p.key })
+      })),
+      leave: () => this.setState({ hover: null }),
+      hlSkill: hl('skill'), hlExp: hl('exp'), hlDomain: hl('domain'), hlEdu: hl('edu'), hlCulture: hl('culture'),
+      ringSkill: ring('skill'), ringExp: ring('exp'), ringDomain: ring('domain'), ringEdu: ring('edu'), ringCulture: ring('culture'),
+      statusLabel: s.confirmed ? 'Đã sàng lọc' : 'Mới',
+      editing: s.editing, newScore: s.newScore, err: s.err,
+      reasonBorder: s.err ? '#B91C1C' : '#848FA1',
+      onScore: (e) => this.setState({ newScore: e.target.value }),
+      onReason: (e) => this.setState({ reason: e.target.value, err: false }),
+      startEdit: () => this.setState({ editing: true }),
+      cancelEdit: () => this.setState({ editing: false, err: false }),
+      saveEdit: () => {
+        if (!this.state.reason.trim()) { this.setState({ err: true }); return; }
+        this.setState({ overridden: true, editing: false, err: false });
+      },
+      showActions: done && !s.confirmed,
+      confirmed: s.confirmed,
+      confirm: () => this.setState({ confirmed: true, editing: false })
+    };
+  }
+}
+</script>
+</body>
+</html>

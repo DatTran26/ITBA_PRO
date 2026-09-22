@@ -33,25 +33,25 @@ export default function QuestionBankBulkImportTab() {
 
   return (
     <div className="space-y-6">
-      <div className="border border-[#8B99B0]/10 rounded-lg p-6 bg-[#1C2333]/40">
+      <div className="border border-border/10 rounded-lg p-6 bg-card/40">
         <div className="flex items-start justify-between gap-4">
           <div>
-            <h3 className="text-sm font-semibold text-[#E2E8F0] mb-1">Bulk Import via Spreadsheet</h3>
-            <p className="text-xs text-[#5A6882] leading-relaxed">
+            <h3 className="text-sm font-semibold text-primary mb-1">Bulk Import via Spreadsheet</h3>
+            <p className="text-xs text-muted-foreground leading-relaxed">
               Download the template, fill in your questions, then upload the file.
               Supported formats: .xlsx, .xls, .csv
             </p>
-            <ul className="mt-3 space-y-1 text-xs text-[#5A6882]">
+            <ul className="mt-3 space-y-1 text-xs text-muted-foreground">
               <li className="flex items-center gap-2">
-                <span className="w-1 h-1 rounded-full bg-[#5A6882]" />
+                <span className="w-1 h-1 rounded-full bg-muted-foreground" />
                 Columns: question_text, option_a, option_b, option_c, option_d, correct_answer, level, topic_tag, explanation
               </li>
               <li className="flex items-center gap-2">
-                <span className="w-1 h-1 rounded-full bg-[#5A6882]" />
+                <span className="w-1 h-1 rounded-full bg-muted-foreground" />
                 level must be: junior, middle, or senior
               </li>
               <li className="flex items-center gap-2">
-                <span className="w-1 h-1 rounded-full bg-[#5A6882]" />
+                <span className="w-1 h-1 rounded-full bg-muted-foreground" />
                 correct_answer must be: a, b, c, or d
               </li>
             </ul>
@@ -61,7 +61,7 @@ export default function QuestionBankBulkImportTab() {
             size="sm"
             onClick={downloadTemplate}
             disabled={downloading}
-            className="shrink-0 border-[#8B99B0]/20 text-[#8B99B0] hover:text-[#E2E8F0]"
+            className="shrink-0 border-border/20 text-muted-foreground hover:text-primary"
           >
             <FileDown className="w-4 h-4 mr-2" />
             {downloading ? "Downloading..." : "Download Template"}
@@ -71,8 +71,8 @@ export default function QuestionBankBulkImportTab() {
 
       <div>
         <div className="flex items-center gap-2 mb-3">
-          <FileSpreadsheet className="w-4 h-4 text-[#5A6882]" />
-          <span className="text-sm font-medium text-[#8B99B0]">Upload File</span>
+          <FileSpreadsheet className="w-4 h-4 text-muted-foreground" />
+          <span className="text-sm font-medium text-muted-foreground">Upload File</span>
         </div>
         <BulkImportDropzone onResult={setImportResult} />
       </div>
@@ -80,10 +80,10 @@ export default function QuestionBankBulkImportTab() {
       {importResult && (
         <div>
           <div className="flex items-center justify-between mb-3">
-            <span className="text-sm font-medium text-[#8B99B0]">Import Result</span>
+            <span className="text-sm font-medium text-muted-foreground">Import Result</span>
             <button
               onClick={() => setImportResult(null)}
-              className="text-xs text-[#5A6882] hover:text-[#8B99B0]"
+              className="text-xs text-muted-foreground hover:text-muted-foreground"
             >
               Clear
             </button>

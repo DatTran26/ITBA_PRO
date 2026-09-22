@@ -50,12 +50,12 @@ export default function DocumentPreview({ job }: DocumentPreviewProps) {
 
     if (!job) {
         return (
-            <div className="flex h-full min-h-[420px] flex-col items-center justify-center rounded-2xl border border-white/[0.08] bg-[#1A233A]/40 p-8 text-center backdrop-blur-md">
-                <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/[0.04] border border-white/[0.06] text-[#64748B]">
+            <div className="flex h-full min-h-[420px] flex-col items-center justify-center rounded-2xl border border-white/[0.08] bg-muted/40 p-8 text-center backdrop-blur-md">
+                <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/[0.04] border border-white/[0.06] text-muted-foreground">
                     <FileImage className="h-8 w-8" />
                 </div>
-                <h4 className="mt-4 text-base font-medium text-[#ECF0F7]">Chưa chọn tài liệu</h4>
-                <p className="mt-1 text-sm text-[#94A3B8] max-w-xs">
+                <h4 className="mt-4 text-base font-medium text-foreground">Chưa chọn tài liệu</h4>
+                <p className="mt-1 text-sm text-muted-foreground max-w-xs">
                     Vui lòng chọn một ảnh trong hàng đợi để xem tài liệu gốc và kiểm tra kết quả OCR.
                 </p>
             </div>
@@ -69,18 +69,18 @@ export default function DocumentPreview({ job }: DocumentPreviewProps) {
     };
 
     return (
-        <div className="flex h-full flex-col overflow-hidden rounded-2xl border border-white/[0.08] bg-[#1A233A]/70 backdrop-blur-md shadow-2xl">
+        <div className="flex h-full flex-col overflow-hidden rounded-2xl border border-white/[0.08] bg-muted/70 backdrop-blur-md shadow-2xl">
             {/* Header / Toolbar */}
-            <div className="flex flex-wrap items-center justify-between border-b border-white/[0.08] px-4 py-3 bg-[#121A2E]/50 gap-2">
+            <div className="flex flex-wrap items-center justify-between border-b border-white/[0.08] px-4 py-3 bg-background/50 gap-2">
                 <div className="flex items-center gap-2 min-w-0">
-                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#5B6CF0]/10 border border-[#5B6CF0]/20 text-[#7C8FFF] shrink-0">
+                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 border border-border/20 text-primary shrink-0">
                         <FileImage className="h-4 w-4" />
                     </div>
                     <div className="min-w-0">
-                        <p className="truncate text-xs font-semibold text-[#ECF0F7]" title={job.file.name}>
+                        <p className="truncate text-xs font-semibold text-foreground" title={job.file.name}>
                             {job.file.name}
                         </p>
-                        <p className="text-[11px] text-[#64748B]">
+                        <p className="text-[11px] text-muted-foreground">
                             {formatFileSize(job.file.size)} • {job.file.type.replace("image/", "").toUpperCase()}
                         </p>
                     </div>
@@ -92,33 +92,33 @@ export default function DocumentPreview({ job }: DocumentPreviewProps) {
                         onClick={handleZoomOut}
                         disabled={zoom <= 0.5}
                         title="Thu nhỏ"
-                        className="flex h-7 w-7 items-center justify-center rounded-lg text-[#94A3B8] hover:bg-white/[0.08] hover:text-white disabled:opacity-40 transition-colors"
+                        className="flex h-7 w-7 items-center justify-center rounded-lg text-muted-foreground hover:bg-white/[0.08] hover:text-foreground disabled:opacity-40 transition-colors"
                     >
                         <ZoomOut className="h-3.5 w-3.5" />
                     </button>
-                    <span className="px-1.5 text-[11px] font-mono font-medium text-[#ECF0F7]">
+                    <span className="px-1.5 text-[11px] font-mono font-medium text-foreground">
                         {Math.round(zoom * 100)}%
                     </span>
                     <button
                         onClick={handleZoomIn}
                         disabled={zoom >= 4}
                         title="Phóng to"
-                        className="flex h-7 w-7 items-center justify-center rounded-lg text-[#94A3B8] hover:bg-white/[0.08] hover:text-white disabled:opacity-40 transition-colors"
+                        className="flex h-7 w-7 items-center justify-center rounded-lg text-muted-foreground hover:bg-white/[0.08] hover:text-foreground disabled:opacity-40 transition-colors"
                     >
                         <ZoomIn className="h-3.5 w-3.5" />
                     </button>
-                    <div className="h-3 w-[1px] bg-white/10 mx-0.5" />
+                    <div className="h-3 w-[1px] bg-muted mx-0.5" />
                     <button
                         onClick={handleRotate}
                         title="Xoay 90°"
-                        className="flex h-7 w-7 items-center justify-center rounded-lg text-[#94A3B8] hover:bg-white/[0.08] hover:text-white transition-colors"
+                        className="flex h-7 w-7 items-center justify-center rounded-lg text-muted-foreground hover:bg-white/[0.08] hover:text-foreground transition-colors"
                     >
                         <RotateCw className="h-3.5 w-3.5" />
                     </button>
                     <button
                         onClick={handleReset}
                         title="Đặt lại góc & kích thước"
-                        className="flex h-7 w-7 items-center justify-center rounded-lg text-[#94A3B8] hover:bg-white/[0.08] hover:text-white transition-colors"
+                        className="flex h-7 w-7 items-center justify-center rounded-lg text-muted-foreground hover:bg-white/[0.08] hover:text-foreground transition-colors"
                     >
                         <RotateCcw className="h-3.5 w-3.5" />
                     </button>
@@ -131,7 +131,7 @@ export default function DocumentPreview({ job }: DocumentPreviewProps) {
                 onMouseMove={handleMouseMove}
                 onMouseUp={handleMouseUp}
                 onMouseLeave={handleMouseUp}
-                className={`relative flex flex-1 items-center justify-center overflow-hidden bg-[#0D1322] p-4 min-h-[380px] select-none ${
+                className={`relative flex flex-1 items-center justify-center overflow-hidden bg-background p-4 min-h-[380px] select-none ${
                     zoom > 1 ? "cursor-grab active:cursor-grabbing" : "cursor-default"
                 }`}
             >
@@ -139,22 +139,22 @@ export default function DocumentPreview({ job }: DocumentPreviewProps) {
                 <div
                     className="absolute inset-0 opacity-[0.03]"
                     style={{
-                        backgroundImage: `radial-gradient(#5B6CF0 1px, transparent 1px)`,
+                        backgroundImage: `radial-gradient(var(--primary) 1px, transparent 1px)`,
                         backgroundSize: "20px 20px",
                     }}
                 />
 
                 {/* Status Overlay while processing */}
                 {job.status === "processing" && (
-                    <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-[#121A2E]/70 backdrop-blur-sm">
+                    <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-background/70 backdrop-blur-sm">
                         <div className="relative">
-                            <div className="h-12 w-12 rounded-full border-2 border-[#5B6CF0]/20 border-t-[#5B6CF0] animate-spin" />
-                            <Sparkles className="absolute inset-0 m-auto h-5 w-5 text-[#7C8FFF] animate-pulse" />
+                            <div className="h-12 w-12 rounded-full border-2 border-border/20 border-t-border animate-spin" />
+                            <Sparkles className="absolute inset-0 m-auto h-5 w-5 text-primary animate-pulse" />
                         </div>
-                        <p className="mt-3 text-sm font-medium text-[#ECF0F7] animate-pulse">
+                        <p className="mt-3 text-sm font-medium text-foreground animate-pulse">
                             Đang quét OCR tài liệu qua AI...
                         </p>
-                        <p className="text-xs text-[#94A3B8] mt-1">Đang phân tích cấu trúc bảng biểu và chữ viết</p>
+                        <p className="text-xs text-muted-foreground mt-1">Đang phân tích cấu trúc bảng biểu và chữ viết</p>
                     </div>
                 )}
 

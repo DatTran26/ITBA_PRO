@@ -36,15 +36,15 @@ export default async function EmailSettingsPage() {
                 <EmailBreadcrumb current="Settings" backHref="/dashboard/emails" />
                 <header className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                     <div>
-                        <h1 className="text-2xl font-semibold text-[#ECF0F7]">Email Settings</h1>
-                        <p className="mt-1 text-sm text-[#5A6882]">
+                        <h1 className="text-2xl font-semibold text-foreground">Email Settings</h1>
+                        <p className="mt-1 text-sm text-muted-foreground">
                             Manage email templates and SMTP delivery configuration.
                         </p>
                     </div>
                     <div className={`self-start sm:self-auto inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium border ${
                         config.enabled
-                            ? "bg-[#36DDAB]/10 border-[#36DDAB]/20 text-[#36DDAB]"
-                            : "bg-[#8B99B0]/8 border-[#8B99B0]/15 text-[#5A6882]"
+                            ? "bg-success/10 border-border/20 text-success"
+                            : "bg-muted-foreground/8 border-border/15 text-muted-foreground"
                     }`}>
                         {config.enabled
                             ? <Wifi className="w-3.5 h-3.5" />

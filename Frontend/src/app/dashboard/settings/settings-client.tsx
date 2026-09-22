@@ -1,4 +1,5 @@
 "use client";
+import { alpha } from "@/lib/utils";
 
 import { useState, useRef, useCallback } from "react";
 import { toast } from "sonner";
@@ -14,10 +15,10 @@ import type { UiLayout } from "@/lib/settings/ui-layout";
 const APPEARANCE_CATEGORY = "appearance";
 
 const CATEGORY_META: Record<string, { icon: React.ElementType; color: string; gradient: string }> = {
-    ai:         { icon: Brain,         color: "#B48EFF", gradient: "from-[#B48EFF]/20 to-[#7C8FFF]/5" },
-    assessment: { icon: ClipboardList, color: "#5B6CF0", gradient: "from-[#5B6CF0]/20 to-[#36DDAB]/5" },
-    scoring:    { icon: BarChart2,     color: "#36DDAB", gradient: "from-[#36DDAB]/20 to-[#5B6CF0]/5" },
-    appearance: { icon: Palette,       color: "#7C8FFF", gradient: "from-[#7C8FFF]/20 to-[#B48EFF]/5" },
+    ai:         { icon: Brain,         color: "var(--ai)", gradient: "from-ai/20 to-primary/5" },
+    assessment: { icon: ClipboardList, color: "var(--primary)", gradient: "from-primary/20 to-success/5" },
+    scoring:    { icon: BarChart2,     color: "var(--success)", gradient: "from-success/20 to-primary/5" },
+    appearance: { icon: Palette,       color: "var(--primary)", gradient: "from-primary/20 to-ai/5" },
 };
 
 type SaveState = "idle" | "saving" | "saved";
@@ -78,7 +79,7 @@ export default function SettingsClient({
     const currentUiLayout: UiLayout = uiLayoutSetting?.value === "sidebar" ? "sidebar" : "topnav";
 
     return (
-        <PageTransition className="min-h-screen bg-[#0D1526] text-[#ECF0F7] font-body">
+        <PageTransition className="min-h-screen bg-background text-foreground font-body">
             <AppNavbar user={user} />
             <PageContainer>
                 <PageBreadcrumb breadcrumbs={[{ label: "Dashboard", href: "/dashboard" }, { label: "Settings" }]} />
@@ -86,26 +87,26 @@ export default function SettingsClient({
                 {/* Page header */}
                 <div className="flex items-center justify-between mb-8">
                     <div className="flex items-center gap-4">
-                        <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-[#5B6CF0]/30 to-[#B48EFF]/10 border border-[#5B6CF0]/20 flex items-center justify-center shadow-lg shadow-[#5B6CF0]/10">
-                            <Settings className="w-5 h-5 text-[#7C8FFF]" />
+                        <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-primary/30 to-ai/10 border border-border/20 flex items-center justify-center shadow-lg shadow-primary/10">
+                            <Settings className="w-5 h-5 text-primary" />
                         </div>
                         <div>
-                            <h1 className="text-2xl font-display font-bold bg-gradient-to-r from-[#ECF0F7] to-[#8B99B0] bg-clip-text text-transparent">
+                            <h1 className="text-2xl font-display font-bold bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text text-transparent">
                                 System Settings
                             </h1>
-                            <p className="text-sm text-[#5A6882] mt-0.5">Configure platform behaviour and AI parameters</p>
+                            <p className="text-sm text-muted-foreground mt-0.5">Configure platform behaviour and AI parameters</p>
                         </div>
                     </div>
 
                     {/* Save state indicator */}
                     <div className="h-8 flex items-center">
                         {saveState === "saving" && (
-                            <span className="flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold bg-[#5B6CF0]/10 text-[#7C8FFF] border border-[#5B6CF0]/20 animate-pulse">
+                            <span className="flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold bg-primary/10 text-primary border border-border/20 animate-pulse">
                                 <Loader2 className="w-3 h-3 animate-spin" /> Saving…
                             </span>
                         )}
                         {saveState === "saved" && (
-                            <span className="flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold bg-[#36DDAB]/10 text-[#36DDAB] border border-[#36DDAB]/20">
+                            <span className="flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold bg-success/10 text-success border border-border/20">
                                 <CheckCircle2 className="w-3 h-3" /> Saved
                             </span>
                         )}
@@ -115,20 +116,20 @@ export default function SettingsClient({
                 {/* Category cards */}
                 <div className="flex flex-col gap-5">
                     {visibleCategoryKeys.map((cat) => {
-                        const meta = CATEGORY_META[cat] ?? { icon: Settings, color: "#8B99B0", gradient: "from-[#8B99B0]/10 to-transparent" };
+                        const meta = CATEGORY_META[cat] ?? { icon: Settings, color: "var(--muted-foreground)", gradient: "from-muted-foreground/10 to-transparent" };
                         const Icon = meta.icon;
                         const isAppearance = cat === APPEARANCE_CATEGORY;
                         return (
                             <div
                                 key={cat}
-                                className="rounded-2xl border border-white/[0.06] bg-[#131D30] overflow-hidden shadow-xl shadow-black/20"
+                                className="rounded-2xl border border-white/[0.06] bg-card overflow-hidden shadow-xl shadow-black/20"
                             >
                                 {/* Gradient accent header */}
                                 <div className={`bg-gradient-to-r ${meta.gradient} px-5 py-4 border-b border-white/[0.04]`}>
                                     <div className="flex items-center gap-3">
                                         <div
                                             className="w-8 h-8 rounded-xl flex items-center justify-center shadow-lg"
-                                            style={{ backgroundColor: `${meta.color}18`, border: `1px solid ${meta.color}30` }}
+                                            style={{ backgroundColor: `${alpha(meta.color, 9)}`, border: `1px solid ${alpha(meta.color, 19)}` }}
                                         >
                                             <Icon className="w-4 h-4" style={{ color: meta.color }} />
                                         </div>
@@ -136,7 +137,7 @@ export default function SettingsClient({
                                             <h2 className="text-sm font-bold capitalize tracking-wide" style={{ color: meta.color }}>
                                                 {isAppearance ? "Appearance" : cat}
                                             </h2>
-                                            <p className="text-[11px] text-[#5A6882]">
+                                            <p className="text-[11px] text-muted-foreground">
                                                 {isAppearance ? "Navigation Layout" : `${categories[cat].length} settings`}
                                             </p>
                                         </div>
@@ -162,7 +163,7 @@ export default function SettingsClient({
                     })}
 
                     {visibleCategoryKeys.length === 0 && (
-                        <p className="text-center text-[#5A6882] py-20">No settings found.</p>
+                        <p className="text-center text-muted-foreground py-20">No settings found.</p>
                     )}
                 </div>
             </PageContainer>

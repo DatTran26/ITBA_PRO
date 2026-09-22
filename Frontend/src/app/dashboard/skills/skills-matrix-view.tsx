@@ -43,9 +43,9 @@ export default function SkillsMatrixView({ skills, matrixData }: Props) {
 
   if (!matrixData) {
     return (
-      <div className="border border-[#8B99B0]/10 rounded-xl p-8 text-center bg-[#1B253B]">
-        <p className="text-sm text-[#5A6882] mb-1">Matrix data not available</p>
-        <p className="text-xs text-[#5A6882]">Switch to table view for full data</p>
+      <div className="border border-border/10 rounded-xl p-8 text-center bg-muted">
+        <p className="text-sm text-muted-foreground mb-1">Matrix data not available</p>
+        <p className="text-xs text-muted-foreground">Switch to table view for full data</p>
       </div>
     );
   }
@@ -60,8 +60,8 @@ export default function SkillsMatrixView({ skills, matrixData }: Props) {
           onClick={() => setSubView("position")}
           className={`px-3 py-1.5 text-sm rounded-lg transition-colors ${
             subView === "position"
-              ? "bg-[#7C8FFF] text-white"
-              : "bg-[#1B253B] text-[#5A6882] hover:text-[#ECF0F7] border border-[#8B99B0]/10"
+              ? "bg-primary text-white"
+              : "bg-muted text-muted-foreground hover:text-foreground border border-border/10"
           }`}
         >
           Position — Skill
@@ -70,13 +70,13 @@ export default function SkillsMatrixView({ skills, matrixData }: Props) {
           onClick={() => setSubView("person")}
           className={`px-3 py-1.5 text-sm rounded-lg transition-colors ${
             subView === "person"
-              ? "bg-[#7C8FFF] text-white"
-              : "bg-[#1B253B] text-[#5A6882] hover:text-[#ECF0F7] border border-[#8B99B0]/10"
+              ? "bg-primary text-white"
+              : "bg-muted text-muted-foreground hover:text-foreground border border-border/10"
           }`}
         >
           Person — Skill
         </button>
-        <span className="text-xs text-[#5A6882] ml-2">
+        <span className="text-xs text-muted-foreground ml-2">
           Showing up to 15 skills
         </span>
       </div>
@@ -88,7 +88,7 @@ export default function SkillsMatrixView({ skills, matrixData }: Props) {
             <span className={`w-5 h-5 rounded text-xs flex items-center justify-center font-medium ${LEVEL_COLORS[lvl]}`}>
               {lvl}
             </span>
-            <span className="text-xs text-[#5A6882]">
+            <span className="text-xs text-muted-foreground">
               {lvl <= 2 ? "Basic" : lvl <= 4 ? "Proficient" : "Expert"}
             </span>
           </div>
@@ -129,24 +129,24 @@ function MatrixGrid({
 }) {
   if (!rows.length || !skills.length) {
     return (
-      <div className="border border-[#8B99B0]/10 rounded-xl p-6 text-center bg-[#1B253B]">
-        <p className="text-sm text-[#5A6882]">No data to display</p>
+      <div className="border border-border/10 rounded-xl p-6 text-center bg-muted">
+        <p className="text-sm text-muted-foreground">No data to display</p>
       </div>
     );
   }
 
   return (
-    <div className="border border-[#8B99B0]/10 rounded-xl overflow-auto bg-[#1B253B]">
+    <div className="border border-border/10 rounded-xl overflow-auto bg-muted">
       <table className="w-full text-xs">
         <thead>
-          <tr className="border-b border-[#8B99B0]/10">
-            <th className="px-3 py-2 text-left text-[#5A6882] font-medium min-w-[140px] sticky left-0 bg-[#1B253B]">
+          <tr className="border-b border-border/10">
+            <th className="px-3 py-2 text-left text-muted-foreground font-medium min-w-[140px] sticky left-0 bg-muted">
               {rowLabel}
             </th>
             {skills.map((s) => (
               <th
                 key={s.id}
-                className="px-2 py-2 text-center text-[#5A6882] font-medium min-w-[80px] max-w-[100px]"
+                className="px-2 py-2 text-center text-muted-foreground font-medium min-w-[80px] max-w-[100px]"
                 title={s.name}
               >
                 <span className="block truncate max-w-[80px]">{s.name}</span>
@@ -158,21 +158,21 @@ function MatrixGrid({
           {rows.map((row) => {
             const getLevel = getLevelFn(row.id);
             return (
-              <tr key={row.id} className="border-b border-[#8B99B0]/5 hover:bg-[#0F1829] transition-colors">
+              <tr key={row.id} className="border-b border-border/5 hover:bg-background transition-colors">
                 <td className="px-3 py-2 sticky left-0 bg-inherit">
-                  <p className="font-medium text-[#ECF0F7] truncate max-w-[130px]">{row.label}</p>
-                  {row.sublabel && <p className="text-[#5A6882] truncate max-w-[130px]">{row.sublabel}</p>}
+                  <p className="font-medium text-foreground truncate max-w-[130px]">{row.label}</p>
+                  {row.sublabel && <p className="text-muted-foreground truncate max-w-[130px]">{row.sublabel}</p>}
                 </td>
                 {skills.map((s) => {
                   const level = getLevel(s.id);
                   return (
                     <td key={s.id} className="px-2 py-2 text-center">
                       {level !== null ? (
-                        <span className={`inline-flex items-center justify-center w-6 h-6 rounded font-medium ${LEVEL_COLORS[level] ?? "bg-[#222C4A] text-[#8B99B0]"}`}>
+                        <span className={`inline-flex items-center justify-center w-6 h-6 rounded font-medium ${LEVEL_COLORS[level] ?? "bg-accent text-muted-foreground"}`}>
                           {level}
                         </span>
                       ) : (
-                        <span className="text-[#222C4A]">—</span>
+                        <span className="text-accent">—</span>
                       )}
                     </td>
                   );

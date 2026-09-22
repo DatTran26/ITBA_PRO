@@ -213,16 +213,16 @@ export default function AssessmentGrid({ tests, onToggleStatus, onDelete }: Prop
                     <motion.div
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="text-center py-24 flex flex-col items-center gap-4 bg-[#1B253B]/20 rounded-3xl border border-dashed border-[#8B99B0]/10"
+                        className="text-center py-24 flex flex-col items-center gap-4 bg-muted/20 rounded-3xl border border-dashed border-muted-foreground/10"
                     >
-                        <div className="w-16 h-16 rounded-full bg-[#1B253B] flex items-center justify-center border border-[#8B99B0]/10">
-                            <Search className="w-6 h-6 text-[#5A6882]" />
+                        <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center border border-muted-foreground/10">
+                            <Search className="w-6 h-6 text-muted-foreground" />
                         </div>
                         <div className="space-y-1">
-                            <h3 className="text-lg font-bold text-[#ECF0F7]">Missing something?</h3>
-                            <p className="text-[#8B99B0] text-sm">We couldn't find any assessments matching these filters.</p>
+                            <h3 className="text-lg font-bold text-foreground">Missing something?</h3>
+                            <p className="text-muted-foreground text-sm">We couldn't find any assessments matching these filters.</p>
                         </div>
-                        <Button variant="link" onClick={clearFilters} className="text-[#7C8FFF] font-bold hover:no-underline">Clear all filters</Button>
+                        <Button variant="link" onClick={clearFilters} className="text-primary font-bold hover:no-underline">Clear all filters</Button>
                     </motion.div>
                 ) : (
                     <StaggerContainer

@@ -107,8 +107,8 @@ function getTestStatusLabel(status: string | null) {
 function getScoreTone(score: number | null) {
     if (score === null) {
         return {
-            badge: "bg-white/5 border-white/10 text-[#8B99B0]",
-            bar: "bg-linear-to-r from-[#5A6882] to-[#8B99B0]",
+            badge: "bg-white/5 border-white/10 text-muted-foreground",
+            bar: "bg-linear-to-r from-muted-foreground to-muted-foreground",
             value: "-",
         };
     }
@@ -509,27 +509,27 @@ export default function SchedulePageClient({
     );
 
     return (
-        <div className="min-h-dvh bg-[#0A0F1D] text-[#ECF0F7]">
+        <div className="min-h-dvh bg-background text-foreground">
             <AppNavbar user={user} />
             <BackgroundOrbs />
 
             <PageTransition>
                 <main className="relative z-10 max-w-368 mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-10">
-                    <div className="pointer-events-none absolute inset-x-0 top-20 h-80 bg-[radial-gradient(ellipse_at_top,rgba(91,108,240,0.24),transparent_66%)]" />
+                    <div className="pointer-events-none absolute inset-x-0 top-20 h-80 bg-[radial-gradient(ellipse_at_top,color-mix(in_srgb,var(--primary)_24%,transparent),transparent_66%)]" />
                     <PageBreadcrumb breadcrumbs={[{ label: "Recruitment", href: "/dashboard/recruitment" }, { label: "Điều phối phỏng vấn" }]} />
 
-                    <header className="mb-6 rounded-3xl border border-white/10 bg-[#111629]/85 backdrop-blur-md p-5 sm:p-7 shadow-[0_26px_70px_-34px_rgba(0,0,0,0.9)] relative overflow-hidden">
-                        <div className="pointer-events-none absolute -right-20 -top-24 w-72 h-72 rounded-full bg-[#5B6CF0]/15 blur-3xl" />
+                    <header className="mb-6 rounded-3xl border border-border bg-background/85 backdrop-blur-md p-5 sm:p-7 shadow-[0_26px_70px_-34px_rgba(0,0,0,0.9)] relative overflow-hidden">
+                        <div className="pointer-events-none absolute -right-20 -top-24 w-72 h-72 rounded-full bg-primary/15 blur-3xl" />
                         <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
                             <div>
-                                <div className="inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold tracking-wide bg-[#7C8FFF]/15 text-[#B6C2FF] border border-[#7C8FFF]/35">
+                                <div className="inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold tracking-wide bg-primary/15 text-primary border border-border/35">
                                     <CalendarClock size={14} />
                                     Điều phối tuyển dụng
                                 </div>
                                 <h1 className="mt-3 text-2xl sm:text-3xl font-bold tracking-tight">
                                     Điều phối phỏng vấn
                                 </h1>
-                                <p className="mt-2 text-sm text-[#8B99B0] max-w-2xl">
+                                <p className="mt-2 text-sm text-muted-foreground max-w-2xl">
                                     Xem đủ ngữ cảnh CV, test và trạng thái
                                     pipeline trước khi lên lịch để giảm sai sót
                                     điều phối.
@@ -540,7 +540,7 @@ export default function SchedulePageClient({
                                 <Button
                                     variant="outline"
                                     onClick={() => router.push("/dashboard")}
-                                    className="h-10 rounded-xl border-white/15 bg-white/5 hover:bg-white/10 text-[#ECF0F7]"
+                                    className="h-10 rounded-xl border-border bg-muted hover:bg-muted text-foreground"
                                 >
                                     <ArrowLeft size={14} className="mr-2" />
                                     Quay lại
@@ -549,32 +549,32 @@ export default function SchedulePageClient({
                         </div>
 
                         <div className="mt-5 grid grid-cols-2 sm:grid-cols-4 gap-3">
-                            <div className="rounded-2xl border border-white/10 bg-linear-to-b from-white/10 to-white/3 px-4 py-3">
-                                <p className="text-xs text-[#8B99B0] inline-flex items-center gap-1.5">
+                            <div className="rounded-2xl border border-border bg-linear-to-b from-white/10 to-white/3 px-4 py-3">
+                                <p className="text-xs text-muted-foreground inline-flex items-center gap-1.5">
                                     <Users size={13} /> Ứng viên chờ lịch
                                 </p>
                                 <p className="mt-1 text-xl font-semibold">
                                     {candidates.length}
                                 </p>
                             </div>
-                            <div className="rounded-2xl border border-white/10 bg-linear-to-b from-white/10 to-white/3 px-4 py-3">
-                                <p className="text-xs text-[#8B99B0] inline-flex items-center gap-1.5">
+                            <div className="rounded-2xl border border-border bg-linear-to-b from-white/10 to-white/3 px-4 py-3">
+                                <p className="text-xs text-muted-foreground inline-flex items-center gap-1.5">
                                     <Gauge size={13} /> Kết quả lọc
                                 </p>
                                 <p className="mt-1 text-xl font-semibold">
                                     {filteredCandidates.length}
                                 </p>
                             </div>
-                            <div className="rounded-2xl border border-white/10 bg-linear-to-b from-white/10 to-white/3 px-4 py-3">
-                                <p className="text-xs text-[#8B99B0] inline-flex items-center gap-1.5">
+                            <div className="rounded-2xl border border-border bg-linear-to-b from-white/10 to-white/3 px-4 py-3">
+                                <p className="text-xs text-muted-foreground inline-flex items-center gap-1.5">
                                     <UserCheck size={13} /> Lịch đã tạo
                                 </p>
                                 <p className="mt-1 text-xl font-semibold">
                                     {interviews.length}
                                 </p>
                             </div>
-                            <div className="rounded-2xl border border-white/10 bg-linear-to-b from-white/10 to-white/3 px-4 py-3">
-                                <p className="text-xs text-[#8B99B0] inline-flex items-center gap-1.5">
+                            <div className="rounded-2xl border border-border bg-linear-to-b from-white/10 to-white/3 px-4 py-3">
+                                <p className="text-xs text-muted-foreground inline-flex items-center gap-1.5">
                                     <BadgeCheck size={13} /> Trạng thái
                                 </p>
                                 <p className="mt-1 text-sm font-semibold text-emerald-400">
@@ -585,24 +585,24 @@ export default function SchedulePageClient({
                     </header>
 
                     <section className="grid grid-cols-1 xl:grid-cols-12 gap-5">
-                        <aside className="xl:col-span-4 rounded-3xl border border-white/10 bg-[#111629]/80 backdrop-blur-md min-h-112 flex flex-col shadow-[0_24px_50px_-35px_rgba(0,0,0,0.9)]">
-                            <div className="p-4 sm:p-5 border-b border-white/10">
+                        <aside className="xl:col-span-4 rounded-3xl border border-border bg-background/80 backdrop-blur-md min-h-112 flex flex-col shadow-[0_24px_50px_-35px_rgba(0,0,0,0.9)]">
+                            <div className="p-4 sm:p-5 border-b border-border">
                                 <div className="flex items-center justify-between gap-2 mb-4">
-                                    <h2 className="text-sm font-semibold tracking-wide text-[#8B99B0] flex items-center gap-2">
+                                    <h2 className="text-sm font-semibold tracking-wide text-muted-foreground flex items-center gap-2">
                                         <Users
                                             size={15}
-                                            className="text-[#7C8FFF]"
+                                            className="text-primary"
                                         />
                                         Ứng viên đủ điều kiện phỏng vấn
                                     </h2>
-                                    <span className="text-xs px-2 py-1 rounded-full bg-[#7C8FFF]/15 text-[#7C8FFF] border border-[#7C8FFF]/30">
+                                    <span className="text-xs px-2 py-1 rounded-full bg-primary/15 text-primary border border-border/30">
                                         {filteredCandidates.length}
                                     </span>
                                 </div>
 
                                 <div className="relative">
                                     <Search
-                                        className="absolute left-3 top-1/2 -translate-y-1/2 text-[#5A6882]"
+                                        className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
                                         size={15}
                                     />
                                     <input
@@ -612,7 +612,7 @@ export default function SchedulePageClient({
                                             setSearchQuery(event.target.value)
                                         }
                                         placeholder="Tìm theo tên, email, vị trí, JD..."
-                                        className="w-full h-11 rounded-xl border border-white/10 bg-[#0A0F1D] pl-10 pr-3 text-base placeholder:text-[#5A6882] focus:outline-none focus:ring-2 focus:ring-[#7C8FFF]/40"
+                                        className="w-full h-11 rounded-xl border border-border bg-background pl-10 pr-3 text-base placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40"
                                     />
                                 </div>
                             </div>
@@ -628,14 +628,14 @@ export default function SchedulePageClient({
                                 className="flex-1 overflow-y-auto p-3 sm:p-4 space-y-2"
                             >
                                 {loading ? (
-                                    <div className="h-full min-h-44 grid place-items-center text-[#8B99B0]">
+                                    <div className="h-full min-h-44 grid place-items-center text-muted-foreground">
                                         <Loader2
                                             className="animate-spin"
                                             size={20}
                                         />
                                     </div>
                                 ) : filteredCandidates.length === 0 ? (
-                                    <div className="rounded-2xl border border-dashed border-white/15 bg-white/3 p-5 text-sm text-[#8B99B0]">
+                                    <div className="rounded-2xl border border-dashed border-border bg-muted p-5 text-sm text-muted-foreground">
                                         Không tìm thấy ứng viên phù hợp.
                                     </div>
                                 ) : (
@@ -664,12 +664,12 @@ export default function SchedulePageClient({
                                                 }
                                                 className={`w-full text-left rounded-2xl border p-3 transition ${
                                                     active
-                                                        ? "bg-[#1E2840] border-[#7C8FFF]/60 shadow-[0_12px_24px_-16px_rgba(91,108,240,0.8)]"
-                                                        : "bg-[#0F172A]/70 border-white/10 hover:border-white/25 hover:bg-[#182238]"
+                                                        ? "bg-muted border-border/60 shadow-[0_12px_24px_-16px_color-mix(in_srgb,var(--primary)_80%,transparent)]"
+                                                        : "bg-background/70 border-border hover:border-border hover:bg-muted"
                                                 }`}
                                             >
                                                 <div className="flex items-start gap-3">
-                                                    <div className="mt-0.5 h-10 w-10 rounded-full bg-[#5B6CF0]/25 border border-[#7C8FFF]/40 text-[#ECF0F7] grid place-items-center font-semibold">
+                                                    <div className="mt-0.5 h-10 w-10 rounded-full bg-primary/25 border border-border/40 text-foreground grid place-items-center font-semibold">
                                                         {candidate.fullName.charAt(
                                                             0,
                                                         )}
@@ -681,7 +681,7 @@ export default function SchedulePageClient({
                                                                     candidate.fullName
                                                                 }
                                                             </p>
-                                                            <span className="text-[10px] rounded-full px-2 py-0.5 bg-[#7C8FFF]/15 text-[#B6C2FF] border border-[#7C8FFF]/30">
+                                                            <span className="text-[10px] rounded-full px-2 py-0.5 bg-primary/15 text-primary border border-border/30">
                                                                 R
                                                                 {Math.max(
                                                                     1,
@@ -690,10 +690,10 @@ export default function SchedulePageClient({
                                                             </span>
                                                         </div>
 
-                                                        <p className="mt-1 text-xs text-[#8B99B0] truncate">
+                                                        <p className="mt-1 text-xs text-muted-foreground truncate">
                                                             {candidate.jdTitle}
                                                         </p>
-                                                        <p className="mt-1 text-[11px] text-[#5A6882] truncate">
+                                                        <p className="mt-1 text-[11px] text-muted-foreground truncate">
                                                             {candidate.email}
                                                         </p>
 
@@ -703,7 +703,7 @@ export default function SchedulePageClient({
                                                                     candidate.pipelineStatus
                                                                 }
                                                             </span>
-                                                            <span className="text-[10px] rounded-full px-2 py-1 bg-white/5 border border-white/10 text-[#8B99B0]">
+                                                            <span className="text-[10px] rounded-full px-2 py-1 bg-muted border border-border text-muted-foreground">
                                                                 CV{" "}
                                                                 {candidate.finalScore ??
                                                                     candidate.aiScore ??
@@ -740,16 +740,16 @@ export default function SchedulePageClient({
                                         initial={{ opacity: 0, y: 8 }}
                                         animate={{ opacity: 1, y: 0 }}
                                         exit={{ opacity: 0, y: -8 }}
-                                        className="rounded-3xl border border-white/10 bg-[#111629]/75 backdrop-blur-md min-h-112 p-8 sm:p-10 grid place-items-center text-center"
+                                        className="rounded-3xl border border-border bg-background/75 backdrop-blur-md min-h-112 p-8 sm:p-10 grid place-items-center text-center"
                                     >
                                         <div className="max-w-lg">
-                                            <div className="mx-auto mb-4 h-16 w-16 rounded-2xl border border-[#7C8FFF]/30 bg-[#7C8FFF]/15 grid place-items-center text-[#7C8FFF]">
+                                            <div className="mx-auto mb-4 h-16 w-16 rounded-2xl border border-border/30 bg-primary/15 grid place-items-center text-primary">
                                                 <Sparkles size={28} />
                                             </div>
                                             <h3 className="text-2xl font-bold">
                                                 Sẵn sàng lên lịch phỏng vấn
                                             </h3>
-                                            <p className="mt-3 text-[#8B99B0]">
+                                            <p className="mt-3 text-muted-foreground">
                                                 Chọn một ứng viên bên trái để
                                                 xem ngữ cảnh CV, test, lịch sử
                                                 vòng trước và tiến hành điều
@@ -763,9 +763,9 @@ export default function SchedulePageClient({
                                         initial={{ opacity: 0, y: 8 }}
                                         animate={{ opacity: 1, y: 0 }}
                                         exit={{ opacity: 0, y: -8 }}
-                                        className="rounded-3xl border border-white/10 bg-[#111629]/80 backdrop-blur-md overflow-hidden shadow-[0_28px_65px_-36px_rgba(0,0,0,0.9)]"
+                                        className="rounded-3xl border border-border bg-background/80 backdrop-blur-md overflow-hidden shadow-[0_28px_65px_-36px_rgba(0,0,0,0.9)]"
                                     >
-                                        <div className="p-5 sm:p-6 border-b border-white/10 bg-linear-to-r from-white/8 to-transparent">
+                                        <div className="p-5 sm:p-6 border-b border-border bg-linear-to-r from-white/8 to-transparent">
                                             <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
                                                 <div>
                                                     <h2 className="text-xl sm:text-2xl font-bold">
@@ -773,11 +773,11 @@ export default function SchedulePageClient({
                                                             selectedCandidate.fullName
                                                         }
                                                     </h2>
-                                                    <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-[#8B99B0]">
-                                                        <span className="inline-flex items-center gap-2 text-[#ECF0F7]">
+                                                    <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-muted-foreground">
+                                                        <span className="inline-flex items-center gap-2 text-foreground">
                                                             <UserCheck
                                                                 size={14}
-                                                                className="text-[#7C8FFF]"
+                                                                className="text-primary"
                                                             />
                                                             {
                                                                 selectedCandidate.jdTitle
@@ -806,7 +806,7 @@ export default function SchedulePageClient({
                                                     <Button
                                                         type="button"
                                                         variant="outline"
-                                                        className="h-9 rounded-lg border-white/15 bg-white/5 hover:bg-white/10"
+                                                        className="h-9 rounded-lg border-border bg-muted hover:bg-muted"
                                                         onClick={() =>
                                                             router.push(`/dashboard/recruitment/${selectedCandidate.id}`)
                                                         }
@@ -820,7 +820,7 @@ export default function SchedulePageClient({
                                                     <Button
                                                         type="button"
                                                         variant="outline"
-                                                        className="h-9 rounded-lg border-white/15 bg-white/5 hover:bg-white/10"
+                                                        className="h-9 rounded-lg border-border bg-muted hover:bg-muted"
                                                         onClick={() =>
                                                             router.push(
                                                                 `/dashboard/recruitment/${selectedCandidate.id}`,
@@ -853,7 +853,7 @@ export default function SchedulePageClient({
                                                     const tone = getScoreTone(score);
                                                     return (
                                                         <div className={`flex items-center gap-2.5 rounded-xl border px-3 py-2.5 ${tone.badge}`}>
-                                                            <div className="h-7 w-7 rounded-lg bg-white/5 border border-white/10 grid place-items-center shrink-0">
+                                                            <div className="h-7 w-7 rounded-lg bg-muted border border-border grid place-items-center shrink-0">
                                                                 <Gauge size={13} />
                                                             </div>
                                                             <div className="min-w-0">
@@ -866,22 +866,22 @@ export default function SchedulePageClient({
                                                 {/* Test */}
                                                 <div className={`flex items-center gap-2.5 rounded-xl border px-3 py-2.5 ${
                                                     selectedTestResult?.status === "COMPLETED"
-                                                        ? "border-[#7C8FFF]/25 bg-[#7C8FFF]/8"
+                                                        ? "border-border/25 bg-primary/8"
                                                         : "border-amber-500/25 bg-amber-500/8"
                                                 }`}>
                                                     <div className={`h-7 w-7 rounded-lg grid place-items-center shrink-0 ${
                                                         selectedTestResult?.status === "COMPLETED"
-                                                            ? "bg-[#7C8FFF]/15 border border-[#7C8FFF]/30 text-[#B6C2FF]"
+                                                            ? "bg-primary/15 border border-border/30 text-primary"
                                                             : "bg-amber-500/15 border border-amber-500/30 text-amber-400"
                                                     }`}>
                                                         <FileText size={13} />
                                                     </div>
                                                     <div className="min-w-0">
                                                         <p className={`text-[10px] font-medium uppercase tracking-wider opacity-60 ${
-                                                            selectedTestResult?.status === "COMPLETED" ? "text-[#B6C2FF]" : "text-amber-300"
+                                                            selectedTestResult?.status === "COMPLETED" ? "text-primary" : "text-amber-300"
                                                         }`}>Test</p>
                                                         <p className={`text-xs font-bold truncate ${
-                                                            selectedTestResult?.status === "COMPLETED" ? "text-[#C7D0FF]" : "text-amber-300"
+                                                            selectedTestResult?.status === "COMPLETED" ? "text-primary" : "text-amber-300"
                                                         }`}>
                                                             {getTestStatusLabel(selectedTestResult?.status ?? null)}
                                                         </p>
@@ -890,24 +890,24 @@ export default function SchedulePageClient({
                                             </div>
                                         </div>
 
-                                        <div className="p-5 sm:p-6 border-b border-white/10 bg-[#0F172A]/45">
+                                        <div className="p-5 sm:p-6 border-b border-border bg-background/45">
                                             <div className="flex items-center gap-2 mb-4">
-                                                <div className="h-px flex-1 bg-white/8" />
-                                                <p className="text-[10px] uppercase tracking-widest text-[#5A6882] font-semibold px-2">Decision Context</p>
-                                                <div className="h-px flex-1 bg-white/8" />
+                                                <div className="h-px flex-1 bg-muted" />
+                                                <p className="text-[10px] uppercase tracking-widest text-muted-foreground font-semibold px-2">Decision Context</p>
+                                                <div className="h-px flex-1 bg-muted" />
                                             </div>
                                             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                                                 {/* AI Summary card */}
-                                                <div className="relative rounded-2xl border border-[#7C8FFF]/20 bg-[#0A0F1D]/60 p-4 overflow-hidden">
-                                                    <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,rgba(124,143,255,0.08),transparent_60%)] pointer-events-none" />
+                                                <div className="relative rounded-2xl border border-border/20 bg-background/60 p-4 overflow-hidden">
+                                                    <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,color-mix(in_srgb,var(--primary)_8%,transparent),transparent_60%)] pointer-events-none" />
                                                     <div className="relative">
                                                         <div className="flex items-center gap-2 mb-3">
-                                                            <div className="h-6 w-6 rounded-lg bg-[#7C8FFF]/20 border border-[#7C8FFF]/30 grid place-items-center">
-                                                                <Sparkles size={12} className="text-[#B6C2FF]" />
+                                                            <div className="h-6 w-6 rounded-lg bg-primary/20 border border-border/30 grid place-items-center">
+                                                                <Sparkles size={12} className="text-primary" />
                                                             </div>
-                                                            <p className="text-xs font-semibold text-[#B6C2FF] tracking-wide">Tóm tắt AI</p>
+                                                            <p className="text-xs font-semibold text-primary tracking-wide">Tóm tắt AI</p>
                                                         </div>
-                                                        <p className="text-sm leading-relaxed text-[#C8D0DF]">
+                                                        <p className="text-sm leading-relaxed text-foreground">
                                                             {selectedCandidate.screening?.summary || "Chưa có tóm tắt AI."}
                                                         </p>
                                                     </div>
@@ -916,13 +916,13 @@ export default function SchedulePageClient({
                                                 {/* Test result card */}
                                                 <div className={`relative rounded-2xl border p-4 overflow-hidden ${
                                                     selectedTestResult?.status === "COMPLETED"
-                                                        ? "border-emerald-500/20 bg-[#0A0F1D]/60"
-                                                        : "border-amber-500/20 bg-[#0A0F1D]/60"
+                                                        ? "border-emerald-500/20 bg-background/60"
+                                                        : "border-amber-500/20 bg-background/60"
                                                 }`}>
                                                     <div className={`absolute inset-0 pointer-events-none ${
                                                         selectedTestResult?.status === "COMPLETED"
-                                                            ? "bg-[radial-gradient(ellipse_at_top_left,rgba(16,185,129,0.07),transparent_60%)]"
-                                                            : "bg-[radial-gradient(ellipse_at_top_left,rgba(245,158,11,0.07),transparent_60%)]"
+                                                            ? "bg-[radial-gradient(ellipse_at_top_left,color-mix(in_srgb,var(--success)_7%,transparent),transparent_60%)]"
+                                                            : "bg-[radial-gradient(ellipse_at_top_left,color-mix(in_srgb,var(--warning)_7%,transparent),transparent_60%)]"
                                                     }`} />
                                                     <div className="relative">
                                                         <div className="flex items-center gap-2 mb-3">
@@ -937,19 +937,19 @@ export default function SchedulePageClient({
                                                                 selectedTestResult?.status === "COMPLETED" ? "text-emerald-300" : "text-amber-300"
                                                             }`}>Kết quả test</p>
                                                             {selectedTestResult && selectedTestResult.score !== null && (
-                                                                <span className="ml-auto text-xs font-bold text-[#ECF0F7]">
+                                                                <span className="ml-auto text-xs font-bold text-foreground">
                                                                     {selectedTestResult.score}/{selectedTestResult.total ?? "?"}
                                                                 </span>
                                                             )}
                                                         </div>
                                                         {selectedTestResult ? (
                                                             <div className="space-y-2">
-                                                                <p className="text-sm text-[#C8D0DF]">
+                                                                <p className="text-sm text-foreground">
                                                                     {getTestStatusLabel(selectedTestResult.status)}
                                                                 </p>
                                                                 {selectedTestResult.score !== null && selectedTestResult.total !== null && (
                                                                     <div className="mt-2">
-                                                                        <div className="h-1.5 w-full rounded-full bg-white/8 overflow-hidden">
+                                                                        <div className="h-1.5 w-full rounded-full bg-muted overflow-hidden">
                                                                             <div
                                                                                 className="h-full rounded-full bg-linear-to-r from-emerald-500 to-emerald-400 transition-all"
                                                                                 style={{ width: `${Math.min(100, (selectedTestResult.score / selectedTestResult.total) * 100)}%` }}
@@ -960,7 +960,7 @@ export default function SchedulePageClient({
                                                             </div>
                                                         ) : (
                                                             <div className="space-y-2">
-                                                                <p className="text-sm text-[#C8D0DF]">Chưa có dữ liệu test cho ứng viên này.</p>
+                                                                <p className="text-sm text-foreground">Chưa có dữ liệu test cho ứng viên này.</p>
                                                                 <div className="inline-flex items-center gap-2 text-[11px] text-amber-300 bg-amber-500/10 border border-amber-500/25 rounded-lg px-2.5 py-1.5 mt-1">
                                                                     <AlertTriangle size={12} />
                                                                     Nên kiểm tra test trước khi xác nhận lịch.
@@ -973,7 +973,7 @@ export default function SchedulePageClient({
 
                                             {selectedCandidateInterviews.length >
                                                 0 && (
-                                                <div className="mt-4 rounded-2xl border border-white/10 bg-[#0B1222]/70 p-4">
+                                                <div className="mt-4 rounded-2xl border border-border bg-background/70 p-4">
                                                     <p className="text-sm font-semibold mb-3">
                                                         Lịch sử vòng phỏng vấn
                                                     </p>
@@ -989,9 +989,9 @@ export default function SchedulePageClient({
                                                                         key={
                                                                             item.id
                                                                         }
-                                                                        className="flex items-center justify-between rounded-xl border border-white/8 bg-white/[0.02] px-3 py-2 text-sm"
+                                                                        className="flex items-center justify-between rounded-xl border border-border bg-white/[0.02] px-3 py-2 text-sm"
                                                                     >
-                                                                        <span className="text-[#C8D0DF]">
+                                                                        <span className="text-foreground">
                                                                             Round{" "}
                                                                             {index +
                                                                                 1}{" "}
@@ -1000,7 +1000,7 @@ export default function SchedulePageClient({
                                                                                 item.interviewerName
                                                                             }
                                                                         </span>
-                                                                        <span className="text-[#8B99B0]">
+                                                                        <span className="text-muted-foreground">
                                                                             {formatDate(
                                                                                 item.scheduledAt,
                                                                             )}{" "}
@@ -1023,7 +1023,7 @@ export default function SchedulePageClient({
                                             <div>
                                                 <label
                                                     htmlFor="interview-round"
-                                                    className="mb-2 block text-sm text-[#8B99B0]"
+                                                    className="mb-2 block text-sm text-muted-foreground"
                                                 >
                                                     Vòng phỏng vấn <span className="ml-1.5 text-rose-400">*</span>
                                                 </label>
@@ -1033,16 +1033,16 @@ export default function SchedulePageClient({
                                                         id="interview-round"
                                                         aria-invalid={fieldErrors.interviewRound || undefined}
                                                         onClick={() => setOpenPicker((current) => current === "round" ? null : "round")}
-                                                        className={`w-full h-12 rounded-xl border bg-[#0A0F1D] px-4 pr-10 text-left text-base text-[#ECF0F7] focus:outline-none focus:ring-2 focus:ring-[#7C8FFF]/40 ${fieldErrors.interviewRound ? "border-rose-500/60" : "border-white/10"}`}
+                                                        className={`w-full h-12 rounded-xl border bg-background px-4 pr-10 text-left text-base text-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 ${fieldErrors.interviewRound ? "border-rose-500/60" : "border-border"}`}
                                                     >
                                                         {INTERVIEW_ROUND_OPTIONS.find((option) => option.value === interviewRound)?.label ?? "Ch?n v?ng ph?ng v?n"}
                                                     </button>
                                                     <ChevronDown
                                                         size={16}
-                                                        className={`pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[#5A6882] transition-transform ${openPicker === "round" ? "rotate-180" : ""}`}
+                                                        className={`pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground transition-transform ${openPicker === "round" ? "rotate-180" : ""}`}
                                                     />
                                                     {openPicker === "round" && (
-                                                        <div className="absolute left-0 right-0 top-full z-50 mt-1 overflow-hidden rounded-xl border border-[#5B6CF0]/40 bg-[#0A0F1D] shadow-[0_18px_50px_rgba(0,0,0,0.55)]">
+                                                        <div className="absolute left-0 right-0 top-full z-50 mt-1 overflow-hidden rounded-xl border border-border/40 bg-background shadow-[0_18px_50px_rgba(0,0,0,0.55)]">
                                                             {INTERVIEW_ROUND_OPTIONS.map((option) => (
                                                                 <button
                                                                     key={option.value}
@@ -1052,7 +1052,7 @@ export default function SchedulePageClient({
                                                                         setFieldErrors((prev) => ({ ...prev, interviewRound: false }));
                                                                         setOpenPicker(null);
                                                                     }}
-                                                                    className={`block w-full px-4 py-2.5 text-left text-base transition-colors ${interviewRound === option.value ? "bg-[#5B6CF0]/25 text-white" : "text-[#ECF0F7] hover:bg-white/10"}`}
+                                                                    className={`block w-full px-4 py-2.5 text-left text-base transition-colors ${interviewRound === option.value ? "bg-primary/25 text-white" : "text-foreground hover:bg-muted"}`}
                                                                 >
                                                                     {option.label}
                                                                 </button>
@@ -1066,7 +1066,7 @@ export default function SchedulePageClient({
                                                 <div>
                                                     <label
                                                         htmlFor="interview-date"
-                                                        className="mb-2 block text-sm text-[#8B99B0]"
+                                                        className="mb-2 block text-sm text-muted-foreground"
                                                     >
                                                         Ngày phỏng vấn <span className="ml-1.5 text-rose-400">*</span>
                                                     </label>
@@ -1076,23 +1076,23 @@ export default function SchedulePageClient({
                                                             id="interview-date"
                                                             aria-invalid={fieldErrors.interviewDate || undefined}
                                                             onClick={() => setOpenPicker((current) => current === "date" ? null : "date")}
-                                                            className={`w-full h-12 rounded-xl border bg-[#0A0F1D] px-4 pr-11 text-left text-base focus:outline-none focus:ring-2 focus:ring-[#7C8FFF]/40 ${fieldErrors.interviewDate ? "border-rose-500/60" : "border-white/10"} ${interviewDate ? "text-[#ECF0F7]" : "text-[#8B99B0]"}`}
+                                                            className={`w-full h-12 rounded-xl border bg-background px-4 pr-11 text-left text-base focus:outline-none focus:ring-2 focus:ring-primary/40 ${fieldErrors.interviewDate ? "border-rose-500/60" : "border-border"} ${interviewDate ? "text-foreground" : "text-muted-foreground"}`}
                                                         >
                                                             {formatDateDisplay(interviewDate)}
                                                         </button>
-                                                        <Calendar size={16} className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-[#8B99B0]" />
+                                                        <Calendar size={16} className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground" />
                                                         {openPicker === "date" && (
-                                                            <div className="absolute left-0 top-full z-50 mt-2 w-80 rounded-2xl border border-[#5B6CF0]/30 bg-[#0A0F1D] p-4 shadow-[0_18px_50px_rgba(0,0,0,0.6)]">
+                                                            <div className="absolute left-0 top-full z-50 mt-2 w-80 rounded-2xl border border-border/30 bg-background p-4 shadow-[0_18px_50px_rgba(0,0,0,0.6)]">
                                                                 <div className="mb-3 flex items-center justify-between">
-                                                                    <button type="button" className="text-sm font-semibold text-[#ECF0F7]" onMouseDown={() => setCalendarMonth(new Date())}>
+                                                                    <button type="button" className="text-sm font-semibold text-foreground" onMouseDown={() => setCalendarMonth(new Date())}>
                                                                         {MONTH_LABELS[calendarMonth.getMonth()]} {calendarMonth.getFullYear()}
                                                                     </button>
                                                                     <div className="flex items-center gap-2">
-                                                                        <button type="button" className="rounded-lg p-1.5 text-[#8B99B0] hover:bg-white/10 hover:text-white" onMouseDown={() => setCalendarMonth(new Date(calendarMonth.getFullYear(), calendarMonth.getMonth() - 1, 1))}>?</button>
-                                                                        <button type="button" className="rounded-lg p-1.5 text-[#8B99B0] hover:bg-white/10 hover:text-white" onMouseDown={() => setCalendarMonth(new Date(calendarMonth.getFullYear(), calendarMonth.getMonth() + 1, 1))}>?</button>
+                                                                        <button type="button" className="rounded-lg p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground" onMouseDown={() => setCalendarMonth(new Date(calendarMonth.getFullYear(), calendarMonth.getMonth() - 1, 1))}>?</button>
+                                                                        <button type="button" className="rounded-lg p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground" onMouseDown={() => setCalendarMonth(new Date(calendarMonth.getFullYear(), calendarMonth.getMonth() + 1, 1))}>?</button>
                                                                     </div>
                                                                 </div>
-                                                                <div className="mb-2 grid grid-cols-7 gap-1 text-center text-xs font-bold text-[#ECF0F7]">
+                                                                <div className="mb-2 grid grid-cols-7 gap-1 text-center text-xs font-bold text-foreground">
                                                                     {WEEKDAY_LABELS.map((day) => <div key={day}>{day}</div>)}
                                                                 </div>
                                                                 <div className="grid grid-cols-7 gap-1">
@@ -1109,7 +1109,7 @@ export default function SchedulePageClient({
                                                                                     setFieldErrors((prev) => ({ ...prev, interviewDate: false }));
                                                                                     setOpenPicker(null);
                                                                                 }}
-                                                                                className={`h-8 rounded-lg text-sm font-semibold transition-colors ${isSelected ? "bg-[#5B6CF0] text-white ring-1 ring-white/50" : isCurrentMonth ? "text-[#ECF0F7] hover:bg-white/10" : "text-[#5A6882] hover:bg-white/5"}`}
+                                                                                className={`h-8 rounded-lg text-sm font-semibold transition-colors ${isSelected ? "bg-primary text-white ring-1 ring-white/50" : isCurrentMonth ? "text-foreground hover:bg-muted" : "text-muted-foreground hover:bg-muted"}`}
                                                                             >
                                                                                 {date.getDate()}
                                                                             </button>
@@ -1117,8 +1117,8 @@ export default function SchedulePageClient({
                                                                     })}
                                                                 </div>
                                                                 <div className="mt-3 flex items-center justify-between text-sm">
-                                                                    <button type="button" className="text-[#8B99B0] hover:text-white" onMouseDown={() => setInterviewDate("")}>Clear</button>
-                                                                    <button type="button" className="text-[#7C8FFF] hover:text-white" onMouseDown={() => {
+                                                                    <button type="button" className="text-muted-foreground hover:text-foreground" onMouseDown={() => setInterviewDate("")}>Clear</button>
+                                                                    <button type="button" className="text-primary hover:text-foreground" onMouseDown={() => {
                                                                         const today = new Date();
                                                                         setCalendarMonth(today);
                                                                         setInterviewDate(formatDateInput(today));
@@ -1134,7 +1134,7 @@ export default function SchedulePageClient({
                                                 <div>
                                                     <label
                                                         htmlFor="start-time"
-                                                        className="mb-2 block text-sm text-[#8B99B0]"
+                                                        className="mb-2 block text-sm text-muted-foreground"
                                                     >
                                                         Giờ bắt đầu <span className="ml-1.5 text-rose-400">*</span>
                                                     </label>
@@ -1144,30 +1144,30 @@ export default function SchedulePageClient({
                                                             id="start-time"
                                                             aria-invalid={fieldErrors.startTime || undefined}
                                                             onClick={() => setOpenPicker((current) => current === "time" ? null : "time")}
-                                                            className={`w-full h-12 rounded-xl border bg-[#0A0F1D] px-4 pr-11 text-left text-base focus:outline-none focus:ring-2 focus:ring-[#7C8FFF]/40 ${fieldErrors.startTime ? "border-rose-500/60" : "border-white/10"} ${startTime ? "text-[#ECF0F7]" : "text-[#8B99B0]"}`}
+                                                            className={`w-full h-12 rounded-xl border bg-background px-4 pr-11 text-left text-base focus:outline-none focus:ring-2 focus:ring-primary/40 ${fieldErrors.startTime ? "border-rose-500/60" : "border-border"} ${startTime ? "text-foreground" : "text-muted-foreground"}`}
                                                         >
                                                             {formatTimeDisplay(startTime)}
                                                         </button>
-                                                        <Clock3 size={16} className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-[#8B99B0]" />
+                                                        <Clock3 size={16} className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground" />
                                                         {openPicker === "time" && (
-                                                            <div className="absolute left-0 top-full z-50 mt-2 grid w-64 grid-cols-3 gap-1 rounded-2xl border border-[#5B6CF0]/30 bg-[#0A0F1D] p-2 shadow-[0_18px_50px_rgba(0,0,0,0.6)]">
+                                                            <div className="absolute left-0 top-full z-50 mt-2 grid w-64 grid-cols-3 gap-1 rounded-2xl border border-border/30 bg-background p-2 shadow-[0_18px_50px_rgba(0,0,0,0.6)]">
                                                                 <div className="max-h-56 overflow-y-auto pr-1">
                                                                     {hourOptions.map((hour) => (
-                                                                        <button key={hour} type="button" onMouseDown={() => updateStartTime(hour, selectedMinute, selectedPeriod)} className={`block h-9 w-full rounded-lg text-sm font-semibold ${selectedHour12 === hour ? "bg-[#93C5FD] text-[#0A0F1D]" : "text-[#ECF0F7] hover:bg-white/10"}`}>
+                                                                        <button key={hour} type="button" onMouseDown={() => updateStartTime(hour, selectedMinute, selectedPeriod)} className={`block h-9 w-full rounded-lg text-sm font-semibold ${selectedHour12 === hour ? "bg-background text-primary" : "text-foreground hover:bg-muted"}`}>
                                                                             {String(hour).padStart(2, "0")}
                                                                         </button>
                                                                     ))}
                                                                 </div>
                                                                 <div className="max-h-56 overflow-y-auto pr-1">
                                                                     {minuteOptions.map((minute) => (
-                                                                        <button key={minute} type="button" onMouseDown={() => updateStartTime(selectedHour12, minute, selectedPeriod)} className={`block h-9 w-full rounded-lg text-sm font-semibold ${selectedMinute === minute ? "bg-white/80 text-[#0A0F1D]" : "text-[#ECF0F7] hover:bg-white/10"}`}>
+                                                                        <button key={minute} type="button" onMouseDown={() => updateStartTime(selectedHour12, minute, selectedPeriod)} className={`block h-9 w-full rounded-lg text-sm font-semibold ${selectedMinute === minute ? "bg-muted text-background" : "text-foreground hover:bg-muted"}`}>
                                                                             {minute}
                                                                         </button>
                                                                     ))}
                                                                 </div>
                                                                 <div>
                                                                     {(["AM", "PM"] as const).map((period) => (
-                                                                        <button key={period} type="button" onMouseDown={() => updateStartTime(selectedHour12, selectedMinute, period)} className={`block h-9 w-full rounded-lg text-sm font-bold ${selectedPeriod === period ? "bg-white/90 text-[#0A0F1D]" : "text-[#ECF0F7] hover:bg-white/10"}`}>
+                                                                        <button key={period} type="button" onMouseDown={() => updateStartTime(selectedHour12, selectedMinute, period)} className={`block h-9 w-full rounded-lg text-sm font-bold ${selectedPeriod === period ? "bg-muted text-background" : "text-foreground hover:bg-muted"}`}>
                                                                             {period}
                                                                         </button>
                                                                     ))}
@@ -1178,10 +1178,10 @@ export default function SchedulePageClient({
                                                 </div>
 
                                                 <div>
-                                                    <label className="mb-2 block text-sm text-[#8B99B0]">
+                                                    <label className="mb-2 block text-sm text-muted-foreground">
                                                         Thời lượng <span className="ml-1.5 text-rose-400">*</span>
                                                     </label>
-                                                    <div className={`grid grid-cols-4 gap-2 rounded-xl border bg-[#0A0F1D] p-1.5 ${fieldErrors.duration ? "border-rose-500/60" : "border-white/10"}`}>
+                                                    <div className={`grid grid-cols-4 gap-2 rounded-xl border bg-background p-1.5 ${fieldErrors.duration ? "border-rose-500/60" : "border-border"}`}>
                                                         {[
                                                             "30",
                                                             "45",
@@ -1200,8 +1200,8 @@ export default function SchedulePageClient({
                                                                 className={`h-9 rounded-lg text-sm transition ${
                                                                     duration ===
                                                                     minute
-                                                                        ? "bg-[#5B6CF0] text-white"
-                                                                        : "text-[#8B99B0] hover:bg-white/10"
+                                                                        ? "bg-primary text-white"
+                                                                        : "text-muted-foreground hover:bg-muted"
                                                                 }`}
                                                             >
                                                                 {minute}m
@@ -1211,7 +1211,7 @@ export default function SchedulePageClient({
                                                 </div>
                                             </div>
 
-                                            <div className="rounded-2xl border border-white/10 bg-white/3 px-4 py-3 text-sm text-[#B7C3D9] flex flex-wrap items-center gap-3">
+                                            <div className="rounded-2xl border border-border bg-muted px-4 py-3 text-sm text-primary flex flex-wrap items-center gap-3">
                                                 <span className="inline-flex items-center gap-2">
                                                     <Clock3 size={14} /> Kết
                                                     thúc dự kiến: {endTimeLabel}
@@ -1227,7 +1227,7 @@ export default function SchedulePageClient({
                                             </div>
 
                                             <div>
-                                                <label className="mb-2 block text-sm text-[#8B99B0]">
+                                                <label className="mb-2 block text-sm text-muted-foreground">
                                                     Hình thức phỏng vấn <span className="ml-1.5 text-rose-400">*</span>
                                                 </label>
                                                 <div className="grid grid-cols-3 gap-2">
@@ -1244,8 +1244,8 @@ export default function SchedulePageClient({
                                                         className={`h-11 rounded-xl border text-sm flex items-center justify-center gap-2 transition ${
                                                             locationType ===
                                                             "online"
-                                                                ? "border-[#7C8FFF]/40 bg-[#7C8FFF]/15 text-[#C7D0FF]"
-                                                                : "border-white/10 bg-[#0A0F1D] text-[#8B99B0] hover:bg-white/10"
+                                                                ? "border-border/40 bg-primary/15 text-primary"
+                                                                : "border-border bg-background text-muted-foreground hover:bg-muted"
                                                         }`}
                                                     >
                                                         <Video size={14} />
@@ -1265,7 +1265,7 @@ export default function SchedulePageClient({
                                                             locationType ===
                                                             "office"
                                                                 ? "border-emerald-500/40 bg-emerald-500/15 text-emerald-300"
-                                                                : "border-white/10 bg-[#0A0F1D] text-[#8B99B0] hover:bg-white/10"
+                                                                : "border-border bg-background text-muted-foreground hover:bg-muted"
                                                         }`}
                                                     >
                                                         <Building2 size={14} />
@@ -1285,7 +1285,7 @@ export default function SchedulePageClient({
                                                             locationType ===
                                                             "phone"
                                                                 ? "border-cyan-500/40 bg-cyan-500/15 text-cyan-300"
-                                                                : "border-white/10 bg-[#0A0F1D] text-[#8B99B0] hover:bg-white/10"
+                                                                : "border-border bg-background text-muted-foreground hover:bg-muted"
                                                         }`}
                                                     >
                                                         <Phone size={14} />
@@ -1296,7 +1296,7 @@ export default function SchedulePageClient({
                                                 <div className="relative mt-3">
                                                     <MapPin
                                                         size={16}
-                                                        className="absolute left-3 top-1/2 -translate-y-1/2 text-[#5A6882]"
+                                                        className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
                                                     />
                                                     <input
                                                         type="text"
@@ -1316,13 +1316,13 @@ export default function SchedulePageClient({
                                                                   ? "Nhập địa điểm/phòng họp"
                                                                   : "Nhập hướng dẫn gọi điện"
                                                         }
-                                                        className="w-full h-12 rounded-xl border border-white/10 bg-[#0A0F1D] pl-10 pr-3 text-base focus:outline-none focus:ring-2 focus:ring-[#7C8FFF]/40"
+                                                        className="w-full h-12 rounded-xl border border-border bg-background pl-10 pr-3 text-base focus:outline-none focus:ring-2 focus:ring-primary/40"
                                                     />
                                                 </div>
                                             </div>
 
                                             <div>
-                                                <label className="mb-2 block text-sm text-[#8B99B0]">
+                                                <label className="mb-2 block text-sm text-muted-foreground">
                                                     Ghi chú cho interviewer
                                                 </label>
                                                 <textarea
@@ -1334,7 +1334,7 @@ export default function SchedulePageClient({
                                                         )
                                                     }
                                                     placeholder="Thêm lưu ý trọng tâm cần phỏng vấn, điểm cần xác minh"
-                                                    className="w-full rounded-xl border border-white/10 bg-[#0A0F1D] p-3 text-base focus:outline-none focus:ring-2 focus:ring-[#7C8FFF]/40 resize-y"
+                                                    className="w-full rounded-xl border border-border bg-background p-3 text-base focus:outline-none focus:ring-2 focus:ring-primary/40 resize-y"
                                                 />
                                             </div>
 
@@ -1347,7 +1347,7 @@ export default function SchedulePageClient({
                                                             "Lưu nháp sẽ được bổ sung ở giai đoạn tiếp theo.",
                                                         )
                                                     }
-                                                    className="h-11 rounded-xl border-white/15 bg-white/5 hover:bg-white/10"
+                                                    className="h-11 rounded-xl border-border bg-muted hover:bg-muted"
                                                 >
                                                     Lưu nháp
                                                 </Button>
@@ -1359,14 +1359,14 @@ export default function SchedulePageClient({
                                                             null,
                                                         )
                                                     }
-                                                    className="h-11 rounded-xl border-white/15 bg-white/5 hover:bg-white/10"
+                                                    className="h-11 rounded-xl border-border bg-muted hover:bg-muted"
                                                 >
                                                     Hủy
                                                 </Button>
                                                 <Button
                                                     type="submit"
                                                     disabled={submitting}
-                                                    className="h-11 rounded-xl bg-linear-to-r from-[#5B6CF0] via-[#6577FF] to-[#4B5DE4] hover:brightness-110 text-white sm:min-w-56 shadow-[0_12px_26px_-12px_rgba(91,108,240,0.85)]"
+                                                    className="h-11 rounded-xl bg-linear-to-r from-primary via-primary to-primary hover:brightness-110 text-white sm:min-w-56 shadow-[0_12px_26px_-12px_color-mix(in_srgb,var(--primary)_85%,transparent)]"
                                                 >
                                                     {submitting ? (
                                                         <span className="inline-flex items-center gap-2">

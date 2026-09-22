@@ -88,7 +88,7 @@ export default function LevelConfigShortageBanner({
           {substitutionPreview.fills.map((f) => (
             <div key={`fill-${f.type}`} className="contents">
               <div className="font-mono text-emerald-300/90">{f.type}</div>
-              <div className="text-center text-[#5A6882] font-mono">—</div>
+              <div className="text-center text-muted-foreground font-mono">—</div>
               <div className="text-center text-emerald-400/80 font-mono">{availability?.byType[f.type] ?? 0}</div>
               <ArrowRight className="w-3 h-3 text-emerald-500/50 mx-auto" />
               <div className="text-center font-mono text-emerald-300 font-semibold">
@@ -115,7 +115,7 @@ export default function LevelConfigShortageBanner({
       </div>
 
       {/* Actions */}
-      <div className="flex items-center gap-2 px-4 py-3 border-t border-amber-500/15 bg-[#0C1220]/30">
+      <div className="flex items-center gap-2 px-4 py-3 border-t border-amber-500/15 bg-background/30">
         {selectedTopics.length > 0 && broaderAvailable > 0 && (
           <Button
             type="button"

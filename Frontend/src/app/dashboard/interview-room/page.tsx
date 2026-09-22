@@ -10,7 +10,7 @@ export default async function InterviewRoomPage() {
   if (!["interviewer", "hr", "admin", "super_admin"].includes(ctx.role)) redirect("/dashboard");
 
   return (
-    <div className="min-h-screen bg-[#121A2E] text-[#ECF0F7] selection:bg-[#7C8FFF]/30 font-body">
+    <div className="min-h-screen bg-background text-foreground selection:bg-primary/30 font-body">
       <AppNavbar user={null} />
       <main className="mx-auto w-full max-w-6xl px-4 pb-16 pt-[var(--page-top)] sm:px-6">
         <div className="mb-6">

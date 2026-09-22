@@ -57,7 +57,7 @@ export default function SidebarRecentNav({ collapsed, onLinkClick }: Props) {
     if (collapsed) {
         return (
             <div className="px-2 mb-1 flex justify-center">
-                <div className="w-10 h-8 flex items-center justify-center text-[#8B99B0]">
+                <div className="w-10 h-8 flex items-center justify-center text-muted-foreground">
                     <Clock className="w-3.5 h-3.5" />
                 </div>
             </div>
@@ -70,7 +70,7 @@ export default function SidebarRecentNav({ collapsed, onLinkClick }: Props) {
             {/* Collapsible header */}
             <button
                 onClick={() => setOpen(o => !o)}
-                className="w-full flex items-center gap-2 px-3 pt-3 pb-1.5 text-[#8B99B0] hover:text-[#ECF0F7] transition-colors cursor-pointer"
+                className="w-full flex items-center gap-2 px-3 pt-3 pb-1.5 text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
             >
                 <Clock className="w-3.5 h-3.5 shrink-0" />
                 <span className="text-[10px] font-semibold uppercase tracking-[0.12em] select-none flex-1 text-left">
@@ -81,18 +81,18 @@ export default function SidebarRecentNav({ collapsed, onLinkClick }: Props) {
 
             {/* Items — left border line matching nav sub-items */}
             {open && (
-                <div className="ml-[22px] pl-3 border-l border-[#8B99B0]/15 mt-0.5 mb-1 space-y-0.5">
+                <div className="ml-[22px] pl-3 border-l border-border/15 mt-0.5 mb-1 space-y-0.5">
                     {recent.map((page) => (
                         <Link
                             key={page.href}
                             href={page.href}
                             onClick={onLinkClick}
-                            className="flex flex-col py-1.5 px-2 rounded-md hover:bg-[#1A2236] transition-colors duration-150 cursor-pointer group"
+                            className="flex flex-col py-1.5 px-2 rounded-md hover:bg-muted transition-colors duration-150 cursor-pointer group"
                         >
-                            <span className="text-[13px] font-medium text-[#8B99B0] group-hover:text-[#ECF0F7] transition-colors leading-snug truncate">
+                            <span className="text-[13px] font-medium text-muted-foreground group-hover:text-foreground transition-colors leading-snug truncate">
                                 {page.label}
                             </span>
-                            <span className="text-[11px] text-[#4A5A72] leading-snug truncate">
+                            <span className="text-[11px] text-muted-foreground leading-snug truncate">
                                 {page.groupLabel}
                             </span>
                         </Link>

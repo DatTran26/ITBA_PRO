@@ -110,8 +110,8 @@ export default function JdFormDialog({ mode, jd, trigger, onSuccess }: JdFormDia
     finally { setLoading(false); }
   }
 
-  const inputCls = "w-full px-3 py-2 rounded-lg bg-[#0F1628] border border-[#8B99B0]/20 text-[#ECF0F7] text-sm placeholder-[#5A6882] focus:outline-none focus:border-[#7C8FFF]/50 disabled:opacity-50";
-  const labelCls = "text-sm text-[#8B99B0]";
+  const inputCls = "w-full px-3 py-2 rounded-lg bg-card border border-muted-foreground/20 text-foreground text-sm placeholder-muted-foreground focus:outline-none focus:border-background/50 disabled:opacity-50";
+  const labelCls = "text-sm text-muted-foreground";
 
   return (
     <>
@@ -122,16 +122,16 @@ export default function JdFormDialog({ mode, jd, trigger, onSuccess }: JdFormDia
           <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={handleClose} />
           <div className="relative glass-card w-full max-w-2xl p-6 flex flex-col gap-5 max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between">
-              <h2 className="text-base font-semibold text-[#ECF0F7]">
+              <h2 className="text-base font-semibold text-foreground">
                 {mode === "create" ? "Tạo Job Description" : "Chỉnh sửa Job Description"}
               </h2>
-              <button onClick={handleClose} className="text-[#5A6882] hover:text-[#8B99B0] text-lg leading-none">×</button>
+              <button onClick={handleClose} className="text-muted-foreground hover:text-muted-foreground text-lg leading-none">×</button>
             </div>
 
             <form onSubmit={handleSubmit} className="flex flex-col gap-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="flex flex-col gap-1.5">
-                  <label className={labelCls}>Tiêu đề <span className="text-[#EF4444]">*</span></label>
+                  <label className={labelCls}>Tiêu đề <span className="text-danger">*</span></label>
                   <input value={form.title} onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))} disabled={loading} placeholder="VD: Senior Backend Engineer" className={inputCls} />
                 </div>
                 <div className="flex flex-col gap-1.5">
@@ -159,16 +159,16 @@ export default function JdFormDialog({ mode, jd, trigger, onSuccess }: JdFormDia
                     placeholder="Nhập kỹ năng rồi Enter..."
                     className={inputCls}
                   />
-                  <button type="button" onClick={addSkill} disabled={loading} className="px-3 py-2 rounded-lg bg-[#7C8FFF]/15 text-[#7C8FFF] text-sm border border-[#7C8FFF]/30 hover:bg-[#7C8FFF]/25 transition-colors shrink-0">
+                  <button type="button" onClick={addSkill} disabled={loading} className="px-3 py-2 rounded-lg bg-primary/15 text-primary text-sm border border-primary/30 hover:bg-primary/25 transition-colors shrink-0">
                     Thêm
                   </button>
                 </div>
                 {form.required_skills.length > 0 && (
                   <div className="flex flex-wrap gap-1.5 mt-1">
                     {form.required_skills.map((s) => (
-                      <span key={s.skill} className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#7C8FFF]/10 border border-[#7C8FFF]/20 text-xs text-[#7C8FFF]">
+                      <span key={s.skill} className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-primary/10 border border-primary/20 text-xs text-primary">
                         {s.skill}
-                        <button type="button" onClick={() => removeSkill(s.skill)} className="text-[#7C8FFF]/60 hover:text-[#7C8FFF] leading-none">×</button>
+                        <button type="button" onClick={() => removeSkill(s.skill)} className="text-primary/60 hover:text-primary leading-none">×</button>
                       </span>
                     ))}
                   </div>
@@ -178,7 +178,7 @@ export default function JdFormDialog({ mode, jd, trigger, onSuccess }: JdFormDia
               <div className="flex flex-col gap-1.5">
                 <label className={labelCls}>Mô tả đầy đủ (full_text)</label>
                 <textarea rows={5} value={form.full_text} onChange={(e) => setForm((f) => ({ ...f, full_text: e.target.value }))} disabled={loading} placeholder="Nội dung JD đầy đủ..." className={`${inputCls} resize-none`} />
-                <span className="text-xs text-[#5A6882] text-right">{form.full_text.length}/20480</span>
+                <span className="text-xs text-muted-foreground text-right">{form.full_text.length}/20480</span>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -187,16 +187,16 @@ export default function JdFormDialog({ mode, jd, trigger, onSuccess }: JdFormDia
                   <input type="number" min={0} max={100} value={form.auto_reject_threshold} onChange={(e) => setForm((f) => ({ ...f, auto_reject_threshold: e.target.value }))} disabled={loading} placeholder="VD: 40" className={inputCls} />
                 </div>
                 <div className="flex items-center gap-3 pt-5">
-                  <input id="jd-active" type="checkbox" checked={form.is_active} onChange={(e) => setForm((f) => ({ ...f, is_active: e.target.checked }))} disabled={loading} className="w-4 h-4 accent-[#7C8FFF]" />
+                  <input id="jd-active" type="checkbox" checked={form.is_active} onChange={(e) => setForm((f) => ({ ...f, is_active: e.target.checked }))} disabled={loading} className="w-4 h-4 accent-primary" />
                   <label htmlFor="jd-active" className={labelCls}>Active</label>
                 </div>
               </div>
 
-              {error && <p className="text-sm text-[#EF4444] bg-[#EF4444]/10 border border-[#EF4444]/20 rounded-lg px-3 py-2">{error}</p>}
+              {error && <p className="text-sm text-danger bg-danger/10 border border-danger/20 rounded-lg px-3 py-2">{error}</p>}
 
               <div className="flex gap-3 justify-end pt-1">
-                <button type="button" onClick={handleClose} disabled={loading} className="px-4 py-2 rounded-lg text-sm text-[#8B99B0] hover:text-[#ECF0F7] border border-[#8B99B0]/20 hover:border-[#8B99B0]/40 transition-colors disabled:opacity-50">Hủy</button>
-                <button type="submit" disabled={loading} className="px-4 py-2 rounded-lg text-sm font-medium bg-[#7C8FFF] text-white hover:bg-[#7C8FFF]/80 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                <button type="button" onClick={handleClose} disabled={loading} className="px-4 py-2 rounded-lg text-sm text-muted-foreground hover:text-foreground border border-muted-foreground/20 hover:border-muted-foreground/40 transition-colors disabled:opacity-50">Hủy</button>
+                <button type="submit" disabled={loading} className="px-4 py-2 rounded-lg text-sm font-medium bg-primary text-white hover:bg-primary/80 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
                   {loading ? "Đang lưu..." : mode === "create" ? "Tạo JD" : "Lưu thay đổi"}
                 </button>
               </div>

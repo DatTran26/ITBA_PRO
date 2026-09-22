@@ -4,7 +4,7 @@ import React from "react";
 
 export const PremiumBackground = () => {
   return (
-    <div className="fixed inset-0 -z-0 overflow-hidden bg-[#0A0F1E]">
+    <div className="fixed inset-0 -z-0 overflow-hidden bg-background">
       {/* Static Noise Texture — pre-baked PNG tile replaces feTurbulence (CPU-free) */}
       <div
         className="absolute inset-0 opacity-[0.04] pointer-events-none mix-blend-overlay"

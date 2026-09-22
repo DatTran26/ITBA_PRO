@@ -1,4 +1,5 @@
 "use client";
+import { alpha } from "@/lib/utils";
 
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
@@ -16,18 +17,18 @@ import { motion, AnimatePresence } from "framer-motion";
 import type { PipelineStatus } from "@/types/recruitment";
 
 const PIPELINE_STATUS_CONFIG: Record<string, { label: string; color: string }> = {
-  NEW: { label: "New", color: "#3B82F6" },
-  SCREENED: { label: "Screened", color: "#8B5CF6" },
-  SHORTLISTED: { label: "Shortlisted", color: "#7C8FFF" },
-  INTERVIEW_SCHEDULED: { label: "Interview Scheduled", color: "#F59E0B" },
-  INTERVIEWED: { label: "Interviewed", color: "#F97316" },
-  PASSED: { label: "Passed", color: "#22C55E" },
-  FAILED: { label: "Failed", color: "#EF4444" },
-  REJECTED: { label: "Rejected", color: "#6B7280" },
-  OFFERED: { label: "Offered", color: "#06B6D4" },
-  ACCEPTED: { label: "Accepted", color: "#10B981" },
-  OFFER_REJECTED: { label: "Offer Rejected", color: "#EF4444" },
-  ONBOARDED: { label: "Onboarded", color: "#22C55E" },
+  NEW: { label: "New", color: "var(--primary)" },
+  SCREENED: { label: "Screened", color: "var(--ai)" },
+  SHORTLISTED: { label: "Shortlisted", color: "var(--primary)" },
+  INTERVIEW_SCHEDULED: { label: "Interview Scheduled", color: "var(--warning)" },
+  INTERVIEWED: { label: "Interviewed", color: "var(--warning)" },
+  PASSED: { label: "Passed", color: "var(--success)" },
+  FAILED: { label: "Failed", color: "var(--danger)" },
+  REJECTED: { label: "Rejected", color: "var(--muted-foreground)" },
+  OFFERED: { label: "Offered", color: "var(--primary)" },
+  ACCEPTED: { label: "Accepted", color: "var(--success)" },
+  OFFER_REJECTED: { label: "Offer Rejected", color: "var(--danger)" },
+  ONBOARDED: { label: "Onboarded", color: "var(--success)" },
 };
 
 interface ApplicationData {
@@ -109,8 +110,8 @@ function TechnicalLog({ stepIndex }: { stepIndex: number }) {
   }, [stepIndex]);
 
   return (
-    <div className="mt-8 w-full max-w-2xl bg-black/40 rounded-xl border border-white/5 p-4 font-mono text-[10px] text-[#5B6CF0]/80 overflow-hidden relative">
-      <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-[#5B6CF0]/30 to-transparent" />
+    <div className="mt-8 w-full max-w-2xl bg-black/40 rounded-xl border border-border p-4 font-mono text-[10px] text-primary/80 overflow-hidden relative">
+      <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
       <div className="space-y-1">
         {logs.map((log, i) => (
           <motion.div
@@ -119,14 +120,14 @@ function TechnicalLog({ stepIndex }: { stepIndex: number }) {
             animate={{ opacity: 1, x: 0 }}
             className="flex gap-2"
           >
-            <span className="shrink-0 text-[#8B99B0] opacity-40">{">"}</span>
+            <span className="shrink-0 text-muted-foreground opacity-40">{">"}</span>
             {log}
           </motion.div>
         ))}
         <motion.div
           animate={{ opacity: [1, 0] }}
           transition={{ repeat: Infinity, duration: 0.8 }}
-          className="inline-block w-2 h-3 bg-[#5B6CF0] ml-1 align-middle"
+          className="inline-block w-2 h-3 bg-primary ml-1 align-middle"
         />
       </div>
     </div>
@@ -139,18 +140,18 @@ const RECOMMENDATION_CONFIG: Record<string, {
   label: string; color: string; bg: string; border: string;
   icon: React.ComponentType<{ className?: string }>;
 }> = {
-  STRONG_HIRE: { label: "Ưu tiên tuyển", color: "#10B981", bg: "rgba(16,185,129,0.08)", border: "rgba(16,185,129,0.25)", icon: Star },
-  HIRE: { label: "Nên phỏng vấn", color: "#22C55E", bg: "rgba(34,197,94,0.08)", border: "rgba(34,197,94,0.25)", icon: CheckCircle2 },
-  MAYBE: { label: "Cần cân nhắc", color: "#F59E0B", bg: "rgba(245,158,11,0.08)", border: "rgba(245,158,11,0.25)", icon: AlertCircle },
-  NO_HIRE: { label: "Không phù hợp", color: "#EF4444", bg: "rgba(239,68,68,0.08)", border: "rgba(239,68,68,0.25)", icon: XCircle },
+  STRONG_HIRE: { label: "Ưu tiên tuyển", color: "var(--success)", bg: "color-mix(in srgb, var(--success) 8%, transparent)", border: "color-mix(in srgb, var(--success) 25%, transparent)", icon: Star },
+  HIRE: { label: "Nên phỏng vấn", color: "var(--success)", bg: "color-mix(in srgb, var(--success) 8%, transparent)", border: "color-mix(in srgb, var(--success) 25%, transparent)", icon: CheckCircle2 },
+  MAYBE: { label: "Cần cân nhắc", color: "var(--warning)", bg: "color-mix(in srgb, var(--warning) 8%, transparent)", border: "color-mix(in srgb, var(--warning) 25%, transparent)", icon: AlertCircle },
+  NO_HIRE: { label: "Không phù hợp", color: "var(--danger)", bg: "color-mix(in srgb, var(--danger) 8%, transparent)", border: "color-mix(in srgb, var(--danger) 25%, transparent)", icon: XCircle },
 };
 
 function getScoreGrade(score: number): { label: string; color: string } {
-  if (score >= 90) return { label: "Xuất sắc", color: "#10B981" };
-  if (score >= 75) return { label: "Tốt", color: "#22C55E" };
-  if (score >= 60) return { label: "Khá", color: "#F59E0B" };
-  if (score >= 40) return { label: "Trung bình", color: "#F97316" };
-  return { label: "Yếu", color: "#EF4444" };
+  if (score >= 90) return { label: "Xuất sắc", color: "var(--success)" };
+  if (score >= 75) return { label: "Tốt", color: "var(--success)" };
+  if (score >= 60) return { label: "Khá", color: "var(--warning)" };
+  if (score >= 40) return { label: "Trung bình", color: "var(--warning)" };
+  return { label: "Yếu", color: "var(--danger)" };
 }
 
 interface EnhancedScoreBarProps {
@@ -166,18 +167,18 @@ function EnhancedScoreBar({ label, value, icon: Icon, accent }: EnhancedScoreBar
     <div className="flex items-center gap-3 py-2">
       <div
         className="w-6 h-6 rounded-lg flex items-center justify-center shrink-0"
-        style={{ backgroundColor: `${accent}20`, border: `1px solid ${accent}30` }}
+        style={{ backgroundColor: `${alpha(accent, 13)}`, border: `1px solid ${alpha(accent, 19)}` }}
       >
         <Icon className="w-3.5 h-3.5" style={{ color: accent }} />
       </div>
-      <span className="text-sm text-[#C8D0E0] w-24 shrink-0">{label}</span>
-      <div className="flex-1 h-3 bg-[#0D1220] rounded-full overflow-hidden">
+      <span className="text-sm text-foreground w-24 shrink-0">{label}</span>
+      <div className="flex-1 h-3 bg-background rounded-full overflow-hidden">
         <div
           className="h-full rounded-full transition-all duration-700 ease-out"
           style={{
             width: `${pct}%`,
-            background: `linear-gradient(90deg, ${accent}90, ${accent})`,
-            boxShadow: `0 0 10px ${accent}60`,
+            background: `linear-gradient(90deg, ${alpha(accent, 56)}, ${accent})`,
+            boxShadow: `0 0 10px ${alpha(accent, 38)}`,
           }}
         />
       </div>
@@ -191,12 +192,12 @@ function EnhancedScoreBar({ label, value, icon: Icon, accent }: EnhancedScoreBar
 function Skeleton() {
   return (
     <div className="space-y-6 animate-pulse">
-      <div className="h-16 bg-[#222C4A] rounded-xl" />
+      <div className="h-16 bg-accent rounded-xl" />
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="h-48 bg-[#222C4A] rounded-xl" />
-        <div className="h-48 bg-[#222C4A] rounded-xl" />
+        <div className="h-48 bg-accent rounded-xl" />
+        <div className="h-48 bg-accent rounded-xl" />
       </div>
-      <div className="h-32 bg-[#222C4A] rounded-xl" />
+      <div className="h-32 bg-accent rounded-xl" />
     </div>
   );
 }
@@ -224,21 +225,21 @@ function AnalysisLoadingCard({ isStuck, onRetry, isRetrying }: AnalysisLoadingCa
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
-        className="glass-card p-12 flex flex-col items-center gap-6 text-center max-w-xl mx-auto border-[#F59E0B]/20"
+        className="glass-card p-12 flex flex-col items-center gap-6 text-center max-w-xl mx-auto border-warning/20"
       >
-        <div className="w-16 h-16 rounded-2xl bg-[#F59E0B]/10 border border-[#F59E0B]/20 flex items-center justify-center shadow-[0_0_20px_rgba(245,158,11,0.1)]">
-          <Clock className="w-8 h-8 text-[#F59E0B]" />
+        <div className="w-16 h-16 rounded-2xl bg-warning/10 border border-warning/20 flex items-center justify-center shadow-[0_0_20px_color-mix(in_srgb,var(--warning)_10%,transparent)]">
+          <Clock className="w-8 h-8 text-warning" />
         </div>
         <div>
-          <h2 className="text-lg font-bold text-[#ECF0F7] font-display">Deep Analysis is taking longer than usual</h2>
-          <p className="text-sm text-[#8B99B0] mt-2 max-w-sm">
+          <h2 className="text-lg font-bold text-foreground font-display">Deep Analysis is taking longer than usual</h2>
+          <p className="text-sm text-muted-foreground mt-2 max-w-sm">
             AI is processing complex data points. You can wait a moment longer or restart the process.
           </p>
         </div>
         <button
           onClick={onRetry}
           disabled={isRetrying}
-          className="flex items-center gap-2 px-8 py-3 rounded-xl bg-[#7C8FFF] hover:bg-[#5B6CF0] text-white text-sm font-bold shadow-lg shadow-blue-500/20 transition-all active:scale-[0.98] disabled:opacity-50"
+          className="flex items-center gap-2 px-8 py-3 rounded-xl bg-primary hover:bg-primary text-white text-sm font-bold shadow-lg shadow-blue-500/20 transition-all active:scale-[0.98] disabled:opacity-50"
         >
           <RefreshCw className={`w-4 h-4 ${isRetrying ? "animate-spin" : ""}`} />
           {isRetrying ? "Restarting Analysis..." : "Restart CV Analysis"}
@@ -254,9 +255,9 @@ function AnalysisLoadingCard({ isStuck, onRetry, isRetrying }: AnalysisLoadingCa
         <motion.div
           animate={{ y: ["0%", "100%", "0%"] }}
           transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
-          className="absolute top-0 left-0 w-full h-[300px] bg-gradient-to-b from-transparent via-[#5B6CF0]/40 to-transparent"
+          className="absolute top-0 left-0 w-full h-[300px] bg-gradient-to-b from-transparent via-primary/40 to-transparent"
         />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,#121A2E_100%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,var(--background)_100%)]" />
       </div>
 
       <div className="relative z-10 w-full max-w-3xl flex flex-col items-center">
@@ -265,15 +266,15 @@ function AnalysisLoadingCard({ isStuck, onRetry, isRetrying }: AnalysisLoadingCa
           <motion.div
             animate={{ rotate: 360 }}
             transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
-            className="absolute inset-0 rounded-full border border-dashed border-[#5B6CF0]/40"
+            className="absolute inset-0 rounded-full border border-dashed border-primary/40"
           />
           <motion.div
             animate={{ rotate: -360 }}
             transition={{ duration: 12, repeat: Infinity, ease: "linear" }}
-            className="absolute inset-[10px] rounded-full border border-dashed border-[#B48EFF]/40"
+            className="absolute inset-[10px] rounded-full border border-dashed border-ai/40"
           />
           <div className="absolute inset-0 flex items-center justify-center">
-            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#5B6CF0] to-[#7C8FFF] flex items-center justify-center shadow-2xl shadow-blue-500/20">
+            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-primary flex items-center justify-center shadow-2xl shadow-blue-500/20">
               <Sparkles className="w-8 h-8 text-white animate-pulse" />
             </div>
           </div>
@@ -281,28 +282,28 @@ function AnalysisLoadingCard({ isStuck, onRetry, isRetrying }: AnalysisLoadingCa
           <motion.div
             animate={{ scale: [1, 1.5, 1], opacity: [0.5, 0, 0.5] }}
             transition={{ duration: 2, repeat: Infinity }}
-            className="absolute inset-0 rounded-full border-2 border-[#5B6CF0]/30"
+            className="absolute inset-0 rounded-full border-2 border-primary/30"
           />
         </div>
 
         <div className="flex flex-col items-center gap-2 mb-8">
-          <h2 className="text-2xl font-display font-light tracking-tight text-[#ECF0F7]">
-            Running <span className="font-semibold text-[#7C8FFF]">Deep CV Analysis</span>
+          <h2 className="text-2xl font-display font-light tracking-tight text-foreground">
+            Running <span className="font-semibold text-primary">Deep CV Analysis</span>
           </h2>
-          <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10">
-            <div className="w-1.5 h-1.5 rounded-full bg-[#36DDAB] animate-pulse" />
-            <span className="text-[10px] font-bold text-[#8B99B0] uppercase tracking-widest">Neural Layer Active</span>
+          <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-muted border border-border">
+            <div className="w-1.5 h-1.5 rounded-full bg-success animate-pulse" />
+            <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Neural Layer Active</span>
           </div>
         </div>
 
-        <div className="w-full max-w-md bg-white/5 rounded-2xl border border-white/10 p-6 backdrop-blur-xl">
+        <div className="w-full max-w-md bg-muted rounded-2xl border border-border p-6 backdrop-blur-xl">
           <div className="space-y-4">
             {ANALYSIS_STEPS.map((step, i) => {
               const isDone = i < stepIndex;
               const isActive = i === stepIndex;
               return (
                 <div key={i} className="flex items-center gap-4 group">
-                  <div className={`w-6 h-6 rounded-lg flex items-center justify-center transition-colors ${isDone ? 'bg-[#36DDAB]/10 text-[#36DDAB]' : isActive ? 'bg-[#5B6CF0]/10 text-[#5B6CF0]' : 'bg-white/5 text-[#5A6882]'}`}>
+                  <div className={`w-6 h-6 rounded-lg flex items-center justify-center transition-colors ${isDone ? 'bg-success/10 text-success' : isActive ? 'bg-primary/10 text-primary' : 'bg-muted text-muted-foreground'}`}>
                     {isDone ? (
                       <CheckCircle2 className="w-3.5 h-3.5" />
                     ) : (
@@ -311,28 +312,28 @@ function AnalysisLoadingCard({ isStuck, onRetry, isRetrying }: AnalysisLoadingCa
                   </div>
                   <div className="flex-1">
                     <div className="flex items-center justify-between">
-                      <span className={`text-xs font-semibold ${isDone ? 'text-[#36DDAB]' : isActive ? 'text-[#ECF0F7]' : 'text-[#5A6882]'}`}>
+                      <span className={`text-xs font-semibold ${isDone ? 'text-success' : isActive ? 'text-foreground' : 'text-muted-foreground'}`}>
                         {step.label}
                       </span>
                       {isActive && (
                         <motion.span
                           initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-                          className="text-[10px] font-bold text-[#7C8FFF] uppercase tracking-widest"
+                          className="text-[10px] font-bold text-primary uppercase tracking-widest"
                         >
                           Processing...
                         </motion.span>
                       )}
                     </div>
                     {/* Tiny Progress Bar */}
-                    <div className="mt-2 h-[2px] w-full bg-white/5 rounded-full overflow-hidden">
+                    <div className="mt-2 h-[2px] w-full bg-muted rounded-full overflow-hidden">
                       {isDone ? (
-                        <div className="h-full w-full bg-[#36DDAB]" />
+                        <div className="h-full w-full bg-success" />
                       ) : isActive ? (
                         <motion.div
                           initial={{ width: 0 }}
                           animate={{ width: "100%" }}
                           transition={{ duration: step.durationMs / 1000 }}
-                          className="h-full bg-[#5B6CF0]"
+                          className="h-full bg-primary"
                         />
                       ) : null}
                     </div>
@@ -346,7 +347,7 @@ function AnalysisLoadingCard({ isStuck, onRetry, isRetrying }: AnalysisLoadingCa
         {/* Technical Log Console */}
         <TechnicalLog stepIndex={stepIndex} />
 
-        <p className="mt-8 text-xs text-[#5A6882] animate-pulse">Neural engine is synthesizing professional matches...</p>
+        <p className="mt-8 text-xs text-muted-foreground animate-pulse">Neural engine is synthesizing professional matches...</p>
       </div>
     </div>
   );
@@ -471,10 +472,10 @@ export default function CvAnalyzeClient({ id, userRole }: Props) {
   if (error) {
     return (
       <div className="flex flex-col items-center py-20 gap-4">
-        <p className="text-[#EF4444] text-sm">{error}</p>
+        <p className="text-danger text-sm">{error}</p>
         <button
           onClick={fetchData}
-          className="px-4 py-2 rounded-lg bg-[#7C8FFF]/15 text-[#7C8FFF] text-sm hover:bg-[#7C8FFF]/25 transition-colors"
+          className="px-4 py-2 rounded-lg bg-primary/15 text-primary text-sm hover:bg-primary/25 transition-colors"
         >
           Retry
         </button>
@@ -508,25 +509,25 @@ export default function CvAnalyzeClient({ id, userRole }: Props) {
     >
       {/* Section 1 — Header card */}
       <div className="glass-card p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-6 overflow-hidden relative group">
-        <div className="absolute top-0 left-0 w-1 h-full bg-[#5B6CF0] opacity-0 group-hover:opacity-100 transition-opacity" />
+        <div className="absolute top-0 left-0 w-1 h-full bg-primary opacity-0 group-hover:opacity-100 transition-opacity" />
         <div className="flex items-center gap-4 min-w-0">
           <button
             onClick={() => router.back()}
-            className="w-10 h-10 flex items-center justify-center rounded-xl text-[#8B99B0] hover:text-[#ECF0F7] hover:bg-[#5B6CF0]/20 border border-white/5 transition-all shrink-0"
+            className="w-10 h-10 flex items-center justify-center rounded-xl text-muted-foreground hover:text-foreground hover:bg-primary/20 border border-border transition-all shrink-0"
             aria-label="Go back"
           >
             <ArrowLeft className="w-5 h-5" />
           </button>
           <div className="min-w-0">
-            <h1 className="text-2xl font-display font-light text-[#ECF0F7] truncate tracking-tight">
+            <h1 className="text-2xl font-display font-light text-foreground truncate tracking-tight">
               {person.fullName.split(' ')[0]} <span className="font-semibold">{person.fullName.split(' ').slice(1).join(' ')}</span>
             </h1>
             <div className="flex items-center gap-3 mt-1">
-              <span className="text-sm text-[#5A6882] truncate">{person.email}</span>
+              <span className="text-sm text-muted-foreground truncate">{person.email}</span>
               {jobDescription && (
                 <>
-                  <div className="w-1 h-1 rounded-full bg-[#5A6882] opacity-40" />
-                  <p className="text-xs font-bold text-[#7C8FFF] uppercase tracking-widest truncate">
+                  <div className="w-1 h-1 rounded-full bg-muted-foreground opacity-40" />
+                  <p className="text-xs font-bold text-primary uppercase tracking-widest truncate">
                     {jobDescription.title}
                   </p>
                 </>
@@ -540,7 +541,7 @@ export default function CvAnalyzeClient({ id, userRole }: Props) {
             <button
               onClick={handleCvPreview}
               disabled={cvLoading}
-              className="h-11 flex items-center gap-2 px-5 rounded-xl text-sm font-semibold bg-[#121A2E] border border-white/5 text-[#ECF0F7] hover:bg-[#5B6CF0] hover:text-white transition-all disabled:opacity-50 shadow-lg shadow-black/20"
+              className="h-11 flex items-center gap-2 px-5 rounded-xl text-sm font-semibold bg-background border border-border text-foreground hover:bg-primary hover:text-white transition-all disabled:opacity-50 shadow-lg shadow-black/20"
             >
               {cvLoading ? (
                 <Loader2 className="w-4 h-4 animate-spin" />
@@ -565,15 +566,15 @@ export default function CvAnalyzeClient({ id, userRole }: Props) {
         <>
           {/* Section 2 — Main Analysis Report Card */}
           <div className="glass-card p-8 group relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-[#5B6CF0]/10 to-transparent rounded-full blur-3xl -mr-16 -mt-16" />
+            <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-primary/10 to-transparent rounded-full blur-3xl -mr-16 -mt-16" />
 
             {/* Zone A — Score ring + breakdown bars side by side */}
             <div className="flex flex-col lg:flex-row gap-12 items-center lg:items-center">
               {/* Left: Big score ring */}
               <div className="flex flex-col items-center gap-5 lg:w-[40%] shrink-0 relative">
                 <div className="flex items-center gap-2 self-start lg:self-center mb-2">
-                  <div className="w-1.5 h-1.5 rounded-full bg-[#7C8FFF] animate-pulse" />
-                  <span className="text-[10px] font-bold text-[#8B99B0] uppercase tracking-[0.2em]">
+                  <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
+                  <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-[0.2em]">
                     Neural Ranking Score
                   </span>
                 </div>
@@ -587,18 +588,18 @@ export default function CvAnalyzeClient({ id, userRole }: Props) {
                   <motion.div
                     animate={{ rotate: 360 }}
                     transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-                    className="absolute inset-[-10px] rounded-full border border-dashed border-[#5B6CF0]/20 pointer-events-none"
+                    className="absolute inset-[-10px] rounded-full border border-dashed border-primary/20 pointer-events-none"
                   />
                 </div>
 
                 <div className="flex flex-col items-center gap-3 text-center">
                   {grade && (
                     <div className="flex flex-col items-center">
-                      <span className="text-2xl font-display font-light text-[#ECF0F7] tracking-tight">
+                      <span className="text-2xl font-display font-light text-foreground tracking-tight">
                         Overall <span className="font-bold" style={{ color: grade.color }}>{grade.label}</span>
                       </span>
                       {screening.isOverridden && (
-                        <span className="text-[10px] font-bold text-[#7C8FFF] uppercase tracking-widest mt-1 bg-[#7C8FFF]/10 px-2 py-0.5 rounded-md border border-[#7C8FFF]/20">
+                        <span className="text-[10px] font-bold text-primary uppercase tracking-widest mt-1 bg-primary/10 px-2 py-0.5 rounded-md border border-primary/20">
                           Adjusted by Recruiter
                         </span>
                       )}
@@ -607,9 +608,9 @@ export default function CvAnalyzeClient({ id, userRole }: Props) {
 
                   <div className="flex items-center gap-4">
                     {screening.aiScore !== null && (
-                      <div className="flex flex-col items-center p-2 rounded-xl bg-white/5 border border-white/5 min-w-[70px]">
-                        <span className="text-[10px] font-bold text-[#5A6882] uppercase">AI Pure</span>
-                        <span className="text-sm font-bold text-[#ECF0F7]">{screening.aiScore}</span>
+                      <div className="flex flex-col items-center p-2 rounded-xl bg-muted border border-border min-w-[70px]">
+                        <span className="text-[10px] font-bold text-muted-foreground uppercase">AI Pure</span>
+                        <span className="text-sm font-bold text-foreground">{screening.aiScore}</span>
                       </div>
                     )}
                     {recConfig && RecIcon && (
@@ -629,34 +630,34 @@ export default function CvAnalyzeClient({ id, userRole }: Props) {
                 </div>
               </div>
 
-              <div className="w-[1px] h-48 bg-[#8B99B0]/10 hidden lg:block" />
+              <div className="w-[1px] h-48 bg-muted-foreground/10 hidden lg:block" />
 
               {/* Right: 5 breakdown bars */}
               <div className="flex-1 w-full space-y-1">
                 <div className="flex items-center justify-between mb-4">
-                  <p className="text-[10px] font-bold text-[#8B99B0] uppercase tracking-[0.2em]">
+                  <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-[0.2em]">
                     Semantic Breakdown
                   </p>
                   <div className="flex items-center gap-2">
-                    <TrendingUp className="w-3 h-3 text-[#36DDAB]" />
-                    <span className="text-[10px] text-[#36DDAB] font-bold">Accuracy High</span>
+                    <TrendingUp className="w-3 h-3 text-success" />
+                    <span className="text-[10px] text-success font-bold">Accuracy High</span>
                   </div>
                 </div>
-                <EnhancedScoreBar label="Kỹ năng" value={screening.skillMatchScore} icon={Code2} accent="#7C8FFF" />
-                <EnhancedScoreBar label="Kinh nghiệm" value={screening.experienceMatchScore} icon={Briefcase} accent="#F59E0B" />
-                <EnhancedScoreBar label="Lĩnh vực" value={screening.domainMatchScore} icon={Globe2} accent="#06B6D4" />
-                <EnhancedScoreBar label="Học vấn" value={screening.educationMatchScore} icon={GraduationCap} accent="#8B5CF6" />
-                <EnhancedScoreBar label="Văn hóa" value={screening.cultureFitScore} icon={Heart} accent="#EC4899" />
+                <EnhancedScoreBar label="Kỹ năng" value={screening.skillMatchScore} icon={Code2} accent="var(--primary)" />
+                <EnhancedScoreBar label="Kinh nghiệm" value={screening.experienceMatchScore} icon={Briefcase} accent="var(--warning)" />
+                <EnhancedScoreBar label="Lĩnh vực" value={screening.domainMatchScore} icon={Globe2} accent="var(--primary)" />
+                <EnhancedScoreBar label="Học vấn" value={screening.educationMatchScore} icon={GraduationCap} accent="var(--ai)" />
+                <EnhancedScoreBar label="Văn hóa" value={screening.cultureFitScore} icon={Heart} accent="var(--danger)" />
               </div>
             </div>
 
             {/* Zone B — Summary banner */}
             {screening.summary && (
-              <div className="mt-10 pt-8 border-t border-white/5 relative group/summary">
-                <div className="absolute top-[-10px] left-8 px-2 bg-[#1B253B] text-[10px] font-bold text-[#5B6CF0] uppercase tracking-widest">
+              <div className="mt-10 pt-8 border-t border-border relative group/summary">
+                <div className="absolute top-[-10px] left-8 px-2 bg-muted text-[10px] font-bold text-primary uppercase tracking-widest">
                   Executive Summary
                 </div>
-                <p className="text-lg font-display font-light text-[#C8D0E0] leading-relaxed italic group-hover/summary:text-[#ECF0F7] transition-colors">
+                <p className="text-lg font-display font-light text-foreground leading-relaxed italic group-hover/summary:text-foreground transition-colors">
                   &ldquo;{screening.summary}&rdquo;
                 </p>
               </div>
@@ -670,13 +671,13 @@ export default function CvAnalyzeClient({ id, userRole }: Props) {
                 {(screening.keyHighlights?.length ?? 0) > 0 && (
                   <div className="glass-card p-8 relative group">
                     <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-20 transition-opacity">
-                      <Sparkles className="w-12 h-12 text-[#F59E0B]" />
+                      <Sparkles className="w-12 h-12 text-warning" />
                     </div>
                     <div className="flex items-center gap-3 mb-6">
-                      <div className="w-8 h-8 rounded-xl bg-[#F59E0B]/10 border border-[#F59E0B]/20 flex items-center justify-center">
-                        <Sparkles className="w-4 h-4 text-[#F59E0B]" />
+                      <div className="w-8 h-8 rounded-xl bg-warning/10 border border-warning/20 flex items-center justify-center">
+                        <Sparkles className="w-4 h-4 text-warning" />
                       </div>
-                      <h3 className="text-sm font-bold text-[#ECF0F7] font-display uppercase tracking-widest">
+                      <h3 className="text-sm font-bold text-foreground font-display uppercase tracking-widest">
                         Strategic Highlights
                       </h3>
                     </div>
@@ -687,12 +688,12 @@ export default function CvAnalyzeClient({ id, userRole }: Props) {
                           initial={{ opacity: 0, x: -10 }}
                           animate={{ opacity: 1, x: 0 }}
                           transition={{ delay: i * 0.1 }}
-                          className="flex items-start gap-4 p-4 rounded-2xl bg-white/5 border border-white/5 hover:border-[#F59E0B]/30 transition-all group/item"
+                          className="flex items-start gap-4 p-4 rounded-2xl bg-muted border border-border hover:border-warning/30 transition-all group/item"
                         >
-                          <div className="w-6 h-6 rounded-lg bg-[#121A2E] border border-white/10 flex items-center justify-center shrink-0 text-[10px] font-bold text-[#F59E0B]">
+                          <div className="w-6 h-6 rounded-lg bg-background border border-border flex items-center justify-center shrink-0 text-[10px] font-bold text-warning">
                             0{i + 1}
                           </div>
-                          <span className="text-sm text-[#C8D0E0] leading-relaxed group-hover/item:text-[#ECF0F7] transition-colors">{h}</span>
+                          <span className="text-sm text-foreground leading-relaxed group-hover/item:text-foreground transition-colors">{h}</span>
                         </motion.div>
                       ))}
                     </div>
@@ -701,13 +702,13 @@ export default function CvAnalyzeClient({ id, userRole }: Props) {
                 {(screening.missingRequirements?.length ?? 0) > 0 && (
                   <div className="glass-card p-8 relative group">
                     <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-20 transition-opacity">
-                      <AlertTriangle className="w-12 h-12 text-[#F97316]" />
+                      <AlertTriangle className="w-12 h-12 text-warning" />
                     </div>
                     <div className="flex items-center gap-3 mb-6">
-                      <div className="w-8 h-8 rounded-xl bg-[#F97316]/10 border border-[#F97316]/20 flex items-center justify-center">
-                        <AlertTriangle className="w-4 h-4 text-[#F97316]" />
+                      <div className="w-8 h-8 rounded-xl bg-warning/10 border border-warning/20 flex items-center justify-center">
+                        <AlertTriangle className="w-4 h-4 text-warning" />
                       </div>
-                      <h3 className="text-sm font-bold text-[#ECF0F7] font-display uppercase tracking-widest">
+                      <h3 className="text-sm font-bold text-foreground font-display uppercase tracking-widest">
                         Critical Gaps
                       </h3>
                     </div>
@@ -718,10 +719,10 @@ export default function CvAnalyzeClient({ id, userRole }: Props) {
                           initial={{ opacity: 0, x: 10 }}
                           animate={{ opacity: 1, x: 0 }}
                           transition={{ delay: i * 0.1 }}
-                          className="flex items-center gap-3 py-3 px-4 rounded-xl bg-white/5 border border-white/5"
+                          className="flex items-center gap-3 py-3 px-4 rounded-xl bg-muted border border-border"
                         >
-                          <AlertCircle className="w-4 h-4 text-[#F97316] shrink-0" />
-                          <span className="text-sm text-[#C8D0E0] leading-relaxed">{m}</span>
+                          <AlertCircle className="w-4 h-4 text-warning shrink-0" />
+                          <span className="text-sm text-foreground leading-relaxed">{m}</span>
                         </motion.div>
                       ))}
                     </div>
@@ -736,10 +737,10 @@ export default function CvAnalyzeClient({ id, userRole }: Props) {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="glass-card p-8">
                   <div className="flex items-center gap-3 mb-6">
-                    <div className="w-8 h-8 rounded-xl bg-[#22C55E]/10 border border-[#22C55E]/20 flex items-center justify-center">
-                      <CheckCircle2 className="w-4 h-4 text-[#22C55E]" />
+                    <div className="w-8 h-8 rounded-xl bg-success/10 border border-success/20 flex items-center justify-center">
+                      <CheckCircle2 className="w-4 h-4 text-success" />
                     </div>
-                    <h3 className="text-sm font-bold text-[#22C55E] uppercase tracking-widest">
+                    <h3 className="text-sm font-bold text-success uppercase tracking-widest">
                       Primary Strengths
                     </h3>
                   </div>
@@ -747,10 +748,10 @@ export default function CvAnalyzeClient({ id, userRole }: Props) {
                     {(screening.strengthsJson ?? []).map((s, i) => (
                       <div key={i} className="group/item">
                         <div className="flex items-start gap-4">
-                          <div className="w-5 h-5 rounded-full bg-[#22C55E]/20 border border-[#22C55E]/30 flex items-center justify-center shrink-0 mt-0.5 group-hover/item:scale-110 transition-transform">
-                            <CheckCircle2 className="w-3 h-3 text-[#22C55E]" />
+                          <div className="w-5 h-5 rounded-full bg-success/20 border border-success/30 flex items-center justify-center shrink-0 mt-0.5 group-hover/item:scale-110 transition-transform">
+                            <CheckCircle2 className="w-3 h-3 text-success" />
                           </div>
-                          <span className="text-sm text-[#C8D0E0] leading-relaxed group-hover/item:text-[#ECF0F7] transition-colors">{s}</span>
+                          <span className="text-sm text-foreground leading-relaxed group-hover/item:text-foreground transition-colors">{s}</span>
                         </div>
                       </div>
                     ))}
@@ -758,10 +759,10 @@ export default function CvAnalyzeClient({ id, userRole }: Props) {
                 </div>
                 <div className="glass-card p-8">
                   <div className="flex items-center gap-3 mb-6">
-                    <div className="w-8 h-8 rounded-xl bg-[#EF4444]/10 border border-[#EF4444]/20 flex items-center justify-center">
-                      <XCircle className="w-4 h-4 text-[#EF4444]" />
+                    <div className="w-8 h-8 rounded-xl bg-danger/10 border border-danger/20 flex items-center justify-center">
+                      <XCircle className="w-4 h-4 text-danger" />
                     </div>
-                    <h3 className="text-sm font-bold text-[#EF4444] uppercase tracking-widest">
+                    <h3 className="text-sm font-bold text-danger uppercase tracking-widest">
                       Potential Risks
                     </h3>
                   </div>
@@ -769,10 +770,10 @@ export default function CvAnalyzeClient({ id, userRole }: Props) {
                     {(screening.weaknessesJson ?? []).map((w, i) => (
                       <div key={i} className="group/item">
                         <div className="flex items-start gap-4">
-                          <div className="w-5 h-5 rounded-full bg-[#EF4444]/20 border border-[#EF4444]/30 flex items-center justify-center shrink-0 mt-0.5 group-hover/item:scale-110 transition-transform">
-                            <XCircle className="w-3 h-3 text-[#EF4444]" />
+                          <div className="w-5 h-5 rounded-full bg-danger/20 border border-danger/30 flex items-center justify-center shrink-0 mt-0.5 group-hover/item:scale-110 transition-transform">
+                            <XCircle className="w-3 h-3 text-danger" />
                           </div>
-                          <span className="text-sm text-[#C8D0E0] leading-relaxed group-hover/item:text-[#ECF0F7] transition-colors">{w}</span>
+                          <span className="text-sm text-foreground leading-relaxed group-hover/item:text-foreground transition-colors">{w}</span>
                         </div>
                       </div>
                     ))}
@@ -785,20 +786,20 @@ export default function CvAnalyzeClient({ id, userRole }: Props) {
           {parsedCvJson && Object.keys(parsedCvJson).length > 0 && (
             <div className="glass-card p-8 group relative overflow-hidden">
               <div className="absolute top-0 right-0 p-8 opacity-[0.02] group-hover:opacity-[0.05] transition-opacity">
-                <Shield className="w-48 h-48 text-[#5B6CF0]" />
+                <Shield className="w-48 h-48 text-primary" />
               </div>
 
               <div className="flex items-center justify-between mb-8 relative z-10">
-                <h2 className="text-xl font-display font-light text-[#ECF0F7] flex items-center gap-4 tracking-tight">
-                  <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#5B6CF0] to-[#7C8FFF] flex items-center justify-center shadow-lg shadow-blue-500/20">
+                <h2 className="text-xl font-display font-light text-foreground flex items-center gap-4 tracking-tight">
+                  <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-primary to-primary flex items-center justify-center shadow-lg shadow-blue-500/20">
                     <User className="w-6 h-6 text-white" />
                   </div>
-                  Extracted <span className="font-semibold text-[#7C8FFF]">Semantic Hub</span>
+                  Extracted <span className="font-semibold text-primary">Semantic Hub</span>
                 </h2>
                 <div className="hidden sm:flex items-center gap-3">
-                  <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-[#36DDAB]/5 border border-[#36DDAB]/20">
-                    <div className="w-1.5 h-1.5 rounded-full bg-[#36DDAB] animate-pulse" />
-                    <span className="text-[10px] font-bold text-[#36DDAB] uppercase tracking-[0.15em]">Neural Confidence: High</span>
+                  <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-success/5 border border-success/20">
+                    <div className="w-1.5 h-1.5 rounded-full bg-success animate-pulse" />
+                    <span className="text-[10px] font-bold text-success uppercase tracking-[0.15em]">Neural Confidence: High</span>
                   </div>
                 </div>
               </div>
@@ -806,48 +807,48 @@ export default function CvAnalyzeClient({ id, userRole }: Props) {
               {/* Data Grid */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-10 relative z-10">
                 {[
-                  { icon: Briefcase, label: "Current Title", value: parsedCvJson.current_title as string | undefined, accent: "#7C8FFF" },
-                  { icon: Building2, label: "Major Enterprise", value: parsedCvJson.current_company as string | undefined, accent: "#06B6D4" },
+                  { icon: Briefcase, label: "Current Title", value: parsedCvJson.current_title as string | undefined, accent: "var(--primary)" },
+                  { icon: Building2, label: "Major Enterprise", value: parsedCvJson.current_company as string | undefined, accent: "var(--primary)" },
                   {
                     icon: Award,
                     label: "Professional Tenure",
                     value: parsedCvJson.total_years_experience != null
                       ? `${String(parsedCvJson.total_years_experience)} Combined Years`
                       : undefined,
-                    accent: "#F59E0B"
+                    accent: "var(--warning)"
                   },
-                  { icon: Globe, label: "Geographic Hub", value: parsedCvJson.location as string | undefined, accent: "#8B5CF6" },
+                  { icon: Globe, label: "Geographic Hub", value: parsedCvJson.location as string | undefined, accent: "var(--ai)" },
                 ]
                   .filter((f) => Boolean(f.value))
                   .map(({ icon: Icon, label, value, accent }) => (
                     <div
                       key={label}
-                      className="p-5 rounded-2xl bg-[#121A2E]/50 border border-white/5 hover:border-white/10 transition-all hover:translate-y-[-2px]"
+                      className="p-5 rounded-2xl bg-background/50 border border-border hover:border-border transition-all hover:translate-y-[-2px]"
                     >
                       <div className="flex items-center gap-2 mb-3">
-                        <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ backgroundColor: `${accent}15` }}>
+                        <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ backgroundColor: `${alpha(accent, 8)}` }}>
                           <Icon className="w-4 h-4" style={{ color: accent }} />
                         </div>
-                        <span className="text-[10px] text-[#5A6882] font-bold uppercase tracking-widest">{label}</span>
+                        <span className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest">{label}</span>
                       </div>
-                      <span className="text-sm font-semibold text-[#ECF0F7] block leading-snug">{String(value)}</span>
+                      <span className="text-sm font-semibold text-foreground block leading-snug">{String(value)}</span>
                     </div>
                   ))}
               </div>
 
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 pt-8 border-t border-white/5 relative z-10">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 pt-8 border-t border-border relative z-10">
                 {/* Skills Column */}
                 {Array.isArray(parsedCvJson.skills) && parsedCvJson.skills.length > 0 && (
                   <div>
                     <div className="flex items-center gap-2 mb-5">
-                      <Code2 className="w-4 h-4 text-[#5B6CF0]" />
-                      <h3 className="text-[10px] font-bold text-[#8B99B0] uppercase tracking-[0.2em]">Validated Skill Matrix</h3>
+                      <Code2 className="w-4 h-4 text-primary" />
+                      <h3 className="text-[10px] font-bold text-muted-foreground uppercase tracking-[0.2em]">Validated Skill Matrix</h3>
                     </div>
                     <div className="flex flex-wrap gap-2">
                       {(parsedCvJson.skills as string[]).map((skill, i) => (
                         <span
                           key={i}
-                          className="px-3 py-1.5 rounded-xl bg-white/5 border border-white/10 text-[#7C8FFF] text-xs font-semibold hover:border-[#5B6CF0]/40 hover:bg-[#5B6CF0]/5 transition-all cursor-default"
+                          className="px-3 py-1.5 rounded-xl bg-muted border border-border text-primary text-xs font-semibold hover:border-primary/40 hover:bg-primary/5 transition-all cursor-default"
                         >
                           {skill}
                         </span>
@@ -860,17 +861,17 @@ export default function CvAnalyzeClient({ id, userRole }: Props) {
                 {Array.isArray(parsedCvJson.education) && parsedCvJson.education.length > 0 && (
                   <div>
                     <div className="flex items-center gap-2 mb-5">
-                      <GraduationCap className="w-4 h-4 text-[#8B5CF6]" />
-                      <h3 className="text-[10px] font-bold text-[#8B99B0] uppercase tracking-[0.2em]">Academic Lineage</h3>
+                      <GraduationCap className="w-4 h-4 text-ai" />
+                      <h3 className="text-[10px] font-bold text-muted-foreground uppercase tracking-[0.2em]">Academic Lineage</h3>
                     </div>
                     <div className="space-y-4">
                       {(parsedCvJson.education as Array<Record<string, string>>).map((edu, i) => (
-                        <div key={i} className="pl-4 border-l-2 border-[#8B5CF6]/20 relative">
-                          <div className="absolute top-0 left-[-5px] w-2 h-2 rounded-full bg-[#8B5CF6] shadow-[0_0_8px_#8B5CF6]" />
-                          <h4 className="text-sm font-bold text-[#ECF0F7] leading-tight">
+                        <div key={i} className="pl-4 border-l-2 border-ai/20 relative">
+                          <div className="absolute top-0 left-[-5px] w-2 h-2 rounded-full bg-ai shadow-[0_0_8px_var(--ai)]" />
+                          <h4 className="text-sm font-bold text-foreground leading-tight">
                             {edu.degree}{edu.field ? ` in ${edu.field}` : ""}
                           </h4>
-                          <p className="text-xs text-[#5A6882] mt-1 font-medium">
+                          <p className="text-xs text-muted-foreground mt-1 font-medium">
                             {edu.school}{edu.year ? ` • Class of ${edu.year}` : ""}
                           </p>
                         </div>
@@ -885,17 +886,17 @@ export default function CvAnalyzeClient({ id, userRole }: Props) {
       ) : cv?.parseStatus === "FAILED" ? (
         <div className="glass-card p-5">
           <div className="flex flex-col items-center gap-3 py-4 text-center">
-            <div className="w-10 h-10 rounded-xl bg-[#EF4444]/10 border border-[#EF4444]/20 flex items-center justify-center">
-              <AlertTriangle className="w-5 h-5 text-[#EF4444]" />
+            <div className="w-10 h-10 rounded-xl bg-danger/10 border border-danger/20 flex items-center justify-center">
+              <AlertTriangle className="w-5 h-5 text-danger" />
             </div>
             <div>
-              <p className="text-sm font-medium text-[#C8D0E0]">CV Analysis thất bại</p>
-              <p className="text-xs text-[#5A6882] mt-1">Có lỗi xảy ra khi AI xử lý CV. Bạn có thể thử lại.</p>
+              <p className="text-sm font-medium text-foreground">CV Analysis thất bại</p>
+              <p className="text-xs text-muted-foreground mt-1">Có lỗi xảy ra khi AI xử lý CV. Bạn có thể thử lại.</p>
             </div>
             <button
               onClick={handleRetry}
               disabled={isRetrying}
-              className="flex items-center gap-2 px-4 py-2 rounded-xl bg-[#7C8FFF]/15 hover:bg-[#7C8FFF]/25 text-[#7C8FFF] text-sm font-medium transition-colors disabled:opacity-50 cursor-pointer"
+              className="flex items-center gap-2 px-4 py-2 rounded-xl bg-primary/15 hover:bg-primary/25 text-primary text-sm font-medium transition-colors disabled:opacity-50 cursor-pointer"
             >
               <RefreshCw className={`w-3.5 h-3.5 ${isRetrying ? "animate-spin" : ""}`} />
               {isRetrying ? "Đang thử lại..." : "Thử lại CV Analysis"}
@@ -907,9 +908,9 @@ export default function CvAnalyzeClient({ id, userRole }: Props) {
       ) : (
         <div className="glass-card p-5">
           <div className="flex flex-col items-center gap-3 py-4 text-center">
-            <p className="text-sm text-[#5A6882]">Chưa có kết quả sàng lọc.</p>
+            <p className="text-sm text-muted-foreground">Chưa có kết quả sàng lọc.</p>
             {!jobDescription && (
-              <p className="text-xs text-[#F59E0B]">
+              <p className="text-xs text-warning">
                 ⚠ Cần gán Job Description trước khi chạy CV Analysis.
               </p>
             )}
@@ -917,7 +918,7 @@ export default function CvAnalyzeClient({ id, userRole }: Props) {
               <button
                 onClick={handleRetry}
                 disabled={isRetrying || !jobDescription}
-                className="flex items-center gap-2 px-4 py-2 rounded-xl bg-[#7C8FFF]/15 hover:bg-[#7C8FFF]/25 text-[#7C8FFF] text-sm font-medium transition-colors disabled:opacity-50 cursor-pointer"
+                className="flex items-center gap-2 px-4 py-2 rounded-xl bg-primary/15 hover:bg-primary/25 text-primary text-sm font-medium transition-colors disabled:opacity-50 cursor-pointer"
               >
                 <RefreshCw className={`w-3.5 h-3.5 ${isRetrying ? "animate-spin" : ""}`} />
                 {isRetrying ? "Đang xử lý..." : "Bắt đầu CV Analysis"}

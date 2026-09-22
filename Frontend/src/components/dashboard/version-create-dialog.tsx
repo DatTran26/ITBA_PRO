@@ -128,14 +128,14 @@ export default function VersionCreateDialog({ onCreated }: Props) {
         }
     }
 
-    const inputCls = "w-full bg-[#1B253B]/60 border border-[#8B99B0]/15 rounded-xl px-4 py-2.5 text-sm text-[#ECF0F7] placeholder-[#5A6882]/50 focus:outline-none focus:border-[#7C8FFF]/40 focus:ring-1 focus:ring-[#7C8FFF]/20 transition-all";
-    const labelCls = "text-xs font-semibold text-[#5A6882] uppercase tracking-wider block mb-1.5";
+    const inputCls = "w-full bg-muted/60 border border-muted-foreground/15 rounded-xl px-4 py-2.5 text-sm text-foreground placeholder-muted-foreground/50 focus:outline-none focus:border-primary/40 focus:ring-1 focus:ring-primary/20 transition-all";
+    const labelCls = "text-xs font-semibold text-muted-foreground uppercase tracking-wider block mb-1.5";
 
     return (
         <>
             <button
                 onClick={() => setOpen(true)}
-                className="flex items-center gap-2 px-4 py-2 rounded-xl bg-[#5B6CF0] hover:bg-[#4F5FD9] text-white text-sm font-semibold transition-colors"
+                className="flex items-center gap-2 px-4 py-2 rounded-xl bg-primary hover:bg-primary/90 text-white text-sm font-semibold transition-colors"
             >
                 <Plus className="w-4 h-4" />
                 Create Version
@@ -144,10 +144,10 @@ export default function VersionCreateDialog({ onCreated }: Props) {
             {open && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
                     <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setOpen(false)} />
-                    <div className="relative bg-[#1B253B] border border-[#8B99B0]/15 rounded-2xl shadow-2xl w-full max-w-lg p-6 space-y-5">
+                    <div className="relative bg-muted border border-muted-foreground/15 rounded-2xl shadow-2xl w-full max-w-lg p-6 space-y-5">
                         <div>
-                            <h2 className="text-lg font-semibold text-[#ECF0F7]">Create Version Draft</h2>
-                            <p className="text-xs text-[#5A6882] mt-1">New version starts as draft and must be submitted for review.</p>
+                            <h2 className="text-lg font-semibold text-foreground">Create Version Draft</h2>
+                            <p className="text-xs text-muted-foreground mt-1">New version starts as draft and must be submitted for review.</p>
                         </div>
 
                         <form onSubmit={handleSubmit} className="space-y-4 max-h-[70vh] overflow-y-auto pr-2 custom-scrollbar">
@@ -180,16 +180,16 @@ export default function VersionCreateDialog({ onCreated }: Props) {
                                         type="button"
                                         onClick={handleStandardize}
                                         disabled={isStandardizing || !form.raw_input.trim()}
-                                        className="text-[10px] font-bold uppercase tracking-widest bg-indigo-500 hover:bg-indigo-400 text-white px-3 py-1.5 rounded-lg transition-all disabled:opacity-50"
+                                        className="text-[10px] font-bold uppercase tracking-widest bg-indigo-500 hover:bg-indigo-400 text-foreground px-3 py-1.5 rounded-lg transition-all disabled:opacity-50"
                                     >
                                         {isStandardizing ? "Analyzing..." : "Optimize with AI"}
                                     </button>
                                 </div>
-                                <textarea rows={4} className={`${inputCls} bg-black/20 border-white/5 resize-none`} placeholder="Paste raw notes here... #123 Fixed header, added avatar UX #456..." value={form.raw_input} onChange={field("raw_input")} />
+                                <textarea rows={4} className={`${inputCls} bg-black/20 border-border resize-none`} placeholder="Paste raw notes here... #123 Fixed header, added avatar UX #456..." value={form.raw_input} onChange={field("raw_input")} />
                             </div>
 
-                            <div className="space-y-4 border-t border-white/5 pt-4">
-                                <p className="text-[10px] font-bold uppercase tracking-widest text-[#5A6882]">Reviewed Structured Data</p>
+                            <div className="space-y-4 border-t border-border pt-4">
+                                <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Reviewed Structured Data</p>
 
                                 <div>
                                     <label className={labelCls}>🎨 UI (User Interface)</label>
@@ -207,17 +207,17 @@ export default function VersionCreateDialog({ onCreated }: Props) {
                                         <textarea rows={2} className={`${inputCls} bg-rose-500/[0.02] border-rose-500/10`} placeholder="Automated categorization..." value={form.bug_fixes} onChange={field("bug_fixes")} />
                                     </div>
                                     <div className="flex items-center gap-2 mt-4 shrink-0">
-                                        <input type="checkbox" id="is_critical" checked={form.is_critical} onChange={field("is_critical")} className="w-4 h-4 rounded border-white/10 bg-white/5 focus:ring-0" />
+                                        <input type="checkbox" id="is_critical" checked={form.is_critical} onChange={field("is_critical")} className="w-4 h-4 rounded border-border bg-muted focus:ring-0" />
                                         <label htmlFor="is_critical" className="text-xs font-semibold text-rose-400">Critical</label>
                                     </div>
                                 </div>
                             </div>
 
-                            <div className="flex items-center justify-end gap-3 pt-4 sticky bottom-0 bg-[#1B253B] py-2">
-                                <button type="button" onClick={() => setOpen(false)} className="px-4 py-2 rounded-xl text-sm text-[#8B99B0] hover:text-[#ECF0F7] transition-colors">
+                            <div className="flex items-center justify-end gap-3 pt-4 sticky bottom-0 bg-muted py-2">
+                                <button type="button" onClick={() => setOpen(false)} className="px-4 py-2 rounded-xl text-sm text-muted-foreground hover:text-foreground transition-colors">
                                     Cancel
                                 </button>
-                                <button type="submit" disabled={saving} className="flex items-center gap-2 px-5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold transition-colors disabled:opacity-60 disabled:cursor-not-allowed">
+                                <button type="submit" disabled={saving} className="flex items-center gap-2 px-5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-foreground text-sm font-semibold transition-colors disabled:opacity-60 disabled:cursor-not-allowed">
                                     {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
                                     Confirm & Save
                                 </button>

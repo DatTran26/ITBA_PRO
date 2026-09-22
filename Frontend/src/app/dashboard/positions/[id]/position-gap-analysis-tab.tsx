@@ -86,10 +86,10 @@ export default function PositionGapAnalysisTab({ persons, requirements }: Props)
 
   if (loading) {
     return (
-      <Card className="bg-[#1B253B] border-[#8B99B0]/10 p-6">
+      <Card className="bg-muted border-border/10 p-6">
         <div className="animate-pulse space-y-3">
           {Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="h-10 bg-[#222C4A] rounded" />
+            <div key={i} className="h-10 bg-accent rounded" />
           ))}
         </div>
       </Card>
@@ -99,10 +99,10 @@ export default function PositionGapAnalysisTab({ persons, requirements }: Props)
   if (!persons.length || !requirements.length) {
     return (
       <div className="flex flex-col items-center py-12 text-center">
-        <div className="w-10 h-10 rounded-xl bg-[#222C4A] border border-[#8B99B0]/10 flex items-center justify-center mb-3">
-          <AlertTriangle className="w-5 h-5 text-[#5A6882]" />
+        <div className="w-10 h-10 rounded-xl bg-accent border border-border/10 flex items-center justify-center mb-3">
+          <AlertTriangle className="w-5 h-5 text-muted-foreground" />
         </div>
-        <p className="text-sm text-[#5A6882]">
+        <p className="text-sm text-muted-foreground">
           {!persons.length ? "No assigned persons to analyze" : "No skill requirements to compare against"}
         </p>
       </div>
@@ -112,8 +112,8 @@ export default function PositionGapAnalysisTab({ persons, requirements }: Props)
   const totalPersons = persons.length;
 
   return (
-    <Card className="bg-[#1B253B] border-[#8B99B0]/10 p-4">
-      <h3 className="text-sm font-medium text-[#ECF0F7] mb-3">
+    <Card className="bg-muted border-border/10 p-4">
+      <h3 className="text-sm font-medium text-foreground mb-3">
         Gap Analysis — {totalPersons} person{totalPersons !== 1 ? "s" : ""} × {requirements.length} skill{requirements.length !== 1 ? "s" : ""}
       </h3>
       <div className="space-y-1.5">
@@ -121,27 +121,27 @@ export default function PositionGapAnalysisTab({ persons, requirements }: Props)
           const gapTotal = g.missingCount + g.belowCount;
           const pct = totalPersons > 0 ? Math.round(((totalPersons - gapTotal) / totalPersons) * 100) : 0;
           return (
-            <div key={g.skillName} className="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-[#0A0F1A]">
+            <div key={g.skillName} className="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-background">
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
-                  <span className="text-sm text-[#ECF0F7] truncate">{g.skillName}</span>
-                  {g.isMandatory && <span className="text-[10px] text-[#FFB86C]">mandatory</span>}
+                  <span className="text-sm text-foreground truncate">{g.skillName}</span>
+                  {g.isMandatory && <span className="text-[10px] text-warning">mandatory</span>}
                 </div>
-                <p className="text-xs text-[#5A6882] mt-0.5">
+                <p className="text-xs text-muted-foreground mt-0.5">
                   Level {g.requiredLevel} required · {g.missingCount} missing · {g.belowCount} below level
                 </p>
               </div>
               <div className="w-20 shrink-0">
-                <div className="h-1.5 bg-[#222C4A] rounded-full overflow-hidden">
+                <div className="h-1.5 bg-accent rounded-full overflow-hidden">
                   <div
                     className="h-full rounded-full transition-all"
                     style={{
                       width: `${pct}%`,
-                      backgroundColor: pct >= 80 ? "#22C55E" : pct >= 50 ? "#F59E0B" : "#EF4444",
+                      backgroundColor: pct >= 80 ? "var(--success)" : pct >= 50 ? "var(--warning)" : "var(--danger)",
                     }}
                   />
                 </div>
-                <p className="text-[10px] text-[#5A6882] text-right mt-0.5">{pct}% ready</p>
+                <p className="text-[10px] text-muted-foreground text-right mt-0.5">{pct}% ready</p>
               </div>
             </div>
           );

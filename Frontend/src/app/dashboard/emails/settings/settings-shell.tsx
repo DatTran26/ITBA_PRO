@@ -24,15 +24,15 @@ export default function SettingsShell({ config, canEdit }: SettingsShellProps) {
 
     return (
         <div>
-            <div className="flex gap-0.5 mb-6 bg-[#0C1422] rounded-xl p-1 w-fit border border-[#8B99B0]/10">
+            <div className="flex gap-0.5 mb-6 bg-background rounded-xl p-1 w-fit border border-border/10">
                 {TABS.map(({ key, label, icon: Icon }) => (
                     <SharedDashboardButton
                         key={key}
                         onClick={() => setTab(key)}
                         className={`flex items-center gap-2 px-4 py-2 text-sm rounded-lg transition-all cursor-pointer ${
                             tab === key
-                                ? "bg-[#1A2236] text-[#ECF0F7] font-medium shadow-sm"
-                                : "text-[#5A6882] hover:text-[#8B99B0]"
+                                ? "bg-muted text-foreground font-medium shadow-sm"
+                                : "text-muted-foreground hover:text-muted-foreground"
                         }`}
                     >
                         <Icon className="w-3.5 h-3.5" />

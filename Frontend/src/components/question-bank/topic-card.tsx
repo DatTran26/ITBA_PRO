@@ -106,7 +106,7 @@ export function TopicCard({ topic, onUpdate, onDelete, count = 5, onCountChange 
               max={20}
               value={count}
               onChange={(e) => onCountChange(Math.max(1, Math.min(20, parseInt(e.target.value, 10) || 1)))}
-              className="w-12 h-8 px-1 text-center text-xs rounded-md bg-[#1E2840]/60 border border-[#8B99B0]/20 text-[#ECF0F7] focus:outline-none focus:border-[#5B6CF0]/50"
+              className="w-12 h-8 px-1 text-center text-xs rounded-md bg-muted/60 border border-border/20 text-foreground focus:outline-none focus:border-border/50"
             />
           </div>
         )}

@@ -75,12 +75,12 @@ export default function DataTable<T extends { id: string }>({
 
   if (loading) {
     return (
-      <div className="border border-[#8B99B0]/10 rounded-lg overflow-hidden">
+      <div className="border border-border/10 rounded-lg overflow-hidden">
         <table className="w-full">
           <thead>
-            <tr className="bg-[#1B253B] border-b border-[#8B99B0]/10">
+            <tr className="bg-muted border-b border-border/10">
               {columns.map((col) => (
-                <th key={col.key} className="px-3 py-2.5 text-left text-xs font-medium text-[#5A6882]">
+                <th key={col.key} className="px-3 py-2.5 text-left text-xs font-medium text-muted-foreground">
                   {col.label}
                 </th>
               ))}
@@ -88,10 +88,10 @@ export default function DataTable<T extends { id: string }>({
           </thead>
           <tbody>
             {Array.from({ length: 5 }).map((_, i) => (
-              <tr key={i} className="border-b border-[#8B99B0]/5">
+              <tr key={i} className="border-b border-border/5">
                 {columns.map((col) => (
                   <td key={col.key} className="px-3 py-3">
-                    <div className="h-4 bg-[#222C4A] rounded animate-pulse w-3/4" />
+                    <div className="h-4 bg-accent rounded animate-pulse w-3/4" />
                   </td>
                 ))}
               </tr>
@@ -104,8 +104,8 @@ export default function DataTable<T extends { id: string }>({
 
   if (!data.length) {
     return (
-      <div className="border border-[#8B99B0]/10 rounded-lg flex flex-col items-center justify-center py-16">
-        <p className="text-sm text-[#5A6882]">{emptyMessage}</p>
+      <div className="border border-border/10 rounded-lg flex flex-col items-center justify-center py-16">
+        <p className="text-sm text-muted-foreground">{emptyMessage}</p>
       </div>
     );
   }
@@ -113,22 +113,22 @@ export default function DataTable<T extends { id: string }>({
   const allChecked = data.length > 0 && selectedIds?.size === data.length;
 
   return (
-    <div className="border border-[#8B99B0]/10 rounded-lg overflow-hidden">
+    <div className="border border-border/10 rounded-lg overflow-hidden">
       <div className="overflow-x-auto">
         <table className="w-full">
           <thead>
-            <tr className="bg-[#1B253B]/60 border-b border-white/10">
+            <tr className="bg-muted/60 border-b border-border">
               {selectable && (
                 <th className="px-3 py-2.5 w-10">
                   <Checkbox checked={allChecked} onCheckedChange={toggleAll} aria-label="Select all" />
                 </th>
               )}
               {columns.map((col) => (
-                <th key={col.key} className={`px-4 py-4 text-left text-[11px] uppercase tracking-widest font-bold text-[#5A6882] ${col.className || ""}`}>
+                <th key={col.key} className={`px-4 py-4 text-left text-[11px] uppercase tracking-widest font-bold text-muted-foreground ${col.className || ""}`}>
                   {col.sortable ? (
                     <button
                       onClick={() => handleSort(col.key)}
-                      className="inline-flex items-center gap-1 hover:text-[#ECF0F7] transition-colors"
+                      className="inline-flex items-center gap-1 hover:text-foreground transition-colors"
                     >
                       {col.label}
                       {sortKey === col.key ? (
@@ -153,7 +153,7 @@ export default function DataTable<T extends { id: string }>({
                   onClick={() => onRowClick?.(row)}
                   className={`group border-b border-white/[0.03] transition-all duration-200 ${
                     onRowClick ? "cursor-pointer" : ""
-                  } ${isSelected ? "bg-[#7C8FFF]/10 border-l-2 border-l-[#7C8FFF]" : ""} ${rowClassName ? rowClassName(row) : ""}`}
+                  } ${isSelected ? "bg-primary/10 border-l-2 border-l-border" : ""} ${rowClassName ? rowClassName(row) : ""}`}
                 >
                   {selectable && (
                     <td className="px-3 py-2.5 w-10" onClick={(e) => e.stopPropagation()}>
@@ -165,7 +165,7 @@ export default function DataTable<T extends { id: string }>({
                     </td>
                   )}
                   {columns.map((col) => (
-                    <td key={col.key} className={`px-4 py-4 text-sm font-light text-[#ECF0F7] ${col.className || ""}`}>
+                    <td key={col.key} className={`px-4 py-4 text-sm font-light text-foreground ${col.className || ""}`}>
                       {col.render
                         ? (col.render(row[col.key], row) as ReactNode)
                         : (String(row[col.key] ?? "") as ReactNode)}

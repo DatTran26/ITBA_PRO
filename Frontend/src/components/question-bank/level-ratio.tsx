@@ -43,9 +43,9 @@ export default function LevelRatio({
 
   return (
     <div className={cn("space-y-4", className)}>
-      <div className="space-y-4 rounded-xl border border-[#8B99B0]/10 bg-[#1E2840]/35 px-4 py-4">
+      <div className="space-y-4 rounded-xl border border-border/10 bg-muted/35 px-4 py-4">
         <div className="relative h-9">
-          <div className="absolute left-0 right-0 top-1/2 h-2 -translate-y-1/2 overflow-hidden rounded-full bg-[#0C1220] border border-[#8B99B0]/10">
+          <div className="absolute left-0 right-0 top-1/2 h-2 -translate-y-1/2 overflow-hidden rounded-full bg-background border border-border/10">
             <div
               className="absolute left-0 top-0 h-full bg-blue-500/70"
               style={{ width: `${value.junior}%` }}
@@ -71,7 +71,7 @@ export default function LevelRatio({
             onChange={(event) =>
               setMixedHandle("first", parseInt(event.target.value, 10))
             }
-            className="ratio-range absolute inset-x-0 top-0 h-9 w-full cursor-pointer appearance-none bg-transparent pointer-events-none [--thumb-color:#60A5FA]"
+            className="ratio-range absolute inset-x-0 top-0 h-9 w-full cursor-pointer appearance-none bg-transparent pointer-events-none [--thumb-color:var(--primary)]"
           />
           <input
             aria-label="Senior ratio handle"
@@ -82,7 +82,7 @@ export default function LevelRatio({
             onChange={(event) =>
               setMixedHandle("second", parseInt(event.target.value, 10))
             }
-            className="ratio-range absolute inset-x-0 top-0 h-9 w-full cursor-pointer appearance-none bg-transparent pointer-events-none [--thumb-color:#C084FC]"
+            className="ratio-range absolute inset-x-0 top-0 h-9 w-full cursor-pointer appearance-none bg-transparent pointer-events-none [--thumb-color:var(--ai)]"
           />
         </div>
         <div className="grid grid-cols-3 gap-2 text-xs">
@@ -111,7 +111,7 @@ export default function LevelRatio({
           margin-top: -9px;
           border-radius: 9999px;
           background: var(--thumb-color);
-          border: 3px solid #0f1626;
+          border: 3px solid var(--background);
           box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.18),
             0 8px 20px rgba(0, 0, 0, 0.35);
         }
@@ -125,7 +125,7 @@ export default function LevelRatio({
           height: 18px;
           border-radius: 9999px;
           background: var(--thumb-color);
-          border: 3px solid #0f1626;
+          border: 3px solid var(--background);
           box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.18),
             0 8px 20px rgba(0, 0, 0, 0.35);
         }

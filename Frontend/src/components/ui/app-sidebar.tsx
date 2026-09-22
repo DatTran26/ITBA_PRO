@@ -66,15 +66,15 @@ export default function AppSidebar({
             onMouseEnter={() => { if (collapsed && !isMobile) setIsHovering(true); }}
             onMouseLeave={() => setIsHovering(false)}
         >
-            <div className={`h-12 flex items-center shrink-0 border-b border-[#8B99B0]/10 ${effectiveCollapsed ? "justify-center" : "px-3"}`}>
+            <div className={`h-12 flex items-center shrink-0 border-b border-muted-foreground/10 ${effectiveCollapsed ? "justify-center" : "px-3"}`}>
                 <AppLogo showText={!effectiveCollapsed} />
             </div>
 
             <div className="px-2 pt-3 pb-1 shrink-0">
-                <div className={`flex items-center rounded-lg text-[#5A6882] hover:text-[#8B99B0] transition-all duration-200 cursor-pointer select-none
+                <div className={`flex items-center rounded-lg text-muted-foreground hover:text-muted-foreground transition-all duration-200 cursor-pointer select-none
                     ${effectiveCollapsed
-                        ? "justify-center w-10 h-[34px] mx-auto hover:bg-[#1A2236]"
-                        : "gap-2 px-3 py-2 bg-[#0C1422] border border-[#8B99B0]/12 hover:border-[#8B99B0]/25"
+                        ? "justify-center w-10 h-[34px] mx-auto hover:bg-muted"
+                        : "gap-2 px-3 py-2 bg-background border border-muted-foreground/12 hover:border-muted-foreground/25"
                     }`}
                 >
                     <Search className="w-4 h-4 shrink-0" />
@@ -97,8 +97,8 @@ export default function AppSidebar({
                         aria-label="Overview"
                         className={`h-10 flex items-center rounded-lg text-sm transition-colors duration-150 ${
                             pathname === "/dashboard"
-                                ? "text-[#7C8FFF] bg-[#7C8FFF]/10"
-                                : "text-[#8B99B0] hover:text-[#ECF0F7] hover:bg-[#1A2236]"
+                                ? "text-primary bg-primary/10"
+                                : "text-muted-foreground hover:text-foreground hover:bg-muted"
                         } ${effectiveCollapsed ? "justify-center w-10 mx-auto" : "gap-2.5 px-3 w-full"}`}
                     >
                         <LayoutDashboard className="w-4 h-4 shrink-0" />
@@ -137,7 +137,7 @@ export default function AppSidebar({
             {!isMobile && (
                 <button
                     onClick={() => onCollapseChange(!collapsed)}
-                    className="mx-3 mb-2 h-8 rounded-lg border border-[#8B99B0]/10 text-[#8B99B0] hover:text-[#ECF0F7] hover:bg-[#1E2840] flex items-center justify-center transition-colors"
+                    className="mx-3 mb-2 h-8 rounded-lg border border-muted-foreground/10 text-muted-foreground hover:text-foreground hover:bg-muted flex items-center justify-center transition-colors"
                     aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
                 >
                     <ChevronLeft className={`w-4 h-4 transition-transform duration-200 ${collapsed ? "rotate-180" : ""}`} />
@@ -167,11 +167,11 @@ function NavSection({
             {group.sectionLabel && (
                 <div className="relative px-3 pt-4 pb-1">
                     {/* Divider shown in collapsed mode — absolute so it doesn't affect height */}
-                    <div className={`absolute inset-x-2 top-2 h-0.5 rounded-full bg-[#8B99B0]/25 transition-opacity duration-200 ${
+                    <div className={`absolute inset-x-2 top-2 h-0.5 rounded-full bg-muted-foreground/25 transition-opacity duration-200 ${
                         collapsed ? "opacity-100" : "opacity-0"
                     }`} />
                     {/* Section label shown in expanded mode */}
-                    <p className={`text-[10px] font-semibold uppercase tracking-[0.12em] text-[#3D4F6A] select-none transition-opacity duration-200 ${
+                    <p className={`text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground select-none transition-opacity duration-200 ${
                         collapsed ? "opacity-0 pointer-events-none" : "opacity-100"
                     }`}>
                         {group.sectionLabel}
@@ -196,12 +196,12 @@ function NavSection({
                 className={`h-10 flex items-center rounded-lg text-sm transition-[width,margin,padding,color,background-color] duration-200 ${
                     collapsed
                         ? `justify-center w-10 mx-auto ${
-                            hasActive ? "" : "text-[#8B99B0] hover:text-[#B6C2FF] hover:bg-[#1A2236]"
+                            hasActive ? "" : "text-muted-foreground hover:text-foreground hover:bg-muted"
                           }`
                         : `w-full gap-2.5 px-3 ${
                             hasActive && !expanded
-                                ? "text-[#ECF0F7] bg-[#7C8FFF]/10"
-                                : "text-[#8B99B0] hover:text-[#ECF0F7] hover:bg-[#1A2236]"
+                                ? "text-foreground bg-primary/10"
+                                : "text-muted-foreground hover:text-foreground hover:bg-muted"
                           }`
                 }`}
                 style={hasActive ? { color: group.accentColor } : undefined}
@@ -224,7 +224,7 @@ function NavSection({
 
             {/* Sub-items */}
             {!collapsed && expanded && (
-                <div className="ml-[22px] pl-3 border-l border-[#8B99B0]/15 mt-0.5 mb-1 space-y-0.5">
+                <div className="ml-[22px] pl-3 border-l border-muted-foreground/15 mt-0.5 mb-1 space-y-0.5">
                     {links.map((link) => {
                         const active = pathname === link.href;
                         return (
@@ -235,7 +235,7 @@ function NavSection({
                                 className={`block py-1.5 px-2 rounded-md text-sm transition-colors ${
                                     active
                                         ? "font-medium"
-                                        : "text-[#8B99B0] hover:text-[#ECF0F7] hover:bg-[#1A2236]"
+                                        : "text-muted-foreground hover:text-foreground hover:bg-muted"
                                 }`}
                                 style={active ? { color: group.accentColor } : undefined}
                             >
@@ -262,10 +262,10 @@ function NavStandaloneVersions({
         <div className="px-2">
             {/* Section label row — same pattern as NavSection */}
             <div className="relative px-3 pt-4 pb-1">
-                <div className={`absolute inset-x-2 top-2 h-0.5 rounded-full bg-[#8B99B0]/25 transition-opacity duration-200 ${
+                <div className={`absolute inset-x-2 top-2 h-0.5 rounded-full bg-muted-foreground/25 transition-opacity duration-200 ${
                     collapsed ? "opacity-100" : "opacity-0"
                 }`} />
-                <p className={`text-[10px] font-semibold uppercase tracking-[0.12em] text-[#3D4F6A] select-none transition-opacity duration-200 ${
+                <p className={`text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground select-none transition-opacity duration-200 ${
                     collapsed ? "opacity-0 pointer-events-none" : "opacity-100"
                 }`}>
                     System
@@ -278,12 +278,12 @@ function NavStandaloneVersions({
                 aria-label="Versions"
                 className={`h-10 flex items-center rounded-lg text-sm font-medium transition-[width,margin,padding,color,background-color] duration-200 ${
                     collapsed
-                        ? `justify-center w-10 mx-auto ${active ? "" : "text-[#8B99B0] hover:text-[#B6C2FF] hover:bg-[#1A2236]"}`
-                        : `w-full gap-2.5 px-3 ${active ? "bg-[#B48EFF]/10" : "text-[#8B99B0] hover:text-[#ECF0F7] hover:bg-[#1A2236]"}`
+                        ? `justify-center w-10 mx-auto ${active ? "" : "text-muted-foreground hover:text-muted hover:bg-muted"}`
+                        : `w-full gap-2.5 px-3 ${active ? "bg-ai/10" : "text-muted-foreground hover:text-foreground hover:bg-muted"}`
                 }`}
-                style={active ? { color: "#B48EFF" } : undefined}
+                style={active ? { color: "var(--ai)" } : undefined}
             >
-                <GitBranch className="w-4 h-4 shrink-0" style={active ? { color: "#B48EFF" } : undefined} />
+                <GitBranch className="w-4 h-4 shrink-0" style={active ? { color: "var(--ai)" } : undefined} />
                 <span className={`whitespace-nowrap overflow-hidden transition-[max-width,opacity] duration-200 ${
                     collapsed ? "max-w-0 opacity-0" : "max-w-[180px] opacity-100"
                 }`}>

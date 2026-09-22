@@ -61,7 +61,7 @@ export default function PositionsListClient({ positions }: Props) {
   const handleRowClick = (p: PositionListItem) => router.push(`/dashboard/positions/${p.id}`);
 
   return (
-    <div className="bg-transparent text-[#ECF0F7] pb-12">
+    <div className="bg-transparent text-foreground pb-12">
       <AppNavbar />
       <PageContainer>
         <PageBreadcrumb breadcrumbs={[{ label: "Dashboard", href: "/dashboard" }, { label: "Positions" }]} />
@@ -72,7 +72,7 @@ export default function PositionsListClient({ positions }: Props) {
           actions={(
             <SharedDashboardButton
               onClick={() => setDialogOpen(true)}
-              className="bg-[#7C8FFF] hover:bg-[#5B6CF0] text-white h-12 px-8 rounded-xl shadow-lg shadow-[#7C8FFF]/20 transition-all font-semibold gap-2 border-0"
+              className="bg-primary hover:bg-primary text-white h-12 px-8 rounded-xl shadow-lg shadow-primary/20 transition-all font-semibold gap-2 border-0"
               leadingIcon={<Plus className="h-5 w-5" />}
             >
               New Position

@@ -181,13 +181,13 @@ export default function TestDetailClient({
         const link = `${window.location.origin}/test/${token}`;
         navigator.clipboard.writeText(link);
         toast.custom(() => (
-            <div className="flex items-center gap-3 bg-[#1B253B] border border-[#8B99B0]/15 px-4 py-3 rounded-2xl shadow-2xl backdrop-blur-xl">
+            <div className="flex items-center gap-3 bg-muted border border-border/15 px-4 py-3 rounded-2xl shadow-2xl backdrop-blur-xl">
                 <div className="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center">
                     <Check className="w-4 h-4 text-emerald-400" />
                 </div>
                 <div className="flex flex-col">
-                    <span className="text-sm font-medium text-[#ECF0F7] font-body">Link Copied</span>
-                    <span className="text-xs text-[#5A6882] font-body">Ready to share</span>
+                    <span className="text-sm font-medium text-foreground font-body">Link Copied</span>
+                    <span className="text-xs text-muted-foreground font-body">Ready to share</span>
                 </div>
             </div>
         ));
@@ -241,13 +241,13 @@ export default function TestDetailClient({
                 );
                 setQuestions(sorted);
                 toast.custom(() => (
-                    <div className="flex items-center gap-3 bg-[#1B253B] border border-[#8B99B0]/15 px-4 py-3 rounded-2xl shadow-2xl backdrop-blur-xl">
-                        <div className="w-8 h-8 rounded-full bg-[#7C8FFF]/20 flex items-center justify-center">
-                            <Sparkles className="w-4 h-4 text-[#7C8FFF]" />
+                    <div className="flex items-center gap-3 bg-muted border border-border/15 px-4 py-3 rounded-2xl shadow-2xl backdrop-blur-xl">
+                        <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
+                            <Sparkles className="w-4 h-4 text-primary" />
                         </div>
                         <div className="flex flex-col">
-                            <span className="text-sm font-medium text-[#ECF0F7] font-body">Test Regenerated</span>
-                            <span className="text-xs text-[#5A6882] font-body">{sorted.length} new questions generated</span>
+                            <span className="text-sm font-medium text-foreground font-body">Test Regenerated</span>
+                            <span className="text-xs text-muted-foreground font-body">{sorted.length} new questions generated</span>
                         </div>
                     </div>
                 ));
@@ -256,13 +256,13 @@ export default function TestDetailClient({
                     prev.map((q) => (q.id === questionId ? { ...data.question, order_num: q.order_num } : q))
                 );
                 toast.custom(() => (
-                    <div className="flex items-center gap-3 bg-[#1B253B] border border-[#8B99B0]/15 px-4 py-3 rounded-2xl shadow-2xl backdrop-blur-xl">
-                        <div className="w-8 h-8 rounded-full bg-[#7C8FFF]/20 flex items-center justify-center">
-                            <Sparkles className="w-4 h-4 text-[#7C8FFF]" />
+                    <div className="flex items-center gap-3 bg-muted border border-border/15 px-4 py-3 rounded-2xl shadow-2xl backdrop-blur-xl">
+                        <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
+                            <Sparkles className="w-4 h-4 text-primary" />
                         </div>
                         <div className="flex flex-col">
-                            <span className="text-sm font-medium text-[#ECF0F7] font-body">Question Replaced</span>
-                            <span className="text-xs text-[#5A6882] font-body">New question generated successfully</span>
+                            <span className="text-sm font-medium text-foreground font-body">Question Replaced</span>
+                            <span className="text-xs text-muted-foreground font-body">New question generated successfully</span>
                         </div>
                     </div>
                 ));
@@ -272,13 +272,13 @@ export default function TestDetailClient({
         } catch (err) {
             const message = err instanceof Error ? err.message : "Something went wrong";
             toast.custom(() => (
-                <div className="flex items-center gap-3 bg-[#1B253B] border border-rose-500/20 px-4 py-3 rounded-2xl shadow-2xl backdrop-blur-xl">
+                <div className="flex items-center gap-3 bg-muted border border-rose-500/20 px-4 py-3 rounded-2xl shadow-2xl backdrop-blur-xl">
                     <div className="w-8 h-8 rounded-full bg-rose-500/20 flex items-center justify-center">
                         <X className="w-4 h-4 text-rose-400" />
                     </div>
                     <div className="flex flex-col">
-                        <span className="text-sm font-medium text-[#ECF0F7] font-body">Regeneration Failed</span>
-                        <span className="text-xs text-[#5A6882] font-body">{message}</span>
+                        <span className="text-sm font-medium text-foreground font-body">Regeneration Failed</span>
+                        <span className="text-xs text-muted-foreground font-body">{message}</span>
                     </div>
                 </div>
             ));
@@ -311,25 +311,25 @@ export default function TestDetailClient({
             setDisplayMaxP(validMaxP);
             setIsEditing(false);
             toast.custom(() => (
-                <div className="flex items-center gap-3 bg-[#1B253B] border border-[#8B99B0]/15 px-4 py-3 rounded-2xl shadow-2xl backdrop-blur-xl">
+                <div className="flex items-center gap-3 bg-muted border border-border/15 px-4 py-3 rounded-2xl shadow-2xl backdrop-blur-xl">
                     <div className="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center">
                         <Check className="w-4 h-4 text-emerald-400" />
                     </div>
                     <div className="flex flex-col">
-                        <span className="text-sm font-medium text-[#ECF0F7] font-body">Đã lưu thay đổi</span>
-                        <span className="text-xs text-[#5A6882] font-body">Các thông tin đã được cập nhật</span>
+                        <span className="text-sm font-medium text-foreground font-body">Đã lưu thay đổi</span>
+                        <span className="text-xs text-muted-foreground font-body">Các thông tin đã được cập nhật</span>
                     </div>
                 </div>
             ));
         } catch {
             toast.custom(() => (
-                <div className="flex items-center gap-3 bg-[#1B253B] border border-rose-500/20 px-4 py-3 rounded-2xl shadow-2xl backdrop-blur-xl">
+                <div className="flex items-center gap-3 bg-muted border border-rose-500/20 px-4 py-3 rounded-2xl shadow-2xl backdrop-blur-xl">
                     <div className="w-8 h-8 rounded-full bg-rose-500/20 flex items-center justify-center">
                         <X className="w-4 h-4 text-rose-400" />
                     </div>
                     <div className="flex flex-col">
-                        <span className="text-sm font-medium text-[#ECF0F7] font-body">Lưu thất bại</span>
-                        <span className="text-xs text-[#5A6882] font-body">Vui lòng thử lại</span>
+                        <span className="text-sm font-medium text-foreground font-body">Lưu thất bại</span>
+                        <span className="text-xs text-muted-foreground font-body">Vui lòng thử lại</span>
                     </div>
                 </div>
             ));
@@ -358,15 +358,15 @@ export default function TestDetailClient({
             if (error) throw error;
             setDisplayStatus(newStatus);
             toast.custom(() => (
-                <div className={`flex items-center gap-3 bg-[#1B253B] border ${newStatus === "Live" ? "border-emerald-500/20" : "border-rose-500/20"} px-4 py-3 rounded-2xl shadow-2xl backdrop-blur-xl`}>
+                <div className={`flex items-center gap-3 bg-muted border ${newStatus === "Live" ? "border-emerald-500/20" : "border-rose-500/20"} px-4 py-3 rounded-2xl shadow-2xl backdrop-blur-xl`}>
                     <div className={`w-8 h-8 rounded-full ${newStatus === "Live" ? "bg-emerald-500/20" : "bg-rose-500/20"} flex items-center justify-center`}>
                         {newStatus === "Live" ? <CheckCircle2 className="w-4 h-4 text-emerald-400" /> : <Power className="w-4 h-4 text-rose-400" />}
                     </div>
                     <div className="flex flex-col">
-                        <span className="text-sm font-medium text-[#ECF0F7] font-body">
+                        <span className="text-sm font-medium text-foreground font-body">
                             {newStatus === "Live" ? "Assessment Activated" : "Assessment Deactivated"}
                         </span>
-                        <span className="text-xs text-[#5A6882] font-body">Status updated successfully</span>
+                        <span className="text-xs text-muted-foreground font-body">Status updated successfully</span>
                     </div>
                 </div>
             ));
@@ -409,7 +409,7 @@ export default function TestDetailClient({
                                 <ShieldAlert className="w-3 h-3" />
                                 {test.level}
                             </div>
-                            <span className="text-xs font-medium text-[#5A6882] uppercase tracking-widest flex items-center gap-1.5">
+                            <span className="text-xs font-medium text-muted-foreground uppercase tracking-widest flex items-center gap-1.5">
                                 <Calendar className="w-3.5 h-3.5" />
                                 {new Date(test.created_at).toLocaleDateString("en-US", {
                                     month: "short",
@@ -418,9 +418,9 @@ export default function TestDetailClient({
                                 })}
                             </span>
                             <div className={`px-3 py-1 rounded-full text-[10px] font-black tracking-[0.1em] uppercase border flex items-center gap-2 transition-all duration-300 ${
-                                (displayStatus?.toLowerCase() === "live" || displayStatus?.toLowerCase() === "active") ? "bg-emerald-500/15 text-emerald-400 border-emerald-500/30 shadow-[0_0_15px_-5px_rgba(16,185,129,0.4)]" :
+                                (displayStatus?.toLowerCase() === "live" || displayStatus?.toLowerCase() === "active") ? "bg-emerald-500/15 text-emerald-400 border-emerald-500/30 shadow-[0_0_15px_-5px_color-mix(in_srgb,var(--success)_40%,transparent)]" :
                                 displayStatus?.toLowerCase() === "deactivate" ? "bg-rose-500/10 text-rose-400 border-rose-500/20" :
-                                "bg-white/5 text-[#8B99B0] border-white/10"
+                                "bg-muted text-muted-foreground border-border"
                             }`}>
                                 <div className="relative flex items-center justify-center">
                                     {(displayStatus?.toLowerCase() === "live" || displayStatus?.toLowerCase() === "active") && (
@@ -429,7 +429,7 @@ export default function TestDetailClient({
                                     <div className={`w-1.5 h-1.5 rounded-full relative z-10 ${
                                         (displayStatus?.toLowerCase() === "live" || displayStatus?.toLowerCase() === "active") ? "bg-emerald-400" :
                                         displayStatus?.toLowerCase() === "deactivate" ? "bg-rose-400" :
-                                        "bg-[#5A6882]"
+                                        "bg-muted-foreground"
                                     }`} />
                                 </div>
                                 {(displayStatus?.toLowerCase() === "live" || displayStatus?.toLowerCase() === "active") ? "ACTIVE" : displayStatus}
@@ -441,12 +441,12 @@ export default function TestDetailClient({
                                 </span>
                             )}
                              {positionName && (
-                                <span className="px-2.5 py-1 rounded-full text-[11px] font-medium border flex items-center gap-1.5 bg-white/5 backdrop-blur-md text-[#8B99B0] border-[#8B99B0]/15 truncate max-w-[160px]">
+                                <span className="px-2.5 py-1 rounded-full text-[11px] font-medium border flex items-center gap-1.5 bg-muted backdrop-blur-md text-muted-foreground border-border/15 truncate max-w-[160px]">
                                     {positionName}
                                 </span>
                             )}
                             {groupName && (
-                                <span className="px-2.5 py-1 rounded-full text-[11px] font-medium border flex items-center gap-1.5 bg-white/5 backdrop-blur-md text-[#8B99B0] border-[#8B99B0]/15 truncate max-w-[160px]">
+                                <span className="px-2.5 py-1 rounded-full text-[11px] font-medium border flex items-center gap-1.5 bg-muted backdrop-blur-md text-muted-foreground border-border/15 truncate max-w-[160px]">
                                     <Users className="w-3 h-3 shrink-0" />
                                     {groupName}
                                 </span>
@@ -457,18 +457,18 @@ export default function TestDetailClient({
                             <motion.div
                                 initial={{ opacity: 0, y: 10 }}
                                 animate={{ opacity: 1, y: 0 }}
-                                className="flex flex-col gap-8 w-full max-w-xl bg-[#111827]/60 backdrop-blur-2xl border border-[#FFB86C]/20 p-8 rounded-[2rem] shadow-2xl relative overflow-hidden"
+                                className="flex flex-col gap-8 w-full max-w-xl bg-card/60 backdrop-blur-2xl border border-border/20 p-8 rounded-[2rem] shadow-2xl relative overflow-hidden"
                             >
                                 <div className="absolute top-0 right-0 p-8 opacity-5">
-                                    <Pencil className="w-24 h-24 text-[#FFB86C]" />
+                                    <Pencil className="w-24 h-24 text-warning" />
                                 </div>
 
                                 <div className="space-y-6 relative z-10">
                                     {/* Title Section */}
                                     <div className="space-y-3">
                                         <div className="flex items-center gap-2">
-                                            <Type className="w-3.5 h-3.5 text-[#FFB86C]" />
-                                            <label className="text-[10px] uppercase tracking-widest font-black text-[#5A6882]">Assessment Title</label>
+                                            <Type className="w-3.5 h-3.5 text-warning" />
+                                            <label className="text-[10px] uppercase tracking-widest font-black text-muted-foreground">Assessment Title</label>
                                         </div>
                                         <input
                                             autoFocus
@@ -476,7 +476,7 @@ export default function TestDetailClient({
                                             onChange={(e) => setEditTitle(e.target.value)}
                                             onKeyDown={(e) => { if (e.key === "Escape") handleCancelEdit(); }}
                                             disabled={isSaving}
-                                            className="w-full text-2xl lg:text-3xl font-light tracking-tight text-[#ECF0F7] bg-white/[0.03] border-b border-[#FFB86C]/30 focus:border-[#FFB86C] focus:bg-white/[0.06] outline-none px-4 py-3 rounded-t-xl transition-all font-display"
+                                            className="w-full text-2xl lg:text-3xl font-light tracking-tight text-foreground bg-white/[0.03] border-b border-border/30 focus:border-border focus:bg-white/[0.06] outline-none px-4 py-3 rounded-t-xl transition-all font-display"
                                         />
                                     </div>
 
@@ -484,8 +484,8 @@ export default function TestDetailClient({
                                     <div className="grid grid-cols-2 gap-4">
                                         <div className="space-y-3">
                                             <div className="flex items-center gap-2">
-                                                <Clock className="w-3.5 h-3.5 text-[#FFB86C]" />
-                                                <label className="text-[10px] uppercase tracking-widest font-black text-[#5A6882]">Duration</label>
+                                                <Clock className="w-3.5 h-3.5 text-warning" />
+                                                <label className="text-[10px] uppercase tracking-widest font-black text-muted-foreground">Duration</label>
                                             </div>
                                             <div className="relative group">
                                                 <input
@@ -493,16 +493,16 @@ export default function TestDetailClient({
                                                     value={editTime}
                                                     onChange={(e) => setEditTime(e.target.value)}
                                                     disabled={isSaving}
-                                                    className="w-full h-12 bg-white/[0.03] border border-white/10 rounded-2xl px-4 text-center text-lg font-medium text-[#ECF0F7] focus:border-[#FFB86C]/50 focus:bg-white/[0.06] outline-none transition-all [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                                    className="w-full h-12 bg-white/[0.03] border border-border rounded-2xl px-4 text-center text-lg font-medium text-foreground focus:border-border/50 focus:bg-white/[0.06] outline-none transition-all [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                                                 />
-                                                <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[11px] font-bold text-[#5A6882] pointer-events-none uppercase">Min</span>
+                                                <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[11px] font-bold text-muted-foreground pointer-events-none uppercase">Min</span>
                                             </div>
                                         </div>
 
                                         <div className="space-y-3">
                                             <div className="flex items-center gap-2">
-                                                <UserPlus className="w-3.5 h-3.5 text-[#FFB86C]" />
-                                                <label className="text-[10px] uppercase tracking-widest font-black text-[#5A6882]">Capacity</label>
+                                                <UserPlus className="w-3.5 h-3.5 text-warning" />
+                                                <label className="text-[10px] uppercase tracking-widest font-black text-muted-foreground">Capacity</label>
                                             </div>
                                             <div className="relative group">
                                                 <input
@@ -511,31 +511,31 @@ export default function TestDetailClient({
                                                     onChange={(e) => setEditMaxP(e.target.value)}
                                                     disabled={isSaving}
                                                     placeholder="∞"
-                                                    className="w-full h-12 bg-white/[0.03] border border-white/10 rounded-2xl px-4 text-center text-lg font-medium text-[#ECF0F7] placeholder:text-[#5A6882] focus:border-[#FFB86C]/50 focus:bg-white/[0.06] outline-none transition-all [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                                    className="w-full h-12 bg-white/[0.03] border border-border rounded-2xl px-4 text-center text-lg font-medium text-foreground placeholder:text-muted-foreground focus:border-border/50 focus:bg-white/[0.06] outline-none transition-all [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                                                 />
-                                                <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[11px] font-bold text-[#5A6882] pointer-events-none uppercase">Users</span>
+                                                <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[11px] font-bold text-muted-foreground pointer-events-none uppercase">Users</span>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
 
                                 <div className="flex items-center justify-between pt-4 border-t border-white/[0.05] relative z-10">
-                                    <div className="flex items-center gap-1 text-[10px] text-[#5A6882] font-medium uppercase tracking-tight">
-                                        <kbd className="px-1.5 py-0.5 rounded bg-white/5 border border-white/10">ESC</kbd>
+                                    <div className="flex items-center gap-1 text-[10px] text-muted-foreground font-medium uppercase tracking-tight">
+                                        <kbd className="px-1.5 py-0.5 rounded bg-muted border border-border">ESC</kbd>
                                         <span className="ml-1">to discard changes</span>
                                     </div>
                                     <div className="flex items-center gap-3">
                                         <button
                                             onClick={handleCancelEdit}
                                             disabled={isSaving}
-                                            className="px-5 py-2.5 rounded-xl text-xs font-bold text-[#8B99B0] hover:text-[#ECF0F7] hover:bg-white/5 transition-all"
+                                            className="px-5 py-2.5 rounded-xl text-xs font-bold text-muted-foreground hover:text-foreground hover:bg-muted transition-all"
                                         >
                                             Cancel
                                         </button>
                                         <button
                                             onClick={handleSave}
                                             disabled={isSaving}
-                                            className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-[#FFB86C] text-[#0F172A] text-xs font-black uppercase tracking-widest hover:bg-[#FFC68C] hover:scale-[1.02] active:scale-[0.98] transition-all shadow-[0_10px_30px_-5px_rgba(255,184,108,0.3)] disabled:opacity-50"
+                                            className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-warning text-background text-xs font-black uppercase tracking-widest hover:bg-warning hover:scale-[1.02] active:scale-[0.98] transition-all shadow-[0_10px_30px_-5px_color-mix(in_srgb,var(--warning)_30%,transparent)] disabled:opacity-50"
                                         >
                                             {isSaving ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Check className="w-3.5 h-3.5" />}
                                             Save Settings
@@ -547,7 +547,7 @@ export default function TestDetailClient({
                             /* ── View Mode ── */
                             <>
                                 <div className="mb-6 flex items-start gap-3">
-                                    <h1 className="text-5xl lg:text-7xl font-light tracking-tight text-transparent bg-clip-text bg-gradient-to-br from-[#ECF0F7] via-[#ECF0F7]/90 to-[#ECF0F7]/20 drop-shadow-sm font-display leading-tight">
+                                    <h1 className="text-5xl lg:text-7xl font-light tracking-tight text-transparent bg-clip-text bg-gradient-to-br from-foreground via-foreground/90 to-foreground/20 drop-shadow-sm font-display leading-tight">
                                         {displayTitle}
                                     </h1>
                                     <button
@@ -563,11 +563,11 @@ export default function TestDetailClient({
                                         <Pencil className="w-3.5 h-3.5" />
                                     </button>
                                 </div>
-                                <p className="text-lg text-[#5A6882] font-light leading-relaxed max-w-xl">
+                                <p className="text-lg text-muted-foreground font-light leading-relaxed max-w-xl">
                                     Comprehensive assessment configured for{" "}
-                                    <strong className="text-[#8B99B0] font-medium">{questions.length || 0}</strong> evaluation
+                                    <strong className="text-muted-foreground font-medium">{questions.length || 0}</strong> evaluation
                                     points over a{" "}
-                                    <strong className="text-[#8B99B0] font-medium">{displayTime}</strong>-minute
+                                    <strong className="text-muted-foreground font-medium">{displayTime}</strong>-minute
                                     timeframe.
                                 </p>
                             </>
@@ -577,29 +577,29 @@ export default function TestDetailClient({
                     {/* Stats & Share */}
                     <div className="flex flex-col gap-4 min-w-[320px]">
                         <div className="grid grid-cols-2 gap-3">
-                            <div className="bg-[#111827]/40 border border-[#8B99B0]/10 rounded-2xl p-4 backdrop-blur-xl flex flex-col justify-between">
-                                <Users className="w-4 h-4 text-[#5A6882] mb-4" />
+                            <div className="bg-card/40 border border-border/10 rounded-2xl p-4 backdrop-blur-xl flex flex-col justify-between">
+                                <Users className="w-4 h-4 text-muted-foreground mb-4" />
                                 <div>
                                     <div className="flex items-baseline gap-1 mb-0.5">
-                                        <span className="text-2xl font-light text-[#ECF0F7] font-display">
+                                        <span className="text-2xl font-light text-foreground font-display">
                                             {results?.length || 0}
                                         </span>
                                         {displayMaxP && (
-                                            <span className="text-sm text-[#5A6882] font-display">/ {displayMaxP}</span>
+                                            <span className="text-sm text-muted-foreground font-display">/ {displayMaxP}</span>
                                         )}
                                     </div>
-                                    <span className="text-xs text-[#5A6882] font-medium uppercase tracking-wider">
+                                    <span className="text-xs text-muted-foreground font-medium uppercase tracking-wider">
                                         Candidates
                                     </span>
                                 </div>
                             </div>
-                            <div className="bg-[#111827]/40 border border-[#8B99B0]/10 rounded-2xl p-4 backdrop-blur-xl flex flex-col justify-between">
-                                <Clock className="w-4 h-4 text-[#5A6882] mb-4" />
+                            <div className="bg-card/40 border border-border/10 rounded-2xl p-4 backdrop-blur-xl flex flex-col justify-between">
+                                <Clock className="w-4 h-4 text-muted-foreground mb-4" />
                                 <div>
-                                    <span className="block text-2xl font-light text-[#ECF0F7] mb-0.5 font-display">
+                                    <span className="block text-2xl font-light text-foreground mb-0.5 font-display">
                                         {displayTime}
                                     </span>
-                                    <span className="text-xs text-[#5A6882] font-medium uppercase tracking-wider">
+                                    <span className="text-xs text-muted-foreground font-medium uppercase tracking-wider">
                                         Minutes
                                     </span>
                                 </div>
@@ -609,9 +609,9 @@ export default function TestDetailClient({
                         <div className="flex flex-col gap-3">
                             <button
                                 onClick={() => copyLink(test.share_token)}
-                                className="group relative w-full flex items-center justify-between px-5 py-3.5 bg-[#111827]/40 border border-[#FFB86C]/30 backdrop-blur-xl rounded-2xl text-[#FFB86C] overflow-hidden transition-all active:scale-[0.98] hover:bg-[#FFB86C]/10 hover:border-[#FFB86C]/50 shadow-lg shadow-black/20"
+                                className="group relative w-full flex items-center justify-between px-5 py-3.5 bg-card/40 border border-border/30 backdrop-blur-xl rounded-2xl text-warning overflow-hidden transition-all active:scale-[0.98] hover:bg-warning/10 hover:border-border/50 shadow-lg shadow-black/20"
                             >
-                                <div className="absolute inset-0 bg-gradient-to-r from-[#FFB86C]/0 via-[#FFB86C]/10 to-[#FFB86C]/0 -translate-x-[100%] group-hover:translate-x-[100%] transition-transform duration-700 ease-in-out" />
+                                <div className="absolute inset-0 bg-gradient-to-r from-warning/0 via-warning/10 to-warning/0 -translate-x-[100%] group-hover:translate-x-[100%] transition-transform duration-700 ease-in-out" />
                                 <span className="relative font-bold text-[11px] uppercase tracking-widest">Copy Share Link</span>
                                 <Copy className="relative w-3.5 h-3.5 opacity-70 group-hover:opacity-100 transition-opacity" />
                             </button>
@@ -638,7 +638,7 @@ export default function TestDetailClient({
 
                             <button
                                 onClick={() => setShowDeleteConfirm(true)}
-                                className="w-full h-12 flex items-center justify-center gap-2 px-5 py-3 bg-white/[0.03] border border-white/[0.05] rounded-2xl text-[#5A6882] text-[11px] font-bold uppercase tracking-widest hover:bg-rose-500/10 hover:border-rose-500/20 hover:text-rose-400 transition-all"
+                                className="w-full h-12 flex items-center justify-center gap-2 px-5 py-3 bg-white/[0.03] border border-white/[0.05] rounded-2xl text-muted-foreground text-[11px] font-bold uppercase tracking-widest hover:bg-rose-500/10 hover:border-rose-500/20 hover:text-rose-400 transition-all"
                             >
                                 <Trash2 className="w-3.5 h-3.5 opacity-50" />
                                 Delete
@@ -648,13 +648,13 @@ export default function TestDetailClient({
                 </div>
 
                 {/* Tabs switcher */}
-                <div className="flex border-b border-[#8B99B0]/10 mb-8 z-10 relative">
+                <div className="flex border-b border-border/10 mb-8 z-10 relative">
                     <button
                         onClick={() => setActiveTab("criteria")}
                         className={`pb-4 px-6 text-sm font-semibold tracking-wider uppercase border-b-2 transition-all ${
                             activeTab === "criteria"
-                                ? "border-[#7C8FFF] text-[#7C8FFF]"
-                                : "border-transparent text-[#5A6882] hover:text-[#ECF0F7]"
+                                ? "border-border text-primary"
+                                : "border-transparent text-muted-foreground hover:text-foreground"
                         }`}
                     >
                         Assessment Criteria ({questions.length})
@@ -663,8 +663,8 @@ export default function TestDetailClient({
                         onClick={() => setActiveTab("results")}
                         className={`pb-4 px-6 text-sm font-semibold tracking-wider uppercase border-b-2 transition-all ${
                             activeTab === "results"
-                                ? "border-[#7C8FFF] text-[#7C8FFF]"
-                                : "border-transparent text-[#5A6882] hover:text-[#ECF0F7]"
+                                ? "border-border text-primary"
+                                : "border-transparent text-muted-foreground hover:text-foreground"
                         }`}
                     >
                         Candidate Results ({results.length})
@@ -676,10 +676,10 @@ export default function TestDetailClient({
                     <div className="grid lg:grid-cols-12 gap-8 lg:gap-16 items-start">
                     {/* Left Col: Questions */}
                     <div className="lg:col-span-7 xl:col-span-8 flex flex-col gap-8">
-                        <div className="flex items-center justify-between pb-4 border-b border-[#8B99B0]/10">
-                            <h2 className="text-xl font-medium text-[#ECF0F7] flex items-center gap-3 font-display">
+                        <div className="flex items-center justify-between pb-4 border-b border-border/10">
+                            <h2 className="text-xl font-medium text-foreground flex items-center gap-3 font-display">
                                 Assessment Criteria
-                                <span className="text-xs px-2 py-0.5 rounded-full bg-[#222C4A] text-[#8B99B0] font-medium font-body">
+                                <span className="text-xs px-2 py-0.5 rounded-full bg-accent text-muted-foreground font-medium font-body">
                                     {questions.length}
                                 </span>
                             </h2>
@@ -688,7 +688,7 @@ export default function TestDetailClient({
                             <button
                                 onClick={() => openRegenerateModal("full")}
                                 disabled={isRegenerating}
-                                className="group flex items-center gap-2 px-4 py-2 rounded-xl bg-amber-500/15 border border-amber-500/30 text-amber-400 text-xs font-semibold tracking-wide hover:bg-amber-500/25 hover:border-amber-400/50 hover:text-amber-300 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_0_15px_-5px_rgba(245,158,11,0.3)]"
+                                className="group flex items-center gap-2 px-4 py-2 rounded-xl bg-amber-500/15 border border-amber-500/30 text-amber-400 text-xs font-semibold tracking-wide hover:bg-amber-500/25 hover:border-amber-400/50 hover:text-amber-300 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_0_15px_-5px_color-mix(in_srgb,var(--warning)_30%,transparent)]"
                             >
                                 <RefreshCw className={`w-3.5 h-3.5 ${isRegenerating && !regeneratingQuestionId ? "animate-spin" : ""}`} />
                                 Regenerate All
@@ -701,25 +701,25 @@ export default function TestDetailClient({
                                 return (
                                     <div
                                         key={q.id}
-                                        className={`relative bg-[#111827]/40 backdrop-blur-md border rounded-2xl overflow-hidden transition-all duration-300 ${isThisRegenerating ? "border-amber-500/30" : "border-[#8B99B0]/10 hover:border-[#8B99B0]/20 hover:bg-[#111827]/60"}`}
+                                        className={`relative bg-card/40 backdrop-blur-md border rounded-2xl overflow-hidden transition-all duration-300 ${isThisRegenerating ? "border-amber-500/30" : "border-border/10 hover:border-border/20 hover:bg-card/60"}`}
                                     >
                                         {/* Regenerating Overlay */}
                                         {isThisRegenerating && (
-                                            <div className="absolute inset-0 z-20 bg-[#1B253B]/90 flex flex-col items-center justify-center gap-3">
+                                            <div className="absolute inset-0 z-20 bg-muted/90 flex flex-col items-center justify-center gap-3">
                                                 <div className="w-10 h-10 rounded-full border-2 border-amber-500/30 border-t-amber-400 animate-spin" />
                                                 <span className="text-sm text-amber-300 font-medium">Regenerating...</span>
                                             </div>
                                         )}
 
                                         {/* Top action bar */}
-                                        <div className="flex items-center justify-between px-5 py-3 border-b border-[#8B99B0]/8 bg-[#1B253B]/50">
+                                        <div className="flex items-center justify-between px-5 py-3 border-b border-border/8 bg-muted/50">
                                             <div className="flex items-center gap-3">
-                                                <span className="text-xs font-mono font-bold text-[#5A6882]/60 w-6">
+                                                <span className="text-xs font-mono font-bold text-muted-foreground/60 w-6">
                                                     {(idx + 1).toString().padStart(2, "0")}
                                                 </span>
-                                                <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#222C4A]/60 border border-[#8B99B0]/10">
-                                                    <div className="w-1.5 h-1.5 rounded-full bg-[#7C8FFF]" />
-                                                    <span className="text-[11px] text-[#8B99B0] font-semibold tracking-wider uppercase">
+                                                <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-accent/60 border border-border/10">
+                                                    <div className="w-1.5 h-1.5 rounded-full bg-primary" />
+                                                    <span className="text-[11px] text-muted-foreground font-semibold tracking-wider uppercase">
                                                         {q.topic}
                                                     </span>
                                                 </div>
@@ -743,7 +743,7 @@ export default function TestDetailClient({
                                         </div>
 
                                         <div className="p-6 md:p-7">
-                                            <div className="text-[17px] md:text-lg font-normal text-[#ECF0F7]/90 leading-relaxed mb-6 [&>p]:mb-4 [&>pre]:bg-[#222C4A] [&>pre]:p-4 [&>pre]:rounded-lg [&>pre]:overflow-x-auto [&>blockquote]:border-l-2 [&>blockquote]:border-[#7C8FFF]/50 [&>blockquote]:bg-[#7C8FFF]/5 [&>blockquote]:p-3 [&>blockquote]:my-4 [&>ul]:list-disc [&>ul]:pl-6 [&>ul]:my-4 [&>ol]:list-decimal [&>ol]:pl-6 [&>ol]:my-4 [&_code]:text-[#9BABFF] [&_code]:bg-[#7C8FFF]/10 [&_code]:px-1 [&_code]:py-0.5 [&_code]:rounded">
+                                            <div className="text-[17px] md:text-lg font-normal text-foreground/90 leading-relaxed mb-6 [&>p]:mb-4 [&>pre]:bg-accent [&>pre]:p-4 [&>pre]:rounded-lg [&>pre]:overflow-x-auto [&>blockquote]:border-l-2 [&>blockquote]:border-border/50 [&>blockquote]:bg-primary/5 [&>blockquote]:p-3 [&>blockquote]:my-4 [&>ul]:list-disc [&>ul]:pl-6 [&>ul]:my-4 [&>ol]:list-decimal [&>ol]:pl-6 [&>ol]:my-4 [&_code]:text-primary [&_code]:bg-primary/10 [&_code]:px-1 [&_code]:py-0.5 [&_code]:rounded">
                                                 <ReactMarkdown remarkPlugins={[remarkGfm]}>
                                                     {q.question_text}
                                                 </ReactMarkdown>
@@ -768,14 +768,14 @@ export default function TestDetailClient({
                                                             className={`relative flex items-center p-3.5 rounded-xl text-sm transition-colors ${
                                                                 isCorrect
                                                                     ? "bg-emerald-500/[0.08] text-emerald-100 border border-emerald-500/20"
-                                                                    : "bg-white/[0.03] text-[#8B99B0] border border-transparent hover:bg-white/[0.06]"
+                                                                    : "bg-white/[0.03] text-muted-foreground border border-transparent hover:bg-white/[0.06]"
                                                             }`}
                                                         >
                                                             <div
                                                                 className={`w-6 h-6 rounded-full flex items-center justify-center text-xs mr-4 shrink-0 font-medium border ${
                                                                     isCorrect
                                                                         ? "bg-emerald-500/20 text-emerald-400 border-emerald-500/30"
-                                                                        : "bg-[#1B253B] text-[#5A6882] border-[#8B99B0]/15"
+                                                                        : "bg-muted text-muted-foreground border-border/15"
                                                                 }`}
                                                             >
                                                                 {isValidIdx ? String.fromCharCode(65 + origIdx) : "!"}
@@ -793,10 +793,10 @@ export default function TestDetailClient({
                                             </div>
 
                                             {q.explanation && (
-                                                <div className="mt-6 pt-5 border-t border-[#8B99B0]/8">
-                                                    <div className="flex items-start gap-3 bg-[#7C8FFF]/[0.04] rounded-xl p-4 border border-[#7C8FFF]/[0.08]">
-                                                        <BadgeInfo className="w-4 h-4 shrink-0 mt-0.5 text-[#7C8FFF]/80" />
-                                                        <p className="text-[13px] md:text-sm font-light leading-relaxed text-[#9BABFF]/70">
+                                                <div className="mt-6 pt-5 border-t border-border/8">
+                                                    <div className="flex items-start gap-3 bg-primary/[0.04] rounded-xl p-4 border border-border/[0.08]">
+                                                        <BadgeInfo className="w-4 h-4 shrink-0 mt-0.5 text-primary/80" />
+                                                        <p className="text-[13px] md:text-sm font-light leading-relaxed text-primary/70">
                                                             {q.explanation}
                                                         </p>
                                                     </div>
@@ -811,19 +811,19 @@ export default function TestDetailClient({
 
                     {/* Right Col: Leaderboard */}
                     <div className="lg:col-span-5 xl:col-span-4 flex flex-col gap-6 sticky top-24">
-                        <div className="flex items-center justify-between pb-4 border-b border-[#8B99B0]/10">
-                            <h2 className="text-xl font-medium text-[#ECF0F7] flex items-center gap-2 font-display">
+                        <div className="flex items-center justify-between pb-4 border-b border-border/10">
+                            <h2 className="text-xl font-medium text-foreground flex items-center gap-2 font-display">
                                 Candidates
                             </h2>
                         </div>
 
                         {!results || results.length === 0 ? (
-                            <div className="bg-transparent border border-dashed border-[#8B99B0]/15 rounded-3xl p-12 flex flex-col items-center justify-center text-center">
-                                <div className="w-16 h-16 rounded-full bg-[#1B253B]/60 border border-[#8B99B0]/10 flex items-center justify-center mb-6">
-                                    <Users className="w-6 h-6 text-[#5A6882]" />
+                            <div className="bg-transparent border border-dashed border-border/15 rounded-3xl p-12 flex flex-col items-center justify-center text-center">
+                                <div className="w-16 h-16 rounded-full bg-muted/60 border border-border/10 flex items-center justify-center mb-6">
+                                    <Users className="w-6 h-6 text-muted-foreground" />
                                 </div>
-                                <h3 className="text-[#ECF0F7]/80 font-medium mb-2 font-display">Awaiting Candidates</h3>
-                                <p className="text-sm text-[#5A6882] max-w-[200px] leading-relaxed">
+                                <h3 className="text-foreground/80 font-medium mb-2 font-display">Awaiting Candidates</h3>
+                                <p className="text-sm text-muted-foreground max-w-[200px] leading-relaxed">
                                     Share the test link to start receiving applications.
                                 </p>
                             </div>
@@ -841,7 +841,7 @@ export default function TestDetailClient({
 
                                     return (
                                         <Link key={r.id} href={`/dashboard/results/${r.id}`}>
-                                            <div className="group relative bg-[#111827]/40 backdrop-blur-md border border-[#8B99B0]/10 rounded-2xl p-5 hover:border-[#8B99B0]/20 hover:bg-[#111827]/60 transition-all overflow-hidden shadow-xl">
+                                            <div className="group relative bg-card/40 backdrop-blur-md border border-border/10 rounded-2xl p-5 hover:border-border/20 hover:bg-card/60 transition-all overflow-hidden shadow-xl">
                                                 <div
                                                     className={`absolute top-0 bottom-0 left-0 w-[3px] bg-gradient-to-b ${tierColors}`}
                                                 />
@@ -849,14 +849,14 @@ export default function TestDetailClient({
                                                 <div className="flex items-center justify-between relative z-10 w-full pl-3">
                                                     <div className="flex flex-col items-start gap-1">
                                                         <div className="flex items-center gap-3">
-                                                            <div className="w-10 h-10 rounded-full bg-[#222C4A] border border-[#8B99B0]/15 flex items-center justify-center text-sm font-semibold text-[#8B99B0] font-display">
+                                                            <div className="w-10 h-10 rounded-full bg-accent border border-border/15 flex items-center justify-center text-sm font-semibold text-muted-foreground font-display">
                                                                 {r.candidate_name.charAt(0).toUpperCase()}
                                                             </div>
                                                             <div className="flex flex-col">
-                                                                <span className="text-[15px] font-medium text-[#ECF0F7] group-hover:text-[#7C8FFF] transition-colors font-display tracking-wide">
+                                                                <span className="text-[15px] font-medium text-foreground group-hover:text-primary transition-colors font-display tracking-wide">
                                                                     {r.candidate_name}
                                                                 </span>
-                                                                <span className="text-[11px] text-[#5A6882]">
+                                                                <span className="text-[11px] text-muted-foreground">
                                                                     {r.candidate_email}
                                                                 </span>
                                                             </div>
@@ -865,17 +865,17 @@ export default function TestDetailClient({
 
                                                     <div className="flex flex-col items-end gap-2">
                                                         <div className="flex items-baseline gap-0.5">
-                                                            <span className="text-2xl font-light tracking-tight text-[#ECF0F7] font-display leading-none">
+                                                            <span className="text-2xl font-light tracking-tight text-foreground font-display leading-none">
                                                                 {pct}
                                                             </span>
-                                                            <span className="text-xs font-semibold text-[#5A6882]">%</span>
+                                                            <span className="text-xs font-semibold text-muted-foreground">%</span>
                                                         </div>
                                                         <div className="flex items-center gap-2">
                                                             {r.status && (
                                                                 <div className={`px-2 py-0.5 rounded text-[10px] uppercase font-bold tracking-wider ${
                                                                     r.status === 'pass'
-                                                                        ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 shadow-[0_0_8px_rgba(16,185,129,0.2)]'
-                                                                        : 'bg-rose-500/20 text-rose-400 border border-rose-500/30 shadow-[0_0_8px_rgba(239,68,68,0.2)]'
+                                                                        ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 shadow-[0_0_8px_color-mix(in_srgb,var(--success)_20%,transparent)]'
+                                                                        : 'bg-rose-500/20 text-rose-400 border border-rose-500/30 shadow-[0_0_8px_color-mix(in_srgb,var(--danger)_20%,transparent)]'
                                                                 }`}>
                                                                     {r.status}
                                                                 </div>
@@ -885,13 +885,13 @@ export default function TestDetailClient({
                                                                     <div
                                                                         className={`w-1.5 h-1.5 rounded-full ${
                                                                             ["Recommend", "Đề nghị", "Khuyến nghị", "TIỀM NĂNG", "Khuyên dùng", "ĐỀ XUẤT", "KHUYÊN DÙNG"].includes(r.ai_analysis.recommendation) || r.ai_analysis.recommendation.toUpperCase().includes("KHUYẾN NGHỊ") && !r.ai_analysis.recommendation.toUpperCase().includes("KHÔNG")
-                                                                                ? "bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.8)]"
+                                                                                ? "bg-emerald-500 shadow-[0_0_8px_color-mix(in_srgb,var(--success)_80%,transparent)]"
                                                                                 : ["Consider", "Cân nhắc", "CÂN NHẮC"].includes(r.ai_analysis.recommendation) || r.ai_analysis.recommendation.toUpperCase().includes("CÂN NHẮC")
-                                                                                  ? "bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.8)]"
-                                                                                  : "bg-rose-500 shadow-[0_0_8px_rgba(244,63,94,0.8)]"
+                                                                                  ? "bg-amber-500 shadow-[0_0_8px_color-mix(in_srgb,var(--warning)_80%,transparent)]"
+                                                                                  : "bg-rose-500 shadow-[0_0_8px_color-mix(in_srgb,var(--danger)_80%,transparent)]"
                                                                         }`}
                                                                     />
-                                                                    <span className="text-[10px] uppercase font-bold tracking-wider text-[#8B99B0]">
+                                                                    <span className="text-[10px] uppercase font-bold tracking-wider text-muted-foreground">
                                                                         {r.ai_analysis.recommendation}
                                                                     </span>
                                                                 </div>
@@ -916,7 +916,7 @@ export default function TestDetailClient({
     );
 
     return (
-        <div className={`${embedded ? "h-full" : "min-h-screen"} bg-[#05070A] text-[#ECF0F7] selection:bg-[#FFB86C]/30 overflow-hidden font-body relative`}>
+        <div className={`${embedded ? "h-full" : "min-h-screen"} bg-background text-foreground selection:bg-warning/30 overflow-hidden font-body relative`}>
             {!embedded && <PremiumBackground />}
 
             {!embedded && <AppNavbar />}
@@ -937,9 +937,9 @@ export default function TestDetailClient({
                         />
 
                         {/* Modal */}
-                        <div className="relative w-full max-w-lg bg-[#1B253B] border border-[#8B99B0]/15 rounded-3xl shadow-2xl overflow-hidden">
+                        <div className="relative w-full max-w-lg bg-muted border border-border/15 rounded-3xl shadow-2xl overflow-hidden">
                             {/* Modal Header */}
-                            <div className="relative px-6 pt-6 pb-4 border-b border-[#8B99B0]/10">
+                            <div className="relative px-6 pt-6 pb-4 border-b border-border/10">
                                 <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-amber-500/50 to-transparent" />
                                 <div className="flex items-center justify-between">
                                     <div className="flex items-center gap-3">
@@ -951,12 +951,12 @@ export default function TestDetailClient({
                                             )}
                                         </div>
                                         <div>
-                                            <h3 className="text-lg font-medium text-[#ECF0F7] font-display">
+                                            <h3 className="text-lg font-medium text-foreground font-display">
                                                 {regenerateModal.mode === "full"
                                                     ? "Regenerate Full Test"
                                                     : "Regenerate Question"}
                                             </h3>
-                                            <p className="text-xs text-[#5A6882] mt-0.5">
+                                            <p className="text-xs text-muted-foreground mt-0.5">
                                                 {regenerateModal.mode === "full"
                                                     ? `Replace all ${questions.length} questions with new ones`
                                                     : `Replace question #${(regenerateModal.questionIndex ?? 0) + 1} — ${regenerateModal.questionTopic}`}
@@ -966,7 +966,7 @@ export default function TestDetailClient({
                                     <button
                                         onClick={closeRegenerateModal}
                                         disabled={isRegenerating}
-                                        className="w-8 h-8 rounded-lg bg-[#222C4A]/60 border border-[#8B99B0]/15 flex items-center justify-center text-[#5A6882] hover:text-[#ECF0F7] hover:bg-[#222C4A] transition-all disabled:opacity-50"
+                                        className="w-8 h-8 rounded-lg bg-accent/60 border border-border/15 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-accent transition-all disabled:opacity-50"
                                     >
                                         <X className="w-4 h-4" />
                                     </button>
@@ -976,28 +976,28 @@ export default function TestDetailClient({
                             {/* Modal Body */}
                             <div className="px-6 py-5 space-y-5">
                                 {/* Context Info */}
-                                <div className="bg-[#1B253B]/60 border border-[#8B99B0]/10 rounded-2xl p-4 space-y-3">
-                                    <div className="flex items-center gap-2 text-xs font-semibold text-[#8B99B0] uppercase tracking-wider">
+                                <div className="bg-muted/60 border border-border/10 rounded-2xl p-4 space-y-3">
+                                    <div className="flex items-center gap-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
                                         <BadgeInfo className="w-3.5 h-3.5" />
                                         Existing Context
                                     </div>
                                     <div className="grid grid-cols-2 gap-2">
                                         <div className="flex items-center gap-2 text-sm">
-                                            <span className="text-[#5A6882]">Role:</span>
-                                            <span className="text-[#ECF0F7]/80 font-medium">{test.title || test.job_role}</span>
+                                            <span className="text-muted-foreground">Role:</span>
+                                            <span className="text-foreground/80 font-medium">{test.title || test.job_role}</span>
                                         </div>
                                         <div className="flex items-center gap-2 text-sm">
-                                            <span className="text-[#5A6882]">Level:</span>
+                                            <span className="text-muted-foreground">Level:</span>
                                             <span className={`font-medium ${lvlConfig.text}`}>{test.level}</span>
                                         </div>
                                     </div>
                                     {generationContext?.job_description && (
-                                        <div className="text-xs text-[#5A6882]/70 pt-1 border-t border-[#8B99B0]/8">
+                                        <div className="text-xs text-muted-foreground/70 pt-1 border-t border-border/8">
                                             Job description will be used for context
                                         </div>
                                     )}
                                     {generationContext?.test_description && (
-                                        <div className="text-xs text-[#5A6882]/70">
+                                        <div className="text-xs text-muted-foreground/70">
                                             Test format constraints will be preserved
                                         </div>
                                     )}
@@ -1006,9 +1006,9 @@ export default function TestDetailClient({
                                 {/* Custom Prompt */}
                                 <div className="space-y-2">
                                     <label className="flex items-center justify-between">
-                                        <span className="text-sm font-medium text-[#8B99B0]">
+                                        <span className="text-sm font-medium text-muted-foreground">
                                             Custom Prompt
-                                            <span className="text-[#5A6882] font-normal ml-1.5">(optional)</span>
+                                            <span className="text-muted-foreground font-normal ml-1.5">(optional)</span>
                                         </span>
                                     </label>
                                     <textarea
@@ -1021,9 +1021,9 @@ export default function TestDetailClient({
                                                 : "e.g., Make this question about error handling in async operations..."
                                         }
                                         rows={3}
-                                        className="w-full bg-[#1B253B]/60 border border-[#8B99B0]/15 rounded-xl px-4 py-3 text-sm text-[#ECF0F7] placeholder-[#5A6882]/50 resize-none focus:outline-none focus:border-[#7C8FFF]/40 focus:ring-1 focus:ring-[#7C8FFF]/20 transition-all disabled:opacity-50"
+                                        className="w-full bg-muted/60 border border-border/15 rounded-xl px-4 py-3 text-sm text-foreground placeholder-muted-foreground/50 resize-none focus:outline-none focus:border-border/40 focus:ring-1 focus:ring-primary/20 transition-all disabled:opacity-50"
                                     />
-                                    <p className="text-[11px] text-[#5A6882]/60 leading-relaxed">
+                                    <p className="text-[11px] text-muted-foreground/60 leading-relaxed">
                                         {customPrompt.trim()
                                             ? "Your custom prompt will be combined with the existing test context."
                                             : "Leave empty to regenerate using the original test context only."}
@@ -1043,18 +1043,18 @@ export default function TestDetailClient({
                             </div>
 
                             {/* Modal Footer */}
-                            <div className="px-6 py-4 border-t border-[#8B99B0]/10 flex items-center justify-end gap-3">
+                            <div className="px-6 py-4 border-t border-border/10 flex items-center justify-end gap-3">
                                 <button
                                     onClick={closeRegenerateModal}
                                     disabled={isRegenerating}
-                                    className="px-4 py-2.5 rounded-xl text-sm font-medium text-[#8B99B0] hover:text-[#ECF0F7] hover:bg-[#222C4A]/50 transition-all disabled:opacity-50"
+                                    className="px-4 py-2.5 rounded-xl text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-accent/50 transition-all disabled:opacity-50"
                                 >
                                     Cancel
                                 </button>
                                 <button
                                     onClick={handleRegenerate}
                                     disabled={isRegenerating}
-                                    className="group relative flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold bg-amber-500 text-black hover:bg-amber-400 transition-all disabled:opacity-70 disabled:cursor-not-allowed shadow-[0_0_20px_-5px_rgba(245,158,11,0.5)]"
+                                    className="group relative flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold bg-amber-500 text-black hover:bg-amber-400 transition-all disabled:opacity-70 disabled:cursor-not-allowed shadow-[0_0_20px_-5px_color-mix(in_srgb,var(--warning)_50%,transparent)]"
                                 >
                                     {isRegenerating ? (
                                         <>
@@ -1091,20 +1091,20 @@ export default function TestDetailClient({
                             initial={{ scale: 0.95, opacity: 0, y: 20 }}
                             animate={{ scale: 1, opacity: 1, y: 0 }}
                             exit={{ scale: 0.95, opacity: 0, y: 20 }}
-                            className="relative w-full max-w-md bg-[#1B253B] border border-rose-500/30 rounded-3xl shadow-2xl overflow-hidden p-8 flex flex-col items-center text-center"
+                            className="relative w-full max-w-md bg-muted border border-rose-500/30 rounded-3xl shadow-2xl overflow-hidden p-8 flex flex-col items-center text-center"
                         >
                             <div className="w-16 h-16 rounded-2xl bg-rose-500/10 border border-rose-500/20 flex items-center justify-center mb-6">
                                 <AlertTriangle className="w-8 h-8 text-rose-400" />
                             </div>
-                            <h3 className="text-xl font-medium text-[#ECF0F7] mb-2 font-display">Delete Assessment?</h3>
-                            <p className="text-[#8B99B0] text-sm leading-relaxed mb-8">
+                            <h3 className="text-xl font-medium text-foreground mb-2 font-display">Delete Assessment?</h3>
+                            <p className="text-muted-foreground text-sm leading-relaxed mb-8">
                                 This action cannot be undone. All questions, results, and candidate data associated with <span className="text-rose-400 font-medium">"{displayTitle}"</span> will be permanently removed.
                             </p>
                             <div className="flex flex-col w-full gap-2">
                                 <button
                                     onClick={handleDelete}
                                     disabled={isDeleting}
-                                    className="w-full h-12 bg-rose-500 hover:bg-rose-600 text-white font-semibold rounded-xl transition-all shadow-lg shadow-rose-500/20 disabled:opacity-50 flex items-center justify-center gap-2"
+                                    className="w-full h-12 bg-rose-500 hover:bg-rose-600 text-foreground font-semibold rounded-xl transition-all shadow-lg shadow-rose-500/20 disabled:opacity-50 flex items-center justify-center gap-2"
                                 >
                                     {isDeleting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
                                     Confirm Delete
@@ -1112,7 +1112,7 @@ export default function TestDetailClient({
                                 <button
                                     onClick={() => setShowDeleteConfirm(false)}
                                     disabled={isDeleting}
-                                    className="w-full h-12 bg-transparent text-[#8B99B0] hover:text-[#ECF0F7] hover:bg-[#222C4A] font-medium rounded-xl transition-all"
+                                    className="w-full h-12 bg-transparent text-muted-foreground hover:text-foreground hover:bg-accent font-medium rounded-xl transition-all"
                                 >
                                     Cancel
                                 </button>

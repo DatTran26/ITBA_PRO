@@ -33,24 +33,24 @@ export default function PositionsCardView({ data, onCardClick }: Props) {
           <Card
             key={pos.id}
             onClick={() => onCardClick(pos)}
-            className="bg-[#1B253B] border-[#8B99B0]/10 hover:border-[#7C8FFF]/40 cursor-pointer transition-all hover:shadow-[0_0_20px_rgba(124,143,255,0.08)] p-4 group"
+            className="bg-muted border-border/10 hover:border-border/40 cursor-pointer transition-all hover:shadow-[0_0_20px_color-mix(in_srgb,var(--primary)_8%,transparent)] p-4 group"
           >
             <div className="flex items-start justify-between mb-3">
-              <div className="w-10 h-10 rounded-xl bg-[#222C4A] flex items-center justify-center">
-                <Briefcase className="w-5 h-5 text-[#7C8FFF]" />
+              <div className="w-10 h-10 rounded-xl bg-accent flex items-center justify-center">
+                <Briefcase className="w-5 h-5 text-primary" />
               </div>
               <StatusBadge status={pos.status} config={POSITION_STATUSES} />
             </div>
-            <p className="font-semibold text-[#ECF0F7] text-sm truncate group-hover:text-white">{pos.title}</p>
-            <div className="flex items-center gap-3 mt-2 text-xs text-[#5A6882]">
+            <p className="font-semibold text-foreground text-sm truncate group-hover:text-foreground">{pos.title}</p>
+            <div className="flex items-center gap-3 mt-2 text-xs text-muted-foreground">
               {pos.department && (
                 <span className="flex items-center gap-1"><Building2 className="w-3 h-3" />{pos.department}</span>
               )}
               {pos.target_level && (
-                <Badge variant="outline" className="text-[10px] border-[#B48EFF]/30 text-[#B48EFF] px-1.5 py-0">{pos.target_level}</Badge>
+                <Badge variant="outline" className="text-[10px] border-border/30 text-ai px-1.5 py-0">{pos.target_level}</Badge>
               )}
             </div>
-            <div className="flex items-center gap-3 mt-2 text-xs text-[#5A6882]">
+            <div className="flex items-center gap-3 mt-2 text-xs text-muted-foreground">
               <span className="flex items-center gap-1"><ListChecks className="w-3 h-3" />{reqCount} req{reqCount !== 1 ? "s" : ""}</span>
               <span className="flex items-center gap-1"><Users className="w-3 h-3" />{pos.assigned_persons_count ?? 0} assigned</span>
             </div>

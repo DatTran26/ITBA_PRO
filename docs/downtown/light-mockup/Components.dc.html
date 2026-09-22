@@ -1,0 +1,206 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&amp;family=JetBrains+Mono:wght@500;600&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap">
+  <style>
+    .display { font-family: "Bricolage Grotesque", "Plus Jakarta Sans", system-ui, sans-serif; font-optical-sizing: auto; letter-spacing: -0.02em; }
+  </style>
+  <style>
+    body { margin: 0; background: #F6F8FB; color: #0F172A; font-family: "Plus Jakarta Sans", system-ui, -apple-system, "Segoe UI", sans-serif; font-size: 14px; line-height: 1.5; -webkit-font-smoothing: antialiased; }
+    a { color: #2F5BEA; text-decoration: none; }
+    a:hover { color: #2549C9; text-decoration: underline; }
+    .mono { font-family: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace; font-variant-numeric: tabular-nums; }
+    button, input { font: inherit; color: inherit; }
+    input::placeholder { color: #6B7485; }
+  </style>
+</helmet>
+<div style="width: 1440px; min-height: 1300px; background: #F6F8FB; padding: 56px 64px; box-sizing: border-box; display: flex; flex-direction: column; gap: 40px;">
+  <h1 style="margin: 0; font-size: 36px; font-weight: 600; letter-spacing: -0.02em;">Thành phần</h1>
+
+  <section style="display: grid; grid-template-columns: 7fr 5fr; gap: 32px;">
+    <div style="background: #FFFFFF; border: 1px solid #E3E8EF; border-radius: 12px; padding: 24px; display: flex; flex-direction: column; gap: 16px;">
+      <h2 style="margin: 0; font-size: 16px; font-weight: 600;">Nút</h2>
+      <div style="display: grid; grid-template-columns: 96px repeat(4, minmax(0, 1fr)); gap: 12px; align-items: center;">
+        <span></span>
+        <span style="font-size: 12px; color: #5B6577; font-weight: 500;">Mặc định</span>
+        <span style="font-size: 12px; color: #5B6577; font-weight: 500;">Hover</span>
+        <span style="font-size: 12px; color: #5B6577; font-weight: 500;">Focus</span>
+        <span style="font-size: 12px; color: #5B6577; font-weight: 500;">Vô hiệu</span>
+
+        <span style="font-size: 13px; font-weight: 500;">Chính</span>
+        <button style="height: 40px; border-radius: 8px; border: 0; background: #2F5BEA; color: #FFFFFF; font-weight: 600;">Lưu</button>
+        <button style="height: 40px; border-radius: 8px; border: 0; background: #2549C9; color: #FFFFFF; font-weight: 600;">Lưu</button>
+        <button style="height: 40px; border-radius: 8px; border: 0; background: #2F5BEA; color: #FFFFFF; font-weight: 600; outline: 2px solid #2F5BEA; outline-offset: 2px;">Lưu</button>
+        <button disabled style="height: 40px; border-radius: 8px; border: 0; background: #2F5BEA; color: #FFFFFF; font-weight: 600; opacity: .45;">Lưu</button>
+
+        <span style="font-size: 13px; font-weight: 500;">Phụ</span>
+        <button style="height: 40px; border-radius: 8px; border: 1px solid #E3E8EF; background: #FFFFFF; font-weight: 600;">Huỷ</button>
+        <button style="height: 40px; border-radius: 8px; border: 1px solid #E3E8EF; background: #F1F4F8; font-weight: 600;">Huỷ</button>
+        <button style="height: 40px; border-radius: 8px; border: 1px solid #E3E8EF; background: #FFFFFF; font-weight: 600; outline: 2px solid #2F5BEA; outline-offset: 2px;">Huỷ</button>
+        <button disabled style="height: 40px; border-radius: 8px; border: 1px solid #E3E8EF; background: #FFFFFF; font-weight: 600; opacity: .45;">Huỷ</button>
+
+        <span style="font-size: 13px; font-weight: 500;">Chữ</span>
+        <button style="height: 40px; border-radius: 8px; border: 0; background: transparent; color: #2F5BEA; font-weight: 600;">Xem thêm</button>
+        <button style="height: 40px; border-radius: 8px; border: 0; background: #EEF2FD; color: #2549C9; font-weight: 600;">Xem thêm</button>
+        <button style="height: 40px; border-radius: 8px; border: 0; background: transparent; color: #2F5BEA; font-weight: 600; outline: 2px solid #2F5BEA; outline-offset: 2px;">Xem thêm</button>
+        <button disabled style="height: 40px; border-radius: 8px; border: 0; background: transparent; color: #2F5BEA; font-weight: 600; opacity: .45;">Xem thêm</button>
+
+        <span style="font-size: 13px; font-weight: 500;">Nguy hiểm</span>
+        <button style="height: 40px; border-radius: 8px; border: 1px solid #B91C1C; background: #FFFFFF; color: #B91C1C; font-weight: 600;">Loại hồ sơ</button>
+        <button style="height: 40px; border-radius: 8px; border: 1px solid #B91C1C; background: #FDECEC; color: #B91C1C; font-weight: 600;">Loại hồ sơ</button>
+        <button style="height: 40px; border-radius: 8px; border: 1px solid #B91C1C; background: #FFFFFF; color: #B91C1C; font-weight: 600; outline: 2px solid #2F5BEA; outline-offset: 2px;">Loại hồ sơ</button>
+        <button disabled style="height: 40px; border-radius: 8px; border: 1px solid #B91C1C; background: #FFFFFF; color: #B91C1C; font-weight: 600; opacity: .45;">Loại hồ sơ</button>
+      </div>
+    </div>
+
+    <div style="background: #FFFFFF; border: 1px solid #E3E8EF; border-radius: 12px; padding: 24px; display: flex; flex-direction: column; gap: 16px;">
+      <h2 style="margin: 0; font-size: 16px; font-weight: 600;">Ô nhập</h2>
+      <div style="display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 16px;">
+        <div style="display: flex; flex-direction: column; gap: 6px;">
+          <label style="font-size: 13px; font-weight: 600;">Email công việc</label>
+          <input placeholder="ten@congty.vn" style="height: 40px; padding: 0 12px; border: 1px solid #848FA1; border-radius: 8px; box-sizing: border-box;">
+          <span style="font-size: 12px; color: #5B6577;">Mặc định</span>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 6px;">
+          <label style="font-size: 13px; font-weight: 600;">Email công việc</label>
+          <input value="mai.tran@downtown.vn" style="height: 40px; padding: 0 12px; border: 1px solid #2F5BEA; outline: 2px solid #2F5BEA; outline-offset: 1px; border-radius: 8px; box-sizing: border-box;">
+          <span style="font-size: 12px; color: #5B6577;">Focus</span>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 6px;">
+          <label style="font-size: 13px; font-weight: 600;">Ngưỡng sàng lọc</label>
+          <input class="mono" value="120" style="height: 40px; padding: 0 12px; border: 1px solid #B91C1C; border-radius: 8px; box-sizing: border-box;">
+          <span style="font-size: 12px; color: #B91C1C;">Nhập số từ 0 đến 100.</span>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 6px;">
+          <label style="font-size: 13px; font-weight: 600; color: #5B6577;">Mã nhân viên</label>
+          <input disabled value="NV-2041" style="height: 40px; padding: 0 12px; border: 1px solid #E3E8EF; background: #F1F4F8; color: #5B6577; border-radius: 8px; box-sizing: border-box;">
+          <span style="font-size: 12px; color: #5B6577;">Vô hiệu, hệ thống tự cấp</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section style="display: grid; grid-template-columns: 5fr 7fr; gap: 32px;">
+    <div style="display: flex; flex-direction: column; gap: 24px;">
+      <div style="background: #FFFFFF; border: 1px solid #E3E8EF; border-radius: 12px; padding: 24px; display: flex; flex-direction: column; gap: 14px;">
+        <h2 style="margin: 0; font-size: 16px; font-weight: 600;">Trạng thái</h2>
+        <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+          <span style="display: inline-flex; align-items: center; height: 24px; padding: 0 10px; border-radius: 9999px; font-size: 12px; font-weight: 600; background: #EEF2FD; color: #2F5BEA;">Mới</span>
+          <span style="display: inline-flex; align-items: center; height: 24px; padding: 0 10px; border-radius: 9999px; font-size: 12px; font-weight: 600; background: #EEF1F5; color: #5B6577;">Đã sàng lọc</span>
+          <span style="display: inline-flex; align-items: center; height: 24px; padding: 0 10px; border-radius: 9999px; font-size: 12px; font-weight: 600; background: #EEF2FD; color: #2F5BEA;">Hẹn phỏng vấn</span>
+          <span style="display: inline-flex; align-items: center; height: 24px; padding: 0 10px; border-radius: 9999px; font-size: 12px; font-weight: 600; background: #EAF6EE; color: #15803D;">Đạt</span>
+          <span style="display: inline-flex; align-items: center; height: 24px; padding: 0 10px; border-radius: 9999px; font-size: 12px; font-weight: 600; background: #FDF3E6; color: #B45309;">Cần HR xem</span>
+          <span style="display: inline-flex; align-items: center; height: 24px; padding: 0 10px; border-radius: 9999px; font-size: 12px; font-weight: 600; background: #FDECEC; color: #B91C1C;">Loại</span>
+        </div>
+        <p style="margin: 0; font-size: 13px; color: #5B6577;">Luôn có chữ, không dùng chấm màu đứng một mình.</p>
+      </div>
+
+      <div style="background: #EEF2FD; border: 1px solid #D6E0FA; border-radius: 12px; padding: 20px; display: flex; flex-direction: column; gap: 12px;">
+        <span style="display: flex; align-items: center; gap: 8px; color: #2F5BEA; font-weight: 600; font-size: 13px;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"></path></svg>
+          AI đề xuất
+        </span>
+        <span style="font-weight: 600;">Giao việc cho Lê Minh Phương, hạn 20/09</span>
+        <span style="font-size: 13px; color: #5B6577;">Căn cứ: biên bản họp tuyển dụng 14/09, phút 12. Có 2 nhân viên tên Phương, cần xác nhận đúng người.</span>
+        <div style="display: flex; gap: 8px;">
+          <button style="height: 36px; padding: 0 14px; border-radius: 8px; border: 0; background: #2F5BEA; color: #FFFFFF; font-weight: 600; font-size: 13px;">Xác nhận</button>
+          <button style="height: 36px; padding: 0 14px; border-radius: 8px; border: 1px solid #D6E0FA; background: #FFFFFF; font-weight: 600; font-size: 13px;">Sửa</button>
+        </div>
+      </div>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 24px;">
+      <div style="background: #FFFFFF; border: 1px solid #E3E8EF; border-radius: 12px; overflow: hidden;">
+        <table style="width: 100%; border-collapse: collapse;">
+          <thead>
+            <tr style="background: #F8FAFC; border-bottom: 1px solid #E3E8EF;">
+              <th style="text-align: left; padding: 10px 20px; font-size: 12px; font-weight: 600; color: #5B6577; text-transform: uppercase; letter-spacing: 0.04em;">Ứng viên</th>
+              <th style="text-align: left; padding: 10px 16px; font-size: 12px; font-weight: 600; color: #5B6577; text-transform: uppercase; letter-spacing: 0.04em;">Điểm AI</th>
+              <th style="text-align: left; padding: 10px 20px; font-size: 12px; font-weight: 600; color: #5B6577; text-transform: uppercase; letter-spacing: 0.04em;">Trạng thái</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr style="border-bottom: 1px solid #E3E8EF;">
+              <td style="padding: 14px 20px;"><div style="display: flex; align-items: center; gap: 12px;"><div style="width: 32px; height: 32px; border-radius: 9999px; background: #EEF1F5; color: #5B6577; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600;">LT</div><span style="font-weight: 600;">Lê Thị Thu Trang</span></div></td>
+              <td style="padding: 14px 16px;"><div style="display: flex; align-items: center; gap: 10px;"><span class="mono" style="font-weight: 600;">81</span><div style="width: 65px; height: 6px; border-radius: 9999px; background: #2F5BEA;"></div></div></td>
+              <td style="padding: 14px 20px;"><span style="display: inline-flex; align-items: center; height: 24px; padding: 0 10px; border-radius: 9999px; font-size: 12px; font-weight: 600; background: #EEF1F5; color: #5B6577;">Đã sàng lọc</span></td>
+            </tr>
+            <tr style="background: #F8FAFC;">
+              <td style="padding: 14px 20px;"><div style="display: flex; align-items: center; gap: 12px;"><div style="width: 32px; height: 32px; border-radius: 9999px; background: #EEF1F5; color: #5B6577; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600;">BT</div><span style="font-weight: 600;">Bùi Thanh Tùng</span></div></td>
+              <td style="padding: 14px 16px;"><div style="display: flex; align-items: center; gap: 10px;"><span class="mono" style="font-weight: 600;">68</span><div style="width: 54px; height: 6px; border-radius: 9999px; background: #2F5BEA;"></div></div></td>
+              <td style="padding: 14px 20px;"><span style="display: inline-flex; align-items: center; height: 24px; padding: 0 10px; border-radius: 9999px; font-size: 12px; font-weight: 600; background: #FDF3E6; color: #B45309;">Cần HR xem</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px;">
+        <div style="background: #FFFFFF; border: 1px solid #E3E8EF; border-radius: 12px; padding: 16px; display: flex; flex-direction: column; gap: 10px;">
+          <span style="font-size: 12px; font-weight: 600; color: #5B6577;">Đang tải</span>
+          <div style="width: 60%; height: 12px; border-radius: 9999px; background: #EEF1F5;"></div>
+          <div style="width: 90%; height: 12px; border-radius: 9999px; background: #EEF1F5;"></div>
+          <div style="width: 75%; height: 12px; border-radius: 9999px; background: #EEF1F5;"></div>
+        </div>
+        <div style="background: #FFFFFF; border: 1px solid #E3E8EF; border-radius: 12px; padding: 16px; display: flex; flex-direction: column; gap: 8px;">
+          <span style="font-weight: 600; font-size: 13px;">Chưa có lịch phỏng vấn</span>
+          <span style="font-size: 13px; color: #5B6577;">Chuyển ứng viên sang Shortlisted để đặt lịch.</span>
+          <a href="#" style="font-size: 13px; font-weight: 600;">Mở pipeline</a>
+        </div>
+        <div style="background: #FFFFFF; border: 1px solid #E3E8EF; border-radius: 12px; padding: 16px; display: flex; flex-direction: column; gap: 8px;">
+          <span style="font-weight: 600; font-size: 13px; color: #B91C1C;">Không tải được CV</span>
+          <span style="font-size: 13px; color: #5B6577;">File có mật khẩu. Yêu cầu ứng viên gửi lại bản không khoá.</span>
+          <a href="#" style="font-size: 13px; font-weight: 600;">Thử lại</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section style="background: #FFFFFF; border: 1px solid #E3E8EF; border-radius: 12px; padding: 24px; display: flex; flex-direction: column; gap: 16px;">
+    <h2 class="display" style="margin: 0; font-size: 22px; font-weight: 700;">Sợi chỉ căn cứ</h2>
+    <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px;">
+      <div style="display: flex; flex-direction: column; gap: 8px;">
+        <span style="font-size: 13px; font-weight: 600;">Tin cậy cao</span>
+        <div style="position: relative; height: 140px;">
+          <span style="position: absolute; left: 0; top: 16px; width: 150px; padding: 8px 10px; border-radius: 8px; background: #EEF2FD; font-size: 12px; box-sizing: border-box;">Đoạn CV nguồn</span>
+          <span style="position: absolute; right: 0; top: 88px; width: 170px; padding: 8px 10px; border-radius: 8px; border: 1px solid #E3E8EF; font-size: 12px; box-sizing: border-box;">Kinh nghiệm 0.93</span>
+          <svg aria-hidden="true" width="100%" height="140" viewBox="0 0 405 140" preserveAspectRatio="none" style="position: absolute; left: 0; top: 0;">
+            <path d="M156 34 C 200 34, 190 106, 229 106" fill="none" stroke="#2F5BEA" stroke-width="1.5" stroke-linecap="round"></path>
+            <circle cx="156" cy="34" r="3.5" fill="#2F5BEA"></circle><circle cx="229" cy="106" r="3.5" fill="#2F5BEA"></circle>
+          </svg>
+        </div>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 8px;">
+        <span style="font-size: 13px; font-weight: 600; color: #B45309;">Cần xác nhận</span>
+        <div style="position: relative; height: 140px;">
+          <span style="position: absolute; left: 0; top: 16px; width: 150px; padding: 8px 10px; border-radius: 8px; background: #FDF3E6; font-size: 12px; box-sizing: border-box;">Đoạn OCR mờ</span>
+          <span style="position: absolute; right: 0; top: 88px; width: 170px; padding: 8px 10px; border-radius: 8px; background: #FDF3E6; color: #B45309; font-size: 12px; box-sizing: border-box;">Kỹ năng 0.61</span>
+          <svg aria-hidden="true" width="100%" height="140" viewBox="0 0 405 140" preserveAspectRatio="none" style="position: absolute; left: 0; top: 0;">
+            <path d="M156 34 C 200 34, 190 106, 229 106" fill="none" stroke="#B45309" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="5 5"></path>
+            <circle cx="156" cy="34" r="3.5" fill="#B45309"></circle><circle cx="229" cy="106" r="3.5" fill="#B45309"></circle>
+          </svg>
+        </div>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 8px;">
+        <span style="font-size: 13px; font-weight: 600; color: #15803D;">Đã xác nhận</span>
+        <div style="position: relative; height: 140px;">
+          <span style="position: absolute; left: 0; top: 16px; width: 150px; padding: 8px 10px; border-radius: 8px; background: #EEF2FD; font-size: 12px; box-sizing: border-box;">Đoạn CV nguồn</span>
+          <span style="position: absolute; right: 0; top: 88px; width: 170px; padding: 8px 10px; border-radius: 8px; background: #EAF6EE; color: #15803D; font-size: 12px; font-weight: 600; box-sizing: border-box;">Kỹ năng, HR đã xác nhận</span>
+          <svg aria-hidden="true" width="100%" height="140" viewBox="0 0 405 140" preserveAspectRatio="none" style="position: absolute; left: 0; top: 0;">
+            <path d="M156 34 C 200 34, 190 106, 229 106" fill="none" stroke="#2F5BEA" stroke-width="1.5" stroke-linecap="round"></path>
+            <circle cx="156" cy="34" r="3.5" fill="#2F5BEA"></circle><circle cx="229" cy="106" r="3.5" fill="#2F5BEA"></circle>
+          </svg>
+        </div>
+      </div>
+    </div>
+    <p style="margin: 0; font-size: 13px; color: #5B6577;">Sợi chỉ đi từ mép tài liệu nguồn tới mép trái trường dữ liệu. Rê chuột vào một trường thì sợi đậm lên, các sợi khác mờ đi. Khi người dùng bật giảm chuyển động, sợi hiện ngay không vẽ.</p>
+  </section>
+</div>
+</x-dc>
+</body>
+</html>

@@ -147,27 +147,27 @@ export default function CvUploadCreateJdForm({ deptOptions, onCreated }: Props) 
     }
 
     return (
-        <div className="relative bg-gradient-to-b from-[#1A0E05] to-[#0C0804] border border-[#F97316]/30 rounded-2xl overflow-visible shadow-[0_8px_32px_rgba(249,115,22,0.1)]">
-            <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-[#F97316]/80 to-transparent rounded-t-2xl" />
-            <div className="flex items-center gap-2.5 px-4 py-3 border-b border-[#F97316]/10">
-                <div className="w-6 h-6 rounded-lg bg-[#F97316]/10 border border-[#F97316]/25 flex items-center justify-center shrink-0">
-                    <Briefcase className="w-3.5 h-3.5 text-[#F97316]" />
+        <div className="relative bg-gradient-to-b from-background to-background border border-warning/30 rounded-2xl overflow-visible shadow-[0_8px_32px_color-mix(in_srgb,var(--warning)_10%,transparent)]">
+            <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-warning/80 to-transparent rounded-t-2xl" />
+            <div className="flex items-center gap-2.5 px-4 py-3 border-b border-warning/10">
+                <div className="w-6 h-6 rounded-lg bg-warning/10 border border-warning/25 flex items-center justify-center shrink-0">
+                    <Briefcase className="w-3.5 h-3.5 text-warning" />
                 </div>
-                <span className="text-xs font-semibold text-[#C8D0E0] tracking-wide">Tạo Job Description mới</span>
+                <span className="text-xs font-semibold text-foreground tracking-wide">Tạo Job Description mới</span>
             </div>
             <div className="p-4 space-y-2.5">
                 {/* Full JD textarea — FIRST so user can paste JD then AI parse */}
                 <div className="space-y-1">
                     <div className="flex items-center justify-between">
-                        <Label className="text-[10px] text-[#8B99B0] font-semibold uppercase tracking-wider">Mô tả công việc <span className="text-[#EF4444]">*</span></Label>
+                        <Label className="text-[10px] text-muted-foreground font-semibold uppercase tracking-wider">Mô tả công việc <span className="text-danger">*</span></Label>
                         <button
                             type="button"
                             onClick={handleAiParse}
                             disabled={aiParsing || !newJdContent.trim() || newJdContent.trim().length < 10}
-                            className="flex items-center gap-1.5 text-[10px] font-bold px-2.5 py-1 rounded-full border transition-all duration-200 cursor-pointer bg-gradient-to-r from-[#7C8FFF]/10 to-[#A78BFA]/10 border-[#7C8FFF]/30 text-[#7C8FFF] hover:from-[#7C8FFF]/20 hover:to-[#A78BFA]/20 hover:border-[#7C8FFF]/60 hover:shadow-[0_0_14px_rgba(124,143,255,0.25)] disabled:opacity-30 disabled:cursor-not-allowed disabled:shadow-none"
+                            className="flex items-center gap-1.5 text-[10px] font-bold px-2.5 py-1 rounded-full border transition-all duration-200 cursor-pointer bg-gradient-to-r from-primary/10 to-ai/10 border-primary/30 text-primary hover:from-primary/20 hover:to-ai/20 hover:border-primary/60 hover:shadow-[0_0_14px_color-mix(in_srgb,var(--primary)_25%,transparent)] disabled:opacity-30 disabled:cursor-not-allowed disabled:shadow-none"
                         >
                             {aiParsing ? (
-                                <><span className="w-3 h-3 rounded-full border-2 border-[#7C8FFF]/30 border-t-[#7C8FFF] animate-spin inline-block" />Đang phân tích…</>
+                                <><span className="w-3 h-3 rounded-full border-2 border-primary/30 border-t-border animate-spin inline-block" />Đang phân tích…</>
                             ) : (
                                 <><Wand2 className="w-3 h-3" />AI Auto-detect</>
                             )}
@@ -176,56 +176,56 @@ export default function CvUploadCreateJdForm({ deptOptions, onCreated }: Props) 
                     <textarea value={newJdContent} onChange={(e) => setNewJdContent(e.target.value)}
                         placeholder="Dán mô tả công việc vào đây, sau đó bấm AI Auto-detect để tự động điền các trường bên dưới…"
                         rows={4}
-                        className={`w-full bg-[#0A1322]/70 border text-[#ECF0F7] text-sm rounded-xl px-3 py-2.5 resize-none focus:outline-none transition-all ${!newJdContent.trim() ? "border-[#EF4444]/40" : "border-[#8B99B0]/15 focus:border-[#7C8FFF]/50"
-                            } placeholder:text-[#4A5570]`} />
-                    <p className="text-[10px] text-[#3A4560] text-right mt-0.5">{newJdContent.length} / 20,000</p>
+                        className={`w-full bg-background/70 border text-foreground text-sm rounded-xl px-3 py-2.5 resize-none focus:outline-none transition-all ${!newJdContent.trim() ? "border-danger/40" : "border-muted-foreground/15 focus:border-background/50"
+                            } placeholder:text-muted-foreground`} />
+                    <p className="text-[10px] text-muted-foreground text-right mt-0.5">{newJdContent.length} / 20,000</p>
                 </div>
 
                 {/* Position combobox */}
                 <div ref={positionRef} className="relative space-y-1">
-                    <Label className="text-[10px] text-[#8B99B0] font-semibold uppercase tracking-wider">Tên vị trí <span className="text-[#EF4444]">*</span></Label>
+                    <Label className="text-[10px] text-muted-foreground font-semibold uppercase tracking-wider">Tên vị trí <span className="text-danger">*</span></Label>
                     <div className="relative">
                         <input
                             value={newJdTitle}
                             onChange={(e) => { setNewJdTitle(e.target.value); setIsPositionOpen(true); }}
                             onFocus={() => setIsPositionOpen(true)}
                             placeholder="Ví dụ: Senior Frontend Engineer"
-                            className={`w-full h-9 pl-3 pr-8 bg-[#0A1322]/70 border text-[#ECF0F7] text-sm rounded-xl focus:outline-none transition-all ${!newJdTitle.trim() ? "border-[#EF4444]/40" : "border-[#8B99B0]/15 focus:border-[#7C8FFF]/50"
-                                } placeholder:text-[#4A5570]`}
+                            className={`w-full h-9 pl-3 pr-8 bg-background/70 border text-foreground text-sm rounded-xl focus:outline-none transition-all ${!newJdTitle.trim() ? "border-danger/40" : "border-muted-foreground/15 focus:border-background/50"
+                                } placeholder:text-muted-foreground`}
                         />
                         <button type="button" onClick={() => setIsPositionOpen((v) => !v)}
-                            className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#4A5570] hover:text-[#8B99B0] transition-colors cursor-pointer">
+                            className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-muted-foreground transition-colors cursor-pointer">
                             <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${isPositionOpen ? "rotate-180" : ""}`} />
                         </button>
                     </div>
 
                     {showDropdown && (
-                        <div className="absolute top-full left-0 right-0 mt-1 bg-[#0A1220] border border-[#1A2840] rounded-xl shadow-[0_12px_40px_rgba(0,0,0,0.6)] z-50 max-h-[220px] overflow-y-auto">
+                        <div className="absolute top-full left-0 right-0 mt-1 bg-background border border-muted rounded-xl shadow-[0_12px_40px_rgba(0,0,0,0.6)] z-50 max-h-[220px] overflow-y-auto">
                             {/* AI suggestions */}
                             {aiSuggestions.length > 0 && (
                                 <div>
                                     <div className="flex items-center gap-1.5 px-3 pt-2.5 pb-1">
-                                        <Sparkles className="w-3 h-3 text-[#7C8FFF]" />
-                                        <span className="text-[10px] font-semibold text-[#7C8FFF] uppercase tracking-wider">AI gợi ý</span>
+                                        <Sparkles className="w-3 h-3 text-primary" />
+                                        <span className="text-[10px] font-semibold text-primary uppercase tracking-wider">AI gợi ý</span>
                                     </div>
                                     {aiSuggestions.map((pos) => (
                                         <button key={pos} type="button" onMouseDown={() => selectPosition(pos)}
-                                            className="w-full text-left px-4 py-2 text-sm text-[#C8D0E0] hover:bg-[#7C8FFF]/12 flex items-center gap-2.5 cursor-pointer transition-colors">
-                                            <span className="w-1.5 h-1.5 rounded-full bg-[#7C8FFF] shrink-0" />{pos}
+                                            className="w-full text-left px-4 py-2 text-sm text-foreground hover:bg-primary/12 flex items-center gap-2.5 cursor-pointer transition-colors">
+                                            <span className="w-1.5 h-1.5 rounded-full bg-primary shrink-0" />{pos}
                                         </button>
                                     ))}
-                                    {filteredPositions.length > 0 && <div className="border-t border-[#141F33] mx-3 my-1" />}
+                                    {filteredPositions.length > 0 && <div className="border-t border-muted mx-3 my-1" />}
                                 </div>
                             )}
                             {/* Preset list */}
                             {filteredPositions.length > 0 && (
                                 <div>
                                     <div className="px-3 pt-2 pb-1">
-                                        <span className="text-[10px] font-semibold text-[#4A5570] uppercase tracking-wider">Vị trí IT</span>
+                                        <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Vị trí IT</span>
                                     </div>
                                     {filteredPositions.map((pos) => (
                                         <button key={pos} type="button" onMouseDown={() => selectPosition(pos)}
-                                            className={`w-full text-left px-4 py-2 text-sm hover:bg-[#8B99B0]/8 cursor-pointer transition-colors ${newJdTitle === pos ? "text-[#7C8FFF] font-medium" : "text-[#8B99B0]"}`}>
+                                            className={`w-full text-left px-4 py-2 text-sm hover:bg-muted-foreground/8 cursor-pointer transition-colors ${newJdTitle === pos ? "text-primary font-medium" : "text-muted-foreground"}`}>
                                             {pos}
                                         </button>
                                     ))}
@@ -238,19 +238,19 @@ export default function CvUploadCreateJdForm({ deptOptions, onCreated }: Props) 
                 {/* Department + Seniority */}
                 <div className="grid grid-cols-2 gap-2">
                     <div className="space-y-1">
-                        <Label className="text-[10px] text-[#8B99B0] font-semibold uppercase tracking-wider">Phòng ban</Label>
+                        <Label className="text-[10px] text-muted-foreground font-semibold uppercase tracking-wider">Phòng ban</Label>
                         <CustomSelectDropdown
                             value={newJdDept}
                             onChange={setNewJdDept}
                             options={deptOptions}
                             placeholder="Chọn phòng ban…"
                             allowCustomInput
-                            accentColor="#F97316"
+                            accentColor="var(--warning)"
                             placement="top"
                         />
                     </div>
                     <div className="space-y-1">
-                        <Label className="text-[10px] text-[#8B99B0] font-semibold uppercase tracking-wider">Cấp bậc <span className="text-[#EF4444]">*</span></Label>
+                        <Label className="text-[10px] text-muted-foreground font-semibold uppercase tracking-wider">Cấp bậc <span className="text-danger">*</span></Label>
                         <CustomSelectDropdown
                             value={newJdSeniority}
                             onChange={setNewJdSeniority}
@@ -264,10 +264,10 @@ export default function CvUploadCreateJdForm({ deptOptions, onCreated }: Props) 
 
 
                 <Button size="sm" onClick={handleCreateJd} disabled={!newJdTitle.trim() || !newJdSeniority || !newJdContent.trim() || creatingJd}
-                    className="w-full h-9 bg-gradient-to-r from-[#10B981] to-[#059669] hover:from-[#059669] hover:to-[#047857] text-white rounded-xl text-xs font-bold cursor-pointer shadow-[0_4px_16px_rgba(16,185,129,0.25)] hover:shadow-[0_4px_22px_rgba(16,185,129,0.4)] disabled:opacity-40 disabled:shadow-none transition-all duration-200 border-none">
+                    className="w-full h-9 bg-gradient-to-r from-success to-success hover:from-success hover:to-success text-white rounded-xl text-xs font-bold cursor-pointer shadow-[0_4px_16px_color-mix(in_srgb,var(--success)_25%,transparent)] hover:shadow-[0_4px_22px_color-mix(in_srgb,var(--success)_40%,transparent)] disabled:opacity-40 disabled:shadow-none transition-all duration-200 border-none">
                     {creatingJd ? (
                         <span className="flex items-center gap-2">
-                            <span className="w-3 h-3 rounded-full border-2 border-white/30 border-t-white animate-spin inline-block" />Đang tạo…
+                            <span className="w-3 h-3 rounded-full border-2 border-border border-t-white animate-spin inline-block" />Đang tạo…
                         </span>
                     ) : (
                         <span className="flex items-center gap-1.5"><Plus className="w-3.5 h-3.5" />Tạo &amp; Chọn JD</span>

@@ -139,7 +139,7 @@ export default function RecipientPicker({ value, onChange, type, gate, mode = "s
                 width: dropdownRect.width,
                 zIndex: 9999,
             }}
-            className="overflow-hidden rounded-2xl border border-white/10 bg-[#0B1220] p-1 shadow-2xl shadow-black/40"
+            className="overflow-hidden rounded-2xl border border-border bg-background p-1 shadow-2xl shadow-black/40"
         >
             {results.map((recipient) => (
                 <li key={recipient.id}>
@@ -153,7 +153,7 @@ export default function RecipientPicker({ value, onChange, type, gate, mode = "s
                             <UserRound className="h-4 w-4" />
                         </span>
                         <span className="min-w-0">
-                            <span className="block truncate text-sm font-medium text-[#F6F8FC]">{recipient.name}</span>
+                            <span className="block truncate text-sm font-medium text-primary">{recipient.name}</span>
                             <span className="block truncate text-xs text-slate-500">{recipient.email}</span>
                         </span>
                     </SharedDashboardButton>

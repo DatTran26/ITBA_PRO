@@ -11,12 +11,12 @@ export type StatusTone =
   | "neutral";
 
 const TONE_HEX: Record<StatusTone, string> = {
-  success: "#34D399", // emerald
-  warning: "#FBBF24", // amber
-  danger: "#FB7185", // rose
-  info: "#5B6CF0", // indigo (primary)
-  ai: "#A78BFA", // violet
-  neutral: "#8B99B0", // muted
+  success: "var(--success)", // emerald
+  warning: "var(--warning)", // amber
+  danger: "var(--danger)", // rose
+  info: "var(--primary)", // indigo (primary)
+  ai: "var(--primary)", // violet
+  neutral: "var(--muted-foreground)", // muted
 };
 
 export function toneHex(tone: StatusTone): string {
@@ -25,22 +25,22 @@ export function toneHex(tone: StatusTone): string {
 
 // Chip: ~14% tint fill + full-strength text (design-guidelines §4.3).
 export const toneChipClass: Record<StatusTone, string> = {
-  success: "bg-[#34D399]/15 text-[#34D399]",
-  warning: "bg-[#FBBF24]/15 text-[#FBBF24]",
-  danger: "bg-[#FB7185]/15 text-[#FB7185]",
-  info: "bg-[#5B6CF0]/15 text-[#7C8FFF]",
-  ai: "bg-[#A78BFA]/15 text-[#A78BFA]",
-  neutral: "bg-white/[0.06] text-[#8B99B0]",
+  success: "bg-success/15 text-success",
+  warning: "bg-warning/15 text-warning",
+  danger: "bg-danger/15 text-danger",
+  info: "bg-primary/15 text-primary",
+  ai: "bg-primary/15 text-primary",
+  neutral: "bg-white/[0.06] text-muted-foreground",
 };
 
 // Solid dot fill per tone.
 export const toneDotClass: Record<StatusTone, string> = {
-  success: "bg-[#34D399]",
-  warning: "bg-[#FBBF24]",
-  danger: "bg-[#FB7185]",
-  info: "bg-[#5B6CF0]",
-  ai: "bg-[#A78BFA]",
-  neutral: "bg-[#8B99B0]",
+  success: "bg-success",
+  warning: "bg-warning",
+  danger: "bg-danger",
+  info: "bg-primary",
+  ai: "bg-primary",
+  neutral: "bg-muted-foreground",
 };
 
 // Common EN/VI domain statuses → tone. Unknown → neutral.

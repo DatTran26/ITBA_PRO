@@ -23,7 +23,7 @@ type EditorComponent = React.ComponentType<{
     className: string;
 }>;
 
-const VAR_CHIP_CSS = `.cm-variable-chip { background: rgba(91,108,240,0.10); color: #8B9BFF; border-radius: 3px; padding: 0 1px; }`;
+const VAR_CHIP_CSS = `.cm-variable-chip { background: color-mix(in srgb, var(--primary) 10%, transparent); color: var(--primary); border-radius: 3px; padding: 0 1px; }`;
 
 const CodeEditor = forwardRef<CodeEditorRef, CodeEditorProps>(function CodeEditor(
     { value, onChange, height = "320px" },
@@ -108,7 +108,7 @@ const CodeEditor = forwardRef<CodeEditorRef, CodeEditorProps>(function CodeEdito
     if (!Editor) {
         return (
             <div
-                className="border border-[#8B99B0]/20 rounded-lg bg-[#0D1424] p-4 text-[#8B99B0] text-sm flex items-center justify-center"
+                className="border border-border/20 rounded-lg bg-background p-4 text-muted-foreground text-sm flex items-center justify-center"
                 style={{ height }}
             >
                 Loading editor...
@@ -126,7 +126,7 @@ const CodeEditor = forwardRef<CodeEditorRef, CodeEditorProps>(function CodeEdito
                 onCreateEditor={(view) => { viewRef.current = view; }}
                 extensions={extensions}
                 theme="dark"
-                className="border border-[#8B99B0]/20 rounded-lg overflow-hidden text-sm"
+                className="border border-border/20 rounded-lg overflow-hidden text-sm"
             />
         </>
     );

@@ -23,8 +23,8 @@ export default function KanbanBoard<T extends { id: string }>({
 }: KanbanBoardProps<T>) {
   if (!columns.length) {
     return (
-      <div className="flex items-center justify-center py-16 border border-[#8B99B0]/10 rounded-lg">
-        <p className="text-sm text-[#5A6882]">{emptyMessage}</p>
+      <div className="flex items-center justify-center py-16 border border-border/10 rounded-lg">
+        <p className="text-sm text-muted-foreground">{emptyMessage}</p>
       </div>
     );
   }

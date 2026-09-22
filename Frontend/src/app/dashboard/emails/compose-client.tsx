@@ -304,7 +304,7 @@ export default function ComposeClient({ templates }: Props) {
                         <SharedDashboardButton
                             onClick={handleAutofill}
                             disabled={autofilling || !type || !relatedType || !relatedId.trim()}
-                            className="mt-4 inline-flex items-center gap-2 rounded-xl bg-gradient-to-br from-cyan-400 to-sky-500 px-4 py-2.5 text-sm font-semibold text-[#0C1627] shadow-lg shadow-cyan-950/20 transition hover:from-cyan-300 hover:to-sky-400 disabled:cursor-not-allowed disabled:opacity-40"
+                            className="mt-4 inline-flex items-center gap-2 rounded-xl bg-gradient-to-br from-cyan-400 to-sky-500 px-4 py-2.5 text-sm font-semibold text-background shadow-lg shadow-cyan-950/20 transition hover:from-cyan-300 hover:to-sky-400 disabled:cursor-not-allowed disabled:opacity-40"
                         >
                             {autofilling ? <Loader2 className="h-4 w-4 animate-spin" /> : <Wand2 className="h-4 w-4" />}
                             {autofilling ? "Autofilling..." : "Autofill variables"}
@@ -333,15 +333,15 @@ export default function ComposeClient({ templates }: Props) {
                     <div className="mb-4 flex items-center justify-between gap-3">
                         <div className="flex items-center gap-2">
                             <Eye className="h-4 w-4 text-cyan-200" />
-                            <p className="text-sm font-semibold text-[#F6F8FC]">Live preview</p>
+                            <p className="text-sm font-semibold text-primary">Live preview</p>
                         </div>
-                        <div className="flex rounded-xl border border-white/10 bg-[#0A1020] p-0.5">
+                        <div className="flex rounded-xl border border-border bg-background p-0.5">
                             {(["summary", "html"] as const).map((item) => (
                                 <SharedDashboardButton
                                     key={item}
                                     onClick={() => setTab(item)}
                                     className={`rounded-lg px-3 py-1.5 text-xs font-medium transition ${
-                                        tab === item ? "bg-white/[0.12] text-white" : "text-slate-500 hover:text-slate-200"
+                                        tab === item ? "bg-white/[0.12] text-foreground" : "text-slate-500 hover:text-slate-200"
                                     }`}
                                 >
                                     {item === "summary" ? "Summary" : "HTML"}
@@ -357,7 +357,7 @@ export default function ComposeClient({ templates }: Props) {
                                 value={recipientSummary}
                                 fallback="Not selected yet"
                             />
-                            <div className="rounded-2xl border border-white/10 bg-[#0A1020] p-4">
+                            <div className="rounded-2xl border border-border bg-background p-4">
                                 <p className="text-xs text-slate-500">Body preview</p>
                                 {renderedBody ? (
                                     <iframe
@@ -376,11 +376,11 @@ export default function ComposeClient({ templates }: Props) {
                     )}
                 </section>
 
-                <section className="rounded-2xl border border-white/10 bg-[#111A2D]/78 p-5 shadow-xl shadow-black/20">
+                <section className="rounded-2xl border border-border bg-background/78 p-5 shadow-xl shadow-black/20">
                     <SharedDashboardButton
                         onClick={() => setShowConfirm(true)}
                         disabled={!type || recipients.length === 0 || !currentTemplate || sending}
-                        className="flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-br from-emerald-300 to-cyan-400 px-6 py-4 text-sm font-semibold text-[#0C1627] shadow-lg shadow-cyan-950/20 transition hover:from-emerald-200 hover:to-cyan-300 disabled:cursor-not-allowed disabled:opacity-40"
+                        className="flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-br from-emerald-300 to-cyan-400 px-6 py-4 text-sm font-semibold text-background shadow-lg shadow-cyan-950/20 transition hover:from-emerald-200 hover:to-cyan-300 disabled:cursor-not-allowed disabled:opacity-40"
                     >
                         <Send className="h-4 w-4" />
                         Send email
@@ -393,20 +393,20 @@ export default function ComposeClient({ templates }: Props) {
 
             {showConfirm && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm">
-                    <div className="w-full max-w-md rounded-[1.5rem] border border-white/10 bg-[#0B1220] p-6 shadow-2xl">
+                    <div className="w-full max-w-md rounded-[1.5rem] border border-border bg-background p-6 shadow-2xl">
                         <div className="mb-5 flex items-start justify-between">
                             <div>
                                 <p className="text-xs font-semibold uppercase tracking-[0.24em] text-cyan-200/80">Final check</p>
-                                <p className="mt-1 text-lg font-semibold text-[#F6F8FC]">Confirm email send</p>
+                                <p className="mt-1 text-lg font-semibold text-primary">Confirm email send</p>
                             </div>
                             <SharedDashboardButton
                                 onClick={() => setShowConfirm(false)}
-                                className="rounded-xl p-2 text-slate-400 transition hover:bg-white/10 hover:text-white"
+                                className="rounded-xl p-2 text-slate-400 transition hover:bg-muted hover:text-foreground"
                             >
                                 <X className="h-4 w-4" />
                             </SharedDashboardButton>
                         </div>
-                        <div className="space-y-3 rounded-2xl border border-white/10 bg-[#111A2D]/78 p-4 text-sm">
+                        <div className="space-y-3 rounded-2xl border border-border bg-background/78 p-4 text-sm">
                             <ModalRow label="To" value={confirmRecipientLabel} />
                             <ModalRow label="Template" value={type ? TYPE_LABELS[type] ?? type : "-"} />
                             <ModalRow label="Language" value={locale === "vi" ? "Vietnamese" : "English"} />
@@ -414,14 +414,14 @@ export default function ComposeClient({ templates }: Props) {
                         <div className="mt-6 flex gap-3">
                             <SharedDashboardButton
                                 onClick={() => setShowConfirm(false)}
-                                className="flex-1 rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-sm text-slate-400 transition hover:bg-white/[0.08] hover:text-white"
+                                className="flex-1 rounded-xl border border-border bg-white/[0.03] px-4 py-3 text-sm text-slate-400 transition hover:bg-white/[0.08] hover:text-foreground"
                             >
                                 Cancel
                             </SharedDashboardButton>
                             <SharedDashboardButton
                                 onClick={handleSend}
                                 disabled={sending}
-                                className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-gradient-to-br from-emerald-300 to-cyan-400 px-4 py-3 text-sm font-semibold text-[#0C1627] shadow-lg shadow-cyan-950/20 transition hover:from-emerald-200 hover:to-cyan-300 disabled:opacity-50"
+                                className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-gradient-to-br from-emerald-300 to-cyan-400 px-4 py-3 text-sm font-semibold text-background shadow-lg shadow-cyan-950/20 transition hover:from-emerald-200 hover:to-cyan-300 disabled:opacity-50"
                             >
                                 {sending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
                                 {sending ? "Sending..." : "Confirm send"}
@@ -441,7 +441,7 @@ function StepHeader({ number, title, description }: { number: string; title: str
                 {number}
             </span>
             <div>
-                <p className="text-sm font-semibold text-[#F6F8FC]">{title}</p>
+                <p className="text-sm font-semibold text-primary">{title}</p>
                 <p className="text-xs text-slate-500">{description}</p>
             </div>
         </div>
@@ -450,9 +450,9 @@ function StepHeader({ number, title, description }: { number: string; title: str
 
 function SummaryItem({ label, value, fallback }: { label: string; value: string; fallback: string }) {
     return (
-        <div className="rounded-2xl border border-white/10 bg-[#0A1020] p-4">
+        <div className="rounded-2xl border border-border bg-background p-4">
             <p className="text-xs text-slate-500">{label}</p>
-            <p className="mt-1 text-sm text-[#F6F8FC]">{value || <span className="text-slate-600">{fallback}</span>}</p>
+            <p className="mt-1 text-sm text-primary">{value || <span className="text-slate-600">{fallback}</span>}</p>
         </div>
     );
 }
@@ -461,7 +461,7 @@ function ModalRow({ label, value }: { label: string; value: string }) {
     return (
         <div className="flex items-center justify-between gap-3">
             <span className="text-slate-500">{label}</span>
-            <span className="truncate text-right text-[#F6F8FC]">{value}</span>
+            <span className="truncate text-right text-primary">{value}</span>
         </div>
     );
 }

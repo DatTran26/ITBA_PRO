@@ -10,11 +10,11 @@ interface Props {
 export default function PositionAssessmentsTab({ positionTitle }: Props) {
   return (
     <div className="flex flex-col items-center py-12 text-center">
-      <div className="w-10 h-10 rounded-xl bg-[#222C4A] border border-[#8B99B0]/10 flex items-center justify-center mb-3">
-        <FileText className="w-5 h-5 text-[#5A6882]" />
+      <div className="w-10 h-10 rounded-xl bg-accent border border-border/10 flex items-center justify-center mb-3">
+        <FileText className="w-5 h-5 text-muted-foreground" />
       </div>
-      <p className="text-sm text-[#5A6882]">Assessment templates linked to &ldquo;{positionTitle}&rdquo; will appear here</p>
-      <p className="text-xs text-[#5A6882]/60 mt-1">Create tests with this job role to see them listed</p>
+      <p className="text-sm text-muted-foreground">Assessment templates linked to &ldquo;{positionTitle}&rdquo; will appear here</p>
+      <p className="text-xs text-muted-foreground/60 mt-1">Create tests with this job role to see them listed</p>
     </div>
   );
 }

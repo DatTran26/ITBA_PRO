@@ -18,9 +18,9 @@ interface AiInsight {
 }
 
 const typeColors = {
-    info: { accent: "#B48EFF", bg: "bg-[#B48EFF]/5", border: "border-[#B48EFF]/15" },
-    warning: { accent: "#FFB86C", bg: "bg-[#FFB86C]/5", border: "border-[#FFB86C]/15" },
-    alert: { accent: "#FF6B82", bg: "bg-[#FF6B82]/5", border: "border-[#FF6B82]/15" },
+    info: { accent: "var(--ai)", bg: "bg-ai/5", border: "border-ai/15" },
+    warning: { accent: "var(--warning)", bg: "bg-warning/5", border: "border-warning/15" },
+    alert: { accent: "var(--danger)", bg: "bg-danger/5", border: "border-danger/15" },
 };
 
 function buildInsights(stats: DashboardStats, tests: DashboardTest[]): AiInsight[] {
@@ -88,27 +88,27 @@ export default function AiInsights({ stats, tests, pendingAiResults }: Props) {
         <FadeIn delay={0.3} className="h-full flex flex-col">
             {/* Header */}
             <div className="flex items-center gap-3 mb-6 px-1">
-                <div className="p-2 rounded-xl bg-[#B48EFF]/10 border border-[#B48EFF]/20">
-                    <Sparkles className="w-5 h-5 text-[#B48EFF]" />
+                <div className="p-2 rounded-xl bg-ai/10 border border-ai/20">
+                    <Sparkles className="w-5 h-5 text-ai" />
                 </div>
-                <h2 className="text-[10px] font-black uppercase tracking-[0.2em] text-[#8B99B0]">AI Insights</h2>
+                <h2 className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground">AI Insights</h2>
             </div>
 
             {/* Self-contained card */}
-            <Card className="bg-[#111827]/90 border-[#8B99B0]/15 rounded-[2.5rem] overflow-hidden group flex-1 flex flex-col relative shadow-2xl">
+            <Card className="bg-card/90 border-muted-foreground/15 rounded-[2.5rem] overflow-hidden group flex-1 flex flex-col relative shadow-2xl">
                 {/* Inner Highlight Border */}
-                <div className="absolute inset-px rounded-[2.5rem] border border-white/5 pointer-events-none" />
+                <div className="absolute inset-px rounded-[2.5rem] border border-border pointer-events-none" />
 
                 <CardContent className="p-7 flex flex-col gap-6 flex-1 relative z-10">
                     {/* Action button */}
                     {total > 0 && (
                         <div className="relative group/btn">
-                            <div className="absolute inset-0 bg-[#36DDAB]/20 blur-xl opacity-0 group-hover/btn:opacity-100 transition-opacity duration-500 rounded-2xl" />
+                            <div className="absolute inset-0 bg-success/20 blur-xl opacity-0 group-hover/btn:opacity-100 transition-opacity duration-500 rounded-2xl" />
                             <Button
                                 size="sm"
                                 onClick={runAiAnalysis}
                                 disabled={isRunning}
-                                className="w-full h-12 bg-[#36DDAB]/10 hover:bg-[#36DDAB]/20 text-[#36DDAB] border border-[#36DDAB]/20 rounded-2xl font-black text-[11px] uppercase tracking-widest cursor-pointer gap-2.5 transition-all duration-300 relative z-10 shadow-lg"
+                                className="w-full h-12 bg-success/10 hover:bg-success/20 text-success border border-success/20 rounded-2xl font-black text-[11px] uppercase tracking-widest cursor-pointer gap-2.5 transition-all duration-300 relative z-10 shadow-lg"
                             >
                                 {isRunning ? (
                                     <><Loader2 className="w-4 h-4 animate-spin" /><span className="animate-pulse">Processing {completed}/{total}</span></>
@@ -122,16 +122,16 @@ export default function AiInsights({ stats, tests, pendingAiResults }: Props) {
                     {/* Green progress bar — inside card */}
                     {isRunning && (
                         <div className="px-1">
-                            <div className="h-2 bg-white/5 rounded-full overflow-hidden border border-white/5">
+                            <div className="h-2 bg-muted rounded-full overflow-hidden border border-border">
                                 <motion.div
                                     initial={{ width: 0 }}
                                     animate={{ width: `${progressPct}%` }}
-                                    className="h-full bg-gradient-to-r from-[#36DDAB]/40 to-[#36DDAB] rounded-full shadow-[0_0_15px_rgba(54,221,171,0.5)]"
+                                    className="h-full bg-gradient-to-r from-success/40 to-success rounded-full shadow-[0_0_15px_color-mix(in_srgb,var(--success)_50%,transparent)]"
                                 />
                             </div>
                             <div className="flex justify-between items-center mt-2 px-1">
-                                <p className="text-[9px] font-black uppercase tracking-widest text-[#5A6882]">Protocol Progress</p>
-                                <p className="text-[9px] font-black text-[#36DDAB]">{progressPct}%</p>
+                                <p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground">Protocol Progress</p>
+                                <p className="text-[9px] font-black text-success">{progressPct}%</p>
                             </div>
                         </div>
                     )}
@@ -150,17 +150,17 @@ export default function AiInsights({ stats, tests, pendingAiResults }: Props) {
                                     className={`${colors.bg} ${colors.border} border rounded-[1.5rem] p-5 flex flex-col justify-center group/item hover:bg-white/[0.03] transition-all duration-500 relative`}
                                 >
                                     <div className="flex items-center gap-3 mb-2">
-                                        <div className="p-2 rounded-xl bg-black/20 border border-white/5 shadow-inner">
+                                        <div className="p-2 rounded-xl bg-black/20 border border-border shadow-inner">
                                             <Icon className="w-4 h-4" style={{ color: colors.accent }} />
                                         </div>
                                         <div className="flex items-baseline gap-1">
                                             <span className="text-3xl font-black font-display leading-none tracking-tighter" style={{ color: colors.accent }}>
                                                 {insight.count}
                                             </span>
-                                            {insight.type === "alert" && <span className="text-[10px] font-black text-[#5A6882] uppercase">%</span>}
+                                            {insight.type === "alert" && <span className="text-[10px] font-black text-muted-foreground uppercase">%</span>}
                                         </div>
                                     </div>
-                                    <p className="text-[11px] font-bold text-[#8B99B0] leading-snug group-hover/item:text-[#ECF0F7] transition-colors pr-2">
+                                    <p className="text-[11px] font-bold text-muted-foreground leading-snug group-hover/item:text-foreground transition-colors pr-2">
                                         {insight.description}
                                     </p>
                                     <div className="absolute right-4 top-1/2 -translate-y-1/2 opacity-0 group-hover/item:opacity-20 transition-opacity">
@@ -176,17 +176,17 @@ export default function AiInsights({ stats, tests, pendingAiResults }: Props) {
                         <div className="pt-2">
                             <button
                                 onClick={() => setShowCompleted(!showCompleted)}
-                                className="flex items-center justify-between w-full group/drop cursor-pointer bg-white/[0.02] hover:bg-white/[0.04] p-3 rounded-xl border border-white/5 transition-colors"
+                                className="flex items-center justify-between w-full group/drop cursor-pointer bg-white/[0.02] hover:bg-white/[0.04] p-3 rounded-xl border border-border transition-colors"
                             >
                                 <span className="flex items-center gap-2.5">
                                     <div className="w-5 h-5 rounded-lg bg-emerald-500/10 flex items-center justify-center">
-                                        <CheckCircle2 className="w-3 h-3 text-[var(--semantic-success, #36DDAB)]" />
+                                        <CheckCircle2 className="w-3 h-3 text-[var(--semantic-success, var(--success))]" />
                                     </div>
-                                    <span className="text-[10px] font-black uppercase tracking-widest text-[#8B99B0] group-hover/drop:text-emerald-400 transition-colors">
+                                    <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground group-hover/drop:text-emerald-400 transition-colors">
                                         Analyzed ({completedNames.length})
                                     </span>
                                 </span>
-                                <ChevronDown className={`w-4 h-4 text-[#5A6882] transition-transform duration-500 ${showCompleted ? "rotate-180" : ""}`} />
+                                <ChevronDown className={`w-4 h-4 text-muted-foreground transition-transform duration-500 ${showCompleted ? "rotate-180" : ""}`} />
                             </button>
 
                             <AnimatePresence>
@@ -199,8 +199,8 @@ export default function AiInsights({ stats, tests, pendingAiResults }: Props) {
                                     >
                                         <div className="max-h-[120px] overflow-y-auto space-y-2 pr-2 scrollbar-thin">
                                             {completedNames.map((name, i) => (
-                                                <div key={i} className="flex items-center gap-3 text-[11px] font-medium text-[#8B99B0] bg-white/[0.01] border border-white/5 rounded-xl px-4 py-2.5">
-                                                    <div className="w-1.5 h-1.5 rounded-full bg-[#36DDAB] shadow-[0_0_8px_rgba(54,221,171,0.5)]" />
+                                                <div key={i} className="flex items-center gap-3 text-[11px] font-medium text-muted-foreground bg-white/[0.01] border border-border rounded-xl px-4 py-2.5">
+                                                    <div className="w-1.5 h-1.5 rounded-full bg-success shadow-[0_0_8px_color-mix(in_srgb,var(--success)_50%,transparent)]" />
                                                     <span className="truncate">{name}</span>
                                                 </div>
                                             ))}
@@ -212,14 +212,14 @@ export default function AiInsights({ stats, tests, pendingAiResults }: Props) {
                     )}
 
                     {/* System Health Footer */}
-                    <div className="mt-auto pt-6 border-t border-white/5 relative flex items-center gap-4">
+                    <div className="mt-auto pt-6 border-t border-border relative flex items-center gap-4">
                         <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent pointer-events-none" />
-                        <div className="p-2.5 rounded-full bg-[#36DDAB]/10 border border-[#36DDAB]/20 shrink-0">
-                            <Activity className="w-5 h-5 text-[#36DDAB]" />
+                        <div className="p-2.5 rounded-full bg-success/10 border border-success/20 shrink-0">
+                            <Activity className="w-5 h-5 text-success" />
                         </div>
                         <div>
-                            <p className="text-xs font-black text-[#ECF0F7] font-display tracking-tight">System Nominal</p>
-                            <p className="text-[10px] font-bold text-[#8B99B0] mt-0.5">All 3 AI assessment models operating correctly.</p>
+                            <p className="text-xs font-black text-foreground font-display tracking-tight">System Nominal</p>
+                            <p className="text-[10px] font-bold text-muted-foreground mt-0.5">All 3 AI assessment models operating correctly.</p>
                         </div>
                     </div>
                 </CardContent>

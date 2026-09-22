@@ -61,15 +61,15 @@ export default function RecruitmentDashboardClient() {
   return (
     <div className="py-6 flex flex-col gap-6">
       <div className="flex flex-col sm:flex-row sm:items-center gap-3 justify-between">
-        <h1 className="text-xl font-semibold text-[#ECF0F7]">Recruitment Dashboard</h1>
+        <h1 className="text-xl font-semibold text-foreground">Recruitment Dashboard</h1>
         <div className="flex flex-wrap items-center gap-2">
           <input type="date" value={from} onChange={(e) => setFrom(e.target.value)}
-            className="px-2 py-1.5 rounded-lg bg-[#0F1628] border border-[#8B99B0]/20 text-[#ECF0F7] text-sm focus:outline-none focus:border-[#7C8FFF]/50" />
-          <span className="text-[#5A6882] text-sm">→</span>
+            className="px-2 py-1.5 rounded-lg bg-background border border-border/20 text-foreground text-sm focus:outline-none focus:border-border/50" />
+          <span className="text-muted-foreground text-sm">→</span>
           <input type="date" value={to} onChange={(e) => setTo(e.target.value)}
-            className="px-2 py-1.5 rounded-lg bg-[#0F1628] border border-[#8B99B0]/20 text-[#ECF0F7] text-sm focus:outline-none focus:border-[#7C8FFF]/50" />
+            className="px-2 py-1.5 rounded-lg bg-background border border-border/20 text-foreground text-sm focus:outline-none focus:border-border/50" />
           <select value={jdId} onChange={(e) => setJdId(e.target.value)}
-            className="px-2 py-1.5 rounded-lg bg-[#0F1628] border border-[#8B99B0]/20 text-[#ECF0F7] text-sm focus:outline-none focus:border-[#7C8FFF]/50">
+            className="px-2 py-1.5 rounded-lg bg-background border border-border/20 text-foreground text-sm focus:outline-none focus:border-border/50">
             <option value="">All JDs</option>
             {jds.map((j) => <option key={j.id} value={j.id}>{j.title}</option>)}
           </select>
@@ -78,10 +78,10 @@ export default function RecruitmentDashboardClient() {
 
       {loading ? (
         <div className="flex justify-center py-16">
-          <div className="w-6 h-6 border-2 border-[#7C8FFF]/30 border-t-[#7C8FFF] rounded-full animate-spin" />
+          <div className="w-6 h-6 border-2 border-border/30 border-t-border rounded-full animate-spin" />
         </div>
       ) : !data ? (
-        <div className="glass-card p-10 text-center text-[#EF4444] text-sm">Không thể tải dữ liệu.</div>
+        <div className="glass-card p-10 text-center text-danger text-sm">Không thể tải dữ liệu.</div>
       ) : (
         <>
           <KpiCardGrid items={kpis} />
@@ -90,12 +90,12 @@ export default function RecruitmentDashboardClient() {
             <StageFunnel stages={data.funnel ?? []} />
 
             <div className="glass-card p-5 flex flex-col gap-3">
-              <h2 className="text-sm font-medium text-[#ECF0F7]">Applications by Status</h2>
+              <h2 className="text-sm font-medium text-foreground">Applications by Status</h2>
               <div className="flex flex-col gap-1.5">
                 {Object.entries(data.byStatus ?? {}).sort((a, b) => b[1] - a[1]).map(([status, count]) => (
                   <div key={status} className="flex items-center justify-between text-sm">
-                    <span className="text-[#8B99B0]">{status}</span>
-                    <span className="font-mono text-[#ECF0F7]">{count}</span>
+                    <span className="text-muted-foreground">{status}</span>
+                    <span className="font-mono text-foreground">{count}</span>
                   </div>
                 ))}
               </div>

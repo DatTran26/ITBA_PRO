@@ -54,7 +54,7 @@ export default function PersonDetailClient({ person, skills, results, membership
   };
 
   return (
-    <div className="min-h-screen bg-[#121A2E]">
+    <div className="min-h-screen bg-background">
       <AppNavbar />
       <PageContainer>
         <PageBreadcrumb breadcrumbs={[
@@ -71,13 +71,13 @@ export default function PersonDetailClient({ person, skills, results, membership
         />
 
         <Tabs value={tab} onValueChange={(v) => setTab(v as TabKey)}>
-          <TabsList className="bg-[#222C4A] border border-[#8B99B0]/10 mb-4 flex-wrap">
-            <TabsTrigger value="overview" className="data-[state=active]:bg-[#7C8FFF] data-[state=active]:text-white text-[#8B99B0] text-xs">Overview</TabsTrigger>
-            <TabsTrigger value="skills" className="data-[state=active]:bg-[#7C8FFF] data-[state=active]:text-white text-[#8B99B0] text-xs">Skills</TabsTrigger>
-            <TabsTrigger value="assessments" className="data-[state=active]:bg-[#7C8FFF] data-[state=active]:text-white text-[#8B99B0] text-xs">Assessments ({results.length})</TabsTrigger>
-            <TabsTrigger value="notes" className="data-[state=active]:bg-[#7C8FFF] data-[state=active]:text-white text-[#8B99B0] text-xs">Notes</TabsTrigger>
-            <TabsTrigger value="development" className="data-[state=active]:bg-[#7C8FFF] data-[state=active]:text-white text-[#8B99B0] text-xs">Development</TabsTrigger>
-            <TabsTrigger value="relationships" className="data-[state=active]:bg-[#7C8FFF] data-[state=active]:text-white text-[#8B99B0] text-xs">Relationships</TabsTrigger>
+          <TabsList className="bg-accent border border-border/10 mb-4 flex-wrap">
+            <TabsTrigger value="overview" className="data-[state=active]:bg-primary data-[state=active]:text-white text-muted-foreground text-xs">Overview</TabsTrigger>
+            <TabsTrigger value="skills" className="data-[state=active]:bg-primary data-[state=active]:text-white text-muted-foreground text-xs">Skills</TabsTrigger>
+            <TabsTrigger value="assessments" className="data-[state=active]:bg-primary data-[state=active]:text-white text-muted-foreground text-xs">Assessments ({results.length})</TabsTrigger>
+            <TabsTrigger value="notes" className="data-[state=active]:bg-primary data-[state=active]:text-white text-muted-foreground text-xs">Notes</TabsTrigger>
+            <TabsTrigger value="development" className="data-[state=active]:bg-primary data-[state=active]:text-white text-muted-foreground text-xs">Development</TabsTrigger>
+            <TabsTrigger value="relationships" className="data-[state=active]:bg-primary data-[state=active]:text-white text-muted-foreground text-xs">Relationships</TabsTrigger>
           </TabsList>
         </Tabs>
 

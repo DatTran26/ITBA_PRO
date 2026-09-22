@@ -26,7 +26,7 @@ export default function SkillsCategoryView({ data, onCardClick }: Props) {
   if (!data.length) {
     return (
       <div className="flex flex-col items-center py-16 text-center">
-        <p className="text-sm text-[#5A6882]">No skills found</p>
+        <p className="text-sm text-muted-foreground">No skills found</p>
       </div>
     );
   }
@@ -57,36 +57,36 @@ function CategorySection({
   const [open, setOpen] = useState(true);
 
   return (
-    <div className="border border-[#8B99B0]/10 rounded-xl overflow-hidden">
+    <div className="border border-border/10 rounded-xl overflow-hidden">
       <button
         onClick={() => setOpen((v) => !v)}
-        className="w-full flex items-center justify-between px-4 py-3 bg-[#1B253B] hover:bg-[#0F1829] transition-colors"
+        className="w-full flex items-center justify-between px-4 py-3 bg-muted hover:bg-background transition-colors"
       >
         <div className="flex items-center gap-2">
           {open ? (
-            <ChevronDown className="w-4 h-4 text-[#5A6882]" />
+            <ChevronDown className="w-4 h-4 text-muted-foreground" />
           ) : (
-            <ChevronRight className="w-4 h-4 text-[#5A6882]" />
+            <ChevronRight className="w-4 h-4 text-muted-foreground" />
           )}
           <Badge variant="outline" className={`text-xs ${categoryColor(category === "Uncategorized" ? null : category)}`}>
             {category}
           </Badge>
-          <span className="text-xs text-[#5A6882]">{skills.length} skill{skills.length !== 1 ? "s" : ""}</span>
+          <span className="text-xs text-muted-foreground">{skills.length} skill{skills.length !== 1 ? "s" : ""}</span>
         </div>
       </button>
 
       {open && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 p-3 bg-[#121A2E]">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 p-3 bg-background">
           {skills.map((s) => (
             <button
               key={s.id}
               onClick={() => onCardClick(s)}
-              className="text-left px-3 py-2.5 rounded-lg bg-[#1B253B] border border-[#8B99B0]/10 hover:border-[#7C8FFF]/40 hover:bg-[#0F1829] transition-colors group"
+              className="text-left px-3 py-2.5 rounded-lg bg-muted border border-border/10 hover:border-border/40 hover:bg-background transition-colors group"
             >
-              <p className="text-sm font-medium text-[#ECF0F7] group-hover:text-white truncate">{s.name}</p>
+              <p className="text-sm font-medium text-foreground group-hover:text-foreground truncate">{s.name}</p>
               <div className="flex items-center gap-3 mt-1.5">
-                <span className="text-xs text-[#5A6882]">{s.position_count} pos</span>
-                <span className="text-xs text-[#5A6882]">{s.person_count} persons</span>
+                <span className="text-xs text-muted-foreground">{s.position_count} pos</span>
+                <span className="text-xs text-muted-foreground">{s.person_count} persons</span>
                 {s.shortage_score > 0 && (
                   <Badge variant="outline" className="text-xs border-red-500/30 text-red-400 bg-red-500/10 py-0 px-1.5">
                     −{s.shortage_score}

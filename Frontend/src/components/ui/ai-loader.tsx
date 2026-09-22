@@ -37,16 +37,16 @@ export function AILoader() {
             <div className="relative w-20 h-20">
                 <div className="absolute inset-0 bg-violet-500 rounded-xl opacity-20" />
                 <div className="absolute inset-2 bg-indigo-500 rounded-xl opacity-40" />
-                <div className="absolute inset-0 flex items-center justify-center text-white font-bold text-xl">
+                <div className="absolute inset-0 flex items-center justify-center text-foreground font-bold text-xl">
                     AI
                 </div>
             </div>
 
             <div className="h-6">
-                <p className="text-white/60 text-sm font-medium">{messages[messageIndex]}</p>
+                <p className="text-muted-foreground text-sm font-medium">{messages[messageIndex]}</p>
             </div>
 
-            <div className="w-48 h-1 bg-white/10 rounded-full overflow-hidden">
+            <div className="w-48 h-1 bg-muted rounded-full overflow-hidden">
                 <div
                     className="h-full bg-gradient-to-r from-violet-500 to-indigo-500 transition-none"
                     style={{ width: `${progress}%` }}

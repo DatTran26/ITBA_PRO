@@ -64,12 +64,12 @@ export default function AppUpdateBanner() {
         <div className="fixed top-[76px] left-1/2 -translate-x-1/2 z-[100] w-full max-w-[500px] px-4 animate-in fade-in slide-in-from-top-4 duration-500">
             <div className="relative group">
                 {/* Glow Background - RED/YELLOW */}
-                <div className="absolute -inset-0.5 bg-gradient-to-r from-[#FF4B4B] via-[#FFB800] to-[#FF4B4B] rounded-2xl blur opacity-30 group-hover:opacity-60 transition duration-1000 animate-pulse"></div>
+                <div className="absolute -inset-0.5 bg-gradient-to-r from-danger via-warning to-danger rounded-2xl blur opacity-30 group-hover:opacity-60 transition duration-1000 animate-pulse"></div>
 
-                <div className="relative flex items-center justify-between gap-4 px-5 py-3 rounded-2xl bg-[#0F172A]/90 backdrop-blur-xl border border-[#FFB800]/20 shadow-2xl">
+                <div className="relative flex items-center justify-between gap-4 px-5 py-3 rounded-2xl bg-background/90 backdrop-blur-xl border border-warning/20 shadow-2xl">
                     <div className="flex items-center gap-3.5">
-                        <div className="flex-shrink-0 w-10 h-10 rounded-xl bg-gradient-to-br from-[#FF4B4B]/20 to-[#FFB800]/20 border border-[#FFB800]/30 flex items-center justify-center shadow-inner">
-                            <ArrowUpCircle className="w-5 h-5 text-[#FFB800]" />
+                        <div className="flex-shrink-0 w-10 h-10 rounded-xl bg-gradient-to-br from-danger/20 to-warning/20 border border-warning/30 flex items-center justify-center shadow-inner">
+                            <ArrowUpCircle className="w-5 h-5 text-warning" />
                         </div>
 
                         <div className="flex flex-col">
@@ -78,12 +78,12 @@ export default function AppUpdateBanner() {
                                     Nâng cấp hệ thống
                                 </span>
                                 {serverVersion && (
-                                    <span className="px-1.5 py-0.5 rounded-md bg-[#FFB800] text-black text-[10px] font-black uppercase tracking-tighter shadow-sm">
+                                    <span className="px-1.5 py-0.5 rounded-md bg-warning text-black text-[10px] font-black uppercase tracking-tighter shadow-sm">
                                         {serverVersion}
                                     </span>
                                 )}
                             </div>
-                            <p className="text-[11px] text-[#A9B4FF]/70 leading-tight mt-0.5">
+                            <p className="text-[11px] text-primary/70 leading-tight mt-0.5">
                                 Phiên bản mới đã sẵn sàng để trải nghiệm
                             </p>
                         </div>
@@ -92,7 +92,7 @@ export default function AppUpdateBanner() {
                     <div className="flex items-center gap-2">
                         <button
                             onClick={handleUpdate}
-                            className="group relative flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-[#FF4B4B] to-[#FF7B4B] text-white text-[11px] font-bold hover:shadow-[0_0_20px_rgba(255,75,75,0.4)] transition-all duration-300 shadow-lg cursor-pointer overflow-hidden active:scale-95"
+                            className="group relative flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-danger to-danger text-white text-[11px] font-bold hover:shadow-[0_0_20px_color-mix(in_srgb,var(--danger)_40%,transparent)] transition-all duration-300 shadow-lg cursor-pointer overflow-hidden active:scale-95"
                         >
                             <RefreshCw className="w-3.5 h-3.5 group-hover:rotate-180 transition-transform duration-700" />
                             Cập nhật ngay
@@ -101,7 +101,7 @@ export default function AppUpdateBanner() {
 
                         <button
                             onClick={handleDismiss}
-                            className="p-1.5 text-[#5A6882] hover:text-[#ECF0F7] hover:bg-white/5 rounded-lg transition-all cursor-pointer"
+                            className="p-1.5 text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition-all cursor-pointer"
                             aria-label="Dismiss"
                         >
                             <X className="w-4 h-4" />

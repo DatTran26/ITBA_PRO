@@ -41,8 +41,8 @@ export default function SkillPositionsTab({ requirements }: Props) {
   }
 
   return (
-    <Card className="bg-[#1B253B] border-[#8B99B0]/10 p-4">
-      <h3 className="mb-3 text-sm font-medium text-[#ECF0F7]">
+    <Card className="bg-muted border-border/10 p-4">
+      <h3 className="mb-3 text-sm font-medium text-foreground">
         Positions Requiring This Skill ({requirements.length})
       </h3>
       <Table>
@@ -60,18 +60,18 @@ export default function SkillPositionsTab({ requirements }: Props) {
               <TableCell>
                 <Link
                   href={`/dashboard/positions/${req.position_id}`}
-                  className="font-medium text-[#7C8FFF] hover:text-[#9BAAFF] hover:underline"
+                  className="font-medium text-primary hover:text-primary hover:underline"
                 >
                   {req.position_title}
                 </Link>
               </TableCell>
-              <TableCell className="hidden text-[#8B99B0] sm:table-cell">
+              <TableCell className="hidden text-muted-foreground sm:table-cell">
                 {req.department || "—"}
               </TableCell>
               <TableCell className="text-center">
                 <Badge
                   variant="outline"
-                  className={`text-xs ${LEVEL_COLORS[req.required_level] ?? "border-[#8B99B0]/20 text-[#8B99B0]"}`}
+                  className={`text-xs ${LEVEL_COLORS[req.required_level] ?? "border-border/20 text-muted-foreground"}`}
                 >
                   L{req.required_level}
                 </Badge>
@@ -80,7 +80,7 @@ export default function SkillPositionsTab({ requirements }: Props) {
                 {req.is_mandatory ? (
                   <span className="text-xs text-green-400">Yes</span>
                 ) : (
-                  <span className="text-xs text-[#5A6882]">No</span>
+                  <span className="text-xs text-muted-foreground">No</span>
                 )}
               </TableCell>
             </TableRow>

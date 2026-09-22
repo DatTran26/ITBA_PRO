@@ -71,7 +71,7 @@ export const NeuralNetwork = () => {
         if (!ctx) return;
         ctx.beginPath();
         ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-        ctx.fillStyle = "rgba(139, 92, 246, 0.2)";
+        ctx.fillStyle = "color-mix(in srgb, var(--primary) 20%, transparent)";
         ctx.fill();
       }
     }

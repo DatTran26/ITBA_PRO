@@ -57,7 +57,7 @@ export default function SkillDetailClient({ skill, isAdmin, canEdit }: Props) {
   };
 
   return (
-    <div className="min-h-screen bg-[#121A2E]">
+    <div className="min-h-screen bg-background">
       <AppNavbar />
       <PageContainer>
         <PageBreadcrumb breadcrumbs={[
@@ -72,23 +72,23 @@ export default function SkillDetailClient({ skill, isAdmin, canEdit }: Props) {
           onCreateTest={() => setCreateTestOpen(true)}
         />
 
-        <div className="flex gap-1 border-b border-[#8B99B0]/10 mb-4 overflow-x-auto">
+        <div className="flex gap-1 border-b border-border/10 mb-4 overflow-x-auto">
           {TABS.map((t) => (
             <button
               key={t}
               onClick={() => setTab(t)}
               className={`px-4 py-2.5 text-sm font-medium whitespace-nowrap transition-colors border-b-2 ${
                 tab === t
-                  ? "border-[#7C8FFF] text-[#ECF0F7]"
-                  : "border-transparent text-[#5A6882] hover:text-[#8B99B0]"
+                  ? "border-border text-foreground"
+                  : "border-transparent text-muted-foreground hover:text-muted-foreground"
               }`}
             >
               {TAB_LABELS[t]}
               {t === "positions" && (
-                <span className="ml-1.5 text-xs text-[#5A6882]">({skill.position_requirements.length})</span>
+                <span className="ml-1.5 text-xs text-muted-foreground">({skill.position_requirements.length})</span>
               )}
               {t === "persons" && (
-                <span className="ml-1.5 text-xs text-[#5A6882]">({skill.person_skills.length})</span>
+                <span className="ml-1.5 text-xs text-muted-foreground">({skill.person_skills.length})</span>
               )}
             </button>
           ))}
@@ -129,7 +129,7 @@ export default function SkillDetailClient({ skill, isAdmin, canEdit }: Props) {
       <Dialog open={createTestOpen} onOpenChange={setCreateTestOpen}>
         <DialogContent
           showCloseButton={false}
-          className="max-w-3xl w-[calc(100%-2rem)] max-h-[90vh] overflow-y-auto bg-[#101828] ring-[#7C8FFF]/15"
+          className="max-w-3xl w-[calc(100%-2rem)] max-h-[90vh] overflow-y-auto bg-background ring-primary/15"
         >
           <DialogTitle className="sr-only">Create test from {skill.name}</DialogTitle>
           <CreateTestFromSkills

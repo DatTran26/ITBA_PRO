@@ -72,7 +72,7 @@ export default function SkillQuestionsTab({ skillId, canEdit, refreshKey, onRequ
   return (
     <div>
       <div className="flex items-center justify-between mb-4">
-        <p className="text-sm text-[#8B99B0]">
+        <p className="text-sm text-muted-foreground">
           {total} question{total !== 1 ? "s" : ""} for this skill
         </p>
         <div className="flex gap-2">
@@ -81,7 +81,7 @@ export default function SkillQuestionsTab({ skillId, canEdit, refreshKey, onRequ
               variant="outline"
               size="sm"
               onClick={() => { setEditTarget(null); setDialogOpen(true); }}
-              className="border-[#8B99B0]/20 text-[#8B99B0] hover:text-[#ECF0F7]"
+              className="border-border/20 text-muted-foreground hover:text-foreground"
             >
               <Plus className="w-3.5 h-3.5 mr-1.5" />
               Add Question
@@ -91,7 +91,7 @@ export default function SkillQuestionsTab({ skillId, canEdit, refreshKey, onRequ
             <Button
               size="sm"
               onClick={onRequestMore}
-              className="bg-[#10B981] hover:bg-[#0D9E6E] text-white border-0"
+              className="bg-success hover:bg-success text-white border-0"
             >
               <Sparkles className="w-3.5 h-3.5 mr-1.5" />
               Tạo thêm
@@ -101,8 +101,8 @@ export default function SkillQuestionsTab({ skillId, canEdit, refreshKey, onRequ
       </div>
 
       {loading ? (
-        <div className="border border-[#8B99B0]/10 rounded-lg flex items-center justify-center py-16">
-          <p className="text-sm text-[#5A6882]">Loading...</p>
+        <div className="border border-border/10 rounded-lg flex items-center justify-center py-16">
+          <p className="text-sm text-muted-foreground">Loading...</p>
         </div>
       ) : (
         <QuestionBankTable

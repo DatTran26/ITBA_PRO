@@ -40,20 +40,20 @@ export default function SkillsTableView({ data, onRowClick, onEdit, onDelete, de
             {String(v)}
           </Badge>
         ) : (
-          <span className="text-[#5A6882] text-xs">—</span>
+          <span className="text-muted-foreground text-xs">—</span>
         ),
     },
     {
       key: "demand_score",
       label: "Positions",
       sortable: true,
-      render: (v) => <span className="text-xs text-[#8B99B0]">{String(v)}</span>,
+      render: (v) => <span className="text-xs text-muted-foreground">{String(v)}</span>,
     },
     {
       key: "person_count",
       label: "Persons",
       sortable: true,
-      render: (v) => <span className="text-xs text-[#8B99B0]">{String(v)}</span>,
+      render: (v) => <span className="text-xs text-muted-foreground">{String(v)}</span>,
     },
     {
       key: "shortage_score",
@@ -78,14 +78,14 @@ export default function SkillsTableView({ data, onRowClick, onEdit, onDelete, de
         <div className="flex gap-1" onClick={(e) => e.stopPropagation()}>
           <button
             onClick={() => onEdit(row)}
-            className="p-1.5 rounded text-[#5A6882] hover:text-[#ECF0F7] hover:bg-[#222C4A] transition-colors"
+            className="p-1.5 rounded text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
           >
             <Pencil className="w-3.5 h-3.5" />
           </button>
           <button
             onClick={() => onDelete(row.id)}
             disabled={deletingId === row.id}
-            className="p-1.5 rounded text-[#5A6882] hover:text-red-400 hover:bg-red-400/10 transition-colors"
+            className="p-1.5 rounded text-muted-foreground hover:text-red-400 hover:bg-red-400/10 transition-colors"
           >
             <Trash2 className="w-3.5 h-3.5" />
           </button>

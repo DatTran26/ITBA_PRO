@@ -8,14 +8,14 @@ interface Props {
 }
 
 const featureColors: Record<string, string> = {
-    generate: "#7C8FFF",
-    regenerate: "#5B6CF0",
-    analyze: "#B48EFF",
-    "analyze-result": "#9B7EFF",
-    "analyze-jd": "#36DDAB",
-    "enhance-instruction": "#FFB86C",
-    "evaluate-level": "#FF6B82",
-    "generate-followup": "#4ECDC4",
+    generate: "var(--primary)",
+    regenerate: "var(--primary)",
+    analyze: "var(--ai)",
+    "analyze-result": "var(--primary)",
+    "analyze-jd": "var(--success)",
+    "enhance-instruction": "var(--warning)",
+    "evaluate-level": "var(--danger)",
+    "generate-followup": "var(--primary)",
 };
 
 export default function FeatureBreakdown({ data }: Props) {
@@ -24,41 +24,41 @@ export default function FeatureBreakdown({ data }: Props) {
 
     if (sorted.length === 0) {
         return (
-            <Card className="bg-[#111827]/90 border-[#8B99B0]/15 rounded-[1.5rem] overflow-hidden relative shadow-2xl h-full flex flex-col">
-                <div className="absolute inset-px rounded-[1.5rem] border border-white/5 pointer-events-none" />
+            <Card className="bg-card/90 border-muted-foreground/15 rounded-[1.5rem] overflow-hidden relative shadow-2xl h-full flex flex-col">
+                <div className="absolute inset-px rounded-[1.5rem] border border-border pointer-events-none" />
                 <CardHeader className="pb-4 relative z-10">
-                    <CardTitle className="text-[10px] font-black uppercase tracking-[0.2em] text-[#8B99B0] flex items-center gap-2">
+                    <CardTitle className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground flex items-center gap-2">
                         <Layers className="w-4 h-4 text-emerald-400" /> By Feature
                     </CardTitle>
                 </CardHeader>
-                <CardContent className="flex items-center justify-center h-32 text-sm text-[#5A6882] relative z-10">No feature data yet</CardContent>
+                <CardContent className="flex items-center justify-center h-32 text-sm text-muted-foreground relative z-10">No feature data yet</CardContent>
             </Card>
         );
     }
 
     return (
-        <Card className="bg-[#111827]/90 border-[#8B99B0]/15 rounded-[1.5rem] overflow-hidden relative shadow-2xl h-full flex flex-col">
-            <div className="absolute inset-px rounded-[1.5rem] border border-white/5 pointer-events-none" />
+        <Card className="bg-card/90 border-muted-foreground/15 rounded-[1.5rem] overflow-hidden relative shadow-2xl h-full flex flex-col">
+            <div className="absolute inset-px rounded-[1.5rem] border border-border pointer-events-none" />
             <CardHeader className="pb-4 relative z-10">
-                <CardTitle className="text-[10px] font-black uppercase tracking-[0.2em] text-[#8B99B0] flex items-center gap-2">
+                <CardTitle className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground flex items-center gap-2">
                     <Layers className="w-4 h-4 text-emerald-400" /> By Feature
                 </CardTitle>
             </CardHeader>
             <CardContent className="relative z-10 flex-1 overflow-y-auto pr-2 space-y-3">
                 {sorted.map((item) => {
                     const pct = (item.tokens / totalTokens) * 100;
-                    const color = featureColors[item.feature] || "#8B99B0";
+                    const color = featureColors[item.feature] || "var(--muted-foreground)";
                     return (
                         <div key={item.feature} className="p-3 rounded-xl bg-white/[0.02] border border-white/[0.02] hover:bg-white/[0.04] transition-colors group/feat">
                             <div className="flex justify-between items-end mb-2">
-                                <span className="text-[11px] font-bold text-[#ECF0F7] group-hover/feat:text-white transition-colors uppercase tracking-wider">{item.feature}</span>
-                                <div className="text-[10px] font-black tracking-widest text-[#5A6882] flex gap-2">
-                                    <span className="text-[#ECF0F7]">{pct.toFixed(0)}%</span>
+                                <span className="text-[11px] font-bold text-foreground group-hover/feat:text-foreground transition-colors uppercase tracking-wider">{item.feature}</span>
+                                <div className="text-[10px] font-black tracking-widest text-muted-foreground flex gap-2">
+                                    <span className="text-foreground">{pct.toFixed(0)}%</span>
                                     <span>·</span>
                                     <span className="text-emerald-400">${item.cost.toFixed(3)}</span>
                                 </div>
                             </div>
-                            <div className="h-1.5 bg-black/40 border border-white/5 rounded-full overflow-hidden relative">
+                            <div className="h-1.5 bg-black/40 border border-border rounded-full overflow-hidden relative">
                                 <div className="absolute inset-y-0 left-0 rounded-full transition-all duration-1000" style={{ width: `${pct}%`, backgroundColor: color, boxShadow: `0 0 10px ${color}` }} />
                             </div>
                         </div>

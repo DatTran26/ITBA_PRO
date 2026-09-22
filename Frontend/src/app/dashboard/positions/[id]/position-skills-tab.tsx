@@ -91,15 +91,15 @@ export default function PositionSkillsTab({ position, requirements: initial, ava
   }
 
   return (
-    <Card className="bg-[#1B253B] border-[#8B99B0]/10 p-5">
+    <Card className="bg-muted border-border/10 p-5">
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-sm font-semibold text-[#8B99B0] uppercase tracking-wide flex items-center gap-2">
+        <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide flex items-center gap-2">
           <ListChecks className="w-4 h-4" /> Skill Requirements ({requirements.length})
         </h2>
       </div>
 
       {requirements.length === 0 ? (
-        <p className="text-sm text-[#5A6882] text-center py-6">No skill requirements yet. Add one below.</p>
+        <p className="text-sm text-muted-foreground text-center py-6">No skill requirements yet. Add one below.</p>
       ) : (
         <div className="space-y-2 mb-4">
           {requirements.map((req) => (
@@ -116,12 +116,12 @@ export default function PositionSkillsTab({ position, requirements: initial, ava
       )}
 
       {unusedSkills.length > 0 && (
-        <div className="flex gap-2 pt-3 border-t border-[#8B99B0]/10">
+        <div className="flex gap-2 pt-3 border-t border-border/10">
           <Select value={addingSkillId} onValueChange={(v) => setAddingSkillId(v ?? "")}>
-            <SelectTrigger className="flex-1 bg-[#222C4A] border-[#8B99B0]/15 text-[#ECF0F7] text-sm">
+            <SelectTrigger className="flex-1 bg-accent border-border/15 text-foreground text-sm">
               <SelectValue placeholder="Select a skill to add..." />
             </SelectTrigger>
-            <SelectContent className="bg-[#222C4A] border-[#8B99B0]/15 max-h-48">
+            <SelectContent className="bg-accent border-border/15 max-h-48">
               {unusedSkills.map((s) => (
                 <SelectItem key={s.id} value={s.id} className="text-sm">
                   {s.name}{s.category ? ` (${s.category})` : ""}
@@ -129,7 +129,7 @@ export default function PositionSkillsTab({ position, requirements: initial, ava
               ))}
             </SelectContent>
           </Select>
-          <SharedDashboardButton onClick={handleAdd} disabled={!addingSkillId || isSaving} className="bg-[#7C8FFF] hover:bg-[#5B6CF0] text-white gap-1.5 shrink-0">
+          <SharedDashboardButton onClick={handleAdd} disabled={!addingSkillId || isSaving} className="bg-primary hover:bg-primary text-white gap-1.5 shrink-0">
             <Plus className="w-4 h-4" /> Add
           </SharedDashboardButton>
         </div>

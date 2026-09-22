@@ -26,10 +26,10 @@ export type SystemSetting = {
 };
 
 const inputCls = [
-    "h-9 rounded-lg px-3 text-sm font-mono text-[#ECF0F7] outline-none transition-all",
-    "bg-[#0C1220]/60 border border-[#8B99B0]/15",
-    "focus:border-[#7C8FFF]/50 focus:ring-2 focus:ring-[#7C8FFF]/15",
-    "placeholder:text-[#5A6882]/50",
+    "h-9 rounded-lg px-3 text-sm font-mono text-foreground outline-none transition-all",
+    "bg-background/60 border border-border/15",
+    "focus:border-border/50 focus:ring-2 focus:ring-primary/15",
+    "placeholder:text-muted-foreground/50",
 ].join(" ");
 
 const rowCls = [
@@ -41,8 +41,8 @@ const rowCls = [
 function SettingLabel({ label, description }: { label: string; description: string | null }) {
     return (
         <div className="flex-1 min-w-0 pr-6">
-            <p className="text-sm font-semibold text-[#D4DBE8]">{label}</p>
-            {description && <p className="text-xs text-[#5A6882] mt-0.5 leading-relaxed">{description}</p>}
+            <p className="text-sm font-semibold text-primary">{label}</p>
+            {description && <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">{description}</p>}
         </div>
     );
 }
@@ -76,17 +76,17 @@ export function SettingRow({
         return (
             <div className={rowCls}>
                 <div className="flex-1 min-w-0 pr-6">
-                    <p className="text-sm font-semibold text-[#D4DBE8]">{setting.label}</p>
+                    <p className="text-sm font-semibold text-primary">{setting.label}</p>
                     {setting.description && (
-                        <p className="text-xs text-[#5A6882] mt-0.5 leading-relaxed">{setting.description}</p>
+                        <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">{setting.description}</p>
                     )}
                     <div className="mt-2 flex items-center gap-2 flex-wrap">
                         {hasExistingKey ? (
-                            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-[#36DDAB]/10 text-[#36DDAB] border border-[#36DDAB]/20">
+                            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-success/10 text-success border border-border/20">
                                 <ShieldCheck className="w-3 h-3" /> Key configured
                             </span>
                         ) : (
-                            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-[#F59E42]/10 text-[#F59E42] border border-[#F59E42]/20">
+                            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-warning/10 text-warning border border-border/20">
                                 <ShieldAlert className="w-3 h-3" /> Not configured
                             </span>
                         )}
@@ -109,7 +109,7 @@ export function SettingRow({
                     <SharedDashboardButton
                         type="button"
                         onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#5A6882] hover:text-[#ECF0F7] transition-colors"
+                        className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
                         tabIndex={-1}
                     >
                         {showPassword ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
@@ -131,7 +131,7 @@ export function SettingRow({
                     aria-checked={isOn}
                     onClick={() => handleChange(String(!isOn))}
                     className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full border-2 border-transparent transition-all cursor-pointer focus-visible:outline-none shadow-inner ${
-                        isOn ? "bg-[#36DDAB] shadow-[#36DDAB]/20" : "bg-[#1E2840]"
+                        isOn ? "bg-success shadow-success/20" : "bg-muted"
                     }`}
                 >
                     <span className={`inline-block h-4 w-4 rounded-full bg-white shadow-md transition-transform ${isOn ? "translate-x-5" : "translate-x-1"}`} />
@@ -146,12 +146,12 @@ export function SettingRow({
             <div className={rowCls}>
                 <SettingLabel label={setting.label} description={setting.description} />
                 <Select value={localValue} onValueChange={(v) => handleChange(v ?? localValue)}>
-                    <SelectTrigger className="w-48 bg-[#0C1220]/60 border-[#8B99B0]/15 text-[#ECF0F7] h-9 text-sm rounded-lg focus:border-[#7C8FFF]/50 focus:ring-2 focus:ring-[#7C8FFF]/15 transition-all">
+                    <SelectTrigger className="w-48 bg-background/60 border-border/15 text-foreground h-9 text-sm rounded-lg focus:border-border/50 focus:ring-2 focus:ring-primary/15 transition-all">
                         <SelectValue />
                     </SelectTrigger>
-                    <SelectContent className="bg-[#101828] border-[#8B99B0]/15 text-[#ECF0F7] rounded-xl shadow-2xl">
+                    <SelectContent className="bg-background border-border/15 text-foreground rounded-xl shadow-2xl">
                         {setting.options.map((opt) => (
-                            <SelectItem key={opt} value={opt} className="focus:bg-[#1E2840] focus:text-[#ECF0F7] rounded-lg">
+                            <SelectItem key={opt} value={opt} className="focus:bg-muted focus:text-foreground rounded-lg">
                                 {opt}
                             </SelectItem>
                         ))}
