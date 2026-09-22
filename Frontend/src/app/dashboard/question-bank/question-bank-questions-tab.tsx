@@ -90,11 +90,11 @@ export default function QuestionBankQuestionsTab({ kpis, topics, canEdit, refres
   }
 
   const kpiItems: KpiCardData[] = [
-    { label: "Total Questions", value: kpis.total, icon: BookOpen },
-    { label: "Junior", value: kpis.junior, icon: Layers },
-    { label: "Middle", value: kpis.middle, icon: Brain },
-    { label: "Senior", value: kpis.senior, icon: Brain },
-    { label: "Topics", value: kpis.topics, icon: Tag },
+    { label: "Total Questions", value: kpis.total, icon: BookOpen, badge: "Toàn kho" },
+    { label: "Junior", value: kpis.junior, icon: Layers, badge: "Cơ bản" },
+    { label: "Middle", value: kpis.middle, icon: Brain, badge: "Trung cấp" },
+    { label: "Senior", value: kpis.senior, icon: Brain, badge: "Nâng cao" },
+    { label: "Topics", value: kpis.topics, icon: Tag, badge: "Chủ đề" },
   ];
 
   const levelOptions: FilterOption[] = [
@@ -111,6 +111,7 @@ export default function QuestionBankQuestionsTab({ kpis, topics, canEdit, refres
       <div className="mt-6 mb-4">
         <FilterBar
           search={search}
+          searchPlaceholder="Tìm nội dung câu hỏi..."
           onSearchChange={handleSearchChange}
           filters={[
             { key: "level", label: "Level", options: levelOptions, value: levelFilter, onChange: handleLevelChange },

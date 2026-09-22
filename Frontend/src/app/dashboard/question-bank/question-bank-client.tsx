@@ -3,11 +3,11 @@
 import { useState, useCallback } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Plus, FlaskConical } from "lucide-react";
+import { Plus, FlaskConical, Library } from "lucide-react";
 import AppNavbar from "@/components/ui/app-navbar";
 import PageBreadcrumb from "@/components/ui/page-breadcrumb";
 import PageContainer from "@/components/ui/page-container";
-import { SharedDashboardPageHeader } from "@/components/shares";
+import { SharedDashboardButton, SharedDashboardPageHeader } from "@/components/shares";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import QuestionFormDialog from "@/components/question-bank/question-form-dialog";
@@ -65,16 +65,18 @@ export default function QuestionBankClient({ kpis, topics, canEdit }: Props) {
 
         <SharedDashboardPageHeader
           title="Ngân hàng câu hỏi"
+          icon={Library}
+          badge={{ label: `${kpis.total} câu` }}
           description="Quản lý kho câu hỏi dùng cho các bài đánh giá"
           actions={<>
           <Link href="/dashboard/create?source=bank">
-            <Button
-              className="bg-success/15 border border-border/35 text-success hover:bg-success/25 rounded-xl h-10 px-4 gap-2"
+            <SharedDashboardButton
+              variant="primary"
               aria-label="Create test from Question Bank"
+              leadingIcon={<FlaskConical className="h-4 w-4" />}
             >
-              <FlaskConical className="w-4 h-4" />
               Create Test
-            </Button>
+            </SharedDashboardButton>
           </Link>
           </>}
         />
