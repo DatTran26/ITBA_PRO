@@ -22,11 +22,11 @@ interface Props {
 }
 
 const LEVEL_COLORS: Record<number, string> = {
-  1: "border-yellow-500/30 text-yellow-400 bg-yellow-500/10",
-  2: "border-yellow-500/30 text-yellow-300 bg-yellow-500/15",
+  1: "border-warning/30 text-warning bg-warning/10",
+  2: "border-warning/30 text-warning bg-warning/15",
   3: "border-blue-500/30 text-blue-400 bg-blue-500/10",
   4: "border-blue-500/30 text-blue-300 bg-blue-500/15",
-  5: "border-purple-500/30 text-purple-300 bg-purple-500/15",
+  5: "border-ai/30 text-ai bg-ai/15",
 };
 
 export default function SkillPositionsTab({ requirements }: Props) {
@@ -78,7 +78,7 @@ export default function SkillPositionsTab({ requirements }: Props) {
               </TableCell>
               <TableCell className="text-center">
                 {req.is_mandatory ? (
-                  <span className="text-xs text-green-400">Yes</span>
+                  <span className="text-xs text-success">Yes</span>
                 ) : (
                   <span className="text-xs text-muted-foreground">No</span>
                 )}

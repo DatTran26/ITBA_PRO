@@ -1,9 +1,9 @@
 "use client";
 
-import { Pencil, FilePlus2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { categoryColor } from "../skills-list-client";
+import { Pencil, FilePlus2, Zap, Briefcase, Users, CalendarDays } from "lucide-react";
+import { SharedDashboardButton } from "@/components/shares";
+import DetailHeader from "@/components/shares/detail-header";
+import { toneFor } from "@/lib/ui/tones";
 import type { SkillDetail } from "@/app/dashboard/management-types";
 
 interface Props {
@@ -16,64 +16,36 @@ export default function SkillHeader({ skill, onEdit, onCreateTest }: Props) {
   const positionCount = skill.position_requirements.length;
   const personCount = skill.person_skills.length;
   const shortageScore = Math.max(0, positionCount - personCount);
+  const cat = toneFor(skill.category ?? "Uncategorized");
 
   return (
-    <div className="bg-muted border border-border/10 rounded-xl p-5 mb-4">
-      <div className="flex items-start justify-between gap-4">
-        <div>
-          <h1 className="text-xl font-bold text-foreground">{skill.name}</h1>
-          <div className="flex items-center gap-2 mt-1.5 flex-wrap">
-            {skill.category ? (
-              <Badge variant="outline" className={`text-xs ${categoryColor(skill.category)}`}>
-                {skill.category}
-              </Badge>
-            ) : (
-              <Badge variant="outline" className="text-xs border-border/20 text-muted-foreground">
-                Uncategorized
-              </Badge>
-            )}
-            {shortageScore > 0 && (
-              <Badge variant="outline" className="text-xs border-red-500/30 text-red-400 bg-red-500/10">
-                Gap: −{shortageScore}
-              </Badge>
-            )}
-          </div>
-        </div>
-
-        <div className="flex items-center gap-2 shrink-0">
-          {onCreateTest && (
-            <Button
-              size="sm"
-              onClick={onCreateTest}
-              className="bg-success hover:bg-success text-white border-0 gap-1.5"
-            >
-              <FilePlus2 className="w-3.5 h-3.5" /> Tạo bộ test
-            </Button>
-          )}
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={onEdit}
-            className="border-border/20 text-muted-foreground hover:text-foreground gap-1.5"
-          >
-            <Pencil className="w-3.5 h-3.5" /> Edit
-          </Button>
-        </div>
-      </div>
-
-      <div className="flex flex-wrap gap-4 mt-4 pt-4 border-t border-border/10 text-sm text-muted-foreground">
-        <span>
-          <span className="font-semibold text-foreground">{positionCount}</span>{" "}
-          position{positionCount !== 1 ? "s" : ""} require this skill
+    <DetailHeader
+      title={skill.name}
+      avatarIcon={Zap}
+      status={<>
+        <span className="rounded-full px-2.5 py-0.5 text-[11px] font-bold" style={{ color: cat.ink, backgroundColor: cat.bg }}>
+          {skill.category ?? "Uncategorized"}
         </span>
-        <span>
-          <span className="font-semibold text-foreground">{personCount}</span>{" "}
-          person{personCount !== 1 ? "s" : ""} have this skill
-        </span>
-        <span className="text-muted-foreground">
-          Created {new Date(skill.created_at).toLocaleDateString()}
-        </span>
-      </div>
-    </div>
+        {shortageScore > 0 && (
+          <span className="rounded-full bg-danger/10 px-2.5 py-0.5 text-[11px] font-bold text-danger">Thiếu hụt {shortageScore}</span>
+        )}
+      </>}
+      subtitle={skill.description ? <span className="line-clamp-2 max-w-2xl">{skill.description}</span> : undefined}
+      actions={<>
+        {onCreateTest && (
+          <SharedDashboardButton variant="primary" size="sm" onClick={onCreateTest} leadingIcon={<FilePlus2 className="w-3.5 h-3.5" />}>
+            Tạo bộ test
+          </SharedDashboardButton>
+        )}
+        <SharedDashboardButton variant="secondary" size="sm" onClick={onEdit} leadingIcon={<Pencil className="w-3.5 h-3.5" />}>
+          Edit
+        </SharedDashboardButton>
+      </>}
+      info={[
+        { icon: Briefcase, label: `${positionCount} vị trí yêu cầu` },
+        { icon: Users, label: `${personCount} người có kỹ năng` },
+        { icon: CalendarDays, label: `Tạo ${new Date(skill.created_at).toLocaleDateString("vi-VN")}` },
+      ]}
+    />
   );
 }

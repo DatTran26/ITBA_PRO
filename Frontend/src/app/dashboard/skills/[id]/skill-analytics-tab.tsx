@@ -60,7 +60,7 @@ export default function SkillAnalyticsTab({ positionCount, personCount }: Props)
               label="Gap"
               sublabel="Unfilled demand"
               value={shortage}
-              color={shortage > 0 ? "text-red-400" : "text-success"}
+              color={shortage > 0 ? "text-danger" : "text-success"}
               valueOverride={shortage > 0 ? `−${shortage}` : "None"}
             />
           </div>

@@ -16,6 +16,10 @@ import SkillFormDialog from "@/components/management/skill-form-dialog";
 import CreateTestFromSkills from "@/components/tests/create-test-from-skills";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import type { SkillDetail, SkillListItem } from "@/app/dashboard/management-types";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import KpiCardGrid from "@/components/crm/kpi-card-grid";
+import { Briefcase, Users, Layers, TrendingDown } from "lucide-react";
+import type { KpiCardData } from "@/lib/crm/types";
 
 interface Props {
   skill: SkillDetail;
@@ -56,8 +60,19 @@ export default function SkillDetailClient({ skill, isAdmin, canEdit }: Props) {
     shortage_score: Math.max(0, skill.position_requirements.length - skill.person_skills.length),
   };
 
+  /* KPI suy ra từ `skill` đã fetch, không thêm truy vấn. */
+  const avgLevel = skill.person_skills.length
+    ? (skill.person_skills.reduce((a, p) => a + p.current_level, 0) / skill.person_skills.length).toFixed(1)
+    : "0";
+  const kpis: KpiCardData[] = [
+    { label: "Vị trí yêu cầu", value: skill.position_requirements.length, icon: Briefcase, badge: "Nhu cầu" },
+    { label: "Người có kỹ năng", value: skill.person_skills.length, icon: Users, badge: "Nguồn cung" },
+    { label: "Level trung bình", value: avgLevel, icon: Layers, badge: "Của nhân sự" },
+    { label: "Thiếu hụt", value: editData.shortage_score, icon: TrendingDown, badge: editData.shortage_score > 0 ? "Cần bổ sung" : "Đủ", tone: editData.shortage_score > 0 ? "pink" : "teal" },
+  ];
+
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-transparent pb-12">
       <AppNavbar />
       <PageContainer>
         <PageBreadcrumb breadcrumbs={[
@@ -72,27 +87,19 @@ export default function SkillDetailClient({ skill, isAdmin, canEdit }: Props) {
           onCreateTest={() => setCreateTestOpen(true)}
         />
 
-        <div className="flex gap-1 border-b border-border/10 mb-4 overflow-x-auto">
-          {TABS.map((t) => (
-            <button
-              key={t}
-              onClick={() => setTab(t)}
-              className={`px-4 py-2.5 text-sm font-medium whitespace-nowrap transition-colors border-b-2 ${
-                tab === t
-                  ? "border-border text-foreground"
-                  : "border-transparent text-muted-foreground hover:text-muted-foreground"
-              }`}
-            >
-              {TAB_LABELS[t]}
-              {t === "positions" && (
-                <span className="ml-1.5 text-xs text-muted-foreground">({skill.position_requirements.length})</span>
-              )}
-              {t === "persons" && (
-                <span className="ml-1.5 text-xs text-muted-foreground">({skill.person_skills.length})</span>
-              )}
-            </button>
-          ))}
-        </div>
+        <div className="mb-6"><KpiCardGrid items={kpis} /></div>
+
+        <Tabs value={tab} onValueChange={(v) => setTab(v as Tab)}>
+          <TabsList className="mb-5 max-w-full overflow-x-auto justify-start [scrollbar-width:none]">
+            {TABS.map((t) => (
+              <TabsTrigger key={t} value={t}>
+                {TAB_LABELS[t]}
+                {t === "positions" && ` (${skill.position_requirements.length})`}
+                {t === "persons" && ` (${skill.person_skills.length})`}
+              </TabsTrigger>
+            ))}
+          </TabsList>
+        </Tabs>
 
         {tab === "overview" && <SkillOverviewTab skill={skill} />}
         {tab === "positions" && <SkillPositionsTab requirements={skill.position_requirements} />}
