@@ -1,7 +1,8 @@
 "use client";
 
-import { Pencil, StickyNote, Tag } from "lucide-react";
+import { Pencil, Tag, Mail, Phone, Building2, Layers, CalendarDays } from "lucide-react";
 import { SharedDashboardButton } from "@/components/shares";
+import DetailHeader, { type DetailInfoItem } from "@/components/shares/detail-header";
 import StatusBadge from "@/components/crm/status-badge";
 import TagChips from "@/components/crm/tag-chips";
 import ScoreRing from "@/components/crm/score-ring";
@@ -17,58 +18,43 @@ interface Props {
 }
 
 export default function PersonProfileHeader({ person, tags, matchScore, onEdit, onAddTag }: Props) {
+  const info: DetailInfoItem[] = [
+    person.email && { icon: Mail, label: person.email },
+    person.phone && { icon: Phone, label: person.phone },
+    person.department && { icon: Building2, label: person.department },
+    person.current_level && { icon: Layers, label: `Level ${person.current_level}` },
+    person.joined_date && { icon: CalendarDays, label: `Vào ${new Date(person.joined_date).toLocaleDateString("vi-VN")}` },
+  ].filter(Boolean) as DetailInfoItem[];
+
   return (
-    <div className="bg-muted border border-border/10 rounded-xl p-5 mb-4">
-      <div className="flex items-start justify-between gap-4">
-        <div className="flex items-center gap-4">
-          <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary/20 to-ai/20 flex items-center justify-center text-primary font-bold text-xl shrink-0">
-            {person.full_name.charAt(0).toUpperCase()}
+    <DetailHeader
+      title={person.full_name}
+      status={<StatusBadge status={person.status} config={PERSON_STATUSES} />}
+      subtitle={
+        <span>
+          {person.type === "candidate" ? "Ứng viên" : person.type === "employee" ? "Nhân viên" : person.type}
+          {person.positions && <> · {person.positions.title}</>}
+        </span>
+      }
+      tags={tags.length > 0 ? (
+        <TagChips tags={tags} onAdd={onAddTag} />
+      ) : (
+        <button type="button" onClick={onAddTag} className="inline-flex items-center gap-1 text-xs font-semibold text-muted-foreground hover:text-primary transition-colors">
+          <Tag className="w-3 h-3" /> Add tags
+        </button>
+      )}
+      actions={<>
+        {matchScore !== undefined && (
+          <div className="text-center">
+            <ScoreRing value={matchScore} size={48} />
+            <p className="text-[10px] text-muted-foreground mt-0.5">Match</p>
           </div>
-          <div>
-            <h1 className="text-xl font-bold text-foreground">{person.full_name}</h1>
-            <div className="flex items-center gap-2 mt-1">
-              <StatusBadge status={person.status} config={PERSON_STATUSES} />
-              <span className="text-xs text-muted-foreground capitalize">{person.type}</span>
-              {person.positions && (
-                <span className="text-xs text-muted-foreground">• {person.positions.title}</span>
-              )}
-            </div>
-            {tags.length > 0 && (
-              <div className="mt-2">
-                <TagChips tags={tags} onAdd={onAddTag} />
-              </div>
-            )}
-            {tags.length === 0 && (
-              <SharedDashboardButton onClick={onAddTag} className="mt-2 text-xs text-muted-foreground hover:text-primary transition-colors flex items-center gap-1">
-                <Tag className="w-3 h-3" /> Add tags
-              </SharedDashboardButton>
-            )}
-          </div>
-        </div>
-
-        <div className="flex items-center gap-3 shrink-0">
-          {matchScore !== undefined && (
-            <div className="text-center">
-              <ScoreRing value={matchScore} size={48} />
-              <p className="text-[10px] text-muted-foreground mt-0.5">Match</p>
-            </div>
-          )}
-          <div className="flex gap-1.5">
-            <SharedDashboardButton variant="outline" size="sm" onClick={onEdit} className="border-border/20 text-muted-foreground hover:text-foreground gap-1.5">
-              <Pencil className="w-3.5 h-3.5" /> Edit
-            </SharedDashboardButton>
-          </div>
-        </div>
-      </div>
-
-      {/* Quick info row */}
-      <div className="flex flex-wrap gap-4 mt-4 pt-4 border-t border-border/10 text-sm text-muted-foreground">
-        {person.email && <span>{person.email}</span>}
-        {person.phone && <span>{person.phone}</span>}
-        {person.department && <span>{person.department}</span>}
-        {person.current_level && <span>Level: <span className="text-foreground">{person.current_level}</span></span>}
-        {person.joined_date && <span>Joined {new Date(person.joined_date).toLocaleDateString()}</span>}
-      </div>
-    </div>
+        )}
+        <SharedDashboardButton variant="secondary" size="sm" onClick={onEdit} leadingIcon={<Pencil className="w-3.5 h-3.5" />}>
+          Edit
+        </SharedDashboardButton>
+      </>}
+      info={info}
+    />
   );
 }

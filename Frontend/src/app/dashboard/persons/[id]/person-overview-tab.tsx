@@ -1,8 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { Card } from "@/components/ui/card";
-import { AlertTriangle, Building2, FolderKanban, GraduationCap } from "lucide-react";
+import { AlertTriangle, Building2, FolderKanban } from "lucide-react";
+import { ChartFrame, HBarList, TrendArea } from "@/components/charts";
+import { toneFor } from "@/lib/ui/tones";
 import type { PersonDetail, PersonSkillItem } from "@/app/dashboard/management-types";
 
 interface MembershipRow {
@@ -10,94 +11,106 @@ interface MembershipRow {
   groups: { id: string; name: string; type: string } | null;
 }
 
+interface ResultRow {
+  id: string;
+  score: number;
+  total_questions: number;
+  submitted_at: string;
+}
+
 interface Props {
   person: PersonDetail;
   skills: PersonSkillItem[];
   memberships: MembershipRow[];
+  results: ResultRow[];
 }
 
-export default function PersonOverviewTab({ person, skills, memberships }: Props) {
+export default function PersonOverviewTab({ person, skills, memberships, results }: Props) {
   const warnings: string[] = [];
-  if (!person.position_id) warnings.push("No position assigned");
-  if (skills.length === 0) warnings.push("No skills recorded");
-  if (memberships.length === 0) warnings.push("Not in any group");
+  if (!person.position_id) warnings.push("Chưa gán vị trí");
+  if (skills.length === 0) warnings.push("Chưa ghi nhận kỹ năng");
+  if (memberships.length === 0) warnings.push("Chưa thuộc nhóm nào");
+
+  const skillLevels = skills.map((s) => ({ label: s.skills.name, value: s.current_level }));
+  // Kết quả đến từ page.tsx theo thứ tự mới nhất trước; đảo lại để đường đi từ cũ đến mới.
+  const scoreTrend = [...results]
+    .filter((r) => r.total_questions > 0)
+    .reverse()
+    .map((r) => ({
+      label: new Date(r.submitted_at).toLocaleDateString("vi-VN", { day: "2-digit", month: "2-digit" }),
+      value: Math.round((r.score / r.total_questions) * 100),
+    }));
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-      {/* Warnings */}
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
       {warnings.length > 0 && (
-        <Card className="bg-danger/5 border-border/20 p-4 md:col-span-2">
-          <div className="flex items-center gap-2 mb-2">
-            <AlertTriangle className="w-4 h-4 text-danger" />
-            <span className="text-sm font-medium text-danger">Attention needed</span>
+        <div role="status" className="lg:col-span-2 flex items-start gap-3 rounded-2xl border border-danger/20 bg-danger/5 px-5 py-4">
+          <AlertTriangle className="w-5 h-5 text-danger shrink-0 mt-0.5" />
+          <div>
+            <p className="text-sm font-bold text-danger">Cần bổ sung thông tin</p>
+            <p className="mt-0.5 text-xs text-muted-foreground">{warnings.join(" · ")}</p>
           </div>
-          <ul className="space-y-1">
-            {warnings.map((w) => (
-              <li key={w} className="text-xs text-danger/80">• {w}</li>
-            ))}
-          </ul>
-        </Card>
+        </div>
       )}
 
-      {/* Position & department */}
-      <Card className="bg-muted border-border/10 p-4">
-        <div className="flex items-center gap-2 mb-3">
-          <Building2 className="w-4 h-4 text-primary" />
-          <h3 className="text-sm font-medium text-foreground">Position</h3>
-        </div>
+      <HBarList
+        title="Cấp độ kỹ năng"
+        subtitle="Level hiện tại của từng kỹ năng"
+        tag={{ label: `${skills.length} kỹ năng`, tone: "violet" }}
+        items={skillLevels}
+        max={8}
+      />
+
+      <TrendArea
+        title="Điểm đánh giá"
+        subtitle="Tỉ lệ đúng qua các bài test, cũ đến mới"
+        tag={{ label: `${scoreTrend.length} bài`, tone: "teal" }}
+        points={scoreTrend}
+        valueSuffix="%"
+      />
+
+      <ChartFrame title="Vị trí" subtitle="Vai trò và cấp độ hiện tại" tag={{ label: "Position" }}>
         {person.positions ? (
-          <div>
-            <p className="text-sm text-foreground">{person.positions.title}</p>
-            {person.positions.department && <p className="text-xs text-muted-foreground mt-0.5">{person.positions.department}</p>}
+          <div className="flex items-center gap-3">
+            <span className="w-10 h-10 rounded-xl flex items-center justify-center bg-primary/10">
+              <Building2 className="w-5 h-5 text-primary" />
+            </span>
+            <div className="min-w-0">
+              <p className="text-base font-bold text-foreground truncate">{person.positions.title}</p>
+              <p className="text-xs text-muted-foreground">
+                {person.positions.department ?? "Chưa gán phòng ban"}
+                {person.current_level && <> · Level {person.current_level}</>}
+              </p>
+            </div>
           </div>
         ) : (
-          <p className="text-sm text-muted-foreground">Not assigned</p>
+          <p className="text-sm text-muted-foreground">Chưa gán vị trí</p>
         )}
-        {person.current_level && (
-          <div className="mt-3 pt-3 border-t border-border/10">
-            <span className="text-xs text-muted-foreground">Level: </span>
-            <span className="text-xs text-foreground">{person.current_level}</span>
-          </div>
-        )}
-      </Card>
+      </ChartFrame>
 
-      {/* Groups */}
-      <Card className="bg-muted border-border/10 p-4">
-        <div className="flex items-center gap-2 mb-3">
-          <FolderKanban className="w-4 h-4 text-primary" />
-          <h3 className="text-sm font-medium text-foreground">Groups ({memberships.length})</h3>
-        </div>
+      <ChartFrame title="Nhóm" subtitle="Nhóm đang tham gia" tag={{ label: `${memberships.length} nhóm`, tone: "orange" }}>
         {memberships.length === 0 ? (
-          <p className="text-sm text-muted-foreground">No groups</p>
+          <p className="text-sm text-muted-foreground">Chưa thuộc nhóm nào</p>
         ) : (
           <div className="flex flex-wrap gap-2">
-            {memberships.map((m) => m.groups && (
-              <Link key={m.id} href={`/dashboard/groups/${m.groups.id}`} className="px-2.5 py-1 rounded-lg bg-accent text-xs text-muted-foreground hover:text-foreground transition-colors">
-                {m.groups.name}
-              </Link>
-            ))}
+            {memberships.map((m) => {
+              if (!m.groups) return null;
+              const t = toneFor(m.groups.name);
+              return (
+                <Link
+                  key={m.id}
+                  href={`/dashboard/groups/${m.groups.id}`}
+                  className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold transition-opacity hover:opacity-80"
+                  style={{ color: t.ink, backgroundColor: t.bg }}
+                >
+                  <FolderKanban className="w-3.5 h-3.5" />
+                  {m.groups.name}
+                </Link>
+              );
+            })}
           </div>
         )}
-      </Card>
-
-      {/* Skills summary */}
-      <Card className="bg-muted border-border/10 p-4 md:col-span-2">
-        <div className="flex items-center gap-2 mb-3">
-          <GraduationCap className="w-4 h-4 text-primary" />
-          <h3 className="text-sm font-medium text-foreground">Skills ({skills.length})</h3>
-        </div>
-        {skills.length === 0 ? (
-          <p className="text-sm text-muted-foreground">No skills recorded</p>
-        ) : (
-          <div className="flex flex-wrap gap-2">
-            {skills.map((s) => (
-              <span key={s.id} className="px-2.5 py-1 rounded-lg bg-accent text-xs text-muted-foreground">
-                {s.skills.name} <span className="text-primary">Lv.{s.current_level}</span>
-              </span>
-            ))}
-          </div>
-        )}
-      </Card>
+      </ChartFrame>
     </div>
   );
 }

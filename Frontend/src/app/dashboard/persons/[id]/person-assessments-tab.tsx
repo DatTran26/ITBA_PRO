@@ -20,7 +20,7 @@ interface Props {
 
 const STATUS_COLORS: Record<string, string> = {
   pass: "border-border/30 text-success",
-  fail: "border-red-400/30 text-red-400",
+  fail: "border-danger/30 text-danger",
 };
 
 export default function PersonAssessmentsTab({ results }: Props) {
