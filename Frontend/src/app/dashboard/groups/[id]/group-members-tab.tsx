@@ -65,7 +65,7 @@ export default function GroupMembersTab({ members, onAddMember, onRemoveMember, 
                 <button
                   onClick={() => onRemoveMember(m.id, m.persons.full_name)}
                   disabled={removingId === m.id}
-                  className="p-1.5 rounded text-muted-foreground hover:text-red-400 hover:bg-red-400/10 opacity-0 group-hover:opacity-100 transition-all disabled:opacity-50"
+                  className="p-1.5 rounded text-muted-foreground hover:text-danger hover:bg-danger/10 opacity-0 group-hover:opacity-100 transition-all disabled:opacity-50"
                   aria-label={`Remove ${m.persons.full_name}`}
                 >
                   <Trash2 className="w-3.5 h-3.5" />

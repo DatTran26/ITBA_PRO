@@ -1,83 +1,63 @@
 "use client";
 
-import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Calendar, Users, Tag } from "lucide-react";
-import StatusBadge from "@/components/crm/status-badge";
-import { GROUP_STATUSES } from "@/lib/crm/constants";
-import type { GroupListItem } from "@/app/dashboard/management-types";
-
-const TYPE_COLORS: Record<string, string> = {
-  department: "border-border/30 text-success",
-  batch:      "border-border/30 text-primary",
-  campaign:   "border-border/30 text-warning",
-  other:      "border-border/30 text-muted-foreground",
-};
+import { ChartFrame, DonutStat, HBarList, TrendArea, colorAt } from "@/components/charts";
+import { countByMonth } from "@/lib/ui/series";
+import type { GroupListItem, GroupMemberItem } from "@/app/dashboard/management-types";
 
 interface Props {
   group: GroupListItem;
-  memberCount: number;
+  members: GroupMemberItem[];
 }
 
-export default function GroupOverviewTab({ group, memberCount }: Props) {
+export default function GroupOverviewTab({ group, members }: Props) {
+  const byType = [
+    { label: "Nhân viên", value: members.filter((m) => m.persons.type === "employee").length, color: colorAt(0) },
+    { label: "Ứng viên", value: members.filter((m) => m.persons.type === "candidate").length, color: colorAt(1) },
+  ].filter((s) => s.value > 0);
+
+  const byDept = [...members.reduce((m, x) => {
+    const d = x.persons.department ?? "Chưa gán phòng ban";
+    return m.set(d, (m.get(d) ?? 0) + 1);
+  }, new Map<string, number>())].map(([label, value]) => ({ label, value }));
+
+  const joined = countByMonth(members.map((m) => m.added_at));
+
   return (
-    <div className="space-y-4">
-      {/* Description */}
-      <Card className="bg-muted border-border/10 p-5">
-        <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-3">Description</h3>
-        {group.description ? (
-          <p className="text-sm text-muted-foreground leading-relaxed">{group.description}</p>
-        ) : (
-          <p className="text-sm text-muted-foreground italic">No description provided.</p>
-        )}
-      </Card>
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      <DonutStat
+        title="Cơ cấu thành viên"
+        subtitle="Nhân viên và ứng viên trong nhóm"
+        tag={{ label: `${members.length} người`, tone: "violet" }}
+        slices={byType}
+        centerLabel="Người"
+      />
 
-      {/* Details grid */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-        <Card className="bg-muted border-border/10 p-4">
-          <div className="flex items-center gap-2 mb-2">
-            <Tag className="w-3.5 h-3.5 text-muted-foreground" />
-            <span className="text-xs text-muted-foreground uppercase tracking-wide">Type</span>
-          </div>
-          <Badge variant="outline" className={`text-xs capitalize ${TYPE_COLORS[group.type] ?? TYPE_COLORS.other}`}>
-            {group.type}
-          </Badge>
-        </Card>
+      <HBarList
+        title="Theo phòng ban"
+        subtitle="Thành viên đến từ đâu"
+        tag={{ label: "Phòng ban", tone: "orange" }}
+        items={byDept}
+      />
 
-        <Card className="bg-muted border-border/10 p-4">
-          <div className="flex items-center gap-2 mb-2">
-            <span className="w-3.5 h-3.5 flex items-center justify-center">
-              <span className="w-1.5 h-1.5 rounded-full bg-muted-foreground" />
-            </span>
-            <span className="text-xs text-muted-foreground uppercase tracking-wide">Status</span>
-          </div>
-          <StatusBadge status={group.status} config={GROUP_STATUSES} />
-        </Card>
+      <TrendArea
+        title="Thành viên mới"
+        subtitle="Được thêm vào nhóm trong 6 tháng gần nhất"
+        tag={{ label: "6 tháng", tone: "teal" }}
+        points={joined}
+        color={colorAt(2)}
+      />
 
-        <Card className="bg-muted border-border/10 p-4">
-          <div className="flex items-center gap-2 mb-2">
-            <Users className="w-3.5 h-3.5 text-muted-foreground" />
-            <span className="text-xs text-muted-foreground uppercase tracking-wide">Members</span>
-          </div>
-          <span className="text-lg font-bold text-foreground">{memberCount}</span>
-        </Card>
-
-        <Card className="bg-muted border-border/10 p-4">
-          <div className="flex items-center gap-2 mb-2">
-            <Calendar className="w-3.5 h-3.5 text-muted-foreground" />
-            <span className="text-xs text-muted-foreground uppercase tracking-wide">Active Since</span>
-          </div>
-          <span className="text-sm text-foreground">
-            {new Date(group.created_at).toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" })}
-          </span>
-        </Card>
-      </div>
-
-      {/* Tags — placeholder for Phase 7 */}
-      <Card className="bg-muted border-border/10 p-5">
-        <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-3">Tags</h3>
-        <p className="text-xs text-muted-foreground italic">No tags assigned. Tag management coming in a future update.</p>
-      </Card>
+      <ChartFrame title="Thông tin nhóm" subtitle="Chi tiết và mô tả" tag={{ label: "Group" }}>
+        <dl className="grid grid-cols-2 gap-x-6 gap-y-4 text-sm">
+          <div><dt className="text-xs font-bold text-muted-foreground">Loại</dt><dd className="mt-1 font-semibold text-foreground capitalize">{group.type}</dd></div>
+          <div><dt className="text-xs font-bold text-muted-foreground">Ngày tạo</dt><dd className="mt-1 font-semibold text-foreground">{new Date(group.created_at).toLocaleDateString("vi-VN")}</dd></div>
+          <div><dt className="text-xs font-bold text-muted-foreground">Vị trí liên quan</dt><dd className="mt-1 font-semibold text-foreground">{group.position_count ?? 0}</dd></div>
+          <div><dt className="text-xs font-bold text-muted-foreground">Cảnh báo</dt><dd className="mt-1 font-semibold text-foreground">{group.alert_count ?? 0}</dd></div>
+        </dl>
+        <p className="mt-4 pt-4 border-t border-border text-sm text-muted-foreground leading-relaxed">
+          {group.description || "Chưa có mô tả."}
+        </p>
+      </ChartFrame>
     </div>
   );
 }

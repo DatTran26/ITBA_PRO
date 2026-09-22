@@ -16,6 +16,10 @@ import GroupNotesTab from "./group-notes-tab";
 import GroupFormDialog from "@/components/management/group-form-dialog";
 import MemberPickerDialog from "@/components/management/member-picker-dialog";
 import type { GroupListItem, GroupMemberItem, NoteItem, ActivityLogItem } from "@/app/dashboard/management-types";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import KpiCardGrid from "@/components/crm/kpi-card-grid";
+import { Users, HeartPulse, Briefcase, AlertTriangle } from "lucide-react";
+import type { KpiCardData } from "@/lib/crm/types";
 
 const TABS = ["overview", "members", "positions", "skill-coverage", "assessments", "notes"] as const;
 type Tab = typeof TABS[number];
@@ -62,8 +66,16 @@ export default function GroupDetailClient({ group, members: initialMembers, note
     }
   }
 
+  /* KPI suy ra từ `group` + `members` đã fetch, không thêm truy vấn. */
+  const kpis: KpiCardData[] = [
+    { label: "Thành viên", value: members.length, icon: Users, badge: `${members.filter((m) => m.persons.type === "employee").length} nhân viên` },
+    { label: "Health score", value: group.health_score ?? "-", icon: HeartPulse, badge: "Sức khoẻ nhóm" },
+    { label: "Vị trí liên quan", value: group.position_count ?? 0, icon: Briefcase, badge: "Positions" },
+    { label: "Cảnh báo", value: group.alert_count ?? 0, icon: AlertTriangle, badge: (group.alert_count ?? 0) > 0 ? "Cần xử lý" : "Ổn định", tone: (group.alert_count ?? 0) > 0 ? "pink" : "teal" },
+  ];
+
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-transparent pb-12">
       <AppNavbar />
       <PageContainer>
         <PageBreadcrumb breadcrumbs={[
@@ -78,24 +90,19 @@ export default function GroupDetailClient({ group, members: initialMembers, note
           onAddMember={() => setPickerOpen(true)}
         />
 
-        {/* Tabs */}
-        <div className="flex gap-1 border-b border-border/10 mb-4 overflow-x-auto">
-          {TABS.map((t) => (
-            <button
-              key={t}
-              onClick={() => setTab(t)}
-              className={`px-4 py-2.5 text-sm font-medium whitespace-nowrap transition-colors border-b-2 ${
-                tab === t
-                  ? "border-border text-foreground"
-                  : "border-transparent text-muted-foreground hover:text-muted-foreground"
-              }`}
-            >
-              {TAB_LABELS[t]}
-            </button>
-          ))}
-        </div>
+        <div className="mb-6"><KpiCardGrid items={kpis} /></div>
 
-        {tab === "overview" && <GroupOverviewTab group={group} memberCount={members.length} />}
+        <Tabs value={tab} onValueChange={(v) => setTab(v as Tab)}>
+          <TabsList className="mb-5 max-w-full overflow-x-auto justify-start [scrollbar-width:none]">
+            {TABS.map((t) => (
+              <TabsTrigger key={t} value={t}>
+                {TAB_LABELS[t]}{t === "members" ? ` (${members.length})` : ""}
+              </TabsTrigger>
+            ))}
+          </TabsList>
+        </Tabs>
+
+        {tab === "overview" && <GroupOverviewTab group={group} members={members} />}
         {tab === "members" && (
           <GroupMembersTab
             groupId={group.id}
