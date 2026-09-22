@@ -5,10 +5,12 @@ import { useRouter } from "next/navigation";
 import AppNavbar from "@/components/ui/app-navbar";
 import PageBreadcrumb from "@/components/ui/page-breadcrumb";
 import PageContainer from "@/components/ui/page-container";
-import { SharedDashboardPageHeader } from "@/components/shares";
-import { Button } from "@/components/ui/button";
+import { SharedDashboardButton, SharedDashboardPageHeader } from "@/components/shares";
 import { Plus, FolderKanban, Users, ShieldAlert, CheckCircle } from "lucide-react";
 import KpiCardGrid from "@/components/crm/kpi-card-grid";
+import OverviewBand from "@/components/shares/overview-band";
+import { DonutStat, HBarList, colorAt } from "@/components/charts";
+import { GROUP_STATUSES } from "@/lib/crm/constants";
 import FilterBar from "@/components/crm/filter-bar";
 import ViewSwitcher from "@/components/crm/view-switcher";
 import GroupsCardView from "./groups-card-view";
@@ -23,6 +25,11 @@ interface Props {
 }
 
 type ViewMode = "card" | "table";
+
+function memberCount(g: GroupListItem) {
+  const m = g.group_members;
+  return Array.isArray(m) ? (m[0]?.count ?? 0) : (m?.count ?? 0);
+}
 
 const TYPE_OPTIONS: FilterOption[] = [
   { value: "department", label: "Department" },
@@ -48,11 +55,22 @@ export default function GroupsListClient({ groups, kpis }: Props) {
   }, [groups, search, typeFilter]);
 
   const kpiCards: KpiCardData[] = [
-    { label: "Total Groups", value: kpis.totalGroups, icon: FolderKanban },
-    { label: "Total Members", value: kpis.totalMembers, icon: Users },
-    { label: "Active Groups", value: kpis.activeGroups, icon: CheckCircle },
-    { label: "At Risk", value: kpis.atRiskGroups, icon: ShieldAlert },
+    { label: "Total Groups", value: kpis.totalGroups, icon: FolderKanban, badge: "Toàn bộ" },
+    { label: "Total Members", value: kpis.totalMembers, icon: Users, badge: "Thành viên" },
+    { label: "Active Groups", value: kpis.activeGroups, icon: CheckCircle, badge: "Đang hoạt động" },
+    { label: "At Risk", value: kpis.atRiskGroups, icon: ShieldAlert, badge: "Cần xử lý" },
   ];
+
+  /* Dải tổng quan: suy ra từ `groups` đã fetch, không thêm truy vấn. */
+  const byStatus = useMemo(() => Object.entries(GROUP_STATUSES).map(([key, meta], i) => ({
+    label: meta.label, value: groups.filter((g) => g.status === key).length, color: colorAt(i),
+  })).filter((s) => s.value > 0), [groups]);
+
+  const byType = useMemo(() => TYPE_OPTIONS.map((t, i) => ({
+    label: t.label, value: groups.filter((g) => g.type === t.value).length, color: colorAt(i),
+  })).filter((s) => s.value > 0), [groups]);
+
+  const byMembers = useMemo(() => groups.map((g) => ({ label: g.name, value: memberCount(g) })), [groups]);
 
   const clearAll = () => { setSearch(""); setTypeFilter(""); };
   const handleRowClick = (g: GroupListItem) => router.push(`/dashboard/groups/${g.id}`);
@@ -64,24 +82,32 @@ export default function GroupsListClient({ groups, kpis }: Props) {
       <PageContainer>
         <PageBreadcrumb breadcrumbs={[{ label: "Dashboard", href: "/dashboard" }, { label: "Groups" }]} />
         <SharedDashboardPageHeader
-          title="Không gian làm việc của nhóm"
+          title="Groups"
+          icon={FolderKanban}
+          badge={{ label: `${groups.length} nhóm` }}
           description="Chia tổ chức thành phòng ban, đợt tuyển và các chiến dịch trọng điểm"
-          actions={<>
-          <Button
-            onClick={() => setDialogOpen(true)}
-            className="bg-primary hover:bg-primary text-white h-12 px-8 rounded-xl shadow-lg shadow-primary/20 transition-all font-semibold gap-2 border-0"
-          >
-            <Plus className="w-5 h-5" /> Create New Group
-          </Button>
-          </>}
+          actions={(
+            <SharedDashboardButton variant="primary" onClick={() => setDialogOpen(true)} leadingIcon={<Plus className="h-4 w-4" />}>
+              Create New Group
+            </SharedDashboardButton>
+          )}
         />
 
         <KpiCardGrid items={kpiCards} />
+
+        {groups.length > 0 && (
+          <OverviewBand className="mt-6">
+            <DonutStat title="Sức khoẻ nhóm" subtitle="Phân bố theo trạng thái" tag={{ label: "Trạng thái" }} slices={byStatus} centerLabel="Nhóm" />
+            <DonutStat title="Loại nhóm" subtitle="Phòng ban, đợt tuyển, chiến dịch" tag={{ label: "Cơ cấu", tone: "teal" }} slices={byType} centerLabel="Nhóm" />
+            <HBarList title="Quy mô nhóm" subtitle="Số thành viên mỗi nhóm" tag={{ label: "Top nhóm", tone: "violet" }} items={byMembers} />
+          </OverviewBand>
+        )}
 
         <div className="flex items-center justify-between gap-3 mt-6 mb-4">
           <FilterBar
             search={search}
             onSearchChange={setSearch}
+            searchPlaceholder="Tìm theo tên nhóm..."
             filters={[
               { key: "type", label: "Type", options: TYPE_OPTIONS, value: typeFilter, onChange: setTypeFilter },
             ]}
