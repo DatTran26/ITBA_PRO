@@ -12,25 +12,31 @@ import PageBreadcrumb from "@/components/ui/page-breadcrumb";
 import PageContainer from "@/components/ui/page-container";
 import VersionCreateDialog, { type VersionData } from "@/components/dashboard/version-create-dialog";
 import { ArrowUpCircle, Pencil } from "lucide-react";
+import { SharedDashboardPageHeader } from "@/components/shares";
+import KpiCardGrid from "@/components/crm/kpi-card-grid";
+import OverviewBand from "@/components/shares/overview-band";
+import { DonutStat, HBarList, TrendArea, colorAt } from "@/components/charts";
+import { countByMonth } from "@/lib/ui/series";
+import type { KpiCardData } from "@/lib/crm/types";
 
 type Status = "draft" | "pending" | "approved" | "rejected" | "archived";
 
 const STATUS_CONFIG: Record<Status, {
     label: string; icon: React.ComponentType<{ className?: string }>; bg: string; text: string; border: string; dot: string;
 }> = {
-    draft: { label: "Draft", icon: FilePen, bg: "bg-slate-500/10", text: "text-slate-400", border: "border-slate-500/25", dot: "bg-slate-400" },
-    pending: { label: "Chờ duyệt", icon: Clock, bg: "bg-amber-500/10", text: "text-amber-400", border: "border-amber-500/25", dot: "bg-amber-400" },
-    approved: { label: "Published", icon: CheckCircle2, bg: "bg-emerald-500/10", text: "text-emerald-400", border: "border-emerald-500/25", dot: "bg-emerald-400" },
-    rejected: { label: "Từ chối", icon: XCircle, bg: "bg-rose-500/10", text: "text-rose-400", border: "border-rose-500/25", dot: "bg-rose-400" },
-    archived: { label: "Archived", icon: Archive, bg: "bg-amber-500/10", text: "text-amber-500", border: "border-amber-500/25", dot: "bg-amber-500" },
+    draft: { label: "Draft", icon: FilePen, bg: "bg-muted-foreground/10", text: "text-muted-foreground", border: "border-muted-foreground/25", dot: "bg-muted-foreground" },
+    pending: { label: "Chờ duyệt", icon: Clock, bg: "bg-warning/10", text: "text-warning", border: "border-warning/25", dot: "bg-warning" },
+    approved: { label: "Published", icon: CheckCircle2, bg: "bg-success/10", text: "text-success", border: "border-success/25", dot: "bg-success" },
+    rejected: { label: "Từ chối", icon: XCircle, bg: "bg-danger/10", text: "text-danger", border: "border-danger/25", dot: "bg-danger" },
+    archived: { label: "Archived", icon: Archive, bg: "bg-muted", text: "text-foreground/70", border: "border-border", dot: "bg-foreground/40" },
 };
 
 const CATEGORY_BADGE: Record<string, string> = {
-    platform: "bg-blue-500/10 text-blue-400 border-blue-500/20",
-    feature: "bg-purple-500/10 text-purple-400 border-purple-500/20",
-    security: "bg-red-500/10 text-red-400 border-red-500/20",
-    performance: "bg-green-500/10 text-green-400 border-green-500/20",
-    fix:         "bg-red-500 text-white border-red-600 shadow-[0_0_8px_color-mix(in_srgb,var(--danger)_40%,transparent)]",
+    platform: "bg-primary/10 text-primary border-primary/20",
+    feature: "bg-ai/10 text-ai border-ai/20",
+    security: "bg-danger/10 text-danger border-danger/20",
+    performance: "bg-success/10 text-success border-success/20",
+    fix:         "bg-danger text-white border-danger",
 };
 
 const ADMIN_TABS: { key: Status | "all"; label: string }[] = [
@@ -44,18 +50,18 @@ const ADMIN_TABS: { key: Status | "all"; label: string }[] = [
 
 const CATEGORIES = [
     { value: "platform", label: "Platform", color: "text-primary" },
-    { value: "feature", label: "Feature", color: "text-purple-400" },
-    { value: "security", label: "Security", color: "text-rose-400" },
-    { value: "performance", label: "Performance", color: "text-green-400" },
-    { value: "fix", label: "Fix", color: "text-red-500" },
+    { value: "feature", label: "Feature", color: "text-ai" },
+    { value: "security", label: "Security", color: "text-danger" },
+    { value: "performance", label: "Performance", color: "text-success" },
+    { value: "fix", label: "Fix", color: "text-danger" },
 ] as const;
 
 const STATUSES = [
-    { value: "draft", label: "Draft", color: "text-slate-400", bg: "bg-slate-500/10", border: "border-slate-500/20" },
-    { value: "pending", label: "Pending", color: "text-amber-400", bg: "bg-amber-500/10", border: "border-amber-500/20" },
-    { value: "approved", label: "Approved", color: "text-emerald-400", bg: "bg-emerald-500/10", border: "border-emerald-500/20" },
-    { value: "rejected", label: "Rejected", color: "text-rose-400", bg: "bg-rose-500/10", border: "border-rose-500/20" },
-    { value: "archived", label: "Archived", color: "text-slate-500", bg: "bg-slate-500/5", border: "border-slate-500/10" },
+    { value: "draft", label: "Draft", color: "text-muted-foreground", bg: "bg-muted-foreground/10", border: "border-muted-foreground/20" },
+    { value: "pending", label: "Pending", color: "text-warning", bg: "bg-warning/10", border: "border-warning/20" },
+    { value: "approved", label: "Approved", color: "text-success", bg: "bg-success/10", border: "border-success/20" },
+    { value: "rejected", label: "Rejected", color: "text-danger", bg: "bg-danger/10", border: "border-danger/20" },
+    { value: "archived", label: "Archived", color: "text-foreground/70", bg: "bg-muted", border: "border-border" },
 ] as const;
 
 const inputCls = "w-full bg-muted/60 border border-border/15 rounded-xl px-4 py-3 text-sm text-foreground placeholder-muted-foreground/50 focus:outline-none focus:border-border/40 focus:ring-1 focus:ring-primary/20 transition-all";
@@ -84,6 +90,23 @@ export default function VersionsClient({ versions: initialVersions, isAdmin, isS
 
     const displayed = tab === "all" ? versions : versions.filter(v => v.status === tab);
     const pendingCount = versions.filter(v => v.status === "pending").length;
+
+    /* KPI + dải tổng quan: suy ra từ `versions` đã có, không thêm truy vấn. */
+    const countStatus = (st: Status) => versions.filter((v) => v.status === st).length;
+    const kpis: KpiCardData[] = [
+        { label: "Tổng phiên bản", value: versions.length, icon: GitBranch, badge: "Toàn bộ" },
+        { label: "Published", value: countStatus("approved"), icon: CheckCircle2, badge: "Đã phát hành" },
+        { label: "Chờ duyệt", value: pendingCount, icon: Clock, badge: "Cần xử lý" },
+        { label: "Draft", value: countStatus("draft"), icon: FilePen, badge: "Đang soạn" },
+        { label: "Critical", value: versions.filter((v) => v.is_critical).length, icon: Zap, badge: "Ưu tiên", tone: "pink" },
+        { label: "Archived", value: countStatus("archived") + countStatus("rejected"), icon: Archive, badge: "Đã đóng" },
+    ];
+    const byStatus = (Object.keys(STATUS_CONFIG) as Status[]).map((st, i) => ({
+        label: STATUS_CONFIG[st].label, value: countStatus(st), color: colorAt(i),
+    })).filter((x) => x.value > 0);
+    const byCategory = CATEGORIES.map((c) => ({ label: c.label, value: versions.filter((v) => v.category === c.value).length }))
+        .filter((x) => x.value > 0);
+    const byMonth = countByMonth(versions.map((v) => v.created_at));
 
     const handleStatusChange = useCallback(async (id: string, newStatus: "approved" | "rejected" | "archived") => {
         setProcessing(id);
@@ -202,38 +225,42 @@ export default function VersionsClient({ versions: initialVersions, isAdmin, isS
         new Date(iso).toLocaleDateString("vi-VN", { day: "2-digit", month: "2-digit", year: "numeric" });
 
     return (
-        <div className="min-h-screen bg-muted text-foreground font-body">
+        <div className="min-h-screen bg-transparent text-foreground font-body">
             <AppNavbar />
 
             <PageContainer className="relative z-10 py-12">
                 <PageBreadcrumb breadcrumbs={[{ label: "Dashboard", href: "/dashboard" }, { label: "Version History" }]} />
+                <SharedDashboardPageHeader
+                    title="Version History"
+                    icon={GitBranch}
+                    badge={{ label: `${versions.length} phiên bản` }}
+                    description="Quản lý và duyệt các phiên bản tính năng mới của hệ thống"
+                    actions={isSuperAdmin ? <VersionCreateDialog onCreated={v => setVersions(prev => [v, ...prev])} /> : undefined}
+                />
                 <div className="mb-8">
-                    <div className="flex items-center justify-between gap-3 mb-4">
-                        <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-xl bg-primary/10 border border-border/20 flex items-center justify-center">
-                                <GitBranch className="w-5 h-5 text-primary" />
-                            </div>
-                            <div>
-                                <h1 className="text-3xl font-light text-foreground font-display">Version History</h1>
-                                <p className="text-sm text-muted-foreground mt-0.5">Quản lý và duyệt các phiên bản tính năng mới của hệ thống</p>
-                            </div>
-                        </div>
-                        {isSuperAdmin && <VersionCreateDialog onCreated={v => setVersions(prev => [v, ...prev])} />}
-                    </div>
-
                     {isSuperAdmin && pendingCount > 0 && (
-                        <div className="flex items-start gap-3 bg-amber-500/[0.06] border border-amber-500/20 rounded-2xl px-5 py-4 mt-4">
-                            <ShieldAlert className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
+                        <div className="flex items-start gap-3 bg-warning/[0.08] border border-warning/25 rounded-2xl px-5 py-4 mb-6">
+                            <ShieldAlert className="w-5 h-5 text-warning shrink-0 mt-0.5" />
                             <div>
-                                <p className="text-sm font-semibold text-amber-300">{pendingCount} version đang chờ bạn duyệt</p>
-                                <p className="text-xs text-amber-400/60 mt-0.5">Xem xét các tính năng mới và phê duyệt hoặc từ chối bên dưới.</p>
+                                <p className="text-sm font-semibold text-warning">{pendingCount} version đang chờ bạn duyệt</p>
+                                <p className="text-xs text-muted-foreground mt-0.5">Xem xét các tính năng mới và phê duyệt hoặc từ chối bên dưới.</p>
                             </div>
                         </div>
+                    )}
+
+                    <KpiCardGrid items={kpis} />
+
+                    {versions.length > 0 && (
+                        <OverviewBand className="mt-6 mb-0">
+                            <DonutStat title="Trạng thái phát hành" subtitle="Draft, chờ duyệt, published..." tag={{ label: "Trạng thái" }} slices={byStatus} centerLabel="Bản" />
+                            <HBarList title="Theo loại thay đổi" subtitle="Platform, feature, security..." tag={{ label: "Loại", tone: "violet" }} items={byCategory} />
+                            <TrendArea title="Phiên bản mới" subtitle="Tạo trong 6 tháng gần nhất" tag={{ label: "6 tháng", tone: "teal" }} points={byMonth} color={colorAt(2)} />
+                        </OverviewBand>
                     )}
                 </div>
 
                 {isSuperAdmin && (
-                    <div className="flex items-center gap-1 mb-6 bg-muted border border-border/10 rounded-xl p-1 w-fit">
+                    <div className="flex items-center gap-1 mb-6 bg-muted border border-border/10 rounded-xl p-1 w-fit max-w-full overflow-x-auto">
                         {ADMIN_TABS.map(t => (
                             <button
                                 key={t.key}
