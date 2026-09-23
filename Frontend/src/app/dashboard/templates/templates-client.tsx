@@ -3,21 +3,17 @@
 import { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-import { Plus, Briefcase, Clock, FileText, Trash2, Play, Globe, User, Users, Timer, LayoutTemplate } from "lucide-react";
+import { Plus, Clock, FileText, Trash2, Play, Globe, ListChecks, LayoutTemplate } from "lucide-react";
 import { SharedDashboardButton, SharedDashboardPageHeader } from "@/components/shares";
-import KpiCardGrid from "@/components/crm/kpi-card-grid";
 import FilterBar from "@/components/crm/filter-bar";
-import OverviewBand from "@/components/shares/overview-band";
-import { DonutStat, HBarList, TrendArea, colorAt } from "@/components/charts";
-import type { KpiCardData, FilterOption } from "@/lib/crm/types";
-import { countByMonth } from "@/lib/ui/series";
+import type { FilterOption } from "@/lib/crm/types";
+import { toneByName, toneAt, type ToneName } from "@/lib/ui/tones";
 
 interface Template {
     id: string;
@@ -41,11 +37,9 @@ interface Props {
     userId: string;
 }
 
-const levelColors: Record<string, string> = {
-    Junior: "bg-success/10 text-success border-border/20",
-    Mid: "bg-primary/10 text-primary border-border/20",
-    Senior: "bg-danger/10 text-danger border-border/20",
-};
+/* Cấp độ là phân loại, không phải trạng thái: dùng tông, không dùng xanh/đỏ. */
+const LEVEL_TONE: Record<string, ToneName> = { Junior: "teal", Mid: "blue", Senior: "violet" };
+const levelTone = (l: string) => toneByName(LEVEL_TONE[l] ?? "gold");
 
 const LEVELS = ["Junior", "Mid", "Senior"];
 const levelOptions: FilterOption[] = LEVELS.map((l) => ({ value: l, label: l }));
@@ -66,30 +60,13 @@ export default function TemplatesClient({ templates: initial, isAdmin, userId }:
             t.job_role.toLowerCase().includes(search.toLowerCase()))
     );
 
-    /* KPI + dải tổng quan: suy ra từ `templates` đã fetch, không thêm truy vấn. */
-    const kpis: KpiCardData[] = useMemo(() => {
-        const avg = templates.length ? Math.round(templates.reduce((s, t) => s + t.time_limit, 0) / templates.length) : 0;
-        return [
-            { label: "Tổng template", value: templates.length, icon: FileText, badge: "Toàn bộ" },
-            { label: "Global", value: templates.filter((t) => t.is_global).length, icon: Globe, badge: "Dùng chung" },
-            { label: "Của tôi", value: templates.filter((t) => t.created_by === userId).length, icon: User, badge: "Tự tạo" },
-            { label: "Cho ứng viên", value: templates.filter((t) => t.target_type === "candidate").length, icon: Users, badge: "Tuyển dụng" },
-            { label: "Cho nhân viên", value: templates.filter((t) => t.target_type === "employee").length, icon: Briefcase, badge: "Nội bộ" },
-            { label: "Thời lượng TB", value: `${avg}m`, icon: Timer, badge: "Mỗi bài" },
-        ];
-    }, [templates, userId]);
-
-    const byLevel = useMemo(() => LEVELS.map((l, i) => ({
-        label: l, value: templates.filter((t) => t.level === l).length, color: colorAt(i),
-    })).filter((s) => s.value > 0), [templates]);
-
-    const byMonth = useMemo(() => countByMonth(templates.map((t) => t.created_at)), [templates]);
-
-    const byRole = useMemo(() => {
-        const counts = new Map<string, number>();
-        for (const t of templates) counts.set(t.job_role, (counts.get(t.job_role) ?? 0) + 1);
-        return [...counts].map(([label, value]) => ({ label, value })).sort((a, b) => b.value - a.value);
-    }, [templates]);
+    /* Kệ theo vị trí: role nhiều mẫu nhất lên trước. */
+    const shelves = useMemo(() => {
+        const m = new Map<string, Template[]>();
+        for (const t of filtered) m.set(t.job_role, [...(m.get(t.job_role) ?? []), t]);
+        return [...m].sort((a, b) => b[1].length - a[1].length);
+    }, [filtered]);
+    const roleCount = new Set(templates.map((t) => t.job_role)).size;
 
     async function handleCreate() {
         if (!form.name || !form.job_role) { toast.error("Name and job role are required"); return; }
@@ -132,10 +109,9 @@ export default function TemplatesClient({ templates: initial, isAdmin, userId }:
     return (
         <div className="space-y-6 pb-12 text-foreground">
             <SharedDashboardPageHeader
-                className="mb-10"
                 title="Templates"
                 icon={LayoutTemplate}
-                badge={{ label: `${templates.length} mẫu` }}
+                badge={{ label: `${templates.length} mẫu · ${roleCount} vị trí` }}
                 description="Mẫu đề đánh giá tái sử dụng cho ứng viên và nhân viên"
                 actions={(
                     <SharedDashboardButton
@@ -147,16 +123,6 @@ export default function TemplatesClient({ templates: initial, isAdmin, userId }:
                     </SharedDashboardButton>
                 )}
             />
-
-            <KpiCardGrid items={kpis} />
-
-            {templates.length > 0 && (
-                <OverviewBand className="mt-6">
-                    <DonutStat title="Cơ cấu cấp độ" subtitle="Junior, Mid, Senior" tag={{ label: "Cấp độ" }} slices={byLevel} centerLabel="Mẫu" />
-                    <TrendArea title="Template mới" subtitle="Số mẫu tạo trong 6 tháng gần nhất" tag={{ label: "6 tháng", tone: "teal" }} points={byMonth} color={colorAt(2)} />
-                    <HBarList title="Theo vị trí" subtitle="Vị trí có nhiều mẫu nhất" tag={{ label: "Top vị trí", tone: "violet" }} items={byRole} />
-                </OverviewBand>
-            )}
 
             <FilterBar
                 search={search}
@@ -173,42 +139,62 @@ export default function TemplatesClient({ templates: initial, isAdmin, userId }:
                     <p className="text-muted-foreground">{search ? "No templates match your search" : "No templates yet. Create one to get started."}</p>
                 </Card>
             ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {filtered.map((t) => (
-                        <Card key={t.id} className="border-border bg-card hover:bg-accent/50 transition-colors group">
-                            <CardHeader className="pb-2">
-                                <div className="flex items-start justify-between gap-2">
-                                    <CardTitle className="text-sm font-medium text-foreground/90 truncate">{t.name}</CardTitle>
-                                    <Badge variant="outline" className="shrink-0 text-[10px] h-5">
-                                        {t.is_global ? <><Globe className="w-3 h-3 mr-1" />Global</> : <><User className="w-3 h-3 mr-1" />Own</>}
-                                    </Badge>
+                <div className="space-y-8">
+                    {shelves.map(([role, items], si) => {
+                        const tone = toneAt(si);
+                        return (
+                            <section key={role}>
+                                <div className="flex items-baseline gap-3 mb-3">
+                                    <span className="w-2 h-5 rounded-full self-center" style={{ backgroundColor: tone.mark }} />
+                                    <h2 className="text-lg font-extrabold text-foreground">{role}</h2>
+                                    <span className="text-xs font-semibold text-muted-foreground tabular-nums">{items.length} mẫu</span>
                                 </div>
-                                {t.description && <p className="text-xs text-muted-foreground line-clamp-2 mt-1">{t.description}</p>}
-                            </CardHeader>
-                            <CardContent className="pt-0 space-y-3">
-                                <div className="flex flex-wrap gap-1.5">
-                                    <Badge className={`${levelColors[t.level] || "bg-muted text-muted-foreground"} px-2 py-0 h-5 text-[11px] border`}>{t.level}</Badge>
-                                    <Badge variant="outline" className="h-5 text-[11px] text-muted-foreground border-border/15">
-                                        <Briefcase className="w-3 h-3 mr-1" />{t.job_role}
-                                    </Badge>
+                                <div className="flex gap-4 overflow-x-auto pb-3 -mx-1 px-1 snap-x">
+                                    {items.map((t) => {
+                                        const lt = levelTone(t.level);
+                                        return (
+                                            <article key={t.id} className="group snap-start w-[300px] shrink-0 rounded-2xl border border-border bg-card overflow-hidden flex flex-col transition-shadow shadow-[0_2px_14px_color-mix(in_srgb,var(--primary)_8%,transparent)] hover:shadow-[0_8px_24px_color-mix(in_srgb,var(--primary)_14%,transparent)]">
+                                                <div className="h-1.5" style={{ backgroundColor: lt.mark }} />
+                                                <div className="p-5 flex-1 flex flex-col">
+                                                    <div className="flex items-center justify-between gap-2">
+                                                        <span className="rounded-full px-2.5 py-0.5 text-[11px] font-bold" style={{ color: lt.ink, backgroundColor: lt.bg }}>{t.level}</span>
+                                                        <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-muted-foreground">
+                                                            {t.is_global ? <><Globe className="w-3 h-3" />Dùng chung</> : "Của tôi"}
+                                                        </span>
+                                                    </div>
+                                                    <h3 className="mt-3 font-bold text-foreground leading-snug line-clamp-2">{t.name}</h3>
+                                                    <p className="mt-1 text-xs text-muted-foreground line-clamp-2 min-h-8">{t.description}</p>
+                                                    <div className="mt-4 grid grid-cols-2 gap-2">
+                                                        <div className="rounded-xl bg-muted/60 px-3 py-2">
+                                                            <p className="flex items-center gap-1 text-[10px] font-bold uppercase text-muted-foreground"><ListChecks className="w-3 h-3" />Câu hỏi</p>
+                                                            <p className="text-xl font-black tabular-nums text-foreground">{t.question_count}</p>
+                                                        </div>
+                                                        <div className="rounded-xl bg-muted/60 px-3 py-2">
+                                                            <p className="flex items-center gap-1 text-[10px] font-bold uppercase text-muted-foreground"><Clock className="w-3 h-3" />Phút</p>
+                                                            <p className="text-xl font-black tabular-nums text-foreground">{t.time_limit}</p>
+                                                        </div>
+                                                    </div>
+                                                    <p className="mt-3 text-[11px] font-semibold text-muted-foreground">
+                                                        {t.target_type === "employee" ? "Đánh giá nhân viên" : "Đánh giá ứng viên"}
+                                                    </p>
+                                                    <div className="mt-auto pt-4 flex gap-2">
+                                                        <Button size="sm" onClick={() => handleUseTemplate(t)} className="flex-1 h-9 text-xs font-bold bg-primary text-primary-foreground hover:bg-primary/90 cursor-pointer">
+                                                            <Play className="w-3.5 h-3.5 mr-1" /> Dùng mẫu này
+                                                        </Button>
+                                                        {(t.created_by === userId || isAdmin) && (
+                                                            <Button size="sm" variant="ghost" aria-label="Xóa mẫu" onClick={() => handleDelete(t.id)} className="h-9 text-danger hover:text-danger hover:bg-danger/10 cursor-pointer">
+                                                                <Trash2 className="w-3.5 h-3.5" />
+                                                            </Button>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            </article>
+                                        );
+                                    })}
                                 </div>
-                                <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                                    <span>{t.question_count} questions</span>
-                                    <span className="flex items-center gap-1"><Clock className="w-3 h-3" />{t.time_limit}m</span>
-                                </div>
-                                <div className="flex gap-2 pt-1">
-                                    <Button size="sm" onClick={() => handleUseTemplate(t)} className="flex-1 h-7 text-xs bg-primary/10 hover:bg-primary/20 text-primary border border-border/20 cursor-pointer">
-                                        <Play className="w-3 h-3 mr-1" /> Use
-                                    </Button>
-                                    {(t.created_by === userId || isAdmin) && (
-                                        <Button size="sm" variant="ghost" onClick={() => handleDelete(t.id)} className="h-7 text-xs text-danger hover:text-danger hover:bg-danger/10 cursor-pointer">
-                                            <Trash2 className="w-3 h-3" />
-                                        </Button>
-                                    )}
-                                </div>
-                            </CardContent>
-                        </Card>
-                    ))}
+                            </section>
+                        );
+                    })}
                 </div>
             )}
 
