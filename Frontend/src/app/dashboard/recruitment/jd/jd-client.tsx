@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback, useMemo } from "react";
 import { Plus, Pencil, Trash2, FileSearch, CircleSlash } from "lucide-react";
 import JdFormDialog from "@/components/recruitment/jd-form-dialog";
 import { SharedDashboardPageHeader } from "@/components/shares";
-import { toneAt, toneFor } from "@/lib/ui/tones";
+import { toneAt } from "@/lib/ui/tones";
 
 type RawSkill = string | { skill: string; weight?: number };
 
@@ -79,6 +79,8 @@ export default function JdClient({ userRole }: Props) {
     return [...freq].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
   }, [jds]);
   const activeCount = jds.filter((j) => j.is_active).length;
+  const depts = [...new Set(jds.map((j) => j.department).filter(Boolean))] as string[];
+  const deptTone = (d: string) => toneAt(depts.indexOf(d));
   const cols = `minmax(260px,1.4fr) repeat(${skills.length}, 40px) 200px ${canWrite ? "72px" : ""}`;
 
   return (
@@ -144,7 +146,7 @@ export default function JdClient({ userRole }: Props) {
                     </p>
                     <p className="mt-1 flex items-center gap-2 text-xs text-muted-foreground truncate">
                       {jd.department && (
-                        <span className="rounded-full px-2 py-0.5 text-[10px] font-bold" style={{ color: toneFor(jd.department).ink, backgroundColor: toneFor(jd.department).bg }}>{jd.department}</span>
+                        <span className="rounded-full px-2 py-0.5 text-[10px] font-bold" style={{ color: deptTone(jd.department).ink, backgroundColor: deptTone(jd.department).bg }}>{jd.department}</span>
                       )}
                       {[jd.seniority && jd.seniority[0].toUpperCase() + jd.seniority.slice(1), `${jd.required_skills.length} kỹ năng`].filter(Boolean).join(" · ")}
                     </p>
