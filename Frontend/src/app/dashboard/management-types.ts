@@ -103,6 +103,8 @@ export interface GroupListItem {
   health_score?: number;
   position_count?: number;
   alert_count?: number;
+  /** Tên thành viên cho avatar stack (page.tsx join persons). */
+  member_names?: string[];
 }
 
 export interface GroupDetail extends GroupListItem {

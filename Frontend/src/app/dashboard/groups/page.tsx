@@ -18,10 +18,14 @@ export default async function GroupsPage() {
 
   const { data } = await supabase
     .from("groups")
-    .select("id, name, type, description, status, created_at, group_members(count)")
+    .select("id, name, type, description, status, created_at, group_members(count), people:group_members(persons(full_name))")
     .order("created_at", { ascending: false });
 
-  const groups = (data ?? []) as GroupListItem[];
+  type Row = GroupListItem & { people?: { persons: { full_name: string } | null }[] };
+  const groups: GroupListItem[] = ((data ?? []) as unknown as Row[]).map(({ people, ...g }) => ({
+    ...g,
+    member_names: (people ?? []).map((p) => p.persons?.full_name).filter((n): n is string => !!n),
+  }));
 
   const kpis: GroupKpis = {
     totalGroups: groups.length,
