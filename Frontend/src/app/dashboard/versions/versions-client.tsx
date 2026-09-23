@@ -1,4 +1,5 @@
 "use client";
+import { toneByName, type ToneName } from "@/lib/ui/tones";
 
 import { useState, useCallback, Fragment } from "react";
 import { toast } from "sonner";
@@ -26,13 +27,7 @@ const STATUS_CONFIG: Record<Status, {
     archived: { label: "Archived", icon: Archive, bg: "bg-muted", text: "text-foreground/70", border: "border-border", dot: "bg-foreground/40" },
 };
 
-const CATEGORY_BADGE: Record<string, string> = {
-    platform: "bg-primary/10 text-primary border-primary/20",
-    feature: "bg-ai/10 text-ai border-ai/20",
-    security: "bg-danger/10 text-danger border-danger/20",
-    performance: "bg-success/10 text-success border-success/20",
-    fix:         "bg-danger text-white border-danger",
-};
+const CATEGORY_TONE: Record<string, ToneName> = { platform: "blue", feature: "violet", security: "pink", performance: "teal", fix: "orange" };
 
 const ADMIN_TABS: { key: Status | "all"; label: string }[] = [
     { key: "all", label: "All" },
@@ -292,7 +287,7 @@ export default function VersionsClient({ versions: initialVersions, isAdmin, isS
                                                 <div className="flex flex-wrap items-center gap-2">
                                                     <span className="text-base font-semibold text-foreground group-hover:text-foreground transition-colors">{v.title}</span>
                                                     {v.category && (
-                                                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border border-current uppercase tracking-wider ${CATEGORY_BADGE[v.category] ?? "bg-muted-foreground/10 text-muted-foreground border-border/20"}`}>
+                                                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider" style={{ color: toneByName(CATEGORY_TONE[v.category] ?? "gold").ink, backgroundColor: toneByName(CATEGORY_TONE[v.category] ?? "gold").bg }}>
                                                             {v.category}
                                                         </span>
                                                     )}

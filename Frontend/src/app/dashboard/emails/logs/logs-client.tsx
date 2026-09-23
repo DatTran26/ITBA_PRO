@@ -1,4 +1,5 @@
 "use client";
+import { toneFor } from "@/lib/ui/tones";
 
 import { useCallback, useState } from "react";
 import { AlertTriangle, CheckCircle2, ChevronLeft, ChevronRight, Clock3, Mail, Search, type LucideIcon } from "lucide-react";
@@ -112,7 +113,7 @@ export default function LogsClient({ initialLogs, initialTotal }: Props) {
                                         <span className="shrink-0 text-[11px] text-muted-foreground tabular-nums">{shortTime(log.sent_at)}</span>
                                     </div>
                                     <p className="mt-0.5 text-sm text-foreground/80 truncate">{log.subject}</p>
-                                    <p className="mt-0.5 text-[11px] text-muted-foreground truncate">{TYPE_LABELS[log.template_type] ?? log.template_type}</p>
+                                    <span className="mt-1.5 inline-block rounded-full px-2 py-0.5 text-[10px] font-bold" style={{ color: toneFor(log.template_type).ink, backgroundColor: toneFor(log.template_type).bg }}>{TYPE_LABELS[log.template_type] ?? log.template_type}</span>
                                 </button>
                             </li>
                         );
@@ -183,7 +184,7 @@ function LogReader({ log }: { log: Log }) {
                       style={{ color: st.color, backgroundColor: `color-mix(in srgb, ${st.color} 12%, transparent)` }}>
                     <st.icon className="w-3.5 h-3.5" />{st.label}
                 </span>
-                <span className="rounded-full bg-muted px-2.5 py-1 text-muted-foreground">
+                <span className="rounded-full px-2.5 py-1" style={{ color: toneFor(log.template_type).ink, backgroundColor: toneFor(log.template_type).bg }}>
                     {TYPE_LABELS[log.template_type] ?? log.template_type} · {log.locale.toUpperCase()}
                 </span>
             </div>

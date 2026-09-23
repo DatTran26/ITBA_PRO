@@ -120,7 +120,7 @@ export default function UsersClient({
     const countRole = (role: string) => users.filter((u) => u.role === role).length;
     const resetCount = users.filter((u) => u.force_password_change).length;
     const rail = [
-        { key: "", label: "Tất cả", hint: "Mọi tài khoản", count: users.length, color: "var(--foreground)" },
+        { key: "", label: "Tất cả", hint: "Mọi tài khoản", count: users.length, color: "var(--primary)" },
         ...ROLE_ORDER.map((r) => ({ key: r as string, label: ROLE_LABEL[r], hint: ROLE_ACCESS_LABEL[r], count: countRole(r), color: roleTone(r).mark })),
     ];
 
@@ -566,8 +566,12 @@ export default function UsersClient({
                             const on = roleFilter === r.key;
                             return (
                                 <button key={r.key || "all"} type="button" onClick={() => setRoleFilter(r.key)} aria-pressed={on}
-                                        className={`w-full flex items-center gap-3 rounded-xl px-3 py-2.5 text-left transition-colors cursor-pointer ${on ? "bg-accent" : "hover:bg-muted"} ${r.count === 0 && r.key ? "opacity-50" : ""}`}>
-                                    <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: r.color }} />
+                                        className={`w-full flex items-center gap-3 rounded-xl px-3 py-2.5 text-left transition-colors cursor-pointer ${on ? "" : "hover:bg-muted"} ${r.count === 0 && r.key ? "opacity-50" : ""}`}
+                                        style={on ? { backgroundColor: `color-mix(in srgb, ${r.color} 12%, var(--card))` } : undefined}>
+                                    <span className="w-8 h-8 rounded-lg shrink-0 grid place-items-center text-[11px] font-black"
+                                          style={{ color: r.key ? roleTone(r.key).ink : "var(--primary)", backgroundColor: r.key ? roleTone(r.key).bg : "color-mix(in srgb, var(--primary) 12%, var(--card))" }}>
+                                        {r.label.split(" ").map((w) => w[0]).join("").slice(0, 2)}
+                                    </span>
                                     <span className="flex-1 min-w-0">
                                         <span className={`block text-sm truncate ${on ? "font-extrabold text-foreground" : "font-semibold text-foreground"}`}>{r.label}</span>
                                         <span className="block text-[11px] text-muted-foreground truncate">{r.hint}</span>
@@ -579,7 +583,7 @@ export default function UsersClient({
                         <div className="my-2 border-t border-border" />
                         <button type="button" onClick={() => setRoleFilter("reset")} aria-pressed={roleFilter === "reset"}
                                 className={`w-full flex items-center gap-3 rounded-xl px-3 py-2.5 text-left transition-colors cursor-pointer ${roleFilter === "reset" ? "bg-accent" : "hover:bg-muted"}`}>
-                            <KeyRound className="w-4 h-4 shrink-0 text-warning" />
+                            <span className="w-8 h-8 rounded-lg shrink-0 grid place-items-center text-warning bg-warning/10"><KeyRound className="w-4 h-4" /></span>
                             <span className="flex-1 text-sm font-semibold text-foreground">Chờ đổi mật khẩu</span>
                             <span className={`text-sm font-bold tabular-nums ${resetCount ? "text-warning" : "text-muted-foreground"}`}>{resetCount}</span>
                         </button>

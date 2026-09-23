@@ -1,7 +1,9 @@
 "use client";
 
 import { useState, useEffect, useCallback, useMemo } from "react";
-import { BarChart3, ArrowDownWideNarrow } from "lucide-react";
+import { BarChart3, ArrowDownWideNarrow, FileText, Sparkles, Target, Handshake, Clock } from "lucide-react";
+import { ToneIcon } from "@/components/shares";
+import { flowAt, toneByName } from "@/lib/ui/tones";
 import { SharedDashboardPageHeader } from "@/components/shares";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -20,14 +22,13 @@ interface DashboardData {
 interface JdOption { id: string; title: string; is_active?: boolean }
 interface Row { jd: JdOption; data: DashboardData; total: number }
 
-/* Bước theo thứ tự → dải tuần tự một tông (nhạt → đậm), không phải màu phân loại. */
 const STAGES = ["NEW", "SCREENED", "SHORTLISTED", "INTERVIEW_SCHEDULED", "INTERVIEWED", "PASSED", "OFFERED", "ONBOARDED"];
 const STAGE_LABEL: Record<string, string> = {
   NEW: "Mới", SCREENED: "Sàng lọc", SHORTLISTED: "Tiềm năng", INTERVIEW_SCHEDULED: "Hẹn PV",
   INTERVIEWED: "Đã PV", PASSED: "Đạt", OFFERED: "Đề xuất", ONBOARDED: "Onboard",
 };
-const RAMP = [18, 30, 42, 54, 66, 78, 89, 100];
-const stageColor = (i: number) => `color-mix(in srgb, var(--primary) ${RAMP[i]}%, var(--card))`;
+/* Bước có thứ tự → dải FLOW của funnel HR (xanh → cyan → teal → lục). */
+const stageColor = (i: number) => flowAt(i, STAGES.length);
 const OUT_COLOR = "var(--muted-foreground)";
 
 // ponytail: gọi RPC một lần mỗi JD (tối đa 8); cần RPC group-by-JD nếu số JD lớn hơn.
@@ -56,12 +57,12 @@ function StageBar({ funnel, total }: { funnel: DashboardData["funnel"]; total: n
   );
 }
 
-function Meter({ value, suffix = "" }: { value: number; suffix?: string }) {
+function Meter({ value, suffix = "", color = "var(--primary)" }: { value: number; suffix?: string; color?: string }) {
   return (
     <div>
       <p className="text-lg font-black tabular-nums text-foreground leading-none">{Math.round(value)}{suffix}</p>
       <div className="mt-1.5 h-1.5 rounded-full bg-muted overflow-hidden">
-        <span className="block h-full rounded-full bg-primary" style={{ width: `${Math.min(100, value)}%` }} />
+        <span className="block h-full rounded-full" style={{ width: `${Math.min(100, value)}%`, backgroundColor: color }} />
       </div>
     </div>
   );
@@ -133,19 +134,22 @@ export default function RecruitmentDashboardClient() {
       ) : (
         <>
           {/* Dải tổng hợp: một hàng số, câu tóm tắt bên phải */}
-          <section className="rounded-2xl border border-border bg-card px-6 py-5 flex items-center gap-10 shadow-[0_2px_14px_color-mix(in_srgb,var(--primary)_8%,transparent)]">
-            {[
-              ["CV trong kỳ", overall.totalCvsUploaded, ""],
-              ["Điểm AI TB", overall.avgAiScore, "/100"],
-              ["Tỉ lệ đạt PV", overall.passRate, "%"],
-              ["Nhận offer", overall.offerAcceptanceRate, "%"],
-              ["Chờ AI xử lý", overall.processingQueue, ""],
-            ].map(([label, v, suf]) => (
-              <div key={label as string}>
+          <section className="rounded-2xl border border-border bg-card px-6 py-5 flex items-center gap-8 shadow-[0_2px_14px_color-mix(in_srgb,var(--primary)_8%,transparent)]">
+            {([
+              ["CV trong kỳ", overall.totalCvsUploaded, "", FileText, "blue"],
+              ["Điểm AI TB", overall.avgAiScore, "/100", Sparkles, "violet"],
+              ["Tỉ lệ đạt PV", overall.passRate, "%", Target, "teal"],
+              ["Nhận offer", overall.offerAcceptanceRate, "%", Handshake, "pink"],
+              ["Chờ AI xử lý", overall.processingQueue, "", Clock, "orange"],
+            ] as const).map(([label, v, suf, Icon, tone]) => (
+              <div key={label} className="flex items-center gap-3">
+                <ToneIcon icon={Icon} tone={toneByName(tone)} size="lg" />
+                <div>
                 <p className="text-3xl font-black tabular-nums text-foreground leading-none">
                   {Math.round(Number(v))}<span className="text-base text-muted-foreground">{suf}</span>
                 </p>
-                <p className="mt-1.5 text-xs font-semibold text-muted-foreground">{label}</p>
+                <p className="mt-1.5 text-xs font-semibold text-muted-foreground whitespace-nowrap">{label}</p>
+                </div>
               </div>
             ))}
             {best && (
@@ -191,8 +195,8 @@ export default function RecruitmentDashboardClient() {
                   <p className="font-bold text-foreground truncate" title={jd.title}>{jd.title}</p>
                   <p className="text-2xl font-black tabular-nums text-foreground">{total}</p>
                   <StageBar funnel={data.funnel ?? []} total={total} />
-                  <Meter value={data.avgAiScore} />
-                  <Meter value={data.passRate} suffix="%" />
+                  <Meter value={data.avgAiScore} color={toneByName("violet").mark} />
+                  <Meter value={data.passRate} suffix="%" color={toneByName("teal").mark} />
                 </li>
               ))}
             </ul>

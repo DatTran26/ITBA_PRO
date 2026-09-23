@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback, useMemo } from "react";
 import { Plus, Pencil, Trash2, FileSearch, CircleSlash } from "lucide-react";
 import JdFormDialog from "@/components/recruitment/jd-form-dialog";
 import { SharedDashboardPageHeader } from "@/components/shares";
-import { toneAt } from "@/lib/ui/tones";
+import { toneAt, toneFor } from "@/lib/ui/tones";
 
 type RawSkill = string | { skill: string; weight?: number };
 
@@ -142,8 +142,11 @@ export default function JdClient({ userRole }: Props) {
                         </span>
                       )}
                     </p>
-                    <p className="text-xs text-muted-foreground truncate">
-                      {[jd.department, jd.seniority && jd.seniority[0].toUpperCase() + jd.seniority.slice(1), `${jd.required_skills.length} kỹ năng`].filter(Boolean).join(" · ")}
+                    <p className="mt-1 flex items-center gap-2 text-xs text-muted-foreground truncate">
+                      {jd.department && (
+                        <span className="rounded-full px-2 py-0.5 text-[10px] font-bold" style={{ color: toneFor(jd.department).ink, backgroundColor: toneFor(jd.department).bg }}>{jd.department}</span>
+                      )}
+                      {[jd.seniority && jd.seniority[0].toUpperCase() + jd.seniority.slice(1), `${jd.required_skills.length} kỹ năng`].filter(Boolean).join(" · ")}
                     </p>
                   </div>
                   {skills.map(([name]) => (

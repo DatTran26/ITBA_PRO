@@ -20,6 +20,7 @@ import { toast } from "sonner";
 import type { SkillListItem } from "@/app/dashboard/management-types";
 import type { SkillCategory, SkillKpis } from "./page";
 import type { FilterOption } from "@/lib/crm/types";
+import { toneAt, toneFor } from "@/lib/ui/tones";
 
 type ViewMode = "table" | "category" | "matrix";
 
@@ -30,18 +31,15 @@ interface Props {
   kpis: SkillKpis;
 }
 
-export const CATEGORY_COLORS: Record<string, string> = {
-  "Technical Skills":  "border-blue-500/30 text-blue-400 bg-blue-500/10",
-  "Business Analysis": "border-purple-500/30 text-purple-400 bg-purple-500/10",
-  "Communication":     "border-green-500/30 text-green-400 bg-green-500/10",
-  "Soft Skills":       "border-yellow-500/30 text-yellow-400 bg-yellow-500/10",
-  "Domain Knowledge":  "border-orange-500/30 text-orange-400 bg-orange-500/10",
-};
-export const FALLBACK_COLOR = "border-border/20 text-muted-foreground bg-muted-foreground/10";
-
-export function categoryColor(name: string | null) {
-  if (!name) return FALLBACK_COLOR;
-  return CATEGORY_COLORS[name] ?? FALLBACK_COLOR;
+/* Tông theo thứ tự nhóm trong DB (display_order) → mỗi nhóm một màu, không trùng như hash. */
+export function categoryTone(name: string | null, order: string[]) {
+  const i = name ? order.indexOf(name) : -1;
+  return i >= 0 ? toneAt(i) : toneFor(name ?? "");
+}
+export function categoryStyle(name: string | null, order: string[]): React.CSSProperties {
+  if (!name) return { color: "var(--muted-foreground)", backgroundColor: "var(--muted)", borderColor: "transparent" };
+  const t = categoryTone(name, order);
+  return { color: t.ink, backgroundColor: t.bg, borderColor: "transparent" };
 }
 
 const VIEW_OPTIONS = [
@@ -71,6 +69,7 @@ export default function SkillsListClient({ skills: initialSkills, categories, is
     });
   }, [initialSkills, search, categoryFilter, mapPick]);
 
+  const categoryOrder = categories.map((c) => c.name);
   const categoryOptions: FilterOption[] = categories.map((c) => ({ value: c.name, label: c.name }));
 
   async function handleDelete(id: string) {
@@ -159,6 +158,7 @@ export default function SkillsListClient({ skills: initialSkills, categories, is
         />
 
         <SupplyDemandMap
+          categoryOrder={categoryOrder}
           skills={initialSkills}
           selectedKey={mapPick?.key ?? null}
           onSelect={(key, ids) => setMapPick(key ? { key, ids: new Set(ids) } : null)}
@@ -199,6 +199,7 @@ export default function SkillsListClient({ skills: initialSkills, categories, is
 
         {view === "table" && (
           <SkillsTableView
+            categoryOrder={categoryOrder}
             data={filtered}
             onRowClick={handleRowClick}
             onEdit={openEdit}
@@ -208,6 +209,7 @@ export default function SkillsListClient({ skills: initialSkills, categories, is
         )}
         {view === "category" && (
           <SkillsCategoryView
+            categoryOrder={categoryOrder}
             data={filtered}
             onCardClick={handleRowClick}
           />

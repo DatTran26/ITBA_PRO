@@ -5,19 +5,20 @@ import { Badge } from "@/components/ui/badge";
 import { Pencil, Trash2 } from "lucide-react";
 import DataTable from "@/components/crm/data-table";
 import DataTablePagination from "@/components/crm/data-table-pagination";
-import { categoryColor } from "./skills-list-client";
+import { categoryStyle } from "./skills-list-client";
 import type { SkillListItem } from "@/app/dashboard/management-types";
 import type { ColumnDef } from "@/lib/crm/types";
 
 interface Props {
   data: SkillListItem[];
+  categoryOrder: string[];
   onRowClick: (s: SkillListItem) => void;
   onEdit: (s: SkillListItem) => void;
   onDelete: (id: string) => void;
   deletingId: string | null;
 }
 
-export default function SkillsTableView({ data, onRowClick, onEdit, onDelete, deletingId }: Props) {
+export default function SkillsTableView({ data, categoryOrder, onRowClick, onEdit, onDelete, deletingId }: Props) {
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
 
@@ -36,7 +37,7 @@ export default function SkillsTableView({ data, onRowClick, onEdit, onDelete, de
       sortable: true,
       render: (v) =>
         v ? (
-          <Badge variant="outline" className={`text-xs ${categoryColor(String(v))}`}>
+          <Badge variant="outline" className="text-xs font-bold" style={categoryStyle(v ? String(v) : null, categoryOrder)}>
             {String(v)}
           </Badge>
         ) : (

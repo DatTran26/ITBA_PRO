@@ -3,15 +3,16 @@
 import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { ChevronDown, ChevronRight } from "lucide-react";
-import { categoryColor } from "./skills-list-client";
+import { categoryStyle } from "./skills-list-client";
 import type { SkillListItem } from "@/app/dashboard/management-types";
 
 interface Props {
   data: SkillListItem[];
+  categoryOrder: string[];
   onCardClick: (s: SkillListItem) => void;
 }
 
-export default function SkillsCategoryView({ data, onCardClick }: Props) {
+export default function SkillsCategoryView({ data, onCardClick, categoryOrder }: Props) {
   const groups = data.reduce<Record<string, SkillListItem[]>>((acc, s) => {
     const key = s.category ?? "Uncategorized";
     if (!acc[key]) acc[key] = [];
@@ -39,6 +40,7 @@ export default function SkillsCategoryView({ data, onCardClick }: Props) {
           category={cat}
           skills={groups[cat]}
           onCardClick={onCardClick}
+          categoryOrder={categoryOrder}
         />
       ))}
     </div>
@@ -49,8 +51,10 @@ function CategorySection({
   category,
   skills,
   onCardClick,
+  categoryOrder,
 }: {
   category: string;
+  categoryOrder: string[];
   skills: SkillListItem[];
   onCardClick: (s: SkillListItem) => void;
 }) {
@@ -68,7 +72,7 @@ function CategorySection({
           ) : (
             <ChevronRight className="w-4 h-4 text-muted-foreground" />
           )}
-          <Badge variant="outline" className={`text-xs ${categoryColor(category === "Uncategorized" ? null : category)}`}>
+          <Badge variant="outline" className="text-xs font-bold" style={categoryStyle(category === "Uncategorized" ? null : category, categoryOrder)}>
             {category}
           </Badge>
           <span className="text-xs text-muted-foreground">{skills.length} skill{skills.length !== 1 ? "s" : ""}</span>

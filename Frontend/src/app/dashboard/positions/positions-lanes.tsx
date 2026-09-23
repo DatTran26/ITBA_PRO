@@ -14,14 +14,14 @@ export function reqCount(p: PositionListItem): number {
   return Array.isArray(r) ? (r[0]?.count ?? 0) : (r?.count ?? 0);
 }
 
-function LevelLadder({ level }: { level: string | null }) {
+function LevelLadder({ level, color }: { level: string | null; color: string }) {
   const idx = LEVELS.indexOf((level ?? "").toLowerCase());
   return (
     <div className="flex items-center gap-2" title={level ?? "Chưa đặt cấp độ"}>
       <div className="flex items-end gap-0.5">
         {LEVELS.map((l, i) => (
           <span key={l} className="w-1.5 rounded-sm"
-                style={{ height: 6 + i * 3, backgroundColor: i <= idx ? "var(--primary)" : "var(--border)" }} />
+                style={{ height: 6 + i * 3, backgroundColor: i <= idx ? color : "var(--border)" }} />
         ))}
       </div>
       <span className="text-xs font-bold capitalize text-foreground">{level ?? "—"}</span>
@@ -49,7 +49,8 @@ export default function PositionsLanes({ data, onOpen }: { data: PositionListIte
         const tone = toneAt(laneIdx);
         const people = items.reduce((n, p) => n + (p.assigned_persons_count ?? 0), 0);
         return (
-          <section key={dept} className="flex-1 min-w-[320px] max-w-[420px] rounded-2xl bg-muted/50 border border-border p-3">
+          <section key={dept} className="flex-1 min-w-[320px] max-w-[420px] rounded-2xl border p-3"
+                   style={{ backgroundColor: `color-mix(in srgb, ${tone.mark} 6%, var(--card))`, borderColor: `color-mix(in srgb, ${tone.mark} 22%, var(--card))` }}>
             <div className="flex items-center gap-3 px-2 pt-1 pb-3">
               <span className="w-9 h-9 rounded-xl grid place-items-center" style={{ color: tone.ink, backgroundColor: tone.bg }}>
                 <Building2 className="w-4 h-4" />
@@ -68,7 +69,8 @@ export default function PositionsLanes({ data, onOpen }: { data: PositionListIte
                 const flagged = p.status !== "active";
                 return (
                   <article key={p.id} onClick={() => onOpen(p)}
-                           className="group rounded-xl bg-card border border-border p-4 cursor-pointer transition-shadow shadow-[0_1px_6px_color-mix(in_srgb,var(--primary)_6%,transparent)] hover:shadow-[0_8px_24px_color-mix(in_srgb,var(--primary)_14%,transparent)]">
+                           style={{ borderTopColor: tone.mark }}
+                           className="group rounded-xl bg-card border border-border border-t-[3px] p-4 cursor-pointer transition-shadow shadow-[0_1px_6px_color-mix(in_srgb,var(--primary)_6%,transparent)] hover:shadow-[0_8px_24px_color-mix(in_srgb,var(--primary)_14%,transparent)]">
                     <div className="flex items-start justify-between gap-2">
                       <h3 className="font-bold text-foreground leading-snug group-hover:text-primary transition-colors">{p.title}</h3>
                       {flagged && (
@@ -79,7 +81,7 @@ export default function PositionsLanes({ data, onOpen }: { data: PositionListIte
                       )}
                     </div>
                     <div className="mt-3 flex items-center justify-between">
-                      <LevelLadder level={p.target_level} />
+                      <LevelLadder level={p.target_level} color={tone.mark} />
                       <span className={`inline-flex items-center gap-1 text-xs font-semibold tabular-nums ${reqs ? "text-muted-foreground" : "text-warning"}`}>
                         <ListChecks className="w-3.5 h-3.5" />{reqs ? `${reqs} kỹ năng` : "Chưa có chuẩn"}
                       </span>

@@ -2,7 +2,7 @@
 
 import { FolderKanban, Pencil, ShieldAlert, UserMinus, Eye, CheckCircle2, PauseCircle, type LucideIcon } from "lucide-react";
 import EntityEmptyState from "@/components/management/entity-empty-state";
-import { toneFor } from "@/lib/ui/tones";
+import { toneFor, toneByName, type ToneName } from "@/lib/ui/tones";
 import type { GroupListItem, GroupStatus } from "@/app/dashboard/management-types";
 
 /** Thứ tự nghiêm trọng: nặng nhất trước. Màu trạng thái luôn đi kèm icon + nhãn. */
@@ -19,6 +19,13 @@ const AT_RISK: GroupStatus[] = ["skill_risk", "understaffed", "needs_attention"]
 const TYPE_LABEL: Record<GroupListItem["type"], string> = {
   department: "Phòng ban", batch: "Đợt tuyển", campaign: "Chiến dịch", other: "Khác",
 };
+const TYPE_TONE: Record<GroupListItem["type"], ToneName> = { department: "blue", batch: "orange", campaign: "violet", other: "gold" };
+const tint = (c: string, p: number) => `color-mix(in srgb, ${c} ${p}%, var(--card))`;
+
+function TypePill({ type }: { type: GroupListItem["type"] }) {
+  const t = toneByName(TYPE_TONE[type]);
+  return <span className="shrink-0 rounded-full px-2.5 py-0.5 text-[11px] font-bold" style={{ color: t.ink, backgroundColor: t.bg }}>{TYPE_LABEL[type]}</span>;
+}
 
 export function memberCount(g: GroupListItem) {
   const m = g.group_members;
@@ -95,8 +102,8 @@ export default function GroupsBoard({ groups, onOpen, onEdit }: Props) {
               const Icon = sev.icon;
               return (
                 <article key={g.id} onClick={() => onOpen(g)}
-                         className="group relative overflow-hidden rounded-2xl border border-border bg-card p-6 cursor-pointer transition-shadow shadow-[0_2px_14px_color-mix(in_srgb,var(--primary)_8%,transparent)] hover:shadow-[0_8px_24px_color-mix(in_srgb,var(--primary)_14%,transparent)]">
-                  <span className="absolute inset-y-0 left-0 w-1.5" style={{ backgroundColor: sev.color }} />
+                         className="group relative overflow-hidden rounded-2xl border p-6 cursor-pointer transition-shadow hover:shadow-[0_8px_24px_color-mix(in_srgb,var(--primary)_14%,transparent)]"
+                         style={{ backgroundColor: tint(sev.color, 5), borderColor: tint(sev.color, 30) }}>
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex items-center gap-3 min-w-0">
                       <span className="w-11 h-11 shrink-0 rounded-xl grid place-items-center"
@@ -115,9 +122,7 @@ export default function GroupsBoard({ groups, onOpen, onEdit }: Props) {
                   </p>
                   <div className="mt-5 flex items-center justify-between gap-3">
                     <AvatarStack names={g.member_names ?? []} total={memberCount(g)} />
-                    <span className="shrink-0 rounded-full bg-muted px-2.5 py-0.5 text-[11px] font-bold text-muted-foreground">
-                      {TYPE_LABEL[g.type]}
-                    </span>
+                    <TypePill type={g.type} />
                   </div>
                 </article>
               );
@@ -140,7 +145,7 @@ export default function GroupsBoard({ groups, onOpen, onEdit }: Props) {
                      className="group flex items-center gap-4 px-5 py-3.5 cursor-pointer hover:bg-muted/50 transition-colors">
                   <Icon className="w-4 h-4 shrink-0" style={{ color: sev.color }} aria-label={sev.label} />
                   <span className="w-64 shrink-0 font-bold text-foreground truncate">{g.name}</span>
-                  <span className="w-28 shrink-0 text-xs font-semibold text-muted-foreground">{TYPE_LABEL[g.type]}</span>
+                  <span className="w-28 shrink-0"><TypePill type={g.type} /></span>
                   <span className="flex-1 min-w-0 text-sm text-muted-foreground truncate">{g.description}</span>
                   <AvatarStack names={g.member_names ?? []} total={memberCount(g)} max={4} />
                   <EditButton onClick={() => onEdit(g)} />
@@ -177,8 +182,11 @@ export function SeverityStrip({ groups, value, onChange }: {
           return (
             <button key={s.status} type="button" aria-pressed={on}
                     onClick={() => onChange(on ? "" : s.status)}
-                    className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-left transition-colors cursor-pointer ${on ? "bg-accent ring-1 ring-primary/30" : "hover:bg-muted"} ${n === 0 ? "opacity-50" : ""}`}>
-              <Icon className="w-4 h-4 shrink-0" style={{ color: s.color }} />
+                    className={`flex items-center gap-3 rounded-xl border px-3 py-2.5 text-left transition-all cursor-pointer ${n === 0 ? "opacity-50" : ""}`}
+                    style={{ backgroundColor: tint(s.color, on ? 16 : 6), borderColor: on ? s.color : "transparent" }}>
+              <span className="w-9 h-9 shrink-0 rounded-xl grid place-items-center" style={{ color: s.color, backgroundColor: tint(s.color, 18) }}>
+                <Icon className="w-4 h-4" />
+              </span>
               <span className="min-w-0">
                 <span className="block text-2xl font-black leading-none tabular-nums text-foreground">{n}</span>
                 <span className="block mt-1 text-xs font-semibold text-muted-foreground truncate">{s.label}</span>

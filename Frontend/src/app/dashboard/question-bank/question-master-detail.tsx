@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { ChevronLeft, ChevronRight, Pencil, Trash2, Clock, Award, CheckCircle2, BookOpen } from "lucide-react";
-import { toneByName, type ToneName } from "@/lib/ui/tones";
+import { toneByName, toneFor, type ToneName } from "@/lib/ui/tones";
 import { QUESTION_TYPE_OPTIONS, type QuestionRow } from "@/components/question-bank/question-bank-types";
 
 const LEVEL_TONE: Record<string, ToneName> = { junior: "teal", middle: "blue", senior: "violet" };
@@ -53,7 +53,7 @@ export default function QuestionMasterDetail({ data, total, page, limit, loading
                   <div className="flex items-center gap-2 text-[11px]">
                     <span className="tabular-nums font-bold text-muted-foreground">#{(page - 1) * limit + i + 1}</span>
                     <span className="rounded-full px-2 py-0.5 font-bold capitalize" style={{ color: t.ink, backgroundColor: t.bg }}>{q.level}</span>
-                    {q.topic_tag && <span className="font-semibold text-muted-foreground truncate">{q.topic_tag}</span>}
+                    {q.topic_tag && <span className="rounded-full px-2 py-0.5 font-bold truncate" style={{ color: toneFor(q.topic_tag).ink, backgroundColor: toneFor(q.topic_tag).bg }}>{q.topic_tag}</span>}
                   </div>
                   <p className="mt-1 text-sm text-foreground line-clamp-2">{q.question_text}</p>
                 </button>

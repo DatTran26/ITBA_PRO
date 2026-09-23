@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import ChartFrame from "@/components/charts/chart-frame";
+import { categoryTone } from "./skills-list-client";
 import type { SkillListItem } from "@/app/dashboard/management-types";
 
 type Zone = "short" | "ok" | "unmapped";
@@ -30,9 +31,10 @@ interface Bubble {
  *  Đường chéo y = x; nằm dưới đường = thiếu người. Kỹ năng trùng toạ độ gom
  *  thành một bong bóng (dữ liệu là số đếm nguyên nhỏ nên trùng rất nhiều). */
 export default function SupplyDemandMap({
-  skills, selectedKey, onSelect,
+  skills, selectedKey, onSelect, categoryOrder,
 }: {
   skills: SkillListItem[];
+  categoryOrder: string[];
   selectedKey: string | null;
   onSelect: (key: string | null, ids: string[]) => void;
 }) {
@@ -74,6 +76,21 @@ export default function SupplyDemandMap({
 
   const active = bubbles.find((b) => b.key === hover);
 
+  /* Bong bóng tô theo tỉ lệ nhóm kỹ năng bên trong (conic); vùng "chưa gắn" giữ xám. */
+  const pie = (b: Bubble) => {
+    if (b.zone === "unmapped") return ZONES.unmapped.color;
+    const n = b.skills.length;
+    let acc = 0;
+    const segs = [...b.skills].sort((x, y) => (x.category ?? "").localeCompare(y.category ?? "")).map((sk) => {
+      const c = categoryTone(sk.category, categoryOrder).mark;
+      const seg = `${c} ${(acc / n) * 360}deg ${((acc + 1) / n) * 360}deg`;
+      acc++;
+      return seg;
+    });
+    return `conic-gradient(${segs.join(",")})`;
+  };
+  const presentCats = categoryOrder.filter((c) => skills.some((s) => s.category === c));
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 mb-8">
       <ChartFrame
@@ -82,13 +99,18 @@ export default function SupplyDemandMap({
         subtitle="Mỗi bong bóng là các kỹ năng cùng số vị trí cần và số người có. Bấm để lọc danh sách."
         empty={skills.length === 0}
         aside={
-          <div className="flex flex-wrap justify-end gap-x-3 gap-y-1">
-            {(Object.keys(ZONES) as Zone[]).map((z) => (
-              <span key={z} className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-muted-foreground">
-                <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: ZONES[z].color }} />
-                {ZONES[z].label} <span className="tabular-nums text-foreground">{counts[z]}</span>
-              </span>
-            ))}
+          <div className="flex flex-col items-end gap-1">
+            <div className="flex flex-wrap justify-end gap-x-3 gap-y-1">
+              {presentCats.map((c) => (
+                <span key={c} className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-muted-foreground">
+                  <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: categoryTone(c, categoryOrder).mark }} />{c}
+                </span>
+              ))}
+            </div>
+            <div className="flex flex-wrap justify-end gap-x-3 text-[11px] font-semibold text-muted-foreground">
+              <span className="inline-flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full ring-2 ring-danger" />{ZONES.short.label} <b className="tabular-nums text-foreground">{counts.short}</b></span>
+              <span className="inline-flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: ZONES.unmapped.color }} />{ZONES.unmapped.label} <b className="tabular-nums text-foreground">{counts.unmapped}</b></span>
+            </div>
           </div>
         }
       >
@@ -142,9 +164,10 @@ export default function SupplyDemandMap({
                     className="absolute -translate-x-1/2 -translate-y-1/2 rounded-full grid place-items-center text-[10px] font-bold text-white tabular-nums transition-all duration-150 ring-2 ring-card hover:scale-110 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary cursor-pointer"
                     style={{
                       left: `${px(b.x)}%`, top: `${py(b.y)}%`, width: size, height: size,
-                      backgroundColor: ZONES[b.zone].color,
-                      opacity: dim ? 0.3 : 0.9,
-                      boxShadow: on ? `0 0 0 4px color-mix(in srgb, ${ZONES[b.zone].color} 30%, transparent)` : undefined,
+                      background: pie(b),
+                      opacity: dim ? 0.3 : 1,
+                      textShadow: "0 1px 2px rgb(0 0 0 / 0.45)",
+                      boxShadow: [b.zone === "short" ? "0 0 0 4px var(--danger)" : "", on ? "0 0 0 7px color-mix(in srgb, var(--primary) 30%, transparent)" : ""].filter(Boolean).join(",") || undefined,
                     }}
                   >
                     {n > 1 ? n : ""}
@@ -202,8 +225,10 @@ export default function SupplyDemandMap({
                   className="w-full text-left group cursor-pointer"
                 >
                   <div className="flex items-baseline justify-between gap-2">
-                    <span className="text-sm font-semibold text-foreground truncate group-hover:text-primary transition-colors">
-                      <span className="text-muted-foreground tabular-nums mr-1.5">{i + 1}</span>{s.name}
+                    <span className="flex items-center gap-2 min-w-0 text-sm font-semibold text-foreground group-hover:text-primary transition-colors">
+                      <span className="w-6 h-6 shrink-0 rounded-lg grid place-items-center text-[11px] font-black tabular-nums"
+                            style={{ color: categoryTone(s.category, categoryOrder).ink, backgroundColor: categoryTone(s.category, categoryOrder).bg }}>{i + 1}</span>
+                      <span className="truncate">{s.name}</span>
                     </span>
                     <span className={`shrink-0 text-xs font-bold tabular-nums ${short ? "text-danger" : "text-foreground"}`}>
                       {s.ratio.toFixed(1)}×
@@ -212,11 +237,11 @@ export default function SupplyDemandMap({
                   <div className="mt-1.5 h-2 rounded-full bg-muted overflow-hidden">
                     <div
                       className="h-full rounded-full"
-                      style={{ width: `${(s.ratio / maxRatio) * 100}%`, backgroundColor: short ? "var(--danger)" : "var(--primary)" }}
+                      style={{ width: `${(s.ratio / maxRatio) * 100}%`, backgroundColor: short ? "var(--danger)" : categoryTone(s.category, categoryOrder).mark }}
                     />
                   </div>
                   <p className="mt-1 text-[11px] text-muted-foreground tabular-nums">
-                    {s.person_count} người / {s.position_count} vị trí{short ? " · thiếu người" : ""}
+                    {s.category ?? "Chưa phân nhóm"} · {s.person_count} người / {s.position_count} vị trí{short ? " · thiếu người" : ""}
                   </p>
                 </button>
               </li>
