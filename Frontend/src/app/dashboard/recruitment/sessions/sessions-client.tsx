@@ -3,12 +3,9 @@ import { alpha } from "@/lib/utils";
 
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { CalendarDays, Plus, Loader2, ChevronRight, CalendarClock, Users, UserCheck, Clock, Percent } from "lucide-react";
-import SessionCard from "./session-card";
+import { CalendarDays, Plus, Loader2 } from "lucide-react";
+import SessionAgendaRow, { ROUND } from "./session-agenda-row";
 import SessionCreateForm from "./session-create-form";
-import KpiCardGrid from "@/components/crm/kpi-card-grid";
-import OverviewBand from "@/components/shares/overview-band";
-import { DonutStat, MiniBar } from "@/components/charts";
 import { SharedDashboardPageHeader } from "@/components/shares";
 
 import SessionsEmptyState from "./sessions-empty-state";
@@ -26,7 +23,7 @@ type TimeFilter  = "all"  | "upcoming" | "past";
 type RoundFilter = 0 | 1 | 2 | 3;
 interface Props { userRole: string; }
 
-const ROUND_COLORS: Record<number, string> = { 1: "var(--primary)", 2: "var(--warning)", 3: "var(--ai)" };
+const ROUND_COLORS: Record<number, string> = { 1: ROUND[1].tone.mark, 2: ROUND[2].tone.mark, 3: ROUND[3].tone.mark };
 
 export default function SessionsClient({ userRole }: Props) {
     const router = useRouter();
@@ -75,48 +72,25 @@ export default function SessionsClient({ userRole }: Props) {
     }, [sessions]);
 
 
-    /* Sáu thẻ và dải biểu đồ, tất cả suy từ `sessions` đã tải. */
-    const sessionKpis = useMemo(() => {
-        const confirmed = sessions.reduce((a, s) => a + s.confirmed_count, 0);
-        const pending   = sessions.reduce((a, s) => a + s.pending_count, 0);
-        return [
-            { label: "Buổi phỏng vấn", value: stats.total, icon: CalendarDays },
-            { label: "Sắp tới", value: stats.upcoming, icon: CalendarClock },
-            { label: "Ứng viên", value: stats.totalCandidates, icon: Users },
-            { label: "Đã xác nhận", value: confirmed, icon: UserCheck },
-            { label: "Chờ xác nhận", value: pending, icon: Clock },
-            { label: "Tỉ lệ xác nhận", value: `${stats.confirmRate}%`, icon: Percent },
+    /* Agenda: nhóm theo mốc thời gian; sắp tới tăng dần, đã qua giảm dần. */
+    const buckets = useMemo(() => {
+        const now = new Date();
+        const endToday = new Date(now); endToday.setHours(23, 59, 59, 999);
+        const endWeek = new Date(endToday); endWeek.setDate(endWeek.getDate() + ((7 - endWeek.getDay()) % 7));
+        const groups: { key: string; label: string; items: Session[] }[] = [
+            { key: "today", label: "Hôm nay", items: [] },
+            { key: "week", label: "Còn lại tuần này", items: [] },
+            { key: "later", label: "Sắp tới", items: [] },
+            { key: "past", label: "Đã diễn ra", items: [] },
         ];
-    }, [sessions, stats]);
-
-    const byConfirmation = useMemo(() => [
-        { label: "Đã xác nhận", value: sessions.reduce((a, s) => a + s.confirmed_count, 0), color: "var(--success)" },
-        { label: "Chờ xác nhận", value: sessions.reduce((a, s) => a + s.pending_count, 0), color: "var(--warning)" },
-        { label: "Đã từ chối",  value: sessions.reduce((a, s) => a + s.declined_count, 0), color: "var(--danger)" },
-    ], [sessions]);
-
-    const byRound = useMemo(() => ([1, 2, 3] as const).map((r) => ({
-        label: `Vòng ${r}`,
-        value: sessions.filter((s) => s.round === r).length,
-        color: r === 1 ? "var(--primary)" : r === 2 ? "var(--ai)" : "var(--success)",
-    })), [sessions]);
-
-    // Buổi phỏng vấn theo tuần, 8 tuần gần nhất.
-    const byWeek = useMemo(() => {
-        const weeks: { label: string; values: number[] }[] = [];
-        for (let i = 7; i >= 0; i--) {
-            const end = new Date(); end.setDate(end.getDate() - i * 7);
-            const start = new Date(end); start.setDate(start.getDate() - 6);
-            weeks.push({
-                label: `${start.getDate()}/${start.getMonth() + 1}`,
-                values: [sessions.filter((s) => {
-                    const t = new Date(s.scheduled_at).getTime();
-                    return t >= start.setHours(0, 0, 0, 0) && t <= end.setHours(23, 59, 59, 999);
-                }).length],
-            });
+        for (const s of filtered) {
+            const t = new Date(s.scheduled_at).getTime();
+            const g = t <= now.getTime() ? 3 : t <= endToday.getTime() ? 0 : t <= endWeek.getTime() ? 1 : 2;
+            groups[g].items.push(s);
         }
-        return weeks;
-    }, [sessions]);
+        for (const g of groups) g.items.sort((a, b) => (g.key === "past" ? -1 : 1) * (new Date(a.scheduled_at).getTime() - new Date(b.scheduled_at).getTime()));
+        return groups.filter((g) => g.items.length);
+    }, [filtered]);
 
     return (
         <div className="space-y-5">
@@ -124,6 +98,8 @@ export default function SessionsClient({ userRole }: Props) {
             <SharedDashboardPageHeader
                 className="mb-0"
                 title="Lịch phỏng vấn"
+                icon={CalendarDays}
+                badge={{ label: `${stats.upcoming} sắp tới · ${stats.totalCandidates} ứng viên · ${stats.confirmRate}% xác nhận` }}
                 description="Tạo buổi phỏng vấn theo vòng, xếp ứng viên và theo dõi xác nhận"
                 actions={canManage ? (
                     <button
@@ -134,15 +110,6 @@ export default function SessionsClient({ userRole }: Props) {
                     </button>
                 ) : undefined}
             />
-
-            <KpiCardGrid items={sessionKpis} />
-
-            <OverviewBand className="mb-0">
-                <DonutStat title="Xác nhận của ứng viên" slices={byConfirmation} centerLabel="Ứng viên" />
-                <DonutStat title="Theo vòng phỏng vấn" slices={byRound} centerLabel="Buổi" />
-                <MiniBar title="Buổi phỏng vấn 8 tuần qua" groups={byWeek}
-                         series={[{ label: "Buổi", color: "var(--primary)" }]} />
-            </OverviewBand>
 
             {/* ── Command Bar ─────────────────────────────────────── */}
             <div className="flex flex-wrap items-center gap-3 p-1.5 rounded-2xl"
@@ -201,18 +168,17 @@ export default function SessionsClient({ userRole }: Props) {
                         onCreate={() => setTab("create")}
                     />
                 ) : (
-                    <div className="space-y-4">
-                        {/* Count divider */}
-                        <div className="flex items-center gap-3">
-                            <div className="h-px flex-1 bg-muted-foreground/8" />
-                            <span className="text-[11px] font-semibold text-muted-foreground tracking-wide">
-                                {filtered.length} buổi phỏng vấn{timeFilter !== "all" || roundFilter !== 0 ? " · đã lọc" : ""}
-                            </span>
-                            <div className="h-px flex-1 bg-muted-foreground/8" />
-                        </div>
-                        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-                            {filtered.map(s => <SessionCard key={s.id} session={s} onNotified={fetchSessions} />)}
-                        </div>
+                    <div className="space-y-6">
+                        {buckets.map((g) => (
+                            <section key={g.key}>
+                                <h2 className="mb-2 flex items-baseline gap-2 text-sm font-bold uppercase tracking-wide text-muted-foreground">
+                                    {g.label} <span className="tabular-nums text-foreground">{g.items.length}</span>
+                                </h2>
+                                <div className="rounded-2xl border border-border bg-card divide-y divide-border overflow-hidden shadow-[0_2px_14px_color-mix(in_srgb,var(--primary)_8%,transparent)]">
+                                    {g.items.map((s) => <SessionAgendaRow key={s.id} session={s} onNotified={fetchSessions} />)}
+                                </div>
+                            </section>
+                        ))}
                     </div>
                 )
             ) : (
