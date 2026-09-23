@@ -4,7 +4,7 @@ import { useState, useCallback, Fragment } from "react";
 import { toast } from "sonner";
 import {
     Sparkles, CheckCircle2, XCircle, Clock, ChevronDown, ChevronUp,
-    Check, X, GitBranch, Calendar, FileText, Loader2, ShieldAlert,
+    Check, X, GitBranch, FileText, Loader2, ShieldAlert,
     Archive, FilePen, Zap,
 } from "lucide-react";
 import AppNavbar from "@/components/ui/app-navbar";
