@@ -45,6 +45,8 @@ import {
 } from "@/components/ui/dialog";
 import ScoreCard from "@/components/recruitment/score-card";
 import StatusTimeline from "@/components/recruitment/status-timeline";
+import PipelineStepper from "./_components/pipeline-stepper";
+import { toneFor } from "@/lib/ui/tones";
 import OverrideScoreDialog from "@/components/recruitment/override-score-dialog";
 import OfferActions from "@/components/recruitment/offer-actions";
 import NotesPanel from "@/components/crm/notes-panel";
@@ -448,9 +450,8 @@ export default function ApplicationDetailClient({ id, userRole }: Props) {
     return (
         <div className="space-y-6 pb-12">
             {/* Unified Candidate Profile Header */}
-            <div className="glass-card p-6 flex flex-col gap-6 relative overflow-hidden">
-                {/* Glow effect */}
-                <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-primary/10 via-transparent to-transparent pointer-events-none" />
+            <div className="rounded-2xl border border-border bg-card p-6 flex flex-col gap-6 relative overflow-hidden shadow-[0_2px_14px_color-mix(in_srgb,var(--primary)_8%,transparent)]">
+                <span aria-hidden className="absolute inset-x-0 top-0 h-1.5" style={{ background: `linear-gradient(90deg, ${toneFor(person.fullName).mark}, color-mix(in srgb, ${toneFor(person.fullName).mark} 25%, var(--card)))` }} />
 
                 {/* Top row: Basics + Actions */}
                 <div className="flex flex-col xl:flex-row xl:items-start justify-between gap-6 relative z-10">
@@ -462,9 +463,13 @@ export default function ApplicationDetailClient({ id, userRole }: Props) {
                         >
                             <ArrowLeft className="w-5 h-5" />
                         </button>
+                        <span className="w-14 h-14 shrink-0 rounded-2xl grid place-items-center text-xl font-black"
+                              style={{ color: toneFor(person.fullName).ink, backgroundColor: toneFor(person.fullName).bg }}>
+                            {person.fullName.trim().split(/\s+/).map((w) => w[0]).slice(-2).join("").toUpperCase()}
+                        </span>
                         <div className="flex flex-col gap-1.5 mt-0.5">
                             <div className="flex items-center gap-4">
-                                <h1 className="text-2xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-white to-foreground tracking-tight">
+                                <h1 className="text-2xl font-black text-foreground tracking-tight">
                                     {person.fullName}
                                 </h1>
 
@@ -613,6 +618,10 @@ export default function ApplicationDetailClient({ id, userRole }: Props) {
                             </DialogContent>
                         </Dialog>
                     </div>
+                </div>
+
+                <div className="relative z-10 border-t border-border pt-5">
+                    <PipelineStepper status={pipelineStatus} />
                 </div>
 
                 {/* Extracted Info Grid (Prioritized: Experience & Education) */}
