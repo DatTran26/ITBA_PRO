@@ -6,10 +6,7 @@ import AppNavbar from "@/components/ui/app-navbar";
 import PageBreadcrumb from "@/components/ui/page-breadcrumb";
 import PageContainer from "@/components/ui/page-container";
 import { Button } from "@/components/ui/button";
-import { Plus, Zap, TrendingUp, AlertTriangle, Download, LayoutList, LayoutGrid, Grid3X3, FilePlus2 } from "lucide-react";
-import KpiCardGrid from "@/components/crm/kpi-card-grid";
-import OverviewBand from "@/components/shares/overview-band";
-import { DonutStat, HBarList, colorAt } from "@/components/charts";
+import { Plus, Zap, Download, LayoutList, LayoutGrid, Grid3X3, FilePlus2, X } from "lucide-react";
 import { SharedDashboardPageHeader } from "@/components/shares";
 import FilterBar from "@/components/crm/filter-bar";
 import SkillFormDialog from "@/components/management/skill-form-dialog";
@@ -18,10 +15,11 @@ import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import SkillsTableView from "./skills-table-view";
 import SkillsCategoryView from "./skills-category-view";
 import SkillsMatrixView from "./skills-matrix-view";
+import SupplyDemandMap from "./supply-demand-map";
 import { toast } from "sonner";
 import type { SkillListItem } from "@/app/dashboard/management-types";
 import type { SkillCategory, SkillKpis } from "./page";
-import type { KpiCardData, FilterOption } from "@/lib/crm/types";
+import type { FilterOption } from "@/lib/crm/types";
 
 type ViewMode = "table" | "category" | "matrix";
 
@@ -52,7 +50,7 @@ const VIEW_OPTIONS = [
   { mode: "matrix" as ViewMode, icon: Grid3X3, label: "Matrix" },
 ];
 
-export default function SkillsListClient({ skills: initialSkills, categories, isAdmin, kpis }: Props) {
+export default function SkillsListClient({ skills: initialSkills, categories, isAdmin }: Props) {
   const router = useRouter();
   const [view, setView] = useState<ViewMode>("table");
   const [search, setSearch] = useState("");
@@ -62,40 +60,16 @@ export default function SkillsListClient({ skills: initialSkills, categories, is
   const [editTarget, setEditTarget] = useState<SkillListItem | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [exporting, setExporting] = useState(false);
+  const [mapPick, setMapPick] = useState<{ key: string; ids: Set<string> } | null>(null);
 
   const filtered = useMemo(() => {
     return initialSkills.filter((s) => {
+      if (mapPick && !mapPick.ids.has(s.id)) return false;
       if (categoryFilter && s.category !== categoryFilter) return false;
       if (!search) return true;
       return s.name.toLowerCase().includes(search.toLowerCase());
     });
-  }, [initialSkills, search, categoryFilter]);
-
-  const kpiItems: KpiCardData[] = [
-    { label: "Total Skills", value: kpis.totalSkills, icon: Zap },
-    { label: "Most Demanded", value: kpis.mostDemandedSkill, icon: TrendingUp },
-    { label: "Unmapped Skills", value: kpis.unmappedCount, icon: AlertTriangle },
-    { label: "Skill Gaps", value: kpis.shortageCount, icon: AlertTriangle },
-  ];
-
-
-  /* Dải tổng quan: suy từ danh sách kỹ năng đã fetch, không thêm truy vấn. */
-  const shortageBars = useMemo(() => initialSkills
-    .filter((s) => s.shortage_score > 0)
-    .map((s) => ({ label: s.name, value: s.shortage_score, color: "var(--danger)" })),
-  [initialSkills]);
-
-  const byCategory = useMemo(() => {
-    const counts = new Map<string, number>();
-    for (const s of initialSkills) counts.set(s.category ?? "Chưa phân nhóm",
-      (counts.get(s.category ?? "Chưa phân nhóm") ?? 0) + 1);
-    return [...counts].map(([label, value], i) => ({ label, value, color: colorAt(i) }));
-  }, [initialSkills]);
-
-  const mostRequired = useMemo(() => initialSkills
-    .filter((s) => s.position_count > 0)
-    .map((s) => ({ label: s.name, value: s.position_count, color: "var(--primary)" })),
-  [initialSkills]);
+  }, [initialSkills, search, categoryFilter, mapPick]);
 
   const categoryOptions: FilterOption[] = categories.map((c) => ({ value: c.name, label: c.name }));
 
@@ -145,7 +119,7 @@ export default function SkillsListClient({ skills: initialSkills, categories, is
   }
 
   const handleRowClick = (s: SkillListItem) => router.push(`/dashboard/skills/${s.id}`);
-  const clearAll = () => { setSearch(""); setCategoryFilter(""); };
+  const clearAll = () => { setSearch(""); setCategoryFilter(""); setMapPick(null); };
 
   return (
     <div className="bg-transparent text-foreground pb-12">
@@ -154,6 +128,8 @@ export default function SkillsListClient({ skills: initialSkills, categories, is
         <PageBreadcrumb breadcrumbs={[{ label: "Dashboard", href: "/dashboard" }, { label: "Skills" }]} />
         <SharedDashboardPageHeader
           title="Bản đồ kỹ năng"
+          icon={Zap}
+          badge={{ label: `${initialSkills.length} kỹ năng` }}
           description="Năng lực hiện có của tổ chức và những kỹ năng đang thiếu so với yêu cầu vị trí"
           actions={<>
             {isAdmin && (
@@ -182,13 +158,11 @@ export default function SkillsListClient({ skills: initialSkills, categories, is
           </>}
         />
 
-        <KpiCardGrid items={kpiItems} />
-
-        <OverviewBand className="mt-6">
-          <HBarList title="Kỹ năng thiếu hụt" items={shortageBars} />
-          <DonutStat title="Theo nhóm kỹ năng" slices={byCategory} centerLabel="Kỹ năng" />
-          <HBarList title="Vị trí yêu cầu nhiều nhất" items={mostRequired} />
-        </OverviewBand>
+        <SupplyDemandMap
+          skills={initialSkills}
+          selectedKey={mapPick?.key ?? null}
+          onSelect={(key, ids) => setMapPick(key ? { key, ids: new Set(ids) } : null)}
+        />
 
         <div className="flex items-center justify-between gap-3 mb-4">
           <FilterBar
@@ -212,6 +186,16 @@ export default function SkillsListClient({ skills: initialSkills, categories, is
             ))}
           </div>
         </div>
+
+        {mapPick && (
+          <button
+            type="button"
+            onClick={() => setMapPick(null)}
+            className="mb-3 inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 text-xs font-bold text-primary hover:bg-primary/15 cursor-pointer"
+          >
+            Đang lọc {mapPick.ids.size} kỹ năng từ bản đồ <X className="w-3.5 h-3.5" />
+          </button>
+        )}
 
         {view === "table" && (
           <SkillsTableView
