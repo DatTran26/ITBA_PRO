@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, Fragment } from "react";
 import { toast } from "sonner";
 import {
     Sparkles, CheckCircle2, XCircle, Clock, ChevronDown, ChevronUp,
@@ -13,11 +13,6 @@ import PageContainer from "@/components/ui/page-container";
 import VersionCreateDialog, { type VersionData } from "@/components/dashboard/version-create-dialog";
 import { ArrowUpCircle, Pencil } from "lucide-react";
 import { SharedDashboardPageHeader } from "@/components/shares";
-import KpiCardGrid from "@/components/crm/kpi-card-grid";
-import OverviewBand from "@/components/shares/overview-band";
-import { DonutStat, HBarList, TrendArea, colorAt } from "@/components/charts";
-import { countByMonth } from "@/lib/ui/series";
-import type { KpiCardData } from "@/lib/crm/types";
 
 type Status = "draft" | "pending" | "approved" | "rejected" | "archived";
 
@@ -91,22 +86,8 @@ export default function VersionsClient({ versions: initialVersions, isAdmin, isS
     const displayed = tab === "all" ? versions : versions.filter(v => v.status === tab);
     const pendingCount = versions.filter(v => v.status === "pending").length;
 
-    /* KPI + dải tổng quan: suy ra từ `versions` đã có, không thêm truy vấn. */
-    const countStatus = (st: Status) => versions.filter((v) => v.status === st).length;
-    const kpis: KpiCardData[] = [
-        { label: "Tổng phiên bản", value: versions.length, icon: GitBranch, badge: "Toàn bộ" },
-        { label: "Published", value: countStatus("approved"), icon: CheckCircle2, badge: "Đã phát hành" },
-        { label: "Chờ duyệt", value: pendingCount, icon: Clock, badge: "Cần xử lý" },
-        { label: "Draft", value: countStatus("draft"), icon: FilePen, badge: "Đang soạn" },
-        { label: "Critical", value: versions.filter((v) => v.is_critical).length, icon: Zap, badge: "Ưu tiên", tone: "pink" },
-        { label: "Archived", value: countStatus("archived") + countStatus("rejected"), icon: Archive, badge: "Đã đóng" },
-    ];
-    const byStatus = (Object.keys(STATUS_CONFIG) as Status[]).map((st, i) => ({
-        label: STATUS_CONFIG[st].label, value: countStatus(st), color: colorAt(i),
-    })).filter((x) => x.value > 0);
-    const byCategory = CATEGORIES.map((c) => ({ label: c.label, value: versions.filter((v) => v.category === c.value).length }))
-        .filter((x) => x.value > 0);
-    const byMonth = countByMonth(versions.map((v) => v.created_at));
+    const countStatus = (st: Status | "all") => st === "all" ? versions.length : versions.filter((v) => v.status === st).length;
+    const monthOf = (iso: string) => new Date(iso).toLocaleDateString("vi-VN", { month: "long", year: "numeric" });
 
     const handleStatusChange = useCallback(async (id: string, newStatus: "approved" | "rejected" | "archived") => {
         setProcessing(id);
@@ -248,40 +229,34 @@ export default function VersionsClient({ versions: initialVersions, isAdmin, isS
                         </div>
                     )}
 
-                    <KpiCardGrid items={kpis} />
-
-                    {versions.length > 0 && (
-                        <OverviewBand className="mt-6 mb-0">
-                            <DonutStat title="Trạng thái phát hành" subtitle="Draft, chờ duyệt, published..." tag={{ label: "Trạng thái" }} slices={byStatus} centerLabel="Bản" />
-                            <HBarList title="Theo loại thay đổi" subtitle="Platform, feature, security..." tag={{ label: "Loại", tone: "violet" }} items={byCategory} />
-                            <TrendArea title="Phiên bản mới" subtitle="Tạo trong 6 tháng gần nhất" tag={{ label: "6 tháng", tone: "teal" }} points={byMonth} color={colorAt(2)} />
-                        </OverviewBand>
-                    )}
                 </div>
 
                 {isSuperAdmin && (
-                    <div className="flex items-center gap-1 mb-6 bg-muted border border-border/10 rounded-xl p-1 w-fit max-w-full overflow-x-auto">
+                    <div className="flex items-center gap-1 mb-8 bg-card border border-border rounded-xl p-1 w-fit max-w-full overflow-x-auto">
                         {ADMIN_TABS.map(t => (
                             <button
                                 key={t.key}
                                 onClick={() => setTab(t.key)}
-                                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${tab === t.key ? "bg-primary text-white" : "text-muted-foreground hover:text-foreground"}`}
+                                className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors cursor-pointer ${tab === t.key ? "bg-primary text-white" : "text-muted-foreground hover:text-foreground"}`}
                             >
                                 {t.label}
+                                <span className={`tabular-nums text-[10px] px-1.5 rounded-full ${tab === t.key ? "bg-white/25" : "bg-background"}`}>{countStatus(t.key)}</span>
                             </button>
                         ))}
                     </div>
                 )}
 
-                <div className="flex flex-col gap-4">
-                    {displayed.length === 0 && (
+                {displayed.length === 0 && (
                         <div className="flex flex-col items-center justify-center py-20 text-muted-foreground">
                             <GitBranch className="w-10 h-10 mb-3 opacity-30" />
                             <p className="text-sm">Chưa có version nào</p>
                         </div>
                     )}
 
-                    {displayed.map(v => {
+                <ol className={`relative ml-[132px] border-l-2 border-border pl-8 flex flex-col gap-5 ${displayed.length ? "" : "hidden"}`}>
+                    {displayed.map((v, idx) => {
+                        const month = monthOf(v.created_at);
+                        const newMonth = idx === 0 || monthOf(displayed[idx - 1].created_at) !== month;
                         const status = (v.status as Status) in STATUS_CONFIG ? v.status as Status : "pending";
                         const cfg = STATUS_CONFIG[status];
                         const Icon = cfg.icon;
@@ -290,20 +265,29 @@ export default function VersionsClient({ versions: initialVersions, isAdmin, isS
                         const features: string[] = Array.isArray(v.features) ? v.features : [];
 
                         return (
+                            <Fragment key={v.id}>
+                            {newMonth && (
+                                <li className="relative -mb-1 pt-2">
+                                    <span className="absolute -left-[41px] top-2.5 w-4 h-4 rounded-full bg-background border-2 border-border" />
+                                    <span className="absolute right-[calc(100%+3.5rem)] top-1.5 whitespace-nowrap text-sm font-extrabold capitalize text-foreground">{month}</span>
+                                </li>
+                            )}
+                            <li className="relative">
+                                <span className={`absolute -left-[39px] top-7 w-3 h-3 rounded-full ring-4 ring-background ${cfg.dot}`} />
+                                <span className="absolute right-[calc(100%+3.5rem)] top-6 whitespace-nowrap text-right">
+                                    <span className="block font-mono text-sm font-bold text-primary">v{v.version_number}</span>
+                                    <span className="block text-[11px] text-muted-foreground tabular-nums">{formatDate(v.created_at)}</span>
+                                </span>
                             <div
-                                key={v.id}
-                                className={`bg-muted border rounded-2xl overflow-hidden transition-colors ${v.status === "pending" ? "border-amber-500/25" : "border-border/10"}`}
+                                className={`bg-card border rounded-2xl overflow-hidden transition-shadow shadow-[0_2px_14px_color-mix(in_srgb,var(--primary)_8%,transparent)] hover:shadow-[0_8px_24px_color-mix(in_srgb,var(--primary)_14%,transparent)] ${v.status === "pending" ? "border-warning/40" : "border-border"}`}
                             >
                                 <div
-                                    className="w-full flex flex-col md:flex-row md:items-center justify-between px-6 py-5 text-left transition-all cursor-pointer group hover:bg-primary/40"
+                                    className="w-full flex flex-col md:flex-row md:items-center justify-between px-6 py-5 text-left transition-all cursor-pointer group hover:bg-muted/40"
                                     onClick={() => setExpanded(isExpanded ? null : v.id)}
                                 >
                                     <div className="flex items-center gap-4">
                                         <div className={`w-2.5 h-2.5 rounded-full ${cfg.dot} shrink-0 shadow-[0_0_8px_color-mix(in_srgb,var(--success)_30%,transparent)]`} />
                                         <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-4 flex-1">
-                                            <span className="font-mono text-xs font-bold text-primary bg-primary/10 px-2 py-0.5 rounded-md border border-border/20 w-fit">
-                                                v{v.version_number}
-                                            </span>
                                             <div className="flex flex-col items-start">
                                                 <div className="flex flex-wrap items-center gap-2">
                                                     <span className="text-base font-semibold text-foreground group-hover:text-foreground transition-colors">{v.title}</span>
@@ -317,10 +301,6 @@ export default function VersionsClient({ versions: initialVersions, isAdmin, isS
                                                     <span className={`flex items-center gap-1 text-[11px] font-bold px-2 py-0.5 rounded-md border ${cfg.bg} ${cfg.text} ${cfg.border}`}>
                                                         <Icon className="w-3 h-3" />
                                                         {cfg.label.toUpperCase()}
-                                                    </span>
-                                                    <span className="flex items-center gap-1.5 text-[11px] font-medium opacity-70">
-                                                        <Calendar className="w-3 h-3" />
-                                                        {formatDate(v.created_at)}
                                                     </span>
                                                     {features.length > 0 && (
                                                         <span className="flex items-center gap-1.5 text-[11px] font-medium opacity-70">
@@ -631,9 +611,11 @@ export default function VersionsClient({ versions: initialVersions, isAdmin, isS
                                     </div>
                                 )}
                             </div>
+                            </li>
+                            </Fragment>
                         );
                     })}
-                </div>
+                </ol>
             </PageContainer>
         </div>
     );
