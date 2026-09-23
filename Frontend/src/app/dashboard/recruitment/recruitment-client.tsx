@@ -4,16 +4,13 @@ import { alpha } from "@/lib/utils";
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { XCircle, FileText, Settings, BarChart3, Upload, Download, RotateCcw, Search, Eye, MoreVertical, Users, CalendarClock, Filter, MessageSquare, CheckCircle2 } from "lucide-react";
+import { XCircle, FileText, Settings, BarChart3, Upload, Download, RotateCcw, Search, Eye, MoreVertical, Users } from "lucide-react";
 import DataTable from "@/components/crm/data-table";
 import KanbanBoard from "@/components/crm/kanban-board";
 import BulkActionBar from "@/components/crm/bulk-action-bar";
 import CvUploadDialog from "@/components/recruitment/cv-upload-dialog";
 import { Button } from "@/components/ui/button";
 import ViewSwitcher from "@/components/crm/view-switcher";
-import KpiCardGrid from "@/components/crm/kpi-card-grid";
-import OverviewBand from "@/components/shares/overview-band";
-import { DonutStat, HBarList, Sparkline } from "@/components/charts";
 import { SharedDashboardPageHeader } from "@/components/shares";
 import type { ColumnDef } from "@/lib/crm/types";
 import type { PipelineStatus } from "@/types/recruitment";
@@ -89,26 +86,14 @@ const KANBAN_COLORS: Record<string, string> = {
   INTERVIEW_SCHEDULED: "var(--warning)", INTERVIEWED: "var(--warning)", PASSED: "var(--success)",
 };
 
-const PIPELINE_LABELS: Record<string, string> = {
-  NEW: "Mới", SCREENED: "Đã sàng lọc", SHORTLISTED: "Vào danh sách ngắn",
-  INTERVIEW_SCHEDULED: "Đã hẹn phỏng vấn", INTERVIEWED: "Đã phỏng vấn", PASSED: "Đạt",
+const FUNNEL = ["NEW", "SCREENED", "SHORTLISTED", "INTERVIEW_SCHEDULED", "INTERVIEWED", "PASSED", "OFFERED", "ONBOARDED"];
+const FUNNEL_LABEL: Record<string, string> = {
+  NEW: "Mới", SCREENED: "Sàng lọc", SHORTLISTED: "Tiềm năng", INTERVIEW_SCHEDULED: "Hẹn PV",
+  INTERVIEWED: "Đã PV", PASSED: "Đạt PV", OFFERED: "Đề xuất", ONBOARDED: "Onboard",
 };
+const EXITS: [string, string][] = [["REJECTED", "Từ chối"], ["FAILED", "Trượt PV"]];
 
 const CV_STATUS_OPTIONS = ["PENDING", "PROCESSING", "COMPLETED", "FAILED"];
-
-const FILTER_TABS = [
-  { key: "", label: "Tất cả", dot: "var(--primary)" },
-  { key: "NEW", label: "Mới", dot: "var(--primary)" },
-  { key: "SCREENED", label: "Sàng lọc", dot: "var(--ai)" },
-  { key: "REJECTED", label: "Từ chối", dot: "var(--muted-foreground)" },
-  { key: "SHORTLISTED", label: "Tiềm năng", dot: "var(--primary)" },
-  { key: "INTERVIEW_SCHEDULED", label: "Hẹn PV", dot: "var(--warning)" },
-  { key: "INTERVIEWED", label: "Đã PV", dot: "var(--warning)" },
-  { key: "PASSED", label: "Đạt PV", dot: "var(--success)" },
-  { key: "FAILED", label: "Trượt PV", dot: "var(--danger)" },
-  { key: "OFFERED", label: "Đề xuất", dot: "var(--primary)" },
-  { key: "ONBOARDED", label: "Onboard", dot: "var(--success)" },
-];
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 function getScoreTone(score: number | null) {
@@ -404,48 +389,6 @@ export default function RecruitmentClient({ userRole }: Props) {
     acc[item.pipelineStatus] = (acc[item.pipelineStatus] ?? 0) + 1;
     return acc;
   }, {});
-  const completedCv = applications.filter(a => a.cvParseStatus === "COMPLETED").length;
-  const pendingInterviews = applications.filter(
-    a => a.pipelineStatus === "SHORTLISTED" || a.pipelineStatus === "INTERVIEW_SCHEDULED"
-  ).length;
-
-  /* Sáu thẻ + ba biểu đồ, tất cả suy từ `applications` đã tải, không gọi thêm API. */
-  const recruitmentKpis = [
-    { label: "Ứng viên", value: total, icon: Users },
-    { label: "CV đã phân tích", value: completedCv, icon: FileText },
-    { label: "Chờ phỏng vấn", value: pendingInterviews, icon: CalendarClock },
-    { label: "Đã sàng lọc", value: statusCounts["SCREENED"] ?? 0, icon: Filter },
-    { label: "Đã phỏng vấn", value: statusCounts["INTERVIEWED"] ?? 0, icon: MessageSquare },
-    { label: "Đạt", value: statusCounts["PASSED"] ?? 0, icon: CheckCircle2 },
-  ];
-
-  const byPipeline = KANBAN_STATUSES.map((st) => ({
-    label: PIPELINE_LABELS[st] ?? st.replace(/_/g, " "),
-    value: statusCounts[st] ?? 0,
-    color: KANBAN_COLORS[st] ?? "var(--muted-foreground)",
-  })).filter((s) => s.value > 0);
-
-  const byJd = (() => {
-    const counts = new Map<string, number>();
-    for (const a of applications) counts.set(a.jdTitle || "Chưa gán JD",
-      (counts.get(a.jdTitle || "Chưa gán JD") ?? 0) + 1);
-    return [...counts].map(([label, value]) => ({ label, value }));
-  })();
-
-  // CV nộp theo ngày trong 14 ngày gần nhất.
-  const cvPerDay = (() => {
-    const days: { label: string; value: number }[] = [];
-    for (let i = 13; i >= 0; i--) {
-      const d = new Date();
-      d.setDate(d.getDate() - i);
-      const key = d.toISOString().slice(0, 10);
-      days.push({
-        label: key.slice(8, 10) + "/" + key.slice(5, 7),
-        value: applications.filter((a) => a.createdAt?.slice(0, 10) === key).length,
-      });
-    }
-    return days;
-  })();
 
   const activeFilterCount = [statusFilter, jdFilter, skillFilter, cvStatusFilter, minScore, maxScore, createdFrom, createdTo].filter(Boolean).length + (sortBy !== "date_desc" ? 1 : 0);
 
@@ -470,6 +413,8 @@ export default function RecruitmentClient({ userRole }: Props) {
         <SharedDashboardPageHeader
           className="mb-0"
           title="Tuyển dụng"
+          icon={Users}
+          badge={{ label: `${total} hồ sơ` }}
           description="Toàn bộ ứng viên và trạng thái của họ trong quy trình"
         />
 
@@ -523,36 +468,39 @@ export default function RecruitmentClient({ userRole }: Props) {
       {/* ── FILTER SECTION ──────────────────────────────────────────────────── */}
       <div className="sticky top-[72px] z-20 space-y-2 bg-background pb-2">
 
-        <KpiCardGrid items={recruitmentKpis} />
-
-        <OverviewBand className="mt-1 mb-0">
-          <DonutStat title="Theo bước tuyển dụng" slices={byPipeline} centerLabel="Hồ sơ" />
-          <HBarList title="Theo vị trí tuyển" items={byJd} />
-          <Sparkline title="CV nộp 14 ngày qua" points={cvPerDay} />
-        </OverviewBand>
-
-        {/* Pipeline status tabs */}
-        <div className="flex items-center gap-1 overflow-x-auto scrollbar-hide rounded-xl border border-[color-mix(in_srgb,var(--primary)_10%,transparent)] bg-muted/80 p-1 backdrop-blur-xl">
-          {FILTER_TABS.map(tab => {
-            const isActive = statusFilter === tab.key;
-            const count = tab.key ? (statusCounts[tab.key] ?? 0) : total;
-            return (
-              <button key={tab.key} onClick={() => setStatusFilter(tab.key)}
-                className={`flex-none inline-flex cursor-pointer items-center gap-2 whitespace-nowrap rounded-lg px-3 py-2 text-[11px] font-semibold transition-all duration-150 ${
-                  isActive
-                    ? "bg-accent text-foreground"
-                    : "text-muted-foreground hover:bg-accent/50 hover:text-muted-foreground"
-                }`}
-              >
-                <span className="h-1.5 w-1.5 shrink-0 rounded-full transition-opacity"
-                  style={{ background: tab.dot, opacity: isActive ? 1 : 0.4 }} />
-                {tab.label}
-                <span className={`rounded-md px-1.5 py-0.5 text-[9px] font-bold tabular-nums transition-colors ${
-                  isActive ? "bg-[color-mix(in_srgb,var(--primary)_20%,transparent)] text-primary" : "bg-[color-mix(in_srgb,var(--primary)_8%,transparent)] text-muted-foreground"
-                }`}>{count}</span>
-              </button>
-            );
-          })}
+        {/* Funnel: luồng chính dạng chevron + hai nhánh loại; bấm để lọc. Số đếm theo trang đang tải. */}
+        <div className="flex items-stretch gap-3">
+          <button type="button" onClick={() => setStatusFilter("")} aria-pressed={statusFilter === ""}
+            className={`shrink-0 rounded-xl border px-4 py-2 text-left transition-colors cursor-pointer ${statusFilter === "" ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card hover:border-primary/40"}`}>
+            <span className="block text-xl font-black leading-none tabular-nums">{total}</span>
+            <span className={`block mt-1 text-[11px] font-bold ${statusFilter === "" ? "text-primary-foreground/80" : "text-muted-foreground"}`}>Tất cả</span>
+          </button>
+          <div className="flex flex-1 min-w-0 rounded-xl bg-[color-mix(in_srgb,var(--primary)_12%,var(--card))] p-1">
+            {FUNNEL.map((st, i) => {
+              const on = statusFilter === st;
+              const n = statusCounts[st] ?? 0;
+              return (
+                <button key={st} type="button" onClick={() => setStatusFilter(on ? "" : st)} aria-pressed={on}
+                  className={`relative flex-1 min-w-0 py-2 text-left transition-colors cursor-pointer ${i ? "-ml-1 pl-6" : "pl-4 rounded-l-lg"} pr-4 ${on ? "bg-primary text-primary-foreground z-10" : n ? "bg-card hover:bg-accent" : "bg-card/60 hover:bg-card"}`}
+                  style={{ clipPath: i === FUNNEL.length - 1 ? "polygon(0 0,100% 0,100% 100%,0 100%,10px 50%)" : i ? "polygon(0 0,calc(100% - 10px) 0,100% 50%,calc(100% - 10px) 100%,0 100%,10px 50%)" : "polygon(0 0,calc(100% - 10px) 0,100% 50%,calc(100% - 10px) 100%,0 100%)" }}>
+                  <span className="block text-xl font-black leading-none tabular-nums">{n}</span>
+                  <span className={`block mt-1 truncate text-[11px] font-bold ${on ? "text-primary-foreground/80" : "text-muted-foreground"}`}>{FUNNEL_LABEL[st]}</span>
+                </button>
+              );
+            })}
+          </div>
+          <div className="flex shrink-0 gap-2">
+            {EXITS.map(([st, label]) => {
+              const on = statusFilter === st;
+              return (
+                <button key={st} type="button" onClick={() => setStatusFilter(on ? "" : st)} aria-pressed={on}
+                  className={`rounded-xl border px-3 py-2 text-left transition-colors cursor-pointer ${on ? "border-danger bg-danger/10" : "border-dashed border-border bg-card hover:border-danger/40"}`}>
+                  <span className="block text-xl font-black leading-none tabular-nums text-foreground">{statusCounts[st] ?? 0}</span>
+                  <span className="block mt-1 text-[11px] font-bold text-muted-foreground">{label}</span>
+                </button>
+              );
+            })}
+          </div>
         </div>
 
         {/* Filter inputs */}
