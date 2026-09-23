@@ -4,35 +4,24 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import {
     Users,
-    Plus,
     Search,
     MoreHorizontal,
     Shield,
     UserPlus,
     Trash2,
-    Mail,
-    Calendar,
     Settings2,
     ShieldCheck,
-    UserCircle,
     Loader2,
-    Key,
-    UserCheck,
     XCircle,
-    ArrowLeft,
     Copy,
     Check,
-    Briefcase,
-    CalendarCheck,
-    UserCog,
     KeyRound
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { PageTransition, StaggerContainer, StaggerItem } from "@/components/ui/motion-wrapper";
+import { PageTransition } from "@/components/ui/motion-wrapper";
 import {
     Dialog,
     DialogContent,
@@ -53,17 +42,11 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import Link from "next/link";
 import AppNavbar from "@/components/ui/app-navbar";
 import PageBreadcrumb from "@/components/ui/page-breadcrumb";
 import PageContainer from "@/components/ui/page-container";
 import { SharedDashboardPageHeader } from "@/components/shares";
-import KpiCardGrid from "@/components/crm/kpi-card-grid";
-import OverviewBand from "@/components/shares/overview-band";
-import { DonutStat, HBarList, TrendArea, colorAt } from "@/components/charts";
-import { countByMonth } from "@/lib/ui/series";
 import { ROLE_ORDER, ROLE_LABEL, roleTone } from "@/lib/ui/roles";
-import type { KpiCardData } from "@/lib/crm/types";
 
 interface UserProfile {
     id: string;
@@ -102,6 +85,7 @@ export default function UsersClient({
 }) {
     const [users, setUsers] = useState<UserProfile[]>(initialUsers);
     const [searchQuery, setSearchQuery] = useState("");
+    const [roleFilter, setRoleFilter] = useState<string>("");
     const [isAddingUser, setIsAddingUser] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [resetConfirmationUser, setResetConfirmationUser] = useState<UserProfile | null>(null);
@@ -133,26 +117,17 @@ export default function UsersClient({
         setTimeout(() => setCopied(false), 2000);
     };
 
-    /* KPI + dải tổng quan: suy ra từ `users` đã có, không thêm truy vấn. */
-    const countRole = (...roles: string[]) => users.filter((u) => roles.includes(u.role)).length;
-    const kpis: KpiCardData[] = [
-        { label: "Tổng tài khoản", value: users.length, icon: Users, badge: "Toàn hệ thống" },
-        { label: "Admin", value: countRole("super_admin", "admin"), icon: Shield, badge: "Quản trị" },
-        { label: "HR", value: countRole("hr"), icon: Briefcase, badge: "Tuyển dụng" },
-        { label: "Interviewer", value: countRole("interviewer"), icon: CalendarCheck, badge: "Phỏng vấn" },
-        { label: "Vận hành", value: countRole("recruiter", "leader"), icon: UserCog, badge: "Recruiter + Leader" },
-        { label: "Đổi mật khẩu", value: users.filter((u) => u.force_password_change).length, icon: KeyRound, badge: "Bắt buộc", tone: "pink" },
+    const countRole = (role: string) => users.filter((u) => u.role === role).length;
+    const resetCount = users.filter((u) => u.force_password_change).length;
+    const rail = [
+        { key: "", label: "Tất cả", hint: "Mọi tài khoản", count: users.length, color: "var(--foreground)" },
+        ...ROLE_ORDER.map((r) => ({ key: r as string, label: ROLE_LABEL[r], hint: ROLE_ACCESS_LABEL[r], count: countRole(r), color: roleTone(r).mark })),
     ];
-    const byRole = ROLE_ORDER.map((r) => ({ label: ROLE_LABEL[r], value: countRole(r), color: roleTone(r).mark })).filter((x) => x.value > 0);
-    const byMonth = countByMonth(users.map((u) => u.created_at));
-    const byDomain = [...users.reduce((m, u) => {
-        const d = u.email.split("@")[1] ?? "khác";
-        return m.set(d, (m.get(d) ?? 0) + 1);
-    }, new Map<string, number>())].map(([label, value]) => ({ label, value }));
 
     const filteredUsers = users.filter(u =>
-        u.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        u.email.toLowerCase().includes(searchQuery.toLowerCase())
+        (roleFilter === "" || (roleFilter === "reset" ? u.force_password_change : u.role === roleFilter)) &&
+        (u.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        u.email.toLowerCase().includes(searchQuery.toLowerCase()))
     );
 
     const handleCreateUser = async () => {
@@ -583,113 +558,115 @@ export default function UsersClient({
                     )}
                 />
 
-                <KpiCardGrid items={kpis} />
+                <div className="grid grid-cols-[260px_1fr] gap-6 items-start">
+                    {/* Rail vai trò: đếm + lọc */}
+                    <nav className="sticky top-24 rounded-2xl border border-border bg-card p-2 shadow-[0_2px_14px_color-mix(in_srgb,var(--primary)_8%,transparent)]">
+                        <p className="px-3 pt-2 pb-1 text-[11px] font-bold uppercase tracking-wide text-muted-foreground">Vai trò</p>
+                        {rail.map((r) => {
+                            const on = roleFilter === r.key;
+                            return (
+                                <button key={r.key || "all"} type="button" onClick={() => setRoleFilter(r.key)} aria-pressed={on}
+                                        className={`w-full flex items-center gap-3 rounded-xl px-3 py-2.5 text-left transition-colors cursor-pointer ${on ? "bg-accent" : "hover:bg-muted"} ${r.count === 0 && r.key ? "opacity-50" : ""}`}>
+                                    <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: r.color }} />
+                                    <span className="flex-1 min-w-0">
+                                        <span className={`block text-sm truncate ${on ? "font-extrabold text-foreground" : "font-semibold text-foreground"}`}>{r.label}</span>
+                                        <span className="block text-[11px] text-muted-foreground truncate">{r.hint}</span>
+                                    </span>
+                                    <span className="text-sm font-bold tabular-nums text-muted-foreground">{r.count}</span>
+                                </button>
+                            );
+                        })}
+                        <div className="my-2 border-t border-border" />
+                        <button type="button" onClick={() => setRoleFilter("reset")} aria-pressed={roleFilter === "reset"}
+                                className={`w-full flex items-center gap-3 rounded-xl px-3 py-2.5 text-left transition-colors cursor-pointer ${roleFilter === "reset" ? "bg-accent" : "hover:bg-muted"}`}>
+                            <KeyRound className="w-4 h-4 shrink-0 text-warning" />
+                            <span className="flex-1 text-sm font-semibold text-foreground">Chờ đổi mật khẩu</span>
+                            <span className={`text-sm font-bold tabular-nums ${resetCount ? "text-warning" : "text-muted-foreground"}`}>{resetCount}</span>
+                        </button>
+                    </nav>
 
-                {users.length > 0 && (
-                    <OverviewBand className="mt-6">
-                        <DonutStat title="Cơ cấu vai trò" subtitle="Tài khoản theo vai trò" tag={{ label: "Vai trò" }} slices={byRole} centerLabel="Tài khoản" />
-                        <TrendArea title="Tài khoản mới" subtitle="Tạo trong 6 tháng gần nhất" tag={{ label: "6 tháng", tone: "teal" }} points={byMonth} color={colorAt(2)} />
-                        <HBarList title="Theo tên miền email" subtitle="Nguồn tài khoản" tag={{ label: "Domain", tone: "violet" }} items={byDomain} />
-                    </OverviewBand>
-                )}
-
-                <div className="relative mb-6 max-w-sm group">
-                    <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-primary transition-colors pointer-events-none" />
-                    <Input
-                        placeholder="Tìm theo tên, email..."
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        className="pl-10 h-11 bg-muted/40 border-border rounded-xl text-foreground placeholder:text-muted-foreground/60"
-                    />
-                </div>
-
-                <div className="grid grid-cols-1 gap-6">
-                    <StaggerContainer className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-                        {filteredUsers.map((user, i) => (
-                            <StaggerItem key={user.id}>
-                                <Card className="glass-card glass-card-hover group relative overflow-hidden h-full border-none">
-                                    <div className="absolute top-0 right-0 p-24 bg-primary/[0.03] rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity" />
-
-                                    <CardContent className="p-6 relative z-10">
-                                        <div className="flex items-start justify-between gap-4">
-                                            <div className="flex items-center gap-4">
-                                                <div className="w-14 h-14 rounded-2xl bg-background/60 border border-border/10 flex items-center justify-center relative overflow-hidden group-hover:border-border/30 transition-colors">
-                                                    <UserCircle className="w-8 h-8 text-muted-foreground group-hover:text-primary transition-colors" />
-                                                </div>
-                                                <div className="space-y-1">
-                                                    <div className="flex items-center gap-2">
-                                                        <h3 className="text-lg font-medium text-foreground group-hover:text-foreground transition-colors">{user.name}</h3>
-                                                        <Badge
-                                                            className="border-0 px-2 h-5 text-[10px] uppercase font-bold tracking-widest"
-                                                            style={{ color: roleTone(user.role).ink, backgroundColor: roleTone(user.role).bg }}
-                                                        >
-                                                            {user.role}
-                                                        </Badge>
-                                                    </div>
-                                                    <p className="text-sm text-muted-foreground flex items-center gap-2">
-                                                        <Mail className="w-3 h-3" />
-                                                        {user.email}
-                                                    </p>
-                                                </div>
+                    {/* Roster */}
+                    <section className="rounded-2xl border border-border bg-card overflow-hidden shadow-[0_2px_14px_color-mix(in_srgb,var(--primary)_8%,transparent)]">
+                        <div className="flex items-center justify-between gap-4 px-5 py-4 border-b border-border">
+                            <div>
+                                <h2 className="text-lg font-extrabold text-foreground">
+                                    {roleFilter === "reset" ? "Chờ đổi mật khẩu" : roleFilter ? ROLE_LABEL[roleFilter] : "Tất cả tài khoản"}
+                                </h2>
+                                <p className="text-xs text-muted-foreground tabular-nums">{filteredUsers.length} tài khoản</p>
+                            </div>
+                            <div className="relative w-72 group">
+                                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-primary transition-colors pointer-events-none" />
+                                <Input
+                                    placeholder="Tìm theo tên, email..."
+                                    value={searchQuery}
+                                    onChange={(e) => setSearchQuery(e.target.value)}
+                                    className="pl-10 h-10 bg-muted/40 border-border rounded-xl text-foreground placeholder:text-muted-foreground/60"
+                                />
+                            </div>
+                        </div>
+                        <div className="grid grid-cols-[1fr_140px_200px_110px_40px] gap-4 px-5 py-2.5 text-[11px] font-bold uppercase tracking-wide text-muted-foreground bg-muted/40">
+                            <span>Người dùng</span><span>Vai trò</span><span>Quyền</span><span>Tạo lúc</span><span />
+                        </div>
+                        {filteredUsers.length === 0 && (
+                            <p className="px-5 py-12 text-center text-sm text-muted-foreground">Không có tài khoản nào khớp</p>
+                        )}
+                        <ul className="divide-y divide-border">
+                            {filteredUsers.map((user) => {
+                                const tone = roleTone(user.role);
+                                const isMe = user.id === currentUser.id;
+                                return (
+                                    <li key={user.id} className="grid grid-cols-[1fr_140px_200px_110px_40px] items-center gap-4 px-5 py-3 hover:bg-muted/40 transition-colors">
+                                        <div className="flex items-center gap-3 min-w-0">
+                                            <span className="w-10 h-10 shrink-0 rounded-full grid place-items-center text-xs font-bold" style={{ color: tone.ink, backgroundColor: tone.bg }}>
+                                                {(user.name || user.email).trim().split(/\s+/).map((w) => w[0]).slice(-2).join("").toUpperCase()}
+                                            </span>
+                                            <div className="min-w-0">
+                                                <p className="flex items-center gap-2 font-bold text-foreground truncate">
+                                                    {user.name}
+                                                    {isMe && <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-bold text-primary">Bạn</span>}
+                                                    {user.force_password_change && (
+                                                        <span className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold text-warning bg-warning/10">
+                                                            <KeyRound className="w-3 h-3" />Chờ đổi mật khẩu
+                                                        </span>
+                                                    )}
+                                                </p>
+                                                <p className="text-xs text-muted-foreground truncate">{user.email}</p>
                                             </div>
-
-                                            <DropdownMenu>
-                                                <DropdownMenuTrigger render={
-                                                    <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg">
-                                                        <MoreHorizontal className="w-4 h-4" />
-                                                    </Button>
-                                                } />
-                                                <DropdownMenuContent align="end" className="bg-muted border-border text-foreground w-48">
-                                                    <DropdownMenuGroup>
-                                                        <DropdownMenuLabel>Identity Controls</DropdownMenuLabel>
-                                                        <DropdownMenuSeparator className="bg-muted" />
-                                                        <DropdownMenuItem
-                                                            className="focus:bg-muted gap-2 cursor-pointer"
-                                                            onClick={() => handleResetCredentials(user)}
-                                                        >
-                                                            <Settings2 className="w-4 h-4 text-muted-foreground" />
-                                                            Update Credentials
-                                                        </DropdownMenuItem>
-                                                        <DropdownMenuItem
-                                                            className="focus:bg-muted gap-2 cursor-pointer text-indigo-400 focus:text-indigo-400"
-                                                            onClick={() => handleRoleUpdate(user)}
-                                                        >
-                                                            <Shield className="w-4 h-4" />
-                                                            Change Access Level
-                                                        </DropdownMenuItem>
-                                                        <DropdownMenuItem
-                                                            className="focus:bg-muted gap-2 text-rose-400 focus:text-rose-400 cursor-pointer"
-                                                            onClick={() => handleDeleteUser(user)}
-                                                        >
-                                                            <Trash2 className="w-4 h-4" />
-                                                            Purge Identity
-                                                        </DropdownMenuItem>
-                                                    </DropdownMenuGroup>
-                                                </DropdownMenuContent>
-                                            </DropdownMenu>
                                         </div>
-
-                                        <div className="mt-8 flex flex-wrap items-center gap-6 pt-6 border-t border-border/8">
-                                            <div className="flex items-center gap-2 text-[11px] font-semibold text-muted-foreground uppercase tracking-widest">
-                                                <Calendar className="w-3.5 h-3.5" />
-                                                <span>Initialized: {new Date(user.created_at).toLocaleDateString("en-US", { month: 'short', year: 'numeric' })}</span>
-                                            </div>
-                                            <div className="flex items-center gap-2 text-[11px] font-semibold text-muted-foreground uppercase tracking-widest">
-                                                <Key className="w-3.5 h-3.5" />
-                                                <span>Access: {ROLE_ACCESS_LABEL[user.role] ?? 'Standard'}</span>
-                                            </div>
-                                            {user.force_password_change && (
-                                                <div className="flex items-center gap-2 text-[11px] font-semibold text-primary/70 uppercase tracking-widest bg-primary/5 px-2 py-1 rounded-md">
-                                                    <Shield className="w-3.5 h-3.5" />
-                                                    <span>Password Reset Required</span>
-                                                </div>
-                                            )}
-                                        </div>
-                                    </CardContent>
-                                </Card>
-                            </StaggerItem>
-                        ))}
-                    </StaggerContainer>
+                                        <span className="justify-self-start rounded-full px-2.5 py-0.5 text-[11px] font-bold" style={{ color: tone.ink, backgroundColor: tone.bg }}>
+                                            {ROLE_LABEL[user.role] ?? user.role}
+                                        </span>
+                                        <span className="text-xs text-muted-foreground truncate">{ROLE_ACCESS_LABEL[user.role] ?? "Standard"}</span>
+                                        <span className="text-xs text-muted-foreground tabular-nums">
+                                            {new Date(user.created_at).toLocaleDateString("vi-VN")}
+                                        </span>
+                                        <DropdownMenu>
+                                            <DropdownMenuTrigger render={
+                                                <Button variant="ghost" size="icon" aria-label="Thao tác" className="h-8 w-8 text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg">
+                                                    <MoreHorizontal className="w-4 h-4" />
+                                                </Button>
+                                            } />
+                                            <DropdownMenuContent align="end" className="bg-card border-border text-foreground w-52">
+                                                <DropdownMenuGroup>
+                                                    <DropdownMenuLabel>{user.name}</DropdownMenuLabel>
+                                                    <DropdownMenuSeparator />
+                                                    <DropdownMenuItem className="gap-2 cursor-pointer" onClick={() => handleResetCredentials(user)}>
+                                                        <Settings2 className="w-4 h-4 text-muted-foreground" />Cấp lại mật khẩu
+                                                    </DropdownMenuItem>
+                                                    <DropdownMenuItem className="gap-2 cursor-pointer" onClick={() => handleRoleUpdate(user)}>
+                                                        <Shield className="w-4 h-4 text-muted-foreground" />Đổi vai trò
+                                                    </DropdownMenuItem>
+                                                    <DropdownMenuItem className="gap-2 cursor-pointer text-danger focus:text-danger" onClick={() => handleDeleteUser(user)}>
+                                                        <Trash2 className="w-4 h-4" />Xóa tài khoản
+                                                    </DropdownMenuItem>
+                                                </DropdownMenuGroup>
+                                            </DropdownMenuContent>
+                                        </DropdownMenu>
+                                    </li>
+                                );
+                            })}
+                        </ul>
+                    </section>
                 </div>
             </PageContainer>
         </PageTransition>
