@@ -1,23 +1,8 @@
 "use client";
 
 import { useCallback, useState } from "react";
-import { AlertTriangle, CheckCircle2, ChevronLeft, ChevronRight, Clock3, Filter, Mail, X } from "lucide-react";
+import { AlertTriangle, CheckCircle2, ChevronLeft, ChevronRight, Clock3, Mail, Search, type LucideIcon } from "lucide-react";
 import { TEMPLATE_TYPES } from "@/lib/email/template-variables";
-import { emailInputClass, emailPanelClass, emailSelectClass } from "../_components/email-page-chrome";
-import { SharedDashboardButton } from "@/components/shares";
-import KpiCardGrid from "@/components/crm/kpi-card-grid";
-import OverviewBand from "@/components/shares/overview-band";
-import { DonutStat, HBarList, TrendArea, colorAt } from "@/components/charts";
-import { countByDay } from "@/lib/ui/series";
-import type { KpiCardData } from "@/lib/crm/types";
-import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from "@/components/ui/table";
 
 interface Log {
     id: string;
@@ -54,7 +39,7 @@ export default function LogsClient({ initialLogs, initialTotal }: Props) {
     const [typeFilter, setTypeFilter] = useState("");
     const [statusFilter, setStatusFilter] = useState("");
     const [toFilter, setToFilter] = useState("");
-    const [selected, setSelected] = useState<Log | null>(null);
+    const [selectedId, setSelectedId] = useState<string | null>(initialLogs[0]?.id ?? null);
     const [loading, setLoading] = useState(false);
 
     const fetchLogs = useCallback(async (nextPage: number, type: string, status: string, to: string) => {
@@ -69,210 +54,168 @@ export default function LogsClient({ initialLogs, initialTotal }: Props) {
             setLogs(data.logs);
             setTotal(data.total);
             setPage(nextPage);
+            setSelectedId(data.logs[0]?.id ?? null);
         }
         setLoading(false);
     }, []);
 
-    function applyFilters() {
-        fetchLogs(1, typeFilter, statusFilter, toFilter);
-    }
-
     const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
-    const sent = logs.filter((log) => log.status === "sent").length;
-    const failed = logs.filter((log) => log.status === "failed").length;
-    const pending = logs.filter((log) => log.status === "pending").length;
-
-    /* Log phân trang 20 dòng: ngoài "Tổng sự kiện", mọi số chỉ tính trên trang đang xem. */
-    const kpis: KpiCardData[] = [
-        { label: "Tổng sự kiện", value: total, icon: Mail, badge: "Toàn bộ" },
-        { label: "Đã gửi", value: sent, icon: CheckCircle2, badge: "Trên trang này" },
-        { label: "Lỗi", value: failed, icon: AlertTriangle, badge: "Trên trang này", tone: "pink" },
-        { label: "Đang chờ", value: pending, icon: Clock3, badge: "Trên trang này" },
-        { label: "Tỉ lệ gửi thành công", value: logs.length ? `${Math.round((sent / logs.length) * 100)}%` : "0%", icon: CheckCircle2, badge: "Trên trang này" },
-    ];
-    const byStatus = [
-        { label: "Sent", value: sent, color: "var(--success)" },
-        { label: "Failed", value: failed, color: "var(--danger)" },
-        { label: "Pending", value: pending, color: "var(--warning)" },
-    ].filter((x) => x.value > 0);
-    const byType = [...logs.reduce((m, l) => {
-        const t = TYPE_LABELS[l.template_type] ?? l.template_type;
-        return m.set(t, (m.get(t) ?? 0) + 1);
-    }, new Map<string, number>())].map(([label, value]) => ({ label, value }));
-    const byDay = countByDay(logs.map((l) => l.sent_at));
+    const selected = logs.find((l) => l.id === selectedId) ?? null;
+    const setStatus = (st: string) => { setStatusFilter(st); fetchLogs(1, typeFilter, st, toFilter); };
 
     return (
-        <div className="space-y-5">
-            <KpiCardGrid items={kpis} />
-
-            {logs.length > 0 && (
-                <OverviewBand className="mb-0">
-                    <DonutStat title="Trạng thái gửi" subtitle="Sent, failed, pending trên trang này" tag={{ label: "Trạng thái" }} slices={byStatus} centerLabel="Email" />
-                    <HBarList title="Theo loại template" subtitle="Số email mỗi loại trên trang này" tag={{ label: "Template", tone: "violet" }} items={byType} />
-                    <TrendArea title="Email theo ngày" subtitle="14 ngày gần nhất, trên trang này" tag={{ label: "14 ngày", tone: "teal" }} points={byDay} color={colorAt(2)} />
-                </OverviewBand>
-            )}
-
-            <section className={emailPanelClass}>
-                <div className="mb-4 flex items-center gap-2 text-sm font-semibold text-primary">
-                    <Filter className="h-4 w-4 text-primary" />
-                    Smart filters
-                </div>
-                <div className="grid gap-3 lg:grid-cols-[14rem_12rem_1fr_auto]">
-                    <select value={typeFilter} onChange={(event) => setTypeFilter(event.target.value)} className={emailSelectClass}>
-                        <option value="">All types</option>
-                        {TEMPLATE_TYPES.map((type) => (
-                            <option key={type} value={type}>
-                                {TYPE_LABELS[type] ?? type}
-                            </option>
-                        ))}
-                    </select>
-                    <select value={statusFilter} onChange={(event) => setStatusFilter(event.target.value)} className={emailSelectClass}>
-                        <option value="">All statuses</option>
-                        {[
-                            ["sent", "Sent"],
-                            ["failed", "Failed"],
-                            ["pending", "Pending"],
-                        ].map(([value, label]) => (
-                            <option key={value} value={value}>
-                                {label}
-                            </option>
-                        ))}
-                    </select>
-                    <input
-                        value={toFilter}
-                        onChange={(event) => setToFilter(event.target.value)}
-                        onKeyDown={(event) => event.key === "Enter" && applyFilters()}
-                        placeholder="Filter by recipient email..."
-                        className={emailInputClass}
-                    />
-                    <SharedDashboardButton variant="primary" onClick={applyFilters} disabled={loading}>
-                        {loading ? "Loading..." : "Apply"}
-                    </SharedDashboardButton>
-                </div>
-            </section>
-
-            <section className="overflow-hidden rounded-[1.5rem] border border-border bg-card shadow-[0_2px_14px_color-mix(in_srgb,var(--primary)_8%,transparent)]">
-                <div className="hidden lg:block">
-                    <Table>
-                        <TableHeader className="bg-muted/40">
-                            <TableRow>
-                                {["Date", "Template", "Recipient", "Subject", "Status"].map((heading) => (
-                                    <TableHead key={heading}>{heading}</TableHead>
-                                ))}
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody className={loading ? "opacity-50" : ""}>
-                            {logs.map((log) => (
-                                <TableRow
-                                    key={log.id}
-                                    onClick={() => setSelected(log)}
-                                    className="cursor-pointer"
-                                >
-                                    <TableCell className="text-muted-foreground">{new Date(log.sent_at).toLocaleString("vi-VN")}</TableCell>
-                                    <TableCell className="text-primary">{TYPE_LABELS[log.template_type] ?? log.template_type}</TableCell>
-                                    <TableCell>
-                                        <p className="text-primary">{log.to_name ?? "Unknown"}</p>
-                                        <p className="text-xs text-muted-foreground">{log.to_email}</p>
-                                    </TableCell>
-                                    <TableCell className="max-w-sm truncate text-muted-foreground">{log.subject}</TableCell>
-                                    <TableCell><StatusPill status={log.status} /></TableCell>
-                                </TableRow>
+        <div className="grid grid-cols-[420px_1fr] h-[calc(100vh-260px)] min-h-[560px] rounded-2xl border border-border bg-card overflow-hidden shadow-[0_2px_14px_color-mix(in_srgb,var(--primary)_8%,transparent)]">
+            {/* Khung danh sách */}
+            <div className="flex flex-col border-r border-border min-h-0">
+                <div className="p-4 space-y-3 border-b border-border">
+                    <div className="relative">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
+                        <input
+                            value={toFilter}
+                            onChange={(e) => setToFilter(e.target.value)}
+                            onKeyDown={(e) => e.key === "Enter" && fetchLogs(1, typeFilter, statusFilter, toFilter)}
+                            placeholder="Email người nhận, Enter để lọc"
+                            className="w-full h-10 rounded-xl bg-muted/50 border border-border pl-9 pr-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/15"
+                        />
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <div className="flex p-0.5 rounded-lg bg-muted/60 border border-border">
+                            {[["", "Tất cả"], ["sent", "Đã gửi"], ["failed", "Lỗi"], ["pending", "Chờ"]].map(([v, l]) => (
+                                <button key={v} type="button" onClick={() => setStatus(v)}
+                                        className={`px-2.5 py-1 rounded-md text-xs font-bold transition-colors cursor-pointer ${statusFilter === v ? "bg-card text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}>
+                                    {l}
+                                </button>
                             ))}
-                        </TableBody>
-                    </Table>
+                        </div>
+                        <select value={typeFilter}
+                                onChange={(e) => { setTypeFilter(e.target.value); fetchLogs(1, e.target.value, statusFilter, toFilter); }}
+                                className="h-8 flex-1 min-w-0 rounded-lg border border-border bg-card px-2 text-xs font-semibold text-foreground outline-none focus:border-primary cursor-pointer">
+                            <option value="">Mọi template</option>
+                            {TEMPLATE_TYPES.map((type) => <option key={type} value={type}>{TYPE_LABELS[type] ?? type}</option>)}
+                        </select>
+                    </div>
                 </div>
 
-                <div className="divide-y divide-border lg:hidden">
-                    {logs.map((log) => (
-                        <SharedDashboardButton key={log.id} onClick={() => setSelected(log)} className="block w-full p-4 text-left transition hover:bg-muted">
-                            <div className="mb-3 flex items-start justify-between gap-3">
-                                <div>
-                                    <p className="text-sm font-semibold text-primary">{log.to_name ?? log.to_email}</p>
-                                    <p className="text-xs text-muted-foreground">{log.to_email}</p>
-                                </div>
-                                <StatusPill status={log.status} />
-                            </div>
-                            <p className="text-sm text-foreground/80">{log.subject}</p>
-                            <p className="mt-2 text-xs text-muted-foreground/70">{new Date(log.sent_at).toLocaleString("vi-VN")}</p>
-                        </SharedDashboardButton>
-                    ))}
-                </div>
+                <ul className={`flex-1 overflow-y-auto divide-y divide-border ${loading ? "opacity-50" : ""}`}>
+                    {logs.map((log) => {
+                        const on = log.id === selectedId;
+                        const st = STATUS[log.status] ?? STATUS.pending;
+                        return (
+                            <li key={log.id}>
+                                <button type="button" onClick={() => setSelectedId(log.id)}
+                                        className={`w-full text-left px-4 py-3 border-l-[3px] transition-colors cursor-pointer ${on ? "bg-accent border-primary" : "border-transparent hover:bg-muted/50"}`}>
+                                    <div className="flex items-center justify-between gap-2">
+                                        <span className="flex items-center gap-2 min-w-0">
+                                            <st.icon className="w-3.5 h-3.5 shrink-0" style={{ color: st.color }} aria-label={st.label} />
+                                            <span className="font-bold text-sm text-foreground truncate">{log.to_name ?? log.to_email}</span>
+                                        </span>
+                                        <span className="shrink-0 text-[11px] text-muted-foreground tabular-nums">{shortTime(log.sent_at)}</span>
+                                    </div>
+                                    <p className="mt-0.5 text-sm text-foreground/80 truncate">{log.subject}</p>
+                                    <p className="mt-0.5 text-[11px] text-muted-foreground truncate">{TYPE_LABELS[log.template_type] ?? log.template_type}</p>
+                                </button>
+                            </li>
+                        );
+                    })}
+                    {logs.length === 0 && (
+                        <li className="p-10 text-center">
+                            <Mail className="mx-auto h-8 w-8 text-muted-foreground/60" />
+                            <p className="mt-3 text-sm font-semibold text-foreground">Không có email nào</p>
+                            <p className="mt-1 text-xs text-muted-foreground">Thử bỏ bộ lọc hoặc người nhận khác.</p>
+                        </li>
+                    )}
+                </ul>
 
-                {logs.length === 0 && (
-                    <div className="p-12 text-center">
-                        <Mail className="mx-auto h-10 w-10 text-muted-foreground/70" />
-                        <p className="mt-3 text-sm font-medium text-primary">No emails found</p>
-                        <p className="mt-1 text-xs text-muted-foreground">Try removing filters or checking another recipient.</p>
+                <div className="flex items-center justify-between gap-2 px-4 py-2.5 border-t border-border text-xs text-muted-foreground">
+                    <span className="tabular-nums">Trang {page}/{totalPages} · {total} email</span>
+                    <div className="flex gap-1">
+                        <PagerButton disabled={page <= 1 || loading} onClick={() => fetchLogs(page - 1, typeFilter, statusFilter, toFilter)} icon={ChevronLeft} label="Trang trước" />
+                        <PagerButton disabled={page >= totalPages || loading} onClick={() => fetchLogs(page + 1, typeFilter, statusFilter, toFilter)} icon={ChevronRight} label="Trang sau" />
+                    </div>
+                </div>
+            </div>
+
+            {/* Khung đọc */}
+            <div className="min-h-0 overflow-y-auto">
+                {selected ? <LogReader log={selected} /> : (
+                    <div className="h-full grid place-items-center text-center p-10">
+                        <div>
+                            <Mail className="mx-auto h-12 w-12 text-muted-foreground/40" />
+                            <p className="mt-3 text-sm text-muted-foreground">Chọn một email để xem chi tiết</p>
+                        </div>
                     </div>
                 )}
-            </section>
-
-            <div className="flex flex-col items-center justify-between gap-3 rounded-2xl border border-border bg-muted/40 p-3 sm:flex-row">
-                <p className="text-sm text-muted-foreground">Page {page} of {totalPages} · {total} total events</p>
-                <div className="flex gap-2">
-                    <PagerButton disabled={page <= 1} onClick={() => fetchLogs(page - 1, typeFilter, statusFilter, toFilter)} icon={ChevronLeft} />
-                    <PagerButton disabled={page >= totalPages} onClick={() => fetchLogs(page + 1, typeFilter, statusFilter, toFilter)} icon={ChevronRight} />
-                </div>
             </div>
-
-            {selected && <LogModal log={selected} onClose={() => setSelected(null)} />}
         </div>
     );
 }
 
-function StatusPill({ status }: { status: string }) {
-    const styles: Record<string, string> = {
-        sent: "bg-success/12 text-success ring-success/20",
-        failed: "bg-danger/12 text-danger ring-danger/20",
-        pending: "bg-warning/12 text-warning ring-warning/20",
-    };
-    return <span className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold capitalize ring-1 ${styles[status] ?? "bg-muted text-foreground/80 ring-border"}`}>{status}</span>;
+const STATUS: Record<string, { label: string; color: string; icon: LucideIcon }> = {
+    sent: { label: "Đã gửi", color: "var(--success)", icon: CheckCircle2 },
+    failed: { label: "Lỗi", color: "var(--danger)", icon: AlertTriangle },
+    pending: { label: "Đang chờ", color: "var(--warning)", icon: Clock3 },
+};
+
+function shortTime(iso: string) {
+    const d = new Date(iso);
+    const today = new Date().toDateString() === d.toDateString();
+    return today
+        ? d.toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" })
+        : d.toLocaleDateString("vi-VN", { day: "2-digit", month: "2-digit" });
 }
 
-function PagerButton({ disabled, onClick, icon: Icon }: { disabled: boolean; onClick: () => void; icon: React.ElementType }) {
+function PagerButton({ disabled, onClick, icon: Icon, label }: { disabled: boolean; onClick: () => void; icon: LucideIcon; label: string }) {
     return (
-        <SharedDashboardButton onClick={onClick} disabled={disabled} className="rounded-xl border border-border bg-muted/40 p-2 text-muted-foreground transition hover:bg-muted hover:text-foreground disabled:cursor-not-allowed disabled:opacity-30">
+        <button type="button" aria-label={label} onClick={onClick} disabled={disabled}
+                className="p-1.5 rounded-lg border border-border text-muted-foreground hover:bg-muted hover:text-foreground disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer">
             <Icon className="h-4 w-4" />
-        </SharedDashboardButton>
+        </button>
     );
 }
 
-function LogModal({ log, onClose }: { log: Log; onClose: () => void }) {
+function LogReader({ log }: { log: Log }) {
+    const st = STATUS[log.status] ?? STATUS.pending;
+    const vars = Object.entries(log.variables ?? {});
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm">
-            <div className="max-h-[84vh] w-full max-w-2xl overflow-y-auto rounded-[1.5rem] border border-border bg-background shadow-2xl">
-                <div className="sticky top-0 flex items-center justify-between border-b border-border bg-background/95 p-5 backdrop-blur">
-                    <div>
-                        <p className="text-xs uppercase tracking-[0.22em] text-primary">Email event</p>
-                        <h3 className="mt-1 text-lg font-semibold text-primary">Log detail</h3>
-                    </div>
-                    <SharedDashboardButton onClick={onClose} className="rounded-xl p-2 text-muted-foreground transition hover:bg-muted hover:text-foreground"><X className="h-4 w-4" /></SharedDashboardButton>
-                </div>
-                <div className="space-y-4 p-5">
-                    <Detail label="Template" value={`${TYPE_LABELS[log.template_type] ?? log.template_type} (${log.locale})`} />
-                    <Detail label="Subject" value={log.subject} />
-                    <Detail label="Recipient" value={log.to_name ? `${log.to_name} <${log.to_email}>` : log.to_email} />
-                    <Detail label="Sent at & by" value={`${new Date(log.sent_at).toLocaleString("vi-VN")} - ${log.sent_by}`} />
-                    <div>
-                        <p className="mb-1.5 text-xs text-muted-foreground">Variables</p>
-                        <pre className="overflow-x-auto rounded-2xl border border-border bg-background p-4 text-xs text-success">
-                            {JSON.stringify(log.variables, null, 2)}
-                        </pre>
-                    </div>
-                    {log.error_message && <Detail label="Error" value={log.error_message} tone="error" />}
-                    <div className="flex justify-end"><StatusPill status={log.status} /></div>
-                </div>
+        <article className="p-8 max-w-3xl">
+            <div className="flex items-center gap-2 text-xs font-bold">
+                <span className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1"
+                      style={{ color: st.color, backgroundColor: `color-mix(in srgb, ${st.color} 12%, transparent)` }}>
+                    <st.icon className="w-3.5 h-3.5" />{st.label}
+                </span>
+                <span className="rounded-full bg-muted px-2.5 py-1 text-muted-foreground">
+                    {TYPE_LABELS[log.template_type] ?? log.template_type} · {log.locale.toUpperCase()}
+                </span>
             </div>
-        </div>
-    );
-}
+            <h2 className="mt-4 text-2xl font-extrabold leading-tight text-foreground">{log.subject}</h2>
 
-function Detail({ label, value, tone = "default" }: { label: string; value: string; tone?: "default" | "error" }) {
-    return (
-        <div className="rounded-2xl border border-border bg-muted/40 p-4">
-            <p className="text-xs text-muted-foreground">{label}</p>
-            <p className={`mt-1 text-sm ${tone === "error" ? "text-danger" : "text-primary"}`}>{value}</p>
-        </div>
+            <dl className="mt-6 grid grid-cols-[80px_1fr] gap-y-2 text-sm border-y border-border py-4">
+                <dt className="text-muted-foreground">Đến</dt>
+                <dd className="text-foreground font-semibold">{log.to_name ? <>{log.to_name} <span className="font-normal text-muted-foreground">&lt;{log.to_email}&gt;</span></> : log.to_email}</dd>
+                <dt className="text-muted-foreground">Gửi bởi</dt>
+                <dd className="text-foreground">{log.sent_by}</dd>
+                <dt className="text-muted-foreground">Lúc</dt>
+                <dd className="text-foreground tabular-nums">{new Date(log.sent_at).toLocaleString("vi-VN")}</dd>
+            </dl>
+
+            {log.error_message && (
+                <div className="mt-6 rounded-xl border border-danger/30 bg-danger/5 p-4">
+                    <p className="flex items-center gap-2 text-sm font-bold text-danger"><AlertTriangle className="w-4 h-4" />Gửi thất bại</p>
+                    <p className="mt-1.5 font-mono text-xs text-foreground/80 whitespace-pre-wrap">{log.error_message}</p>
+                </div>
+            )}
+
+            <h3 className="mt-8 mb-3 text-xs font-bold uppercase tracking-wide text-muted-foreground">Biến đã điền ({vars.length})</h3>
+            {vars.length ? (
+                <div className="rounded-xl border border-border divide-y divide-border overflow-hidden">
+                    {vars.map(([k, v]) => (
+                        <div key={k} className="grid grid-cols-[200px_1fr] gap-4 px-4 py-2.5 text-sm">
+                            <span className="font-mono text-xs text-primary self-center">{`{{${k}}}`}</span>
+                            <span className="text-foreground break-words">{String(v)}</span>
+                        </div>
+                    ))}
+                </div>
+            ) : <p className="text-sm text-muted-foreground">Không có biến nào.</p>}
+        </article>
     );
 }
