@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import type { LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { toneFor } from "@/lib/ui/tones";
+import { toneAt, toneFor } from "@/lib/ui/tones";
 
 export interface DetailInfoItem {
     icon: LucideIcon;
@@ -26,10 +26,11 @@ export default function DetailHeader({
     const tone = toneFor(title);
     return (
         <div className={cn(
-            "mb-6 rounded-2xl border border-border bg-card p-5 sm:p-6",
+            "relative overflow-hidden mb-6 rounded-2xl border border-border bg-card p-5 sm:p-6",
             "shadow-[0_2px_14px_color-mix(in_srgb,var(--primary)_8%,transparent)]",
             className,
         )}>
+            <span aria-hidden className="absolute inset-x-0 top-0 h-1.5" style={{ background: `linear-gradient(90deg, ${tone.mark}, color-mix(in srgb, ${tone.mark} 25%, var(--card)))` }} />
             <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                 <div className="flex items-start gap-4 min-w-0">
                     <div
@@ -53,9 +54,11 @@ export default function DetailHeader({
 
             {info.length > 0 && (
                 <ul className="mt-5 flex flex-wrap gap-2 border-t border-border pt-4">
+                    {/* Tông trang trí theo vị trí (không mã hoá dữ liệu), như icon KPI của HR. */}
                     {info.map(({ icon: Icon, label }, i) => (
-                        <li key={i} className="inline-flex items-center gap-2 rounded-full bg-muted/60 px-3 py-1.5 text-xs font-semibold text-foreground/80">
-                            <Icon className="w-3.5 h-3.5 text-primary/70" />
+                        <li key={i} className="inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-bold"
+                            style={{ color: toneAt(i).ink, backgroundColor: toneAt(i).bg }}>
+                            <Icon className="w-3.5 h-3.5" />
                             {label}
                         </li>
                     ))}
