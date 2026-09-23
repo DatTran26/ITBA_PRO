@@ -1,5 +1,6 @@
 "use client";
 import { alpha } from "@/lib/utils";
+import { toneAt, toneFor } from "@/lib/ui/tones";
 
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
@@ -7,7 +8,7 @@ import {
   ArrowLeft, FileText, Loader2, RefreshCw, AlertTriangle,
   Sparkles, AlertCircle, User, Briefcase, GraduationCap,
   Award, Globe, CheckCircle2, Clock, Code2, Globe2, Heart,
-  Star, XCircle, Shield, TrendingUp, TrendingDown, Building2,
+  Star, XCircle, Shield, TrendingDown, Building2,
 } from "lucide-react";
 import ScoreRing from "@/components/crm/score-ring";
 import OverrideScoreDialog from "@/components/recruitment/override-score-dialog";
@@ -110,7 +111,7 @@ function TechnicalLog({ stepIndex }: { stepIndex: number }) {
   }, [stepIndex]);
 
   return (
-    <div className="mt-8 w-full max-w-2xl bg-black/40 rounded-xl border border-border p-4 font-mono text-[10px] text-primary/80 overflow-hidden relative">
+    <div className="mt-8 w-full max-w-2xl bg-muted rounded-xl border border-border p-4 font-mono text-[10px] text-primary/80 overflow-hidden relative">
       <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
       <div className="space-y-1">
         {logs.map((log, i) => (
@@ -172,7 +173,7 @@ function EnhancedScoreBar({ label, value, icon: Icon, accent }: EnhancedScoreBar
         <Icon className="w-3.5 h-3.5" style={{ color: accent }} />
       </div>
       <span className="text-sm text-foreground w-24 shrink-0">{label}</span>
-      <div className="flex-1 h-3 bg-background rounded-full overflow-hidden">
+      <div className="flex-1 h-3 rounded-full overflow-hidden" style={{ backgroundColor: alpha(accent, 12) }}>
         <div
           className="h-full rounded-full transition-all duration-700 ease-out"
           style={{
@@ -182,8 +183,8 @@ function EnhancedScoreBar({ label, value, icon: Icon, accent }: EnhancedScoreBar
           }}
         />
       </div>
-      <span className="text-sm font-bold tabular-nums w-8 text-right" style={{ color: accent }}>
-        {Math.round(pct)}
+      <span className="text-sm font-bold tabular-nums w-8 text-right text-foreground">
+        {value === null || value === undefined ? <span className="text-muted-foreground">–</span> : Math.round(pct)}
       </span>
     </div>
   );
@@ -508,8 +509,8 @@ export default function CvAnalyzeClient({ id, userRole }: Props) {
       className="space-y-8 pb-12"
     >
       {/* Section 1 — Header card */}
-      <div className="glass-card p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-6 overflow-hidden relative group">
-        <div className="absolute top-0 left-0 w-1 h-full bg-primary opacity-0 group-hover:opacity-100 transition-opacity" />
+      <div className="glass-card p-6 pt-7 flex flex-col sm:flex-row sm:items-center justify-between gap-6 overflow-hidden relative">
+        <div className="absolute top-0 inset-x-0 h-1.5" style={{ background: `linear-gradient(90deg, ${toneFor(person.fullName).mark}, var(--primary))` }} />
         <div className="flex items-center gap-4 min-w-0">
           <button
             onClick={() => router.back()}
@@ -518,10 +519,12 @@ export default function CvAnalyzeClient({ id, userRole }: Props) {
           >
             <ArrowLeft className="w-5 h-5" />
           </button>
+          <span className="w-12 h-12 shrink-0 rounded-2xl grid place-items-center text-base font-black"
+                style={{ color: toneFor(person.fullName).ink, backgroundColor: toneFor(person.fullName).bg }}>
+            {person.fullName.trim().split(/\s+/).map((w) => w[0]).filter((_, i, a) => i === 0 || i === a.length - 1).join("").toUpperCase()}
+          </span>
           <div className="min-w-0">
-            <h1 className="text-2xl font-display font-light text-foreground truncate tracking-tight">
-              {person.fullName.split(' ')[0]} <span className="font-semibold">{person.fullName.split(' ').slice(1).join(' ')}</span>
-            </h1>
+            <h1 className="text-2xl font-black text-foreground truncate tracking-tight">{person.fullName}</h1>
             <div className="flex items-center gap-3 mt-1">
               <span className="text-sm text-muted-foreground truncate">{person.email}</span>
               {jobDescription && (
@@ -541,7 +544,7 @@ export default function CvAnalyzeClient({ id, userRole }: Props) {
             <button
               onClick={handleCvPreview}
               disabled={cvLoading}
-              className="h-11 flex items-center gap-2 px-5 rounded-xl text-sm font-semibold bg-background border border-border text-foreground hover:bg-primary hover:text-white transition-all disabled:opacity-50 shadow-lg shadow-black/20"
+              className="h-11 flex items-center gap-2 px-5 rounded-xl text-sm font-semibold bg-background border border-border text-foreground hover:bg-primary hover:text-white transition-all disabled:opacity-50 shadow-sm"
             >
               {cvLoading ? (
                 <Loader2 className="w-4 h-4 animate-spin" />
@@ -571,7 +574,8 @@ export default function CvAnalyzeClient({ id, userRole }: Props) {
             {/* Zone A — Score ring + breakdown bars side by side */}
             <div className="flex flex-col lg:flex-row gap-12 items-center lg:items-center">
               {/* Left: Big score ring */}
-              <div className="flex flex-col items-center gap-5 lg:w-[40%] shrink-0 relative">
+              <div className="flex flex-col items-center gap-5 lg:w-[40%] shrink-0 relative rounded-2xl py-6"
+                   style={{ backgroundColor: `color-mix(in srgb, ${grade?.color ?? "var(--primary)"} 7%, var(--card))` }}>
                 <div className="flex items-center gap-2 self-start lg:self-center mb-2">
                   <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
                   <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-[0.2em]">
@@ -595,7 +599,7 @@ export default function CvAnalyzeClient({ id, userRole }: Props) {
                 <div className="flex flex-col items-center gap-3 text-center">
                   {grade && (
                     <div className="flex flex-col items-center">
-                      <span className="text-2xl font-display font-light text-foreground tracking-tight">
+                      <span className="text-2xl font-bold text-foreground tracking-tight">
                         Overall <span className="font-bold" style={{ color: grade.color }}>{grade.label}</span>
                       </span>
                       {screening.isOverridden && (
@@ -638,16 +642,13 @@ export default function CvAnalyzeClient({ id, userRole }: Props) {
                   <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-[0.2em]">
                     Semantic Breakdown
                   </p>
-                  <div className="flex items-center gap-2">
-                    <TrendingUp className="w-3 h-3 text-success" />
-                    <span className="text-[10px] text-success font-bold">Accuracy High</span>
-                  </div>
+
                 </div>
-                <EnhancedScoreBar label="Kỹ năng" value={screening.skillMatchScore} icon={Code2} accent="var(--primary)" />
-                <EnhancedScoreBar label="Kinh nghiệm" value={screening.experienceMatchScore} icon={Briefcase} accent="var(--warning)" />
-                <EnhancedScoreBar label="Lĩnh vực" value={screening.domainMatchScore} icon={Globe2} accent="var(--primary)" />
-                <EnhancedScoreBar label="Học vấn" value={screening.educationMatchScore} icon={GraduationCap} accent="var(--ai)" />
-                <EnhancedScoreBar label="Văn hóa" value={screening.cultureFitScore} icon={Heart} accent="var(--danger)" />
+                <EnhancedScoreBar label="Kỹ năng" value={screening.skillMatchScore} icon={Code2} accent={toneAt(0).mark} />
+                <EnhancedScoreBar label="Kinh nghiệm" value={screening.experienceMatchScore} icon={Briefcase} accent={toneAt(1).mark} />
+                <EnhancedScoreBar label="Lĩnh vực" value={screening.domainMatchScore} icon={Globe2} accent={toneAt(2).mark} />
+                <EnhancedScoreBar label="Học vấn" value={screening.educationMatchScore} icon={GraduationCap} accent={toneAt(3).mark} />
+                <EnhancedScoreBar label="Văn hóa" value={screening.cultureFitScore} icon={Heart} accent={toneAt(4).mark} />
               </div>
             </div>
 
@@ -657,7 +658,7 @@ export default function CvAnalyzeClient({ id, userRole }: Props) {
                 <div className="absolute top-[-10px] left-8 px-2 bg-muted text-[10px] font-bold text-primary uppercase tracking-widest">
                   Executive Summary
                 </div>
-                <p className="text-lg font-display font-light text-foreground leading-relaxed italic group-hover/summary:text-foreground transition-colors">
+                <p className="text-lg text-foreground leading-relaxed group-hover/summary:text-foreground transition-colors">
                   &ldquo;{screening.summary}&rdquo;
                 </p>
               </div>
