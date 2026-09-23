@@ -1,34 +1,27 @@
 ﻿"use client";
-import { alpha } from "@/lib/utils";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Bell, Building2, CalendarDays, ChevronDown, ChevronUp, ExternalLink, Loader2, Phone, UserCheck, Video } from "lucide-react";
+import { ArrowLeft, Bell, Building2, CalendarDays, ChevronDown, ChevronUp, Loader2, Phone, Video } from "lucide-react";
 import { toast } from "sonner";
 
 import AssignCandidatesPanel from "./assign-candidates-panel";
 import AssignInterviewerPanel from "./assign-interviewer-panel";
 import SessionTestPanel from "./session-test-panel";
 
-const ROUND_CONFIG = {
-  1: { label: "Round 1", color: "var(--primary)" },
-  2: { label: "Round 2", color: "var(--warning)" },
-  3: { label: "Final", color: "var(--ai)" },
-} as const;
+import { ROUND } from "../session-agenda-row";
+import { toneFor } from "@/lib/ui/tones";
 
 const LOCATION_ICON = { online: Video, office: Building2, phone: Phone } as const;
 const LOCATION_LABEL = { online: "Online", office: "Văn phòng", phone: "Điện thoại" };
 
-const CONFIRM_CFG = {
-  confirmed: { label: "Đã xác nhận", cls: "bg-success/10 text-success border-border/20" },
-  pending: { label: "Chờ xác nhận", cls: "bg-warning/10 text-warning border-border/20" },
-  declined: { label: "Từ chối", cls: "bg-danger/10 text-danger border-border/20" },
-} as const;
-
-function formatViDateTime(iso: string) {
-  const date = new Date(iso);
-  return date.toLocaleString("vi-VN", { dateStyle: "medium", timeStyle: "short" });
-}
+const CONFIRM_COLS: { key: ConfirmStatus; label: string; color: string }[] = [
+  { key: "confirmed", label: "Đã xác nhận", color: "var(--success)" },
+  { key: "pending", label: "Chờ xác nhận", color: "var(--warning)" },
+  { key: "declined", label: "Từ chối", color: "var(--danger)" },
+];
+const IV_COLOR = { accepted: "var(--success)", declined: "var(--danger)", pending: "var(--warning)" } as const;
+const IV_LABEL = { accepted: "Nhận", declined: "Từ chối", pending: "Chờ" } as const;
 
 function getInitial(name: string) {
   return (name || "?")[0].toUpperCase();
@@ -176,130 +169,150 @@ export default function SessionDetailClient({ id, userRole }: Props) {
 
   if (!session) return null;
 
-  const cfg = ROUND_CONFIG[session.round];
+  const round = ROUND[session.round];
   const LocationIcon = LOCATION_ICON[session.location_type];
+  const start = new Date(session.scheduled_at);
+  const end = new Date(start.getTime() + session.duration_minutes * 60_000);
+  const hhmm = (d: Date) => d.toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" });
 
   return (
-    <div className="mx-auto max-w-6xl space-y-4 px-1 pb-10">
-      <button onClick={() => router.push("/dashboard/recruitment/sessions")} className="group inline-flex items-center gap-2 rounded-full border border-border/10 bg-background/70 px-3 py-1.5 text-sm text-muted-foreground transition-colors hover:border-border/25 hover:text-foreground">
-        <ArrowLeft className="h-4 w-4 transition-transform group-hover:-translate-x-0.5" /> Sessions
+    <div className="mx-auto max-w-7xl space-y-5 px-1 pb-10">
+      <button onClick={() => router.push("/dashboard/recruitment/sessions")} className="group inline-flex items-center gap-2 text-sm font-semibold text-muted-foreground transition-colors hover:text-primary cursor-pointer">
+        <ArrowLeft className="h-4 w-4 transition-transform group-hover:-translate-x-0.5" /> Lịch phỏng vấn
       </button>
 
-      <div className="relative overflow-hidden rounded-[28px] border border-border/14 bg-background/95 shadow-[0_24px_80px_rgba(0,0,0,0.22)]">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_18%_10%,color-mix(in_srgb,var(--primary)_18%,transparent),transparent_28%),radial-gradient(circle_at_90%_0%,color-mix(in_srgb,var(--success)_8%,transparent),transparent_24%)]" />
-        <div className="relative grid gap-5 p-5 lg:grid-cols-[1fr_360px] lg:p-6">
-          <div className="min-w-0">
-            <div className="mb-4 flex flex-wrap items-center gap-2">
-              <span className="inline-flex rounded-full border px-3 py-1 text-xs font-bold uppercase tracking-[0.14em]" style={{ borderColor: `${alpha(cfg.color, 33)}`, background: `${alpha(cfg.color, 12)}`, color: cfg.color }}>{cfg.label}</span>
-              <span className="rounded-full border border-border/14 bg-background/80 px-3 py-1 text-xs text-muted-foreground">{session.tests ? "Test attached" : "Missing test"}</span>
-              <span className="rounded-full border border-border/20 bg-success/10 px-3 py-1 text-xs text-success">{acceptedCount}/{Math.max(interviewers.length, 1)} accepted</span>
-            </div>
-            <h1 className="text-3xl font-semibold tracking-[-0.04em] text-primary md:text-4xl">Session phỏng vấn</h1>
-            <p className="mt-2 max-w-2xl truncate text-base text-muted-foreground">{session.job_descriptions?.title ?? "Không gắn JD"}</p>
+      {/* Vé sự kiện */}
+      <div className="grid grid-cols-[220px_1fr_260px] rounded-2xl border border-border bg-card overflow-hidden shadow-[0_2px_14px_color-mix(in_srgb,var(--primary)_8%,transparent)]">
+        <div className="p-6 text-white flex flex-col justify-between" style={{ background: `linear-gradient(160deg, ${round.tone.mark}, color-mix(in srgb, ${round.tone.mark} 70%, #000))` }}>
+          <p className="text-xs font-bold uppercase tracking-widest opacity-80">{start.toLocaleDateString("vi-VN", { weekday: "long" })}</p>
+          <div>
+            <p className="text-6xl font-black leading-none tabular-nums">{start.getDate()}</p>
+            <p className="mt-1 text-sm font-bold opacity-90">tháng {start.getMonth() + 1}, {start.getFullYear()}</p>
           </div>
-
-          <div className="grid gap-2 rounded-2xl border border-border/10 bg-background/70 p-4 text-sm text-primary">
-            <span className="inline-flex items-center gap-2"><CalendarDays className="h-4 w-4 text-primary" />{formatViDateTime(session.scheduled_at)}</span>
-            <span className="inline-flex items-center gap-2"><LocationIcon className="h-4 w-4 text-primary" />{LOCATION_LABEL[session.location_type]}{session.location_detail ? ` · ${session.location_detail}` : ""}</span>
-            <span className="inline-flex items-center gap-2 text-muted-foreground">Duration · {session.duration_minutes} phút</span>
+          <p className="text-xl font-black tabular-nums">{hhmm(start)} – {hhmm(end)}</p>
+        </div>
+        <div className="p-6 min-w-0 border-r-2 border-dashed border-border">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="rounded-full px-2.5 py-0.5 text-xs font-bold" style={{ color: round.tone.ink, backgroundColor: round.tone.bg }}>{round.label}</span>
+            {isSessionPast && <span className="rounded-full bg-muted px-2.5 py-0.5 text-xs font-bold text-muted-foreground">Đã diễn ra</span>}
+            {session.notification_sent_at && <span className="rounded-full bg-success/10 px-2.5 py-0.5 text-xs font-bold text-success">Đã gửi lịch</span>}
           </div>
+          <h1 className="mt-3 text-3xl font-black leading-tight text-foreground truncate">{session.job_descriptions?.title ?? "Buổi phỏng vấn"}</h1>
+          <div className="mt-4 flex flex-wrap gap-2 text-sm">
+            <span className="inline-flex items-center gap-2 rounded-full px-3 py-1.5 font-semibold" style={{ color: "var(--primary)", backgroundColor: "color-mix(in srgb, var(--primary) 10%, var(--card))" }}>
+              <LocationIcon className="h-4 w-4" />{LOCATION_LABEL[session.location_type]}{session.location_detail ? ` · ${session.location_detail}` : ""}
+            </span>
+            <span className="inline-flex items-center gap-2 rounded-full bg-muted px-3 py-1.5 font-semibold text-foreground"><CalendarDays className="h-4 w-4" />{session.duration_minutes} phút</span>
+          </div>
+          {session.recruiter_note && <p className="mt-4 text-sm text-muted-foreground line-clamp-2">{session.recruiter_note}</p>}
+        </div>
+        <div className="p-6 flex flex-col justify-between gap-4 bg-muted/30">
+          <div className="grid grid-cols-3 gap-2 text-center">
+            {CONFIRM_COLS.map((c) => (
+              <div key={c.key}>
+                <p className="text-2xl font-black tabular-nums" style={{ color: c.color }}>{stats[c.key]}</p>
+                <p className="text-[10px] font-bold text-muted-foreground">{c.label}</p>
+              </div>
+            ))}
+          </div>
+          {schedules.length > 0 && (
+            <button onClick={handleNotify} disabled={notifying} className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-bold text-primary-foreground hover:bg-primary/90 disabled:opacity-50 cursor-pointer">
+              {notifying ? <Loader2 className="w-4 h-4 animate-spin" /> : <Bell className="w-4 h-4" />} Gửi lịch cho ứng viên
+            </button>
+          )}
         </div>
       </div>
 
       {isInterviewer && (
-        <div className="rounded-xl border border-border/12 bg-background p-4">
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <p className="text-sm font-semibold text-foreground">Xác nhận tham gia buổi phỏng vấn</p>
-              <p className="text-xs text-muted-foreground">Sau khi accept, session này sẽ xuất hiện trong Interview Room.</p>
-            </div>
-            {canRespond ? (
-              <div className="flex gap-2">
-                <button disabled={responding} onClick={() => handleRespond("accept")} className="rounded-lg bg-success px-3 py-2 text-sm font-semibold text-background disabled:opacity-50">Accept</button>
-                <button disabled={responding} onClick={() => handleRespond("decline")} className="rounded-lg border border-border/40 bg-danger/10 px-3 py-2 text-sm font-semibold text-danger disabled:opacity-50">Decline</button>
-              </div>
-            ) : (
-              <span className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${
-                isSessionPast
-                  ? "bg-muted-foreground/20 text-muted-foreground"
-                  : myAssignmentStatus === "accepted"
-                    ? "bg-success/10 text-success"
-                    : myAssignmentStatus === "declined"
-                      ? "bg-danger/10 text-danger"
-                      : "bg-muted-foreground/20 text-muted-foreground"
-              }`}>
-                {isSessionPast ? "Past" : myAssignmentStatus ? myAssignmentStatus[0].toUpperCase() + myAssignmentStatus.slice(1) : "Unavailable"}
-              </span>
-            )}
+        <div className="flex items-center justify-between gap-3 rounded-2xl border border-primary/25 bg-primary/5 px-5 py-4">
+          <div>
+            <p className="text-sm font-bold text-foreground">Xác nhận tham gia buổi phỏng vấn</p>
+            <p className="text-xs text-muted-foreground">Sau khi nhận, buổi này sẽ xuất hiện trong Interview Room.</p>
           </div>
+          {canRespond ? (
+            <div className="flex gap-2">
+              <button disabled={responding} onClick={() => handleRespond("accept")} className="rounded-lg bg-success px-4 py-2 text-sm font-bold text-white disabled:opacity-50 cursor-pointer">Nhận</button>
+              <button disabled={responding} onClick={() => handleRespond("decline")} className="rounded-lg bg-danger/10 px-4 py-2 text-sm font-bold text-danger disabled:opacity-50 cursor-pointer">Từ chối</button>
+            </div>
+          ) : (
+            <span className="rounded-full bg-muted px-3 py-1 text-xs font-bold text-muted-foreground">
+              {isSessionPast ? "Đã qua" : myAssignmentStatus ? IV_LABEL[myAssignmentStatus] : "Không khả dụng"}
+            </span>
+          )}
         </div>
       )}
 
-      <div className="grid gap-3 md:grid-cols-4">
-        <Stat label="Ứng viên" value={schedules.length} />
-        <Stat label="Candidate confirmed" value={stats.confirmed} />
-        <Stat label="Interviewer accepted" value={acceptedCount} />
-        <Stat label="Session test" value={session.tests ? "Attached" : "Missing"} />
-      </div>
-
-      <div className="grid gap-4 xl:grid-cols-[0.92fr_1.08fr]">
-        <Panel title="Interviewers" meta={`${acceptedCount}/${interviewers.length} accepted`}>
-          {interviewers.length === 0 ? <p className="text-sm text-muted-foreground">Chưa gán interviewer.</p> : (
-            <div className="space-y-2">
-              {interviewers.map((item) => (
-                <div key={item.id} className="flex items-center gap-3 rounded-2xl border border-border/10 bg-background/80 p-3">
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-border/12 bg-background text-sm font-bold text-primary">{getInitial(item.users?.name ?? "I")}</div>
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-semibold text-foreground">{item.users?.name ?? "Interviewer"}</p>
-                    <p className="truncate text-xs text-muted-foreground">{item.users?.email ?? item.interviewer_id}</p>
-                  </div>
-                  <span className={`rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.12em] ${item.status === "accepted" ? "bg-success/10 text-success" : item.status === "declined" ? "bg-danger/10 text-danger" : "bg-warning/10 text-warning"}`}>{item.status}</span>
+      <div className="grid grid-cols-[1fr_320px] gap-5 items-start">
+        {/* Ứng viên chia 3 cột theo xác nhận */}
+        <div className="grid grid-cols-3 gap-4">
+          {CONFIRM_COLS.map((c) => {
+            const items = schedules.filter((sc) => sc.candidate_confirmation === c.key);
+            return (
+              <section key={c.key} className="rounded-2xl border p-3" style={{ backgroundColor: `color-mix(in srgb, ${c.color} 6%, var(--card))`, borderColor: `color-mix(in srgb, ${c.color} 25%, var(--card))` }}>
+                <h2 className="flex items-center gap-2 px-1 pb-3 text-sm font-extrabold text-foreground">
+                  <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: c.color }} />{c.label}
+                  <span className="ml-auto rounded-full bg-card px-2 py-0.5 text-xs tabular-nums text-muted-foreground">{items.length}</span>
+                </h2>
+                <div className="space-y-2">
+                  {items.length === 0 && <p className="py-6 text-center text-xs text-muted-foreground">Trống</p>}
+                  {items.map((schedule) => {
+                    const person = schedule.job_applications?.persons;
+                    if (!person) return null;
+                    const score = schedule.job_applications?.candidate_screenings?.[0]?.final_score ?? schedule.job_applications?.candidate_screenings?.[0]?.ai_score ?? null;
+                    const t = toneFor(person.full_name);
+                    return (
+                      <button key={schedule.id} type="button" onClick={() => router.push(`/dashboard/recruitment/${schedule.job_application_id}`)}
+                              className="w-full text-left flex items-center gap-2.5 rounded-xl bg-card border border-border p-2.5 hover:shadow-[0_6px_18px_color-mix(in_srgb,var(--primary)_14%,transparent)] transition-shadow cursor-pointer">
+                        <span className="w-9 h-9 shrink-0 rounded-full grid place-items-center text-xs font-bold" style={{ color: t.ink, backgroundColor: t.bg }}>{getInitial(person.full_name)}</span>
+                        <div className="min-w-0 flex-1">
+                          <p className="text-sm font-bold text-foreground truncate">{person.full_name}</p>
+                          <p className="text-[11px] text-muted-foreground truncate">{person.email}</p>
+                        </div>
+                        {score !== null && <span className="shrink-0 rounded-md bg-primary/10 px-1.5 py-0.5 text-[11px] font-black tabular-nums text-primary">{Math.round(score)}</span>}
+                      </button>
+                    );
+                  })}
                 </div>
-              ))}
-            </div>
-          )}
-        </Panel>
-
-        <Collapsible title="Session test" open={showTest} onToggle={() => setShowTest((value) => !value)} prominent>
-          <SessionTestPanel sessionId={id} currentTest={session.tests} onUpdated={() => fetchData(true)} />
-        </Collapsible>
-      </div>
-
-      <div className="rounded-[22px] border border-border/12 bg-background/90 p-5 shadow-[0_18px_60px_rgba(0,0,0,0.16)]">
-        <div className="mb-3 flex items-center justify-between">
-          <div>
-            <h2 className="text-base font-semibold text-foreground">Candidates</h2>
-            <p className="text-xs text-muted-foreground">Danh sách ứng viên đã vào session này.</p>
-          </div>
-          {schedules.length > 0 && <button onClick={handleNotify} disabled={notifying} className="inline-flex items-center gap-2 rounded-xl border border-border/30 bg-success/10 px-3 py-2 text-xs font-semibold text-success transition-colors hover:bg-success/15 disabled:opacity-50">{notifying ? <Loader2 className="w-3 h-3 animate-spin" /> : <Bell className="w-3 h-3" />} Notify</button>}
+              </section>
+            );
+          })}
         </div>
-        {schedules.length === 0 ? <div className="rounded-2xl border border-dashed border-border/16 bg-background/70 p-6 text-sm text-muted-foreground">Chưa có candidate trong session.</div> : (
-          <div className="space-y-2">
-            {schedules.map((schedule) => {
-              const person = schedule.job_applications?.persons;
-              if (!person) return null;
-              const score = schedule.job_applications?.candidate_screenings?.[0]?.final_score ?? schedule.job_applications?.candidate_screenings?.[0]?.ai_score ?? null;
-              return (
-                <div key={schedule.id} className="flex items-center gap-3 rounded-2xl border border-border/10 bg-background/80 p-3 transition-colors hover:border-border/22">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-border/25 bg-primary/12 text-sm font-bold text-primary">{getInitial(person.full_name)}</div>
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-medium text-foreground">{person.full_name}</p>
-                    <p className="truncate text-xs text-muted-foreground">{person.email}</p>
-                  </div>
-                  {score !== null && <span className="rounded-full bg-primary/10 px-2 py-0.5 text-xs font-bold text-primary">CV {Math.round(score)}</span>}
-                  <span className={`rounded-full border px-2 py-0.5 text-xs ${CONFIRM_CFG[schedule.candidate_confirmation].cls}`}>{CONFIRM_CFG[schedule.candidate_confirmation].label}</span>
-                  <button onClick={() => router.push(`/dashboard/recruitment/${schedule.job_application_id}`)} className="rounded-lg p-1.5 text-muted-foreground hover:bg-primary/10 hover:text-primary"><ExternalLink className="w-3.5 h-3.5" /></button>
-                </div>
-              );
-            })}
+
+        <aside className="space-y-4">
+          <div className="rounded-2xl border border-border bg-card p-4">
+            <div className="flex items-center justify-between pb-3">
+              <h2 className="text-sm font-extrabold text-foreground">Interviewer</h2>
+              <span className="text-xs font-bold tabular-nums text-muted-foreground">{acceptedCount}/{interviewers.length} nhận</span>
+            </div>
+            {interviewers.length === 0 ? <p className="text-sm text-muted-foreground">Chưa gán interviewer.</p> : (
+              <ul className="space-y-2">
+                {interviewers.map((item) => {
+                  const t = toneFor(item.users?.name ?? item.interviewer_id);
+                  return (
+                    <li key={item.id} className="flex items-center gap-2.5">
+                      <span className="w-8 h-8 shrink-0 rounded-lg grid place-items-center text-xs font-bold" style={{ color: t.ink, backgroundColor: t.bg }}>{getInitial(item.users?.name ?? "I")}</span>
+                      <div className="min-w-0 flex-1">
+                        <p className="text-sm font-semibold text-foreground truncate">{item.users?.name ?? "Interviewer"}</p>
+                        <p className="text-[11px] text-muted-foreground truncate">{item.users?.email ?? item.interviewer_id}</p>
+                      </div>
+                      <span className="rounded-full px-2 py-0.5 text-[10px] font-bold" style={{ color: IV_COLOR[item.status], backgroundColor: `color-mix(in srgb, ${IV_COLOR[item.status]} 12%, var(--card))` }}>{IV_LABEL[item.status]}</span>
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
           </div>
-        )}
+
+          <Collapsible title={session.tests ? "Bài test đã gắn" : "Chưa gắn bài test"} open={showTest} onToggle={() => setShowTest((value) => !value)} prominent>
+            <SessionTestPanel sessionId={id} currentTest={session.tests} onUpdated={() => fetchData(true)} />
+          </Collapsible>
+        </aside>
       </div>
 
-      {canManage && !canAssignCandidates && <div className="rounded-2xl border border-border/25 bg-warning/10 p-3 text-sm text-warning">Cần ít nhất một interviewer accepted trước khi thêm candidate.</div>}
+      {canManage && !canAssignCandidates && <div className="rounded-2xl border border-warning/30 bg-warning/10 p-3 text-sm font-semibold text-foreground">Cần ít nhất một interviewer nhận lịch trước khi thêm ứng viên.</div>}
 
       {canManage && (
-        <Collapsible title="Thêm candidate vào session" open={showAssign} onToggle={() => setShowAssign((value) => !value)}>
+        <Collapsible title="Thêm ứng viên vào buổi" open={showAssign} onToggle={() => setShowAssign((value) => !value)}>
           <AssignCandidatesPanel
             sessionId={id}
             assignedApplicationIds={schedules.map((schedule) => schedule.job_application_id)}
@@ -319,26 +332,10 @@ export default function SessionDetailClient({ id, userRole }: Props) {
   );
 }
 
-function Stat({ label, value }: { label: string; value: number | string }) {
-  return <div className="rounded-2xl border border-border/12 bg-background/85 p-4 shadow-[0_12px_40px_rgba(0,0,0,0.12)]"><p className="text-[11px] uppercase tracking-[0.14em] text-muted-foreground">{label}</p><p className="mt-1 text-2xl font-semibold tracking-[-0.03em] text-primary">{value}</p></div>;
-}
-
-function Panel({ title, meta, children }: { title: string; meta?: string; children: React.ReactNode }) {
-  return (
-    <div className="rounded-[22px] border border-border/12 bg-background/90 p-5 shadow-[0_18px_60px_rgba(0,0,0,0.16)]">
-      <div className="mb-4 flex items-center justify-between gap-3">
-        <h2 className="text-base font-semibold text-foreground">{title}</h2>
-        {meta && <span className="rounded-full border border-border/12 bg-background px-2.5 py-1 text-xs text-muted-foreground">{meta}</span>}
-      </div>
-      {children}
-    </div>
-  );
-}
-
 function Collapsible({ title, open, onToggle, children, prominent = false }: { title: string; open: boolean; onToggle: () => void; children: React.ReactNode; prominent?: boolean }) {
   return (
-    <div className={`overflow-hidden rounded-[22px] border border-border/12 ${prominent ? "bg-background/95 shadow-[0_18px_60px_rgba(0,0,0,0.18)]" : "bg-background/85"}`}>
-      <button onClick={onToggle} className="flex w-full items-center justify-between px-5 py-4 text-base font-semibold text-foreground hover:bg-muted-foreground/5">
+    <div className={`overflow-hidden rounded-2xl border border-border bg-card ${prominent ? "shadow-[0_2px_14px_color-mix(in_srgb,var(--primary)_8%,transparent)]" : ""}`}>
+      <button onClick={onToggle} className="flex w-full items-center justify-between px-5 py-4 text-sm font-extrabold text-foreground hover:bg-muted/40 cursor-pointer">
         <span>{title}</span>
         {open ? <ChevronUp className="w-4 h-4 text-muted-foreground" /> : <ChevronDown className="w-4 h-4 text-muted-foreground" />}
       </button>
