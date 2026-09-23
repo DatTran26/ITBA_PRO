@@ -6,27 +6,17 @@ import AppNavbar from "@/components/ui/app-navbar";
 import PageBreadcrumb from "@/components/ui/page-breadcrumb";
 import PageContainer from "@/components/ui/page-container";
 import { SharedDashboardButton, SharedDashboardPageHeader } from "@/components/shares";
-import { Plus, Briefcase, AlertTriangle, Users, FileX, Archive } from "lucide-react";
-import KpiCardGrid from "@/components/crm/kpi-card-grid";
-import OverviewBand from "@/components/shares/overview-band";
-import { DonutStat, HBarList, TrendArea, colorAt } from "@/components/charts";
-import { countByMonth } from "@/lib/ui/series";
+import { Plus, Briefcase } from "lucide-react";
 import FilterBar from "@/components/crm/filter-bar";
 import ViewSwitcher from "@/components/crm/view-switcher";
 import PositionsTableView from "./positions-table-view";
-import PositionsCardView from "./positions-card-view";
+import PositionsLanes from "./positions-lanes";
 import PositionFormDialog from "@/components/management/position-form-dialog";
 import { POSITION_STATUSES } from "@/lib/crm/constants";
 import type { PositionListItem } from "@/app/dashboard/management-types";
-import type { KpiCardData, FilterOption } from "@/lib/crm/types";
+import type { FilterOption } from "@/lib/crm/types";
 
 interface Props { positions: PositionListItem[] }
-
-function getReqCount(pos: PositionListItem): number {
-  const r = pos.position_skill_requirements;
-  if (Array.isArray(r)) return r[0]?.count ?? 0;
-  return (r as { count: number })?.count ?? 0;
-}
 
 type ViewMode = "card" | "table";
 
@@ -48,30 +38,6 @@ export default function PositionsListClient({ positions }: Props) {
     });
   }, [positions, search, statusFilter, deptFilter]);
 
-  const kpis: KpiCardData[] = useMemo(() => [
-    { label: "Total Positions", value: positions.length, icon: Briefcase, badge: "Toàn bộ" },
-    { label: "Active", value: positions.filter((p) => p.status === "active").length, icon: Briefcase, badge: "Đang tuyển" },
-    { label: "No Skill Reqs", value: positions.filter((p) => getReqCount(p) === 0).length, icon: AlertTriangle, badge: "Thiếu chuẩn" },
-    { label: "Unassigned", value: positions.filter((p) => !p.assigned_persons_count).length, icon: Users, badge: "Chưa gán" },
-    { label: "Archived", value: positions.filter((p) => p.status === "archived" || p.status === "deprecated").length, icon: Archive, badge: "Lưu trữ" },
-  ], [positions]);
-
-  /* Dải tổng quan: suy ra từ `positions` đã fetch, không thêm truy vấn. */
-  const byStatus = useMemo(() => Object.entries(POSITION_STATUSES).map(([key, meta], i) => ({
-    label: meta.label, value: positions.filter((p) => p.status === key).length, color: colorAt(i),
-  })).filter((s) => s.value > 0), [positions]);
-
-  const byDept = useMemo(() => {
-    const counts = new Map<string, number>();
-    for (const p of positions) {
-      const d = p.department || "Chưa gán phòng ban";
-      counts.set(d, (counts.get(d) ?? 0) + 1);
-    }
-    return [...counts].map(([label, value]) => ({ label, value }));
-  }, [positions]);
-
-  const byMonth = useMemo(() => countByMonth(positions.map((p) => p.created_at)), [positions]);
-
   const statusOptions: FilterOption[] = Object.entries(POSITION_STATUSES).map(([k, v]) => ({ value: k, label: v.label }));
   const departments = [...new Set(positions.map((p) => p.department).filter(Boolean))] as string[];
   const deptOptions: FilterOption[] = departments.map((d) => ({ value: d, label: d }));
@@ -85,11 +51,10 @@ export default function PositionsListClient({ positions }: Props) {
       <PageContainer>
         <PageBreadcrumb breadcrumbs={[{ label: "Dashboard", href: "/dashboard" }, { label: "Positions" }]} />
         <SharedDashboardPageHeader
-          className="mb-10"
           title="Positions"
           icon={Briefcase}
-          badge={{ label: `${positions.length} vị trí` }}
-          description="Structure your organization with precision-defined roles and skill benchmarks"
+          badge={{ label: `${positions.length} vị trí · ${new Set(positions.map((p) => p.department).filter(Boolean)).size} phòng ban` }}
+          description="Vị trí theo từng phòng ban, cấp độ mục tiêu và chuẩn kỹ năng"
           actions={(
             <SharedDashboardButton variant="primary" onClick={() => setDialogOpen(true)} leadingIcon={<Plus className="h-4 w-4" />}>
               New Position
@@ -97,17 +62,7 @@ export default function PositionsListClient({ positions }: Props) {
           )}
         />
 
-        <KpiCardGrid items={kpis} />
-
-        {positions.length > 0 && (
-          <OverviewBand className="mt-6">
-            <DonutStat title="Trạng thái vị trí" subtitle="Active, draft, cần review..." tag={{ label: "Trạng thái" }} slices={byStatus} centerLabel="Vị trí" />
-            <HBarList title="Theo phòng ban" subtitle="Số vị trí mỗi phòng ban" tag={{ label: "Phòng ban", tone: "violet" }} items={byDept} />
-            <TrendArea title="Vị trí mới" subtitle="Tạo trong 6 tháng gần nhất" tag={{ label: "6 tháng", tone: "teal" }} points={byMonth} color={colorAt(2)} />
-          </OverviewBand>
-        )}
-
-        <div className="flex items-center justify-between gap-3 mt-6 mb-4">
+        <div className="flex items-center justify-between gap-3 mb-6">
           <FilterBar
             search={search}
             onSearchChange={setSearch}
@@ -121,7 +76,7 @@ export default function PositionsListClient({ positions }: Props) {
           <ViewSwitcher value={view} onChange={(v) => setView(v as ViewMode)} views={["card", "table"]} />
         </div>
 
-        {view === "card" && <PositionsCardView data={filtered} onCardClick={handleRowClick} />}
+        {view === "card" && <PositionsLanes data={filtered} onOpen={handleRowClick} />}
         {view === "table" && <PositionsTableView data={filtered} onRowClick={handleRowClick} />}
       </PageContainer>
 
