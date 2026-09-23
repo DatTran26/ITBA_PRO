@@ -39,6 +39,8 @@ import {
     User,
     MessageSquare,
 } from "lucide-react";
+import ResultScoreMap from "./result-score-map";
+import { toneFor } from "@/lib/ui/tones";
 import SkillEvaluationPanel from "@/components/evaluation/skill-evaluation-panel";
 import type { SkillRequirementRow, SkillEvaluationRow } from "./evaluation-types";
 
@@ -124,41 +126,41 @@ const CATEGORY_CONFIG = {
     strength_validation: {
         label: "Strength Validation",
         icon: Shield,
-        color: "text-emerald-400",
+        color: "text-success",
         bg: "bg-emerald-500/10 border-emerald-500/20",
-        badgeBg: "bg-emerald-500/15 text-emerald-400 border-emerald-500/25",
+        badgeBg: "bg-emerald-500/15 text-success border-emerald-500/25",
         border: "border-l-emerald-500",
     },
     weakness_probe: {
         label: "Weakness Probe",
         icon: AlertTriangle,
-        color: "text-amber-400",
+        color: "text-warning",
         bg: "bg-amber-500/10 border-amber-500/20",
-        badgeBg: "bg-amber-500/15 text-amber-400 border-amber-500/25",
+        badgeBg: "bg-amber-500/15 text-warning border-amber-500/25",
         border: "border-l-amber-500",
     },
     hidden_gap: {
         label: "Hidden Gap",
         icon: Search,
-        color: "text-rose-400",
+        color: "text-danger",
         bg: "bg-rose-500/10 border-rose-500/20",
-        badgeBg: "bg-rose-500/15 text-rose-400 border-rose-500/25",
+        badgeBg: "bg-rose-500/15 text-danger border-rose-500/25",
         border: "border-l-rose-500",
     },
     depth_check: {
         label: "Depth Check",
         icon: Layers,
-        color: "text-violet-400",
+        color: "text-violet-600",
         bg: "bg-violet-500/10 border-violet-500/20",
-        badgeBg: "bg-violet-500/15 text-violet-400 border-violet-500/25",
+        badgeBg: "bg-violet-500/15 text-violet-600 border-violet-500/25",
         border: "border-l-violet-500",
     },
 };
 
 const PRIORITY_CONFIG = {
-    high: "bg-rose-500/15 text-rose-400 border-rose-500/25",
-    medium: "bg-amber-500/15 text-amber-400 border-amber-500/25",
-    low: "bg-slate-500/15 text-slate-400 border-slate-500/25",
+    high: "bg-rose-500/15 text-danger border-rose-500/25",
+    medium: "bg-amber-500/15 text-warning border-amber-500/25",
+    low: "bg-slate-500/15 text-muted-foreground border-slate-500/25",
 };
 
 export default function ResultDetailClient({
@@ -258,7 +260,7 @@ export default function ResultDetailClient({
     }, [result.id, gradeValues, gradeNotes]);
 
     const scoreColor =
-        percentage >= 80 ? "text-emerald-400" : percentage >= 50 ? "text-amber-400" : "text-rose-400";
+        percentage >= 80 ? "text-success" : percentage >= 50 ? "text-warning" : "text-danger";
     const scoreRingColor =
         percentage >= 80 ? "var(--success)" : percentage >= 50 ? "var(--warning)" : "var(--danger)";
     const scoreGradient =
@@ -270,29 +272,29 @@ export default function ResultDetailClient({
 
     const passFail =
         percentage >= 80
-            ? { label: "Strong Pass", cls: "bg-emerald-500/15 text-emerald-400 border-emerald-500/30" }
+            ? { label: "Strong Pass", cls: "bg-emerald-500/15 text-success border-emerald-500/30" }
             : percentage >= 50
-              ? { label: "Pass", cls: "bg-amber-500/15 text-amber-400 border-amber-500/30" }
-              : { label: "Did Not Pass", cls: "bg-rose-500/15 text-rose-400 border-rose-500/30" };
+              ? { label: "Pass", cls: "bg-amber-500/15 text-warning border-amber-500/30" }
+              : { label: "Did Not Pass", cls: "bg-rose-500/15 text-danger border-rose-500/30" };
 
     const recBadge = (rec: string) => {
-        if (["Recommend", "Đề nghị", "Khuyến nghị", "TIỀM NĂNG", "Khuyên dùng", "ĐỀ XUẤT", "KHUYÊN DÙNG"].includes(rec) || (rec.toUpperCase().includes("KHUYẾN NGHỊ") && !rec.toUpperCase().includes("KHÔNG"))) return "bg-emerald-500/15 text-emerald-300 border-emerald-500/30";
-        if (["Consider", "Cân nhắc", "CÂN NHẮC"].includes(rec) || rec.toUpperCase().includes("CÂN NHẮC")) return "bg-amber-500/15 text-amber-300 border-amber-500/30";
-        return "bg-rose-500/15 text-rose-300 border-rose-500/30";
+        if (["Recommend", "Đề nghị", "Khuyến nghị", "TIỀM NĂNG", "Khuyên dùng", "ĐỀ XUẤT", "KHUYÊN DÙNG"].includes(rec) || (rec.toUpperCase().includes("KHUYẾN NGHỊ") && !rec.toUpperCase().includes("KHÔNG"))) return "bg-emerald-500/15 text-success border-emerald-500/30";
+        if (["Consider", "Cân nhắc", "CÂN NHẮC"].includes(rec) || rec.toUpperCase().includes("CÂN NHẮC")) return "bg-amber-500/15 text-warning border-amber-500/30";
+        return "bg-rose-500/15 text-danger border-rose-500/30";
     };
 
     const recDot = (rec: string) => {
-        if (["Recommend", "Đề nghị", "Khuyến nghị", "TIỀM NĂNG", "Khuyên dùng", "ĐỀ XUẤT", "KHUYÊN DÙNG"].includes(rec) || (rec.toUpperCase().includes("KHUYẾN NGHỊ") && !rec.toUpperCase().includes("KHÔNG"))) return "bg-emerald-400";
-        if (["Consider", "Cân nhắc", "CÂN NHẮC"].includes(rec) || rec.toUpperCase().includes("CÂN NHẮC")) return "bg-amber-400";
-        return "bg-rose-400";
+        if (["Recommend", "Đề nghị", "Khuyến nghị", "TIỀM NĂNG", "Khuyên dùng", "ĐỀ XUẤT", "KHUYÊN DÙNG"].includes(rec) || (rec.toUpperCase().includes("KHUYẾN NGHỊ") && !rec.toUpperCase().includes("KHÔNG"))) return "bg-success";
+        if (["Consider", "Cân nhắc", "CÂN NHẮC"].includes(rec) || rec.toUpperCase().includes("CÂN NHẮC")) return "bg-warning";
+        return "bg-danger";
     };
 
     const levelBadge =
         test.level === "Junior"
-            ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
+            ? "bg-emerald-500/10 text-success border-emerald-500/20"
             : test.level === "Mid"
-              ? "bg-amber-500/10 text-amber-400 border-amber-500/20"
-              : "bg-rose-500/10 text-rose-400 border-rose-500/20";
+              ? "bg-amber-500/10 text-warning border-amber-500/20"
+              : "bg-rose-500/10 text-danger border-rose-500/20";
 
     /* ── AI analysis state ── */
     const [aiAnalysis, setAiAnalysis] = useState<Analysis | null>(result.ai_analysis);
@@ -604,14 +606,13 @@ export default function ResultDetailClient({
                 ]} />
                 {/* ═══════ SECTION 1: Candidate Header + Score ═══════ */}
                 <div className="mb-8">
-                    <Card className="border-border/20 bg-muted/40 backdrop-blur-xl overflow-hidden rounded-3xl shadow-2xl relative">
-                        {/* Background Mesh Decor */}
-                        <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-primary/5 to-transparent pointer-events-none" />
+                    <Card className="border-border bg-card overflow-hidden rounded-2xl shadow-[0_2px_14px_color-mix(in_srgb,var(--primary)_8%,transparent)] relative">
+                        <div className="h-1.5" style={{ background: `linear-gradient(90deg, ${toneFor(result.candidate_name).mark}, ${scoreRingColor})` }} />
 
                         <CardContent className="p-0">
                             <div className="flex flex-col sm:flex-row items-stretch">
                                 {/* Score block */}
-                                <div className="flex flex-col items-center justify-center gap-4 px-10 py-8 border-b sm:border-b-0 sm:border-r border-border shrink-0 bg-white/[0.02] relative z-10">
+                                <div className="flex flex-col items-center justify-center gap-4 px-10 py-8 border-b sm:border-b-0 sm:border-r border-border shrink-0 relative z-10" style={{ backgroundColor: `color-mix(in srgb, ${scoreRingColor} 8%, var(--card))` }}>
                                     <div className="relative w-28 h-28">
                                         <svg className="w-28 h-28 -rotate-90 drop-shadow-[0_0_15px_color-mix(in_srgb,var(--primary)_10%,transparent)]" viewBox="0 0 96 96">
                                             <circle cx="48" cy="48" r="42" fill="none" stroke="currentColor" strokeWidth="6" className="text-foreground/[0.03]" />
@@ -630,7 +631,7 @@ export default function ResultDetailClient({
                                             </defs>
                                         </svg>
                                         <div className="absolute inset-0 flex flex-col items-center justify-center">
-                                            <span className={`text-4xl font-extralight tracking-tighter leading-none ${scoreColor}`}>{percentage}%</span>
+                                            <span className={`text-4xl font-black tracking-tighter leading-none ${scoreColor}`}>{percentage}%</span>
                                             <span className="text-[10px] text-muted-foreground mt-1 font-mono">{score}/{result.total_questions}</span>
                                         </div>
                                     </div>
@@ -644,7 +645,7 @@ export default function ResultDetailClient({
                                     <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-6">
                                         {/* Name + meta */}
                                         <div className="space-y-1">
-                                            <h1 className="text-3xl font-extralight font-display text-foreground tracking-tight leading-tight">{result.candidate_name}</h1>
+                                            <h1 className="text-3xl font-black text-foreground tracking-tight leading-tight">{result.candidate_name}</h1>
                                             <p className="text-muted-foreground font-light text-base">{result.candidate_email}</p>
                                             <div className="flex flex-wrap items-center gap-3 mt-4">
                                                 <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-muted border border-border text-[11px] text-muted-foreground font-light">
@@ -661,8 +662,8 @@ export default function ResultDetailClient({
                                                 {hasManualQuestions && (
                                                     <Badge className={`border text-[11px] font-medium px-3 py-1 rounded-lg ${
                                                         gradingStatus === 'pending_grading'
-                                                            ? "bg-amber-500/10 text-amber-400 border-amber-500/20 animate-pulse"
-                                                            : "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
+                                                            ? "bg-amber-500/10 text-warning border-amber-500/20 animate-pulse"
+                                                            : "bg-emerald-500/10 text-success border-emerald-500/20"
                                                     }`}>
                                                         {gradingStatus === 'pending_grading' ? "Cần chấm điểm" : "Đã chấm điểm"}
                                                     </Badge>
@@ -680,18 +681,18 @@ export default function ResultDetailClient({
                                             >
                                                 {isExporting ? <Loader2 className="w-5 h-5 animate-spin" /> : <FileDown className="w-5 h-5" />}
                                             </button>
-                                            <div className="flex items-center bg-background/60 p-1 rounded-2xl border border-border shadow-inner backdrop-blur-sm">
+                                            <div className="flex items-center bg-background/60 p-1 rounded-2xl border border-border shadow-inner ">
                                                 <button
                                                     onClick={() => handleSetStatus("pass")}
                                                     disabled={isSavingStatus}
-                                                    className={`px-6 py-2 rounded-xl text-sm font-semibold transition-all duration-300 cursor-pointer ${candidateStatus === "pass" ? "bg-emerald-500 text-foreground shadow-[0_0_20px_color-mix(in_srgb,var(--success)_40%,transparent)]" : "text-muted-foreground hover:text-emerald-400"}`}
+                                                    className={`px-6 py-2 rounded-xl text-sm font-semibold transition-all duration-300 cursor-pointer ${candidateStatus === "pass" ? "bg-emerald-500 text-white shadow-[0_0_20px_color-mix(in_srgb,var(--success)_40%,transparent)]" : "text-muted-foreground hover:text-success"}`}
                                                 >
                                                     {isSavingStatus && candidateStatus !== "pass" ? <Loader2 className="w-4 h-4 animate-spin" /> : "Pass"}
                                                 </button>
                                                 <button
                                                     onClick={() => handleSetStatus("fail")}
                                                     disabled={isSavingStatus}
-                                                    className={`px-6 py-2 rounded-xl text-sm font-semibold transition-all duration-300 cursor-pointer ${candidateStatus === "fail" ? "bg-rose-500 text-foreground shadow-[0_0_20px_color-mix(in_srgb,var(--danger)_40%,transparent)]" : "text-muted-foreground hover:text-rose-400"}`}
+                                                    className={`px-6 py-2 rounded-xl text-sm font-semibold transition-all duration-300 cursor-pointer ${candidateStatus === "fail" ? "bg-rose-500 text-white shadow-[0_0_20px_color-mix(in_srgb,var(--danger)_40%,transparent)]" : "text-muted-foreground hover:text-danger"}`}
                                                 >
                                                     {isSavingStatus && candidateStatus !== "fail" ? <Loader2 className="w-4 h-4 animate-spin" /> : "Fail"}
                                                 </button>
@@ -700,7 +701,7 @@ export default function ResultDetailClient({
 
                                         {/* AI Recommendation — BIG */}
                                         {isAnalyzing ? (
-                                            <div className="flex items-center gap-3 px-6 py-4 rounded-2xl bg-muted border border-border shrink-0 backdrop-blur-md">
+                                            <div className="flex items-center gap-3 px-6 py-4 rounded-2xl bg-muted border border-border shrink-0 ">
                                                 <Loader2 className="w-5 h-5 animate-spin text-primary" />
                                                 <div className="space-y-0.5">
                                                     <p className="text-[10px] text-muted-foreground uppercase tracking-widest leading-none">Status</p>
@@ -708,7 +709,7 @@ export default function ResultDetailClient({
                                                 </div>
                                             </div>
                                         ) : aiAnalysis?.recommendation ? (
-                                            <div className={`flex items-center gap-4 px-6 py-4 rounded-2xl border shrink-0 backdrop-blur-xl shadow-lg relative overflow-hidden group ${recBadge(aiAnalysis.recommendation)}`}>
+                                            <div className={`flex items-center gap-4 px-6 py-4 rounded-2xl border shrink-0 shadow-lg relative overflow-hidden group ${recBadge(aiAnalysis.recommendation)}`}>
                                                 <div className={`absolute top-0 left-0 w-1 h-full ${recDot(aiAnalysis.recommendation)} opacity-60`} />
                                                 <div className={`w-3 h-3 rounded-full flex-shrink-0 animate-pulse ${recDot(aiAnalysis.recommendation)}`} />
                                                 <div>
@@ -724,10 +725,12 @@ export default function ResultDetailClient({
                     </Card>
                 </div>
 
+                {(test.questions?.length ?? 0) > 0 && <ResultScoreMap questions={test.questions ?? []} answers={result.answers ?? []} grades={answerGrades} />}
+
                 {/* ═══════ SECTION 2: AI Assessment Panel ═══════ */}
                 {(isAnalyzing || aiAnalysis) && (
                     <div className="mb-10">
-                        <Card className="border-border/10 bg-muted/40 backdrop-blur-xl rounded-3xl shadow-xl overflow-hidden">
+                        <Card className="border-border/10 bg-muted/40 rounded-3xl shadow-xl overflow-hidden">
                             <CardHeader className="pb-4 pt-6 px-8 border-b border-border">
                                 <div className="flex items-center gap-3">
                                     <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary shadow-[0_0_15px_color-mix(in_srgb,var(--primary)_10%,transparent)]">
@@ -782,7 +785,7 @@ export default function ResultDetailClient({
                                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                                             {/* Strengths editor */}
                                             <div className="rounded-2xl bg-emerald-500/[0.03] border border-emerald-500/10 p-5">
-                                                <p className="text-[11px] text-emerald-400/80 uppercase tracking-widest font-semibold mb-4 flex items-center gap-1.5">
+                                                <p className="text-[11px] text-success/80 uppercase tracking-widest font-semibold mb-4 flex items-center gap-1.5">
                                                     <CheckCircle2 className="w-4 h-4 text-emerald-500" />
                                                     Strengths
                                                 </p>
@@ -792,20 +795,20 @@ export default function ResultDetailClient({
                                                             <input
                                                                 value={s}
                                                                 onChange={(e) => handleEditListItem("strengths", i, e.target.value)}
-                                                                className="flex-1 bg-background/40 border border-border rounded-xl px-3 py-2 text-sm text-emerald-300/80 focus:outline-none focus:border-emerald-500/40 transition-all"
+                                                                className="flex-1 bg-background/40 border border-border rounded-xl px-3 py-2 text-sm text-success/80 focus:outline-none focus:border-emerald-500/40 transition-all"
                                                             />
-                                                            <button onClick={() => handleRemoveListItem("strengths", i)} className="text-muted-foreground hover:text-rose-400 p-1 transition-colors">
+                                                            <button onClick={() => handleRemoveListItem("strengths", i)} className="text-muted-foreground hover:text-danger p-1 transition-colors">
                                                                 <X className="w-4 h-4" />
                                                             </button>
                                                         </div>
                                                     ))}
-                                                    <button onClick={() => handleAddListItem("strengths")} className="text-[11px] text-emerald-500/60 hover:text-emerald-400 flex items-center gap-1 mt-2 ml-1 transition-colors">+ Add Strength</button>
+                                                    <button onClick={() => handleAddListItem("strengths")} className="text-[11px] text-emerald-500/60 hover:text-success flex items-center gap-1 mt-2 ml-1 transition-colors">+ Add Strength</button>
                                                 </div>
                                             </div>
 
                                             {/* Weaknesses editor */}
                                             <div className="rounded-2xl bg-rose-500/[0.03] border border-rose-500/10 p-5">
-                                                <p className="text-[11px] text-rose-400/80 uppercase tracking-widest font-semibold mb-4 flex items-center gap-1.5">
+                                                <p className="text-[11px] text-danger/80 uppercase tracking-widest font-semibold mb-4 flex items-center gap-1.5">
                                                     <AlertTriangle className="w-4 h-4 text-rose-500" />
                                                     Areas for Improvement
                                                 </p>
@@ -815,14 +818,14 @@ export default function ResultDetailClient({
                                                             <input
                                                                 value={w}
                                                                 onChange={(e) => handleEditListItem("weaknesses", i, e.target.value)}
-                                                                className="flex-1 bg-background/40 border border-border rounded-xl px-3 py-2 text-sm text-rose-300/80 focus:outline-none focus:border-rose-500/40 transition-all"
+                                                                className="flex-1 bg-background/40 border border-border rounded-xl px-3 py-2 text-sm text-danger/80 focus:outline-none focus:border-rose-500/40 transition-all"
                                                             />
-                                                            <button onClick={() => handleRemoveListItem("weaknesses", i)} className="text-muted-foreground hover:text-rose-400 p-1 transition-colors">
+                                                            <button onClick={() => handleRemoveListItem("weaknesses", i)} className="text-muted-foreground hover:text-danger p-1 transition-colors">
                                                                 <X className="w-4 h-4" />
                                                             </button>
                                                         </div>
                                                     ))}
-                                                    <button onClick={() => handleAddListItem("weaknesses")} className="text-[11px] text-rose-500/60 hover:text-rose-400 flex items-center gap-1 mt-2 ml-1 transition-colors">+ Add Area</button>
+                                                    <button onClick={() => handleAddListItem("weaknesses")} className="text-[11px] text-rose-500/60 hover:text-danger flex items-center gap-1 mt-2 ml-1 transition-colors">+ Add Area</button>
                                                 </div>
                                             </div>
                                         </div>
@@ -862,12 +865,12 @@ export default function ResultDetailClient({
                                         {(aiAnalysis.strengths?.length > 0 || aiAnalysis.weaknesses?.length > 0) && (
                                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
                                                 {aiAnalysis.strengths?.length > 0 && (
-                                                    <div className="space-y-4">
+                                                    <div className="space-y-4 rounded-2xl p-5" style={{ backgroundColor: "color-mix(in srgb, var(--success) 7%, var(--card))" }}>
                                                         <div className="flex items-center gap-2 mb-2">
-                                                            <div className="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400">
+                                                            <div className="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center text-success">
                                                                 <CheckCircle2 className="w-4 h-4" />
                                                             </div>
-                                                            <h4 className="text-[10px] text-emerald-400/80 uppercase tracking-widest font-bold">Key Strengths</h4>
+                                                            <h4 className="text-[10px] text-success/80 uppercase tracking-widest font-bold">Key Strengths</h4>
                                                         </div>
                                                         <ul className="space-y-3">
                                                             {aiAnalysis.strengths.map((s, i) => (
@@ -880,12 +883,12 @@ export default function ResultDetailClient({
                                                     </div>
                                                 )}
                                                 {aiAnalysis.weaknesses?.length > 0 && (
-                                                    <div className="space-y-4">
+                                                    <div className="space-y-4 rounded-2xl p-5" style={{ backgroundColor: "color-mix(in srgb, var(--danger) 7%, var(--card))" }}>
                                                         <div className="flex items-center gap-2 mb-2">
-                                                            <div className="w-8 h-8 rounded-lg bg-rose-500/10 flex items-center justify-center text-rose-400">
+                                                            <div className="w-8 h-8 rounded-lg bg-rose-500/10 flex items-center justify-center text-danger">
                                                                 <AlertTriangle className="w-4 h-4" />
                                                             </div>
-                                                            <h4 className="text-[10px] text-rose-400/80 uppercase tracking-widest font-bold">Improvement Areas</h4>
+                                                            <h4 className="text-[10px] text-danger/80 uppercase tracking-widest font-bold">Improvement Areas</h4>
                                                         </div>
                                                         <ul className="space-y-3">
                                                             {aiAnalysis.weaknesses.map((w, i) => (
@@ -908,7 +911,7 @@ export default function ResultDetailClient({
 
                 {/* ═══════ Generate Follow-up ═══════ */}
                 {aiAnalysis && !isAnalyzing && (
-                    <div className="flex justify-center mb-16 -translate-y-6">
+                    <div className="flex justify-center mb-10">
                         <Button
                             onClick={
                                 followUpSession && !showFollowUp
@@ -916,7 +919,7 @@ export default function ResultDetailClient({
                                     : handleGenerateFollowUp
                             }
                             disabled={isGeneratingFollowUp}
-                            className="bg-white text-black hover:bg-foreground rounded-full h-16 px-12 text-base font-bold shadow-[0_15px_45px_-10px_rgba(255,255,255,0.25)] hover:shadow-[0_20px_55px_-5px_rgba(255,255,255,0.4)] transition-all duration-500 gap-3 group border-0"
+                            className="bg-primary text-white hover:bg-primary/90 rounded-full h-14 px-10 text-base font-bold shadow-[0_10px_30px_-8px_color-mix(in_srgb,var(--primary)_50%,transparent)] transition-all duration-300 gap-3 group border-0"
                         >
                             {isGeneratingFollowUp ? (
                                 <><Loader2 className="w-6 h-6 animate-spin" /> Synthesizing Question Vectors…</>
@@ -937,13 +940,13 @@ export default function ResultDetailClient({
                                 <Lightbulb className="w-5 h-5 text-primary" />
                             </div>
                             <div>
-                                <h3 className="text-base font-medium text-white tracking-wide">Cognitive Interview Hints</h3>
+                                <h3 className="text-base font-bold text-foreground tracking-wide">Cognitive Interview Hints</h3>
                                 <p className="text-[11px] text-muted-foreground font-light">Suggested questions to explore depth of knowledge</p>
                             </div>
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             {result.suggested_questions.map((sq, i) => (
-                                <div key={i} className="group relative rounded-2xl border border-border bg-muted/20 hover:bg-muted/40 hover:border-border/20 backdrop-blur-md transition-all duration-300 overflow-hidden">
+                                <div key={i} className="group relative rounded-2xl border border-border bg-muted/20 hover:bg-muted/40 hover:border-border/20 transition-all duration-300 overflow-hidden">
                                     <div className="p-6">
                                         <div className="flex items-start gap-4 mb-4">
                                             <span className="w-6 h-6 rounded-lg bg-primary/10 flex items-center justify-center text-[10px] font-bold text-primary shrink-0 border border-border/10">{i + 1}</span>
@@ -956,9 +959,9 @@ export default function ResultDetailClient({
                                             </p>
                                             <button
                                                 onClick={() => handleCopyHint(sq.question, i)}
-                                                className="shrink-0 w-10 h-10 flex items-center justify-center rounded-xl bg-muted text-muted-foreground hover:text-white hover:bg-primary/20 transition-all cursor-pointer opacity-0 group-hover:opacity-100"
+                                                className="shrink-0 w-10 h-10 flex items-center justify-center rounded-xl bg-muted text-muted-foreground hover:text-foreground hover:bg-primary/20 transition-all cursor-pointer opacity-0 group-hover:opacity-100"
                                             >
-                                                {copiedHintIdx === i ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4" />}
+                                                {copiedHintIdx === i ? <Check className="w-4 h-4 text-success" /> : <Copy className="w-4 h-4" />}
                                             </button>
                                         </div>
                                     </div>
@@ -970,13 +973,13 @@ export default function ResultDetailClient({
 
                 {/* ═══════ SECTION 4: Interviewer Note ═══════ */}
                 <div className="mb-12">
-                    <Card className="border-border bg-muted/20 backdrop-blur-xl rounded-3xl overflow-hidden group">
-                        <div className="flex items-center justify-between px-8 py-5 border-b border-border bg-white/[0.02]">
+                    <Card className="border-border bg-muted/20 rounded-3xl overflow-hidden group">
+                        <div className="flex items-center justify-between px-8 py-5 border-b border-border bg-muted/40">
                             <div className="flex items-center gap-3">
-                                <StickyNote className="w-5 h-5 text-amber-400" />
+                                <StickyNote className="w-5 h-5 text-warning" />
                                 <span className="text-sm font-semibold text-foreground tracking-widest uppercase">Executive Summary Notes</span>
                             </div>
-                            <Badge className={`text-[10px] px-3 py-1 rounded-lg ${noteHasChanges ? "bg-amber-500/20 text-amber-400 border-amber-500/20" : lastSavedNote ? "bg-emerald-500/10 text-emerald-400/60 border-emerald-500/10" : "bg-muted text-muted-foreground border-border"}`}>
+                            <Badge className={`text-[10px] px-3 py-1 rounded-lg ${noteHasChanges ? "bg-amber-500/20 text-warning border-amber-500/20" : lastSavedNote ? "bg-emerald-500/10 text-success border-emerald-500/10" : "bg-muted text-muted-foreground border-border"}`}>
                                 {!noteHasChanges && lastSavedNote ? "All Changes Synchronized" : noteHasChanges ? "Local Changes Unsaved" : "Internal Workspace Only"}
                             </Badge>
                         </div>
@@ -1023,15 +1026,15 @@ export default function ResultDetailClient({
                 {/* ═══════ SECTION 5: Tabbed content ═══════ */}
                 <div className="mb-12">
                     {/* Tab bar — Slate Pro Max Pill Style */}
-                    <div className="flex items-center justify-center p-1.5 bg-muted/60 border border-border rounded-2xl w-fit mx-auto mb-10 backdrop-blur-md shadow-inner">
+                    <div className="flex items-center justify-center p-1.5 bg-muted/60 border border-border rounded-2xl w-fit mx-auto mb-10 shadow-inner">
                         <button
                             onClick={() => setActiveTab("breakdown")}
                             className={`px-8 py-3 text-sm font-medium transition-all duration-300 rounded-xl relative ${
-                                activeTab === "breakdown" ? "bg-white text-black shadow-lg" : "text-muted-foreground hover:text-foreground"
+                                activeTab === "breakdown" ? "bg-card text-foreground shadow-md" : "text-muted-foreground hover:text-foreground"
                             }`}
                         >
                             Question Breakdown
-                            <span className={`ml-2 text-xs font-mono tabular-nums ${activeTab === "breakdown" ? "text-black/50" : "text-muted-foreground"}`}>
+                            <span className={`ml-2 text-xs font-mono tabular-nums ${activeTab === "breakdown" ? "text-muted-foreground" : "text-muted-foreground"}`}>
                                 {test.questions?.length || 0}
                             </span>
                         </button>
@@ -1039,10 +1042,10 @@ export default function ResultDetailClient({
                             <button
                                 onClick={() => setActiveTab("followup")}
                                 className={`px-8 py-3 text-sm font-medium transition-all duration-300 rounded-xl relative flex items-center gap-2 ${
-                                    activeTab === "followup" ? "bg-amber-500 text-foreground shadow-lg" : "text-muted-foreground hover:text-foreground"
+                                    activeTab === "followup" ? "bg-amber-500 text-white shadow-lg" : "text-muted-foreground hover:text-foreground"
                                 }`}
                             >
-                                <Sparkles className={`w-4 h-4 ${activeTab === "followup" ? "text-foreground" : "text-amber-500"}`} />
+                                <Sparkles className={`w-4 h-4 ${activeTab === "followup" ? "text-white" : "text-amber-500"}`} />
                                 Follow-up Insight
                                 <span className={`ml-1 text-xs font-mono tabular-nums ${activeTab === "followup" ? "text-muted-foreground" : "text-muted-foreground"}`}>
                                     {displayQuestions.length}
@@ -1068,10 +1071,10 @@ export default function ResultDetailClient({
                                       : "border-l-amber-500/60";
 
                                 const iconClass = isCorrect === true
-                                    ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/20"
+                                    ? "bg-emerald-500/20 text-success border border-emerald-500/20"
                                     : isCorrect === false
-                                      ? "bg-rose-500/20 text-rose-400 border border-rose-500/20"
-                                      : "bg-amber-500/20 text-amber-400 border border-amber-500/20 animate-pulse";
+                                      ? "bg-rose-500/20 text-danger border border-rose-500/20"
+                                      : "bg-amber-500/20 text-warning border border-amber-500/20 animate-pulse";
 
                                 const IconComponent = isCorrect === true
                                     ? Check
@@ -1088,7 +1091,8 @@ export default function ResultDetailClient({
                                 return (
                                     <Card
                                         key={q.id}
-                                        className={`border-l-4 ${cardBorderClass} border-border bg-muted/30 backdrop-blur-sm rounded-2xl overflow-hidden transition-all hover:bg-muted/50`}
+                                        id={`q-${q.id}`}
+                                        className={`border-l-4 ${cardBorderClass} border-border bg-muted/30 rounded-2xl overflow-hidden transition-all hover:bg-muted/50`}
                                     >
                                         <CardHeader className="pb-3 px-6 pt-6">
                                             <div className="flex items-center justify-between mb-4">
@@ -1131,11 +1135,11 @@ export default function ResultDetailClient({
                                                     </div>
 
                                                     {/* Evaluation Panel */}
-                                                    <div className="bg-white/[0.02] border border-border rounded-2xl p-6 space-y-6 relative overflow-hidden">
+                                                    <div className="bg-muted/40 border border-border rounded-2xl p-6 space-y-6 relative overflow-hidden">
                                                         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                                                             <div className="space-y-1">
                                                                 <h4 className="text-sm font-semibold text-foreground flex items-center gap-2">
-                                                                    <Award className="w-4 h-4 text-amber-400" />
+                                                                    <Award className="w-4 h-4 text-warning" />
                                                                     Manual Evaluation & Score Override
                                                                 </h4>
                                                                 <p className="text-xs text-muted-foreground font-light">Subjective grading must be evaluated by an interviewer</p>
@@ -1143,17 +1147,17 @@ export default function ResultDetailClient({
 
                                                             <div className="flex items-center gap-2">
                                                                 {currentGrade === true ? (
-                                                                    <Badge className="bg-emerald-500/10 text-emerald-400 border border-emerald-500/25 px-3.5 py-1.5 rounded-xl font-medium tracking-wide flex items-center gap-1.5 shadow-[0_0_15px_color-mix(in_srgb,var(--success)_10%,transparent)]">
+                                                                    <Badge className="bg-emerald-500/10 text-success border border-emerald-500/25 px-3.5 py-1.5 rounded-xl font-medium tracking-wide flex items-center gap-1.5 shadow-[0_0_15px_color-mix(in_srgb,var(--success)_10%,transparent)]">
                                                                         <CheckCircle2 className="w-3.5 h-3.5" />
                                                                         ĐẠT (PASS)
                                                                     </Badge>
                                                                 ) : currentGrade === false ? (
-                                                                    <Badge className="bg-rose-500/10 text-rose-400 border border-rose-500/25 px-3.5 py-1.5 rounded-xl font-medium tracking-wide flex items-center gap-1.5 shadow-[0_0_15px_color-mix(in_srgb,var(--danger)_10%,transparent)]">
+                                                                    <Badge className="bg-rose-500/10 text-danger border border-rose-500/25 px-3.5 py-1.5 rounded-xl font-medium tracking-wide flex items-center gap-1.5 shadow-[0_0_15px_color-mix(in_srgb,var(--danger)_10%,transparent)]">
                                                                         <XCircle className="w-3.5 h-3.5" />
                                                                         KHÔNG ĐẠT (FAIL)
                                                                     </Badge>
                                                                 ) : (
-                                                                    <Badge className="bg-amber-500/10 text-amber-400 border border-amber-500/25 px-3.5 py-1.5 rounded-xl font-medium tracking-wide flex items-center gap-1.5 animate-pulse">
+                                                                    <Badge className="bg-amber-500/10 text-warning border border-amber-500/25 px-3.5 py-1.5 rounded-xl font-medium tracking-wide flex items-center gap-1.5 animate-pulse">
                                                                         <AlertCircle className="w-3.5 h-3.5" />
                                                                         CHƯA CHẤM (PENDING)
                                                                     </Badge>
@@ -1171,12 +1175,12 @@ export default function ResultDetailClient({
                                                                         onClick={() => setGradeValues(prev => ({ ...prev, [q.id]: true }))}
                                                                         className={`flex items-center justify-between px-5 py-3.5 rounded-xl text-sm font-semibold transition-all duration-300 border cursor-pointer ${
                                                                             currentGrade === true
-                                                                                ? "bg-emerald-500/15 text-emerald-300 border-emerald-500/40 shadow-[0_0_20px_color-mix(in_srgb,var(--success)_15%,transparent)]"
-                                                                                : "bg-white/[0.01] text-muted-foreground border-border hover:bg-muted hover:text-foreground"
+                                                                                ? "bg-emerald-500/15 text-success border-emerald-500/40 shadow-[0_0_20px_color-mix(in_srgb,var(--success)_15%,transparent)]"
+                                                                                : "bg-muted/40 text-muted-foreground border-border hover:bg-muted hover:text-foreground"
                                                                         }`}
                                                                     >
                                                                         <span className="flex items-center gap-2">
-                                                                            <CheckCircle2 className={`w-4 h-4 ${currentGrade === true ? "text-emerald-400" : "text-muted-foreground"}`} />
+                                                                            <CheckCircle2 className={`w-4 h-4 ${currentGrade === true ? "text-success" : "text-muted-foreground"}`} />
                                                                             Đạt (Pass)
                                                                         </span>
                                                                         <span className="text-[10px] font-mono opacity-50">+1 Điểm</span>
@@ -1187,12 +1191,12 @@ export default function ResultDetailClient({
                                                                         onClick={() => setGradeValues(prev => ({ ...prev, [q.id]: false }))}
                                                                         className={`flex items-center justify-between px-5 py-3.5 rounded-xl text-sm font-semibold transition-all duration-300 border cursor-pointer ${
                                                                             currentGrade === false
-                                                                                ? "bg-rose-500/15 text-rose-300 border-rose-500/40 shadow-[0_0_20px_color-mix(in_srgb,var(--danger)_15%,transparent)]"
-                                                                                : "bg-white/[0.01] text-muted-foreground border-border hover:bg-muted hover:text-foreground"
+                                                                                ? "bg-rose-500/15 text-danger border-rose-500/40 shadow-[0_0_20px_color-mix(in_srgb,var(--danger)_15%,transparent)]"
+                                                                                : "bg-muted/40 text-muted-foreground border-border hover:bg-muted hover:text-foreground"
                                                                         }`}
                                                                     >
                                                                         <span className="flex items-center gap-2">
-                                                                            <XCircle className={`w-4 h-4 ${currentGrade === false ? "text-rose-400" : "text-muted-foreground"}`} />
+                                                                            <XCircle className={`w-4 h-4 ${currentGrade === false ? "text-danger" : "text-muted-foreground"}`} />
                                                                             Không đạt (Fail)
                                                                         </span>
                                                                         <span className="text-[10px] font-mono opacity-50">+0 Điểm</span>
@@ -1261,9 +1265,9 @@ export default function ResultDetailClient({
                                                                 key={oIdx}
                                                                 className={`text-sm px-4 py-3 rounded-xl flex items-start gap-4 transition-all duration-300 ${
                                                                     oIdx === q.correct_answer
-                                                                        ? "bg-emerald-500/10 text-emerald-300 border border-emerald-500/30 shadow-[0_0_15px_color-mix(in_srgb,var(--success)_10%,transparent)]"
+                                                                        ? "bg-emerald-500/10 text-success border border-emerald-500/30 shadow-[0_0_15px_color-mix(in_srgb,var(--success)_10%,transparent)]"
                                                                         : oIdx === selectedAnswer && !isCorrect
-                                                                          ? "bg-rose-500/10 text-rose-300 border border-rose-500/30"
+                                                                          ? "bg-rose-500/10 text-danger border border-rose-500/30"
                                                                           : "text-muted-foreground bg-background/40 border border-border"
                                                                 }`}
                                                             >
@@ -1295,7 +1299,7 @@ export default function ResultDetailClient({
                     {activeTab === "followup" && showFollowUp && followUpSession && (
                         <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
                             {/* Premium Header/Toolbar */}
-                            <div className="p-8 rounded-3xl bg-muted/60 border border-border backdrop-blur-xl relative overflow-hidden group shadow-2xl">
+                            <div className="p-8 rounded-3xl bg-muted/60 border border-border relative overflow-hidden group shadow-2xl">
                                 <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-[100px] -mr-32 -mt-32 pointer-events-none group-hover:bg-primary/10 transition-colors duration-1000" />
                                 <div className="relative z-10">
                                     <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-8">
@@ -1313,7 +1317,7 @@ export default function ResultDetailClient({
 
                                         <div className="flex flex-wrap items-center gap-4">
                                             {/* Advanced Category Filter */}
-                                            <div className="flex items-center gap-2 p-1.5 bg-background/80 rounded-2xl border border-border shadow-inner backdrop-blur-md">
+                                            <div className="flex items-center gap-2 p-1.5 bg-background/80 rounded-2xl border border-border shadow-inner ">
                                                 <button
                                                     onClick={() => setCategoryFilter("all")}
                                                     className={`px-5 py-2 rounded-xl text-xs font-semibold transition-all duration-300 ${categoryFilter === "all" ? "bg-white text-black shadow-xl" : "text-muted-foreground hover:text-foreground hover:bg-muted"}`}
@@ -1329,7 +1333,7 @@ export default function ResultDetailClient({
                                                         <button
                                                             key={cat}
                                                             onClick={() => setCategoryFilter(categoryFilter === cat ? "all" : cat)}
-                                                            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold transition-all duration-300 ${categoryFilter === cat ? `${cfg.bg} ${cfg.color} border border-white/10 shadow-lg` : "text-muted-foreground hover:text-foreground hover:bg-white/5"}`}
+                                                            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold transition-all duration-300 ${categoryFilter === cat ? `${cfg.bg} ${cfg.color} border border-border shadow-lg` : "text-muted-foreground hover:text-foreground hover:bg-muted"}`}
                                                         >
                                                             <Icon className="w-3.5 h-3.5" />
                                                             <span className="hidden sm:inline">{cfg.label.split(" ")[0]}</span>
@@ -1352,10 +1356,10 @@ export default function ResultDetailClient({
                                                     </>
                                                 ) : (
                                                     <>
-                                                        <Button variant="ghost" onClick={handleStartEdit} className="text-primary hover:text-primary hover:bg-primary/10 h-11 px-5 rounded-xl border border-border/20 backdrop-blur-sm">
+                                                        <Button variant="ghost" onClick={handleStartEdit} className="text-primary hover:text-primary hover:bg-primary/10 h-11 px-5 rounded-xl border border-border/20 ">
                                                             <Pencil className="w-4 h-4 mr-2" /> Modify Vectors
                                                         </Button>
-                                                        <Button variant="ghost" onClick={handleDeleteSession} className="text-rose-400 hover:text-rose-400 hover:bg-rose-500/10 h-11 w-11 px-0 rounded-xl border border-rose-500/20 backdrop-blur-sm">
+                                                        <Button variant="ghost" onClick={handleDeleteSession} className="text-danger hover:text-danger hover:bg-rose-500/10 h-11 w-11 px-0 rounded-xl border border-rose-500/20 ">
                                                             <Trash2 className="w-4 h-4" />
                                                         </Button>
                                                     </>
@@ -1376,7 +1380,7 @@ export default function ResultDetailClient({
                                     return (
                                         <div
                                             key={idx}
-                                            className={`group relative bg-muted/20 hover:bg-muted/40 border-l-4 ${catCfg.border} border-y border-r border-border rounded-3xl transition-all duration-500 overflow-hidden backdrop-blur-sm shadow-xl`}
+                                            className={`group relative bg-muted/20 hover:bg-muted/40 border-l-4 ${catCfg.border} border-y border-r border-border rounded-3xl transition-all duration-500 overflow-hidden shadow-xl`}
                                         >
                                             <div className="p-8">
                                                 <div className="flex flex-col lg:flex-row gap-8">
@@ -1394,7 +1398,7 @@ export default function ResultDetailClient({
                                                             </div>
                                                             <div className="flex items-center gap-2">
                                                                 {editingQuestions && (
-                                                                    <button onClick={() => handleDeleteQuestion(originalIdx)} className="w-9 h-9 flex items-center justify-center rounded-xl bg-rose-500/10 text-rose-400 hover:bg-rose-500/20 transition-all">
+                                                                    <button onClick={() => handleDeleteQuestion(originalIdx)} className="w-9 h-9 flex items-center justify-center rounded-xl bg-rose-500/10 text-danger hover:bg-rose-500/20 transition-all">
                                                                         <Trash2 className="w-4 h-4" />
                                                                     </button>
                                                                 )}
@@ -1403,7 +1407,7 @@ export default function ResultDetailClient({
                                                                         onClick={() => handleCopyQuestion(fq.question_text, originalIdx)}
                                                                         className="w-9 h-9 flex items-center justify-center rounded-xl bg-muted text-muted-foreground hover:text-primary hover:bg-primary/10 transition-all opacity-0 group-hover:opacity-100"
                                                                     >
-                                                                        {copiedIdx === originalIdx ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4" />}
+                                                                        {copiedIdx === originalIdx ? <Check className="w-4 h-4 text-success" /> : <Copy className="w-4 h-4" />}
                                                                     </button>
                                                                 )}
                                                             </div>
@@ -1435,7 +1439,7 @@ export default function ResultDetailClient({
                                                     </div>
 
                                                     {/* RIGHT: Objective & Protocols */}
-                                                    <div className="lg:w-[400px] space-y-8 p-8 rounded-2xl bg-white/[0.02] border border-border shadow-inner">
+                                                    <div className="lg:w-[400px] space-y-8 p-8 rounded-2xl bg-muted/40 border border-border shadow-inner">
                                                         <div className="space-y-4">
                                                             <h4 className="text-[10px] uppercase tracking-widest text-primary font-bold flex items-center gap-2">
                                                                 <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" /> Strategic Objective
@@ -1452,8 +1456,8 @@ export default function ResultDetailClient({
                                                         </div>
 
                                                         <div className="space-y-4 pt-6 border-t border-border">
-                                                            <h4 className="text-[10px] uppercase tracking-widest text-amber-400 font-bold flex items-center gap-2">
-                                                                <div className="w-1.5 h-1.5 rounded-full bg-amber-400 opacity-60" /> Cognitive Probes
+                                                            <h4 className="text-[10px] uppercase tracking-widest text-warning font-bold flex items-center gap-2">
+                                                                <div className="w-1.5 h-1.5 rounded-full bg-warning opacity-60" /> Cognitive Probes
                                                             </h4>
                                                             <div className="space-y-3">
                                                                 {fq.suggested_follow_up_points?.map((point, pi) => (
