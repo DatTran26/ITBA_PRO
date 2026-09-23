@@ -8,7 +8,6 @@ import AppNavbar from "@/components/ui/app-navbar";
 import PageBreadcrumb from "@/components/ui/page-breadcrumb";
 import PageContainer from "@/components/ui/page-container";
 import { SharedDashboardButton, SharedDashboardPageHeader } from "@/components/shares";
-import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import QuestionFormDialog from "@/components/question-bank/question-form-dialog";
 import QuestionBankQuestionsTab from "./question-bank-questions-tab";
@@ -29,7 +28,7 @@ interface Props {
   canEdit: boolean;
 }
 
-const VALID_TABS = new Set(["questions", "add", "bulk-import", "ai-pipeline"]);
+const VALID_TABS = new Set(["questions", "bulk-import", "ai-pipeline"]);
 
 export default function QuestionBankClient({ kpis, topics, canEdit }: Props) {
   const router = useRouter();
@@ -66,9 +65,14 @@ export default function QuestionBankClient({ kpis, topics, canEdit }: Props) {
         <SharedDashboardPageHeader
           title="Ngân hàng câu hỏi"
           icon={Library}
-          badge={{ label: `${kpis.total} câu` }}
+          badge={{ label: `${kpis.total} câu · ${kpis.topics} chủ đề` }}
           description="Quản lý kho câu hỏi dùng cho các bài đánh giá"
           actions={<>
+          {canEdit && (
+            <SharedDashboardButton variant="secondary" onClick={() => setAddDialogOpen(true)} leadingIcon={<Plus className="h-4 w-4" />}>
+              Thêm câu hỏi
+            </SharedDashboardButton>
+          )}
           <Link href="/dashboard/create?source=bank">
             <SharedDashboardButton
               variant="primary"
@@ -84,7 +88,6 @@ export default function QuestionBankClient({ kpis, topics, canEdit }: Props) {
         <Tabs value={activeTab} onValueChange={handleTabChange}>
           <TabsList className="mb-6">
             <TabsTrigger value="questions">Questions</TabsTrigger>
-            {canEdit && <TabsTrigger value="add">Add Question</TabsTrigger>}
             {canEdit && <TabsTrigger value="bulk-import">Bulk Import</TabsTrigger>}
             {canEdit && <TabsTrigger value="ai-pipeline">AI Pipeline</TabsTrigger>}
           </TabsList>
@@ -97,20 +100,6 @@ export default function QuestionBankClient({ kpis, topics, canEdit }: Props) {
               refreshKey={questionsRefreshKey}
             />
           </TabsContent>
-
-          {canEdit && (
-            <TabsContent value="add">
-              <div className="flex flex-col items-center justify-center py-20 gap-4">
-                <p className="text-sm text-muted-foreground">Create a new question for the bank.</p>
-                <Button
-                  onClick={() => setAddDialogOpen(true)}
-                  className="bg-success hover:bg-success text-white h-12 px-8 rounded-xl shadow-lg shadow-success/20 transition-all font-semibold gap-2 border-0"
-                >
-                  <Plus className="w-5 h-5" /> Add Question
-                </Button>
-              </div>
-            </TabsContent>
-          )}
 
           {canEdit && (
             <TabsContent value="bulk-import">

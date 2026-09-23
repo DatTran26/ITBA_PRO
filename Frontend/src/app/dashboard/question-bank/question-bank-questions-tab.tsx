@@ -2,14 +2,12 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { BookOpen, Layers, Brain, Tag } from "lucide-react";
-import KpiCardGrid from "@/components/crm/kpi-card-grid";
 import FilterBar from "@/components/crm/filter-bar";
-import QuestionBankTable from "@/components/question-bank/question-bank-table";
+import QuestionMasterDetail from "./question-master-detail";
 import QuestionFormDialog from "@/components/question-bank/question-form-dialog";
 import { toast } from "sonner";
 import type { QuestionRow } from "@/components/question-bank/question-bank-types";
-import type { KpiCardData, FilterOption } from "@/lib/crm/types";
+import type { FilterOption } from "@/lib/crm/types";
 
 interface Kpis {
   total: number;
@@ -89,55 +87,42 @@ export default function QuestionBankQuestionsTab({ kpis, topics, canEdit, refres
     setDialogOpen(true);
   }
 
-  const kpiItems: KpiCardData[] = [
-    { label: "Total Questions", value: kpis.total, icon: BookOpen, badge: "Toàn kho" },
-    { label: "Junior", value: kpis.junior, icon: Layers, badge: "Cơ bản" },
-    { label: "Middle", value: kpis.middle, icon: Brain, badge: "Trung cấp" },
-    { label: "Senior", value: kpis.senior, icon: Brain, badge: "Nâng cao" },
-    { label: "Topics", value: kpis.topics, icon: Tag, badge: "Chủ đề" },
-  ];
-
-  const levelOptions: FilterOption[] = [
-    { value: "junior", label: "Junior" },
-    { value: "middle", label: "Middle" },
-    { value: "senior", label: "Senior" },
-  ];
   const topicOptions: FilterOption[] = topics.map((t) => ({ value: t, label: t }));
 
   return (
     <div>
-      <KpiCardGrid items={kpiItems} />
-
-      <div className="mt-6 mb-4">
+      <div className="mb-4 flex items-center gap-3">
+        <div className="flex p-1 rounded-xl bg-card border border-border shrink-0">
+          {([["", "Tất cả", kpis.total], ["junior", "Junior", kpis.junior], ["middle", "Middle", kpis.middle], ["senior", "Senior", kpis.senior]] as const).map(([v, l, n]) => (
+            <button key={v} type="button" onClick={() => handleLevelChange(v)} aria-pressed={levelFilter === v}
+                    className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors cursor-pointer ${levelFilter === v ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"}`}>
+              {l}<span className="tabular-nums opacity-70">{n}</span>
+            </button>
+          ))}
+        </div>
         <FilterBar
           search={search}
           searchPlaceholder="Tìm nội dung câu hỏi..."
           onSearchChange={handleSearchChange}
           filters={[
-            { key: "level", label: "Level", options: levelOptions, value: levelFilter, onChange: handleLevelChange },
             { key: "topic", label: "Topic", options: topicOptions, value: topicFilter, onChange: handleTopicChange },
           ]}
           onClearAll={clearAll}
         />
       </div>
 
-      {loading ? (
-        <div className="border border-border/10 rounded-lg flex items-center justify-center py-16">
-          <p className="text-sm text-muted-foreground">Loading...</p>
-        </div>
-      ) : (
-        <QuestionBankTable
-          data={data}
-          total={total}
-          page={page}
-          limit={LIMIT}
-          onPageChange={setPage}
-          onEdit={handleEdit}
-          onDelete={handleDelete}
-          deletingId={deletingId}
-          canEdit={canEdit}
-        />
-      )}
+      <QuestionMasterDetail
+        data={data}
+        total={total}
+        page={page}
+        limit={LIMIT}
+        loading={loading}
+        canEdit={canEdit}
+        deletingId={deletingId}
+        onPageChange={setPage}
+        onEdit={handleEdit}
+        onDelete={handleDelete}
+      />
 
       <QuestionFormDialog
         open={dialogOpen}
