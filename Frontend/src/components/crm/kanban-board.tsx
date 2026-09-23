@@ -30,7 +30,7 @@ export default function KanbanBoard<T extends { id: string }>({
   }
 
   return (
-    <div className="flex gap-3 overflow-x-auto pb-2">
+    <div className="flex items-start gap-3 overflow-x-auto pb-2">
       {columns.map((col) => (
         <KanbanColumn key={col.key} label={col.label} color={col.color} count={col.items.length}>
           {col.items.map((item) => (
