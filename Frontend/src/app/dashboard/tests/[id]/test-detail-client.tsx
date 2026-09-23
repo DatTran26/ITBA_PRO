@@ -1,6 +1,8 @@
 "use client";
 
 import Link from "next/link";
+import TestInsightStrip from "./test-insight-strip";
+import { toneFor } from "@/lib/ui/tones";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Check, Copy, Clock, Users, Calendar, ArrowRight, LayoutDashboard, ShieldAlert, BadgeInfo, RefreshCw, Sparkles, X, Loader2, Pencil, Trash2, AlertTriangle, Power, UserPlus, Type, CheckCircle2 } from "lucide-react";
@@ -12,7 +14,6 @@ import { useState, useEffect, useCallback } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { AnimatePresence, motion } from "framer-motion";
-import { PremiumBackground } from "@/components/ui/premium-background";
 import { TestResultsTable } from "@/components/dashboard/test-results-table";
 
 interface Question {
@@ -170,9 +171,9 @@ export default function TestDetailClient({
     }, [test.position_id, test.group_id]);
 
     const levelColors: Record<string, { bg: string; text: string; border: string }> = {
-        Junior: { bg: "bg-emerald-500/10", text: "text-emerald-400", border: "border-emerald-500/20" },
-        Mid: { bg: "bg-sky-500/10", text: "text-sky-400", border: "border-sky-500/20" },
-        Senior: { bg: "bg-rose-500/10", text: "text-rose-400", border: "border-rose-500/20" },
+        Junior: { bg: "bg-emerald-500/10", text: "text-success", border: "border-emerald-500/20" },
+        Mid: { bg: "bg-sky-500/10", text: "text-sky-700", border: "border-sky-500/20" },
+        Senior: { bg: "bg-violet-500/10", text: "text-violet-700", border: "border-violet-500/20" },
     };
 
     const lvlConfig = levelColors[test.level] || levelColors.Mid;
@@ -183,7 +184,7 @@ export default function TestDetailClient({
         toast.custom(() => (
             <div className="flex items-center gap-3 bg-muted border border-border/15 px-4 py-3 rounded-2xl shadow-2xl backdrop-blur-xl">
                 <div className="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center">
-                    <Check className="w-4 h-4 text-emerald-400" />
+                    <Check className="w-4 h-4 text-success" />
                 </div>
                 <div className="flex flex-col">
                     <span className="text-sm font-medium text-foreground font-body">Link Copied</span>
@@ -274,7 +275,7 @@ export default function TestDetailClient({
             toast.custom(() => (
                 <div className="flex items-center gap-3 bg-muted border border-rose-500/20 px-4 py-3 rounded-2xl shadow-2xl backdrop-blur-xl">
                     <div className="w-8 h-8 rounded-full bg-rose-500/20 flex items-center justify-center">
-                        <X className="w-4 h-4 text-rose-400" />
+                        <X className="w-4 h-4 text-danger" />
                     </div>
                     <div className="flex flex-col">
                         <span className="text-sm font-medium text-foreground font-body">Regeneration Failed</span>
@@ -313,7 +314,7 @@ export default function TestDetailClient({
             toast.custom(() => (
                 <div className="flex items-center gap-3 bg-muted border border-border/15 px-4 py-3 rounded-2xl shadow-2xl backdrop-blur-xl">
                     <div className="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center">
-                        <Check className="w-4 h-4 text-emerald-400" />
+                        <Check className="w-4 h-4 text-success" />
                     </div>
                     <div className="flex flex-col">
                         <span className="text-sm font-medium text-foreground font-body">Đã lưu thay đổi</span>
@@ -325,7 +326,7 @@ export default function TestDetailClient({
             toast.custom(() => (
                 <div className="flex items-center gap-3 bg-muted border border-rose-500/20 px-4 py-3 rounded-2xl shadow-2xl backdrop-blur-xl">
                     <div className="w-8 h-8 rounded-full bg-rose-500/20 flex items-center justify-center">
-                        <X className="w-4 h-4 text-rose-400" />
+                        <X className="w-4 h-4 text-danger" />
                     </div>
                     <div className="flex flex-col">
                         <span className="text-sm font-medium text-foreground font-body">Lưu thất bại</span>
@@ -360,7 +361,7 @@ export default function TestDetailClient({
             toast.custom(() => (
                 <div className={`flex items-center gap-3 bg-muted border ${newStatus === "Live" ? "border-emerald-500/20" : "border-rose-500/20"} px-4 py-3 rounded-2xl shadow-2xl backdrop-blur-xl`}>
                     <div className={`w-8 h-8 rounded-full ${newStatus === "Live" ? "bg-emerald-500/20" : "bg-rose-500/20"} flex items-center justify-center`}>
-                        {newStatus === "Live" ? <CheckCircle2 className="w-4 h-4 text-emerald-400" /> : <Power className="w-4 h-4 text-rose-400" />}
+                        {newStatus === "Live" ? <CheckCircle2 className="w-4 h-4 text-success" /> : <Power className="w-4 h-4 text-danger" />}
                     </div>
                     <div className="flex flex-col">
                         <span className="text-sm font-medium text-foreground font-body">
@@ -418,24 +419,24 @@ export default function TestDetailClient({
                                 })}
                             </span>
                             <div className={`px-3 py-1 rounded-full text-[10px] font-black tracking-[0.1em] uppercase border flex items-center gap-2 transition-all duration-300 ${
-                                (displayStatus?.toLowerCase() === "live" || displayStatus?.toLowerCase() === "active") ? "bg-emerald-500/15 text-emerald-400 border-emerald-500/30 shadow-[0_0_15px_-5px_color-mix(in_srgb,var(--success)_40%,transparent)]" :
-                                displayStatus?.toLowerCase() === "deactivate" ? "bg-rose-500/10 text-rose-400 border-rose-500/20" :
+                                (displayStatus?.toLowerCase() === "live" || displayStatus?.toLowerCase() === "active") ? "bg-emerald-500/15 text-success border-emerald-500/30 shadow-[0_0_15px_-5px_color-mix(in_srgb,var(--success)_40%,transparent)]" :
+                                displayStatus?.toLowerCase() === "deactivate" ? "bg-rose-500/10 text-danger border-rose-500/20" :
                                 "bg-muted text-muted-foreground border-border"
                             }`}>
                                 <div className="relative flex items-center justify-center">
                                     {(displayStatus?.toLowerCase() === "live" || displayStatus?.toLowerCase() === "active") && (
-                                        <div className="absolute w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping opacity-40" />
+                                        <div className="absolute w-2.5 h-2.5 rounded-full bg-success animate-ping opacity-40" />
                                     )}
                                     <div className={`w-1.5 h-1.5 rounded-full relative z-10 ${
-                                        (displayStatus?.toLowerCase() === "live" || displayStatus?.toLowerCase() === "active") ? "bg-emerald-400" :
-                                        displayStatus?.toLowerCase() === "deactivate" ? "bg-rose-400" :
+                                        (displayStatus?.toLowerCase() === "live" || displayStatus?.toLowerCase() === "active") ? "bg-success" :
+                                        displayStatus?.toLowerCase() === "deactivate" ? "bg-danger" :
                                         "bg-muted-foreground"
                                     }`} />
                                 </div>
                                 {(displayStatus?.toLowerCase() === "live" || displayStatus?.toLowerCase() === "active") ? "ACTIVE" : displayStatus}
                             </div>
                             {test.target_type && test.target_type !== "candidate" && (
-                                <span className="px-2.5 py-1 rounded-full text-[11px] font-bold tracking-wider uppercase border flex items-center gap-1.5 bg-amber-500/10 text-amber-400 border-amber-500/20">
+                                <span className="px-2.5 py-1 rounded-full text-[11px] font-bold tracking-wider uppercase border flex items-center gap-1.5 bg-amber-500/10 text-warning border-amber-500/20">
                                     <BadgeInfo className="w-3 h-3" />
                                     {test.target_type === "employee" ? "Employee Eval" : test.target_type}
                                 </span>
@@ -476,7 +477,7 @@ export default function TestDetailClient({
                                             onChange={(e) => setEditTitle(e.target.value)}
                                             onKeyDown={(e) => { if (e.key === "Escape") handleCancelEdit(); }}
                                             disabled={isSaving}
-                                            className="w-full text-2xl lg:text-3xl font-light tracking-tight text-foreground bg-white/[0.03] border-b border-border/30 focus:border-border focus:bg-white/[0.06] outline-none px-4 py-3 rounded-t-xl transition-all font-display"
+                                            className="w-full text-2xl lg:text-3xl font-light tracking-tight text-foreground bg-muted/50 border-b border-border/30 focus:border-border focus:bg-muted outline-none px-4 py-3 rounded-t-xl transition-all font-display"
                                         />
                                     </div>
 
@@ -493,7 +494,7 @@ export default function TestDetailClient({
                                                     value={editTime}
                                                     onChange={(e) => setEditTime(e.target.value)}
                                                     disabled={isSaving}
-                                                    className="w-full h-12 bg-white/[0.03] border border-border rounded-2xl px-4 text-center text-lg font-medium text-foreground focus:border-border/50 focus:bg-white/[0.06] outline-none transition-all [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                                    className="w-full h-12 bg-muted/50 border border-border rounded-2xl px-4 text-center text-lg font-medium text-foreground focus:border-border/50 focus:bg-muted outline-none transition-all [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                                                 />
                                                 <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[11px] font-bold text-muted-foreground pointer-events-none uppercase">Min</span>
                                             </div>
@@ -511,7 +512,7 @@ export default function TestDetailClient({
                                                     onChange={(e) => setEditMaxP(e.target.value)}
                                                     disabled={isSaving}
                                                     placeholder="∞"
-                                                    className="w-full h-12 bg-white/[0.03] border border-border rounded-2xl px-4 text-center text-lg font-medium text-foreground placeholder:text-muted-foreground focus:border-border/50 focus:bg-white/[0.06] outline-none transition-all [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                                    className="w-full h-12 bg-muted/50 border border-border rounded-2xl px-4 text-center text-lg font-medium text-foreground placeholder:text-muted-foreground focus:border-border/50 focus:bg-muted outline-none transition-all [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                                                 />
                                                 <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[11px] font-bold text-muted-foreground pointer-events-none uppercase">Users</span>
                                             </div>
@@ -519,7 +520,7 @@ export default function TestDetailClient({
                                     </div>
                                 </div>
 
-                                <div className="flex items-center justify-between pt-4 border-t border-white/[0.05] relative z-10">
+                                <div className="flex items-center justify-between pt-4 border-t border-border relative z-10">
                                     <div className="flex items-center gap-1 text-[10px] text-muted-foreground font-medium uppercase tracking-tight">
                                         <kbd className="px-1.5 py-0.5 rounded bg-muted border border-border">ESC</kbd>
                                         <span className="ml-1">to discard changes</span>
@@ -547,7 +548,7 @@ export default function TestDetailClient({
                             /* ── View Mode ── */
                             <>
                                 <div className="mb-6 flex items-start gap-3">
-                                    <h1 className="text-5xl lg:text-7xl font-light tracking-tight text-transparent bg-clip-text bg-gradient-to-br from-foreground via-foreground/90 to-foreground/20 drop-shadow-sm font-display leading-tight">
+                                    <h1 className="text-4xl lg:text-5xl font-black tracking-tight text-foreground leading-tight">
                                         {displayTitle}
                                     </h1>
                                     <button
@@ -558,7 +559,7 @@ export default function TestDetailClient({
                                             setIsEditing(true);
                                         }}
                                         title="Chỉnh sửa title và thời gian"
-                                        className="mt-3 lg:mt-5 flex-shrink-0 w-8 h-8 rounded-lg flex items-center justify-center text-rose-400 bg-rose-500/10 border border-rose-500/25 hover:bg-rose-500/20 hover:border-rose-500/40 hover:text-rose-300 transition-all duration-200"
+                                        className="mt-3 lg:mt-5 flex-shrink-0 w-8 h-8 rounded-lg flex items-center justify-center text-danger bg-rose-500/10 border border-rose-500/25 hover:bg-rose-500/20 hover:border-rose-500/40 hover:text-danger transition-all duration-200"
                                     >
                                         <Pencil className="w-3.5 h-3.5" />
                                     </button>
@@ -577,11 +578,11 @@ export default function TestDetailClient({
                     {/* Stats & Share */}
                     <div className="flex flex-col gap-4 min-w-[320px]">
                         <div className="grid grid-cols-2 gap-3">
-                            <div className="bg-card/40 border border-border/10 rounded-2xl p-4 backdrop-blur-xl flex flex-col justify-between">
-                                <Users className="w-4 h-4 text-muted-foreground mb-4" />
+                            <div className="rounded-2xl p-4 flex flex-col justify-between bg-[#e0eff9]">
+                                <Users className="w-4 h-4 text-[#005fa3] mb-4" />
                                 <div>
                                     <div className="flex items-baseline gap-1 mb-0.5">
-                                        <span className="text-2xl font-light text-foreground font-display">
+                                        <span className="text-2xl font-black text-foreground font-display">
                                             {results?.length || 0}
                                         </span>
                                         {displayMaxP && (
@@ -593,10 +594,10 @@ export default function TestDetailClient({
                                     </span>
                                 </div>
                             </div>
-                            <div className="bg-card/40 border border-border/10 rounded-2xl p-4 backdrop-blur-xl flex flex-col justify-between">
-                                <Clock className="w-4 h-4 text-muted-foreground mb-4" />
+                            <div className="rounded-2xl p-4 flex flex-col justify-between bg-[#e0f4f1]">
+                                <Clock className="w-4 h-4 text-[#00665a] mb-4" />
                                 <div>
-                                    <span className="block text-2xl font-light text-foreground mb-0.5 font-display">
+                                    <span className="block text-2xl font-black text-foreground mb-0.5 font-display">
                                         {displayTime}
                                     </span>
                                     <span className="text-xs text-muted-foreground font-medium uppercase tracking-wider">
@@ -609,7 +610,7 @@ export default function TestDetailClient({
                         <div className="flex flex-col gap-3">
                             <button
                                 onClick={() => copyLink(test.share_token)}
-                                className="group relative w-full flex items-center justify-between px-5 py-3.5 bg-card/40 border border-border/30 backdrop-blur-xl rounded-2xl text-warning overflow-hidden transition-all active:scale-[0.98] hover:bg-warning/10 hover:border-border/50 shadow-lg shadow-black/20"
+                                className="group relative w-full flex items-center justify-between px-5 py-3.5 bg-warning/10 border border-warning/30 rounded-2xl text-warning overflow-hidden transition-all active:scale-[0.98] hover:bg-warning/10 hover:border-border/50 shadow-lg shadow-none"
                             >
                                 <div className="absolute inset-0 bg-gradient-to-r from-warning/0 via-warning/10 to-warning/0 -translate-x-[100%] group-hover:translate-x-[100%] transition-transform duration-700 ease-in-out" />
                                 <span className="relative font-bold text-[11px] uppercase tracking-widest">Copy Share Link</span>
@@ -620,7 +621,7 @@ export default function TestDetailClient({
                                 <button
                                     onClick={handleToggleStatus}
                                     disabled={isSavingStatus}
-                                    className="w-full h-12 flex items-center justify-between px-5 py-3.5 bg-emerald-500/15 border border-emerald-500/30 backdrop-blur-xl rounded-2xl text-emerald-400 text-[11px] font-bold uppercase tracking-widest hover:bg-emerald-500/25 transition-all shadow-lg shadow-black/20"
+                                    className="w-full h-12 flex items-center justify-between px-5 py-3.5 bg-emerald-500/15 border border-emerald-500/30 rounded-2xl text-success text-[11px] font-bold uppercase tracking-widest hover:bg-emerald-500/25 transition-all shadow-lg shadow-none"
                                 >
                                     <span>Activate Assessment</span>
                                     {isSavingStatus ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Power className="w-3.5 h-3.5" />}
@@ -629,7 +630,7 @@ export default function TestDetailClient({
                                 <button
                                     onClick={handleToggleStatus}
                                     disabled={isSavingStatus}
-                                    className="w-full h-12 flex items-center justify-between px-5 py-3.5 bg-rose-500/15 border border-rose-500/30 backdrop-blur-xl rounded-2xl text-rose-400 text-[11px] font-bold uppercase tracking-widest hover:bg-rose-500/25 transition-all shadow-lg shadow-black/20"
+                                    className="w-full h-12 flex items-center justify-between px-5 py-3.5 bg-rose-500/15 border border-rose-500/30 rounded-2xl text-danger text-[11px] font-bold uppercase tracking-widest hover:bg-rose-500/25 transition-all shadow-lg shadow-none"
                                 >
                                     <span>Deactivate Assessment</span>
                                     {isSavingStatus ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <ShieldAlert className="w-3.5 h-3.5" />}
@@ -638,7 +639,7 @@ export default function TestDetailClient({
 
                             <button
                                 onClick={() => setShowDeleteConfirm(true)}
-                                className="w-full h-12 flex items-center justify-center gap-2 px-5 py-3 bg-white/[0.03] border border-white/[0.05] rounded-2xl text-muted-foreground text-[11px] font-bold uppercase tracking-widest hover:bg-rose-500/10 hover:border-rose-500/20 hover:text-rose-400 transition-all"
+                                className="w-full h-12 flex items-center justify-center gap-2 px-5 py-3 bg-muted/50 border border-border rounded-2xl text-muted-foreground text-[11px] font-bold uppercase tracking-widest hover:bg-rose-500/10 hover:border-rose-500/20 hover:text-danger transition-all"
                             >
                                 <Trash2 className="w-3.5 h-3.5 opacity-50" />
                                 Delete
@@ -647,13 +648,15 @@ export default function TestDetailClient({
                     </div>
                 </div>
 
+                <TestInsightStrip results={results} questions={questions} />
+
                 {/* Tabs switcher */}
                 <div className="flex border-b border-border/10 mb-8 z-10 relative">
                     <button
                         onClick={() => setActiveTab("criteria")}
                         className={`pb-4 px-6 text-sm font-semibold tracking-wider uppercase border-b-2 transition-all ${
                             activeTab === "criteria"
-                                ? "border-border text-primary"
+                                ? "border-primary text-primary"
                                 : "border-transparent text-muted-foreground hover:text-foreground"
                         }`}
                     >
@@ -663,7 +666,7 @@ export default function TestDetailClient({
                         onClick={() => setActiveTab("results")}
                         className={`pb-4 px-6 text-sm font-semibold tracking-wider uppercase border-b-2 transition-all ${
                             activeTab === "results"
-                                ? "border-border text-primary"
+                                ? "border-primary text-primary"
                                 : "border-transparent text-muted-foreground hover:text-foreground"
                         }`}
                     >
@@ -688,7 +691,7 @@ export default function TestDetailClient({
                             <button
                                 onClick={() => openRegenerateModal("full")}
                                 disabled={isRegenerating}
-                                className="group flex items-center gap-2 px-4 py-2 rounded-xl bg-amber-500/15 border border-amber-500/30 text-amber-400 text-xs font-semibold tracking-wide hover:bg-amber-500/25 hover:border-amber-400/50 hover:text-amber-300 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_0_15px_-5px_color-mix(in_srgb,var(--warning)_30%,transparent)]"
+                                className="group flex items-center gap-2 px-4 py-2 rounded-xl bg-amber-500/15 border border-amber-500/30 text-warning text-xs font-semibold tracking-wide hover:bg-amber-500/25 hover:border-amber-500/50 hover:text-warning transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_0_15px_-5px_color-mix(in_srgb,var(--warning)_30%,transparent)]"
                             >
                                 <RefreshCw className={`w-3.5 h-3.5 ${isRegenerating && !regeneratingQuestionId ? "animate-spin" : ""}`} />
                                 Regenerate All
@@ -706,8 +709,8 @@ export default function TestDetailClient({
                                         {/* Regenerating Overlay */}
                                         {isThisRegenerating && (
                                             <div className="absolute inset-0 z-20 bg-muted/90 flex flex-col items-center justify-center gap-3">
-                                                <div className="w-10 h-10 rounded-full border-2 border-amber-500/30 border-t-amber-400 animate-spin" />
-                                                <span className="text-sm text-amber-300 font-medium">Regenerating...</span>
+                                                <div className="w-10 h-10 rounded-full border-2 border-amber-500/30 border-t-amber-500 animate-spin" />
+                                                <span className="text-sm text-warning font-medium">Regenerating...</span>
                                             </div>
                                         )}
 
@@ -725,8 +728,8 @@ export default function TestDetailClient({
                                                 </div>
                                                 {(q.correct_answer < 0 || q.correct_answer >= q.options.length) && (
                                                     <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-rose-500/10 border border-rose-500/20">
-                                                        <ShieldAlert className="w-3 h-3 text-rose-400" />
-                                                        <span className="text-[10px] text-rose-400 font-bold uppercase tracking-tight">Incomplete Data</span>
+                                                        <ShieldAlert className="w-3 h-3 text-danger" />
+                                                        <span className="text-[10px] text-danger font-bold uppercase tracking-tight">Incomplete Data</span>
                                                     </div>
                                                 )}
                                             </div>
@@ -735,7 +738,7 @@ export default function TestDetailClient({
                                             <button
                                                 onClick={() => openRegenerateModal("single", q, idx)}
                                                 disabled={isRegenerating}
-                                                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-400 text-[11px] font-semibold hover:bg-amber-500/20 hover:border-amber-400/40 hover:text-amber-300 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+                                                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-500/10 border border-amber-500/20 text-warning text-[11px] font-semibold hover:bg-amber-500/20 hover:border-amber-500/50 hover:text-warning transition-all disabled:opacity-40 disabled:cursor-not-allowed"
                                             >
                                                 <RefreshCw className="w-3 h-3" />
                                                 Regenerate
@@ -768,13 +771,13 @@ export default function TestDetailClient({
                                                             className={`relative flex items-center p-3.5 rounded-xl text-sm transition-colors ${
                                                                 isCorrect
                                                                     ? "bg-emerald-500/[0.08] text-emerald-100 border border-emerald-500/20"
-                                                                    : "bg-white/[0.03] text-muted-foreground border border-transparent hover:bg-white/[0.06]"
+                                                                    : "bg-muted/50 text-muted-foreground border border-transparent hover:bg-muted"
                                                             }`}
                                                         >
                                                             <div
                                                                 className={`w-6 h-6 rounded-full flex items-center justify-center text-xs mr-4 shrink-0 font-medium border ${
                                                                     isCorrect
-                                                                        ? "bg-emerald-500/20 text-emerald-400 border-emerald-500/30"
+                                                                        ? "bg-emerald-500/20 text-success border-emerald-500/30"
                                                                         : "bg-muted text-muted-foreground border-border/15"
                                                                 }`}
                                                             >
@@ -782,7 +785,7 @@ export default function TestDetailClient({
                                                             </div>
                                                             <span className="leading-relaxed pr-8">{opt}</span>
                                                             {isCorrect && (
-                                                                <div className="absolute right-4 flex items-center gap-1.5 text-emerald-400">
+                                                                <div className="absolute right-4 flex items-center gap-1.5 text-success">
                                                                     <Check className="w-4 h-4" />
                                                                     <span className="text-[11px] font-semibold uppercase tracking-wider">Correct</span>
                                                                 </div>
@@ -834,14 +837,14 @@ export default function TestDetailClient({
 
                                     const tierColors =
                                         pct >= 80
-                                            ? "from-emerald-500/30 to-emerald-500/0 border-emerald-500/20 text-emerald-400"
+                                            ? "from-emerald-500/30 to-emerald-500/0 border-emerald-500/20 text-success"
                                             : pct >= 50
-                                              ? "from-amber-500/30 to-amber-500/0 border-amber-500/20 text-amber-400"
-                                              : "from-rose-500/30 to-rose-500/0 border-rose-500/20 text-rose-400";
+                                              ? "from-amber-500/30 to-amber-500/0 border-amber-500/20 text-warning"
+                                              : "from-rose-500/30 to-rose-500/0 border-rose-500/20 text-danger";
 
                                     return (
                                         <Link key={r.id} href={`/dashboard/results/${r.id}`}>
-                                            <div className="group relative bg-card/40 backdrop-blur-md border border-border/10 rounded-2xl p-5 hover:border-border/20 hover:bg-card/60 transition-all overflow-hidden shadow-xl">
+                                            <div className="group relative bg-card border border-border rounded-2xl p-5 hover:border-primary/40 transition-all overflow-hidden shadow-[0_2px_10px_color-mix(in_srgb,var(--primary)_6%,transparent)]">
                                                 <div
                                                     className={`absolute top-0 bottom-0 left-0 w-[3px] bg-gradient-to-b ${tierColors}`}
                                                 />
@@ -849,7 +852,7 @@ export default function TestDetailClient({
                                                 <div className="flex items-center justify-between relative z-10 w-full pl-3">
                                                     <div className="flex flex-col items-start gap-1">
                                                         <div className="flex items-center gap-3">
-                                                            <div className="w-10 h-10 rounded-full bg-accent border border-border/15 flex items-center justify-center text-sm font-semibold text-muted-foreground font-display">
+                                                            <div className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold" style={{ color: toneFor(r.candidate_name).ink, backgroundColor: toneFor(r.candidate_name).bg }}>
                                                                 {r.candidate_name.charAt(0).toUpperCase()}
                                                             </div>
                                                             <div className="flex flex-col">
@@ -874,8 +877,8 @@ export default function TestDetailClient({
                                                             {r.status && (
                                                                 <div className={`px-2 py-0.5 rounded text-[10px] uppercase font-bold tracking-wider ${
                                                                     r.status === 'pass'
-                                                                        ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 shadow-[0_0_8px_color-mix(in_srgb,var(--success)_20%,transparent)]'
-                                                                        : 'bg-rose-500/20 text-rose-400 border border-rose-500/30 shadow-[0_0_8px_color-mix(in_srgb,var(--danger)_20%,transparent)]'
+                                                                        ? 'bg-emerald-500/20 text-success border border-emerald-500/30 shadow-[0_0_8px_color-mix(in_srgb,var(--success)_20%,transparent)]'
+                                                                        : 'bg-rose-500/20 text-danger border border-rose-500/30 shadow-[0_0_8px_color-mix(in_srgb,var(--danger)_20%,transparent)]'
                                                                 }`}>
                                                                     {r.status}
                                                                 </div>
@@ -917,7 +920,6 @@ export default function TestDetailClient({
 
     return (
         <div className={`${embedded ? "h-full" : "min-h-screen"} bg-background text-foreground selection:bg-warning/30 overflow-hidden font-body relative`}>
-            {!embedded && <PremiumBackground />}
 
             {!embedded && <AppNavbar />}
 
@@ -932,7 +934,7 @@ export default function TestDetailClient({
                     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
                         {/* Backdrop */}
                         <div
-                            className="absolute inset-0 bg-black/60"
+                            className="absolute inset-0 bg-foreground/40"
                             onClick={closeRegenerateModal}
                         />
 
@@ -945,9 +947,9 @@ export default function TestDetailClient({
                                     <div className="flex items-center gap-3">
                                         <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center">
                                             {regenerateModal.mode === "full" ? (
-                                                <RefreshCw className="w-5 h-5 text-amber-400" />
+                                                <RefreshCw className="w-5 h-5 text-warning" />
                                             ) : (
-                                                <Sparkles className="w-5 h-5 text-amber-400" />
+                                                <Sparkles className="w-5 h-5 text-warning" />
                                             )}
                                         </div>
                                         <div>
@@ -1033,7 +1035,7 @@ export default function TestDetailClient({
                                 {/* Warning for full test */}
                                 {regenerateModal.mode === "full" && (
                                     <div className="flex items-start gap-3 bg-amber-500/[0.05] border border-amber-500/10 rounded-xl p-3.5">
-                                        <ShieldAlert className="w-4 h-4 text-amber-400/80 shrink-0 mt-0.5" />
+                                        <ShieldAlert className="w-4 h-4 text-warning shrink-0 mt-0.5" />
                                         <p className="text-xs text-amber-200/60 leading-relaxed">
                                             This will replace <strong className="text-amber-200/80">all {questions.length} questions</strong> with
                                             newly generated ones. This action cannot be undone.
@@ -1054,7 +1056,7 @@ export default function TestDetailClient({
                                 <button
                                     onClick={handleRegenerate}
                                     disabled={isRegenerating}
-                                    className="group relative flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold bg-amber-500 text-black hover:bg-amber-400 transition-all disabled:opacity-70 disabled:cursor-not-allowed shadow-[0_0_20px_-5px_color-mix(in_srgb,var(--warning)_50%,transparent)]"
+                                    className="group relative flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold bg-amber-500 text-white hover:bg-amber-600 transition-all disabled:opacity-70 disabled:cursor-not-allowed shadow-[0_0_20px_-5px_color-mix(in_srgb,var(--warning)_50%,transparent)]"
                                 >
                                     {isRegenerating ? (
                                         <>
@@ -1084,7 +1086,7 @@ export default function TestDetailClient({
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
-                            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+                            className="absolute inset-0 bg-foreground/40 backdrop-blur-sm"
                             onClick={() => !isDeleting && setShowDeleteConfirm(false)}
                         />
                         <motion.div
@@ -1094,11 +1096,11 @@ export default function TestDetailClient({
                             className="relative w-full max-w-md bg-muted border border-rose-500/30 rounded-3xl shadow-2xl overflow-hidden p-8 flex flex-col items-center text-center"
                         >
                             <div className="w-16 h-16 rounded-2xl bg-rose-500/10 border border-rose-500/20 flex items-center justify-center mb-6">
-                                <AlertTriangle className="w-8 h-8 text-rose-400" />
+                                <AlertTriangle className="w-8 h-8 text-danger" />
                             </div>
                             <h3 className="text-xl font-medium text-foreground mb-2 font-display">Delete Assessment?</h3>
                             <p className="text-muted-foreground text-sm leading-relaxed mb-8">
-                                This action cannot be undone. All questions, results, and candidate data associated with <span className="text-rose-400 font-medium">"{displayTitle}"</span> will be permanently removed.
+                                This action cannot be undone. All questions, results, and candidate data associated with <span className="text-danger font-medium">"{displayTitle}"</span> will be permanently removed.
                             </p>
                             <div className="flex flex-col w-full gap-2">
                                 <button
