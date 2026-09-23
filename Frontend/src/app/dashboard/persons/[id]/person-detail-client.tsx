@@ -6,18 +6,13 @@ import AppNavbar from "@/components/ui/app-navbar";
 import PageBreadcrumb from "@/components/ui/page-breadcrumb";
 import PageContainer from "@/components/ui/page-container";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import PersonProfileHeader from "./person-profile-header";
-import PersonOverviewTab from "./person-overview-tab";
+import PersonIdentityCard from "./person-identity-card";
 import PersonSkillsTab from "./person-skills-tab";
 import PersonAssessmentsTab from "./person-assessments-tab";
 import PersonNotesTab from "./person-notes-tab";
 import PersonDevelopmentTab from "./person-development-tab";
-import PersonRelationshipsTab from "./person-relationships-tab";
 import PersonFormDialog from "@/components/management/person-form-dialog";
-import TagPickerPopover from "@/components/crm/tag-picker-popover";
-import KpiCardGrid from "@/components/crm/kpi-card-grid";
-import { GraduationCap, ClipboardCheck, Target, FolderKanban } from "lucide-react";
-import type { KpiCardData } from "@/lib/crm/types";
+import { AlertTriangle } from "lucide-react";
 import type { PersonDetail, PersonSkillItem, TagItem, ActivityLogItem, CrmTaskItem } from "@/app/dashboard/management-types";
 
 interface ResultRow {
@@ -44,24 +39,23 @@ interface Props {
   tasks: CrmTaskItem[];
 }
 
-type TabKey = "overview" | "skills" | "assessments" | "notes" | "development" | "relationships";
+type TabKey = "assessments" | "notes" | "development";
 
 export default function PersonDetailClient({ person, skills, results, memberships, tags: initialTags, activityLogs, tasks }: Props) {
   const router = useRouter();
-  const [tab, setTab] = useState<TabKey>("overview");
+  const [tab, setTab] = useState<TabKey>("assessments");
   const [editOpen, setEditOpen] = useState(false);
   const [tags, setTags] = useState<TagItem[]>(initialTags);
 
-  /* KPI suy ra từ dữ liệu đã fetch ở page.tsx, không thêm truy vấn. */
+  /* Số nhanh suy ra từ dữ liệu page.tsx đã fetch, không thêm truy vấn. */
   const pcts = results.filter((r) => r.total_questions > 0).map((r) => Math.round((r.score / r.total_questions) * 100));
   const avgPct = pcts.length ? Math.round(pcts.reduce((a, b) => a + b, 0) / pcts.length) : null;
   const avgLevel = skills.length ? (skills.reduce((a, s) => a + s.current_level, 0) / skills.length).toFixed(1) : "0";
-  const kpis: KpiCardData[] = [
-    { label: "Kỹ năng", value: skills.length, icon: GraduationCap, badge: `Level TB ${avgLevel}` },
-    { label: "Bài đánh giá", value: results.length, icon: ClipboardCheck, badge: "Đã nộp" },
-    { label: "Điểm trung bình", value: avgPct === null ? "-" : `${avgPct}%`, icon: Target, badge: "Các bài test" },
-    { label: "Nhóm", value: memberships.length, icon: FolderKanban, badge: "Thành viên" },
-  ];
+  const warnings = [
+    !person.position_id && "Chưa gán vị trí",
+    skills.length === 0 && "Chưa ghi nhận kỹ năng",
+    memberships.length === 0 && "Chưa thuộc nhóm nào",
+  ].filter(Boolean) as string[];
 
   const handleTagToggle = (tag: TagItem, attached: boolean) => {
     setTags((prev) => attached ? [...prev, tag] : prev.filter((t) => t.id !== tag.id));
@@ -77,32 +71,43 @@ export default function PersonDetailClient({ person, skills, results, membership
           { label: person.full_name },
         ]} />
 
-        <PersonProfileHeader
-          person={person}
-          tags={tags}
-          onEdit={() => setEditOpen(true)}
-          onAddTag={() => {}}
-        />
+        <div className="grid grid-cols-[340px_1fr] gap-6 items-start">
+          <PersonIdentityCard
+            person={person}
+            tags={tags}
+            memberships={memberships}
+            stats={{ skills: skills.length, avgLevel, tests: results.length, avgPct }}
+            onEdit={() => setEditOpen(true)}
+            onAddTag={() => {}}
+          />
 
-        <div className="mb-6"><KpiCardGrid items={kpis} /></div>
+          <div className="min-w-0 space-y-6">
+            {warnings.length > 0 && (
+              <div role="status" className="flex items-start gap-3 rounded-2xl border border-warning/30 bg-warning/5 px-5 py-4">
+                <AlertTriangle className="w-5 h-5 text-warning shrink-0 mt-0.5" />
+                <div>
+                  <p className="text-sm font-bold text-foreground">Hồ sơ còn thiếu</p>
+                  <p className="mt-0.5 text-xs text-muted-foreground">{warnings.join(" · ")}</p>
+                </div>
+              </div>
+            )}
 
-        <Tabs value={tab} onValueChange={(v) => setTab(v as TabKey)}>
-          <TabsList className="mb-5 max-w-full overflow-x-auto justify-start [scrollbar-width:none]">
-            <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="skills">Skills ({skills.length})</TabsTrigger>
-            <TabsTrigger value="assessments">Assessments ({results.length})</TabsTrigger>
-            <TabsTrigger value="notes">Notes</TabsTrigger>
-            <TabsTrigger value="development">Development ({tasks.length})</TabsTrigger>
-            <TabsTrigger value="relationships">Relationships</TabsTrigger>
-          </TabsList>
-        </Tabs>
+            <PersonSkillsTab personId={person.id} skills={skills} positionId={person.position_id} />
 
-        {tab === "overview" && <PersonOverviewTab person={person} skills={skills} memberships={memberships} results={results} />}
-        {tab === "skills" && <PersonSkillsTab personId={person.id} skills={skills} positionId={person.position_id} />}
-        {tab === "assessments" && <PersonAssessmentsTab results={results} />}
-        {tab === "notes" && <PersonNotesTab personId={person.id} activityLogs={activityLogs} />}
-        {tab === "development" && <PersonDevelopmentTab tasks={tasks} />}
-        {tab === "relationships" && <PersonRelationshipsTab memberships={memberships} />}
+            <div>
+              <Tabs value={tab} onValueChange={(v) => setTab(v as TabKey)}>
+                <TabsList className="mb-4">
+                  <TabsTrigger value="assessments">Đánh giá ({results.length})</TabsTrigger>
+                  <TabsTrigger value="notes">Ghi chú</TabsTrigger>
+                  <TabsTrigger value="development">Phát triển ({tasks.length})</TabsTrigger>
+                </TabsList>
+              </Tabs>
+              {tab === "assessments" && <PersonAssessmentsTab results={results} />}
+              {tab === "notes" && <PersonNotesTab personId={person.id} activityLogs={activityLogs} />}
+              {tab === "development" && <PersonDevelopmentTab tasks={tasks} />}
+            </div>
+          </div>
+        </div>
       </PageContainer>
 
       <PersonFormDialog open={editOpen} onOpenChange={setEditOpen} onSuccess={() => router.refresh()} editData={person} />
