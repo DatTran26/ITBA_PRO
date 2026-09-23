@@ -4,7 +4,6 @@ import { Pencil, UserPlus, FolderKanban, Users, Tag, CalendarDays } from "lucide
 import { SharedDashboardButton } from "@/components/shares";
 import DetailHeader from "@/components/shares/detail-header";
 import StatusBadge from "@/components/crm/status-badge";
-import ScoreRing from "@/components/crm/score-ring";
 import { GROUP_STATUSES } from "@/lib/crm/constants";
 import type { GroupListItem } from "@/app/dashboard/management-types";
 
@@ -27,12 +26,6 @@ export default function GroupHeader({ group, memberCount, onEdit, onAddMember }:
       status={<StatusBadge status={group.status} config={GROUP_STATUSES} />}
       subtitle={group.description ? <span className="line-clamp-2 max-w-2xl">{group.description}</span> : undefined}
       actions={<>
-        {group.health_score !== undefined && (
-          <div className="text-center mr-1">
-            <ScoreRing value={group.health_score} size={48} />
-            <p className="text-[10px] font-semibold text-muted-foreground mt-0.5">Health</p>
-          </div>
-        )}
         <SharedDashboardButton variant="primary" size="sm" onClick={onAddMember} leadingIcon={<UserPlus className="w-3.5 h-3.5" />}>
           Add Member
         </SharedDashboardButton>

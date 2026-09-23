@@ -17,7 +17,7 @@ export default async function GroupDetailPage({ params }: { params: Promise<{ id
       .single(),
     supabase
       .from("group_members")
-      .select("id, person_id, added_at, persons(id, full_name, email, type, department)")
+      .select("id, person_id, added_at, persons(id, full_name, email, type, department, person_skills(current_level, skills(name)))")
       .eq("group_id", id)
       .order("added_at", { ascending: false }),
     supabase

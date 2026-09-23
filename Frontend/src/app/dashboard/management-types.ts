@@ -130,6 +130,8 @@ export interface GroupMemberItem {
     email: string | null;
     type: string;
     department: string | null;
+    /** Chỉ có ở trang chi tiết nhóm (page.tsx join) — dùng cho heatmap. */
+    person_skills?: { current_level: number; skills: { name: string } | null }[];
   };
 }
 

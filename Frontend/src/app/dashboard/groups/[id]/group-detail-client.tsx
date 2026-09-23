@@ -7,31 +7,18 @@ import PageBreadcrumb from "@/components/ui/page-breadcrumb";
 import PageContainer from "@/components/ui/page-container";
 import { toast } from "sonner";
 import GroupHeader from "./group-header";
-import GroupOverviewTab from "./group-overview-tab";
+import GroupSkillHeatmap from "./group-skill-heatmap";
 import GroupMembersTab from "./group-members-tab";
-import GroupPositionsTab from "./group-positions-tab";
-import GroupSkillCoverageTab from "./group-skill-coverage-tab";
-import GroupAssessmentsTab from "./group-assessments-tab";
 import GroupNotesTab from "./group-notes-tab";
 import GroupFormDialog from "@/components/management/group-form-dialog";
 import MemberPickerDialog from "@/components/management/member-picker-dialog";
 import type { GroupListItem, GroupMemberItem, NoteItem, ActivityLogItem } from "@/app/dashboard/management-types";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import KpiCardGrid from "@/components/crm/kpi-card-grid";
-import { Users, HeartPulse, Briefcase, AlertTriangle } from "lucide-react";
-import type { KpiCardData } from "@/lib/crm/types";
 
-const TABS = ["overview", "members", "positions", "skill-coverage", "assessments", "notes"] as const;
+const TABS = ["members", "notes"] as const;
 type Tab = typeof TABS[number];
 
-const TAB_LABELS: Record<Tab, string> = {
-  overview: "Overview",
-  members: "Members",
-  positions: "Positions",
-  "skill-coverage": "Skill Coverage",
-  assessments: "Assessments",
-  notes: "Notes",
-};
+const TAB_LABELS: Record<Tab, string> = { members: "Thành viên", notes: "Ghi chú" };
 
 interface Props {
   group: GroupListItem;
@@ -42,7 +29,7 @@ interface Props {
 
 export default function GroupDetailClient({ group, members: initialMembers, notes, activityLogs }: Props) {
   const router = useRouter();
-  const [tab, setTab] = useState<Tab>("overview");
+  const [tab, setTab] = useState<Tab>("members");
   const [editOpen, setEditOpen] = useState(false);
   const [pickerOpen, setPickerOpen] = useState(false);
   const [members, setMembers] = useState<GroupMemberItem[]>(initialMembers);
@@ -66,14 +53,6 @@ export default function GroupDetailClient({ group, members: initialMembers, note
     }
   }
 
-  /* KPI suy ra từ `group` + `members` đã fetch, không thêm truy vấn. */
-  const kpis: KpiCardData[] = [
-    { label: "Thành viên", value: members.length, icon: Users, badge: `${members.filter((m) => m.persons.type === "employee").length} nhân viên` },
-    { label: "Health score", value: group.health_score ?? "-", icon: HeartPulse, badge: "Sức khoẻ nhóm" },
-    { label: "Vị trí liên quan", value: group.position_count ?? 0, icon: Briefcase, badge: "Positions" },
-    { label: "Cảnh báo", value: group.alert_count ?? 0, icon: AlertTriangle, badge: (group.alert_count ?? 0) > 0 ? "Cần xử lý" : "Ổn định", tone: (group.alert_count ?? 0) > 0 ? "pink" : "teal" },
-  ];
-
   return (
     <div className="min-h-screen bg-transparent pb-12">
       <AppNavbar />
@@ -90,7 +69,7 @@ export default function GroupDetailClient({ group, members: initialMembers, note
           onAddMember={() => setPickerOpen(true)}
         />
 
-        <div className="mb-6"><KpiCardGrid items={kpis} /></div>
+        <GroupSkillHeatmap members={members} />
 
         <Tabs value={tab} onValueChange={(v) => setTab(v as Tab)}>
           <TabsList className="mb-5 max-w-full overflow-x-auto justify-start [scrollbar-width:none]">
@@ -102,7 +81,6 @@ export default function GroupDetailClient({ group, members: initialMembers, note
           </TabsList>
         </Tabs>
 
-        {tab === "overview" && <GroupOverviewTab group={group} members={members} />}
         {tab === "members" && (
           <GroupMembersTab
             groupId={group.id}
@@ -112,9 +90,6 @@ export default function GroupDetailClient({ group, members: initialMembers, note
             removingId={removingId}
           />
         )}
-        {tab === "positions" && <GroupPositionsTab members={members} />}
-        {tab === "skill-coverage" && <GroupSkillCoverageTab members={members} />}
-        {tab === "assessments" && <GroupAssessmentsTab memberCount={members.length} />}
         {tab === "notes" && <GroupNotesTab entityId={group.id} activityLogs={activityLogs} />}
       </PageContainer>
 
