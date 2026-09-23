@@ -33,3 +33,13 @@ export function toneFor(label: string): Tone {
     for (let i = 0; i < label.length; i++) h = (h * 31 + label.charCodeAt(i)) | 0;
     return TONES[Math.abs(h) % TONES.length];
 }
+
+/** Dải chuyển cho các bước có thứ tự (funnel HR: xanh dương → cyan → teal → lục).
+ *  Chỉ dùng cho chuỗi có thứ tự — đi kèm nhãn bước, không dùng làm màu phân loại. */
+const FLOW_STOPS = ["#0077cc", "#00a9ff", "#00bcd4", "#14b8a6", "#2e9e6e"];
+export function flowAt(i: number, n: number): string {
+    if (n <= 1) return FLOW_STOPS[0];
+    const t = (i / (n - 1)) * (FLOW_STOPS.length - 1);
+    const a = Math.floor(t), f = Math.round((t - a) * 100);
+    return f === 0 ? FLOW_STOPS[a] : `color-mix(in srgb, ${FLOW_STOPS[a + 1]} ${f}%, ${FLOW_STOPS[a]})`;
+}

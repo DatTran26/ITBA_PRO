@@ -4,6 +4,7 @@ import { alpha } from "@/lib/utils";
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { flowAt, toneByName, toneFor, type ToneName } from "@/lib/ui/tones";
 import { XCircle, FileText, Settings, BarChart3, Upload, Download, RotateCcw, Search, Eye, MoreVertical, Users } from "lucide-react";
 import DataTable from "@/components/crm/data-table";
 import KanbanBoard from "@/components/crm/kanban-board";
@@ -40,6 +41,16 @@ interface ApiApplication {
 }
 
 // ─── Constants ────────────────────────────────────────────────────────────────
+/* Pill trạng thái theo kiểu bảng HR: mỗi bước một tông; đạt/trượt dùng màu trạng thái. */
+const STATUS_PILL: Record<string, { label: string; tone?: ToneName; state?: string }> = {
+  NEW: { label: "Mới", tone: "blue" }, SCREENED: { label: "Đã sàng lọc", tone: "teal" },
+  SHORTLISTED: { label: "Tiềm năng", tone: "violet" }, INTERVIEW_SCHEDULED: { label: "Hẹn PV", tone: "orange" },
+  INTERVIEWED: { label: "Đã PV", tone: "gold" }, OFFERED: { label: "Đề xuất", tone: "pink" },
+  PASSED: { label: "Đạt PV", state: "var(--success)" }, ACCEPTED: { label: "Nhận offer", state: "var(--success)" },
+  ONBOARDED: { label: "Onboard", state: "var(--success)" }, FAILED: { label: "Trượt PV", state: "var(--danger)" },
+  OFFER_REJECTED: { label: "Từ chối offer", state: "var(--danger)" }, REJECTED: { label: "Từ chối", state: "var(--muted-foreground)" },
+};
+
 const STATUS_COLORS: Record<string, string> = {
   NEW: "bg-primary/15 text-primary",
   SCREENED: "bg-ai/15 text-ai",
@@ -53,13 +64,6 @@ const STATUS_COLORS: Record<string, string> = {
   ACCEPTED: "bg-success/20 text-success",
   OFFER_REJECTED: "bg-danger/15 text-danger",
   ONBOARDED: "bg-success/25 text-success",
-};
-
-const STATUS_DOT: Record<string, string> = {
-  NEW: "var(--primary)", SCREENED: "var(--ai)", SHORTLISTED: "var(--primary)",
-  INTERVIEW_SCHEDULED: "var(--warning)", INTERVIEWED: "var(--warning)",
-  PASSED: "var(--success)", FAILED: "var(--danger)", REJECTED: "var(--muted-foreground)",
-  OFFERED: "var(--primary)", ACCEPTED: "var(--success)", OFFER_REJECTED: "var(--danger)", ONBOARDED: "var(--success)",
 };
 
 const STATUS_ROW_CLASS: Record<string, string> = {
@@ -112,12 +116,11 @@ const COLUMNS: ColumnDef<ApplicationRow>[] = [
     render: (val, row) => {
       const name = String(val ?? "");
       const initials = name.split(" ").map(w => w[0]).slice(-2).join("").toUpperCase() || "?";
-      const hue = (name.charCodeAt(0) ?? 0) * 37 % 360;
       return (
         <div className="flex items-center gap-3">
           <div
-            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl text-[10px] font-bold text-foreground"
-            style={{ background: `hsl(${hue}deg 50% 38%)`, border: `1px solid hsl(${hue}deg 50% 55% / 0.25)` }}
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-[11px] font-bold"
+            style={{ color: toneFor(name).ink, backgroundColor: toneFor(name).bg }}
           >
             {initials}
           </div>
@@ -140,14 +143,15 @@ const COLUMNS: ColumnDef<ApplicationRow>[] = [
     label: "Pipeline Status",
     render: (val) => {
       const status = String(val ?? "");
-      const color = STATUS_DOT[status] ?? "var(--muted-foreground)";
+      const p = STATUS_PILL[status];
+      const t = p?.tone ? toneByName(p.tone) : null;
+      const ink = t ? t.ink : p?.state ?? "var(--muted-foreground)";
+      const bg = t ? t.bg : `color-mix(in srgb, ${ink} 12%, transparent)`;
       return (
-        <div className="flex items-center gap-2">
-          <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: color, boxShadow: `0 0 4px ${alpha(color, 50)}` }} />
-          <span className={`inline-flex items-center px-2 py-0.5 rounded-lg text-[10px] font-semibold ${STATUS_COLORS[status] ?? "bg-muted text-muted-foreground"}`}>
-            {status.replace(/_/g, " ")}
-          </span>
-        </div>
+        <span className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-bold" style={{ color: ink, backgroundColor: bg }}>
+          <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: t ? t.mark : ink }} />
+          {p?.label ?? status.replace(/_/g, " ")}
+        </span>
       );
     },
   },
@@ -475,16 +479,23 @@ export default function RecruitmentClient({ userRole }: Props) {
             <span className="block text-xl font-black leading-none tabular-nums">{total}</span>
             <span className={`block mt-1 text-[11px] font-bold ${statusFilter === "" ? "text-primary-foreground/80" : "text-muted-foreground"}`}>Tất cả</span>
           </button>
-          <div className="flex flex-1 min-w-0 rounded-xl bg-[color-mix(in_srgb,var(--primary)_12%,var(--card))] p-1">
+          <div className="flex flex-1 min-w-0 rounded-xl border border-border bg-card px-3 pt-3 pb-2">
             {FUNNEL.map((st, i) => {
               const on = statusFilter === st;
+              const dim = statusFilter !== "" && !on;
               const n = statusCounts[st] ?? 0;
               return (
                 <button key={st} type="button" onClick={() => setStatusFilter(on ? "" : st)} aria-pressed={on}
-                  className={`relative flex-1 min-w-0 py-2 text-left transition-colors cursor-pointer ${i ? "-ml-1 pl-6" : "pl-4 rounded-l-lg"} pr-4 ${on ? "bg-primary text-primary-foreground z-10" : n ? "bg-card hover:bg-accent" : "bg-card/60 hover:bg-card"}`}
-                  style={{ clipPath: i === FUNNEL.length - 1 ? "polygon(0 0,100% 0,100% 100%,0 100%,10px 50%)" : i ? "polygon(0 0,calc(100% - 10px) 0,100% 50%,calc(100% - 10px) 100%,0 100%,10px 50%)" : "polygon(0 0,calc(100% - 10px) 0,100% 50%,calc(100% - 10px) 100%,0 100%)" }}>
-                  <span className="block text-xl font-black leading-none tabular-nums">{n}</span>
-                  <span className={`block mt-1 truncate text-[11px] font-bold ${on ? "text-primary-foreground/80" : "text-muted-foreground"}`}>{FUNNEL_LABEL[st]}</span>
+                  className={`flex-1 min-w-0 text-left cursor-pointer transition-opacity ${i ? "-ml-1" : ""} ${dim ? "opacity-40 hover:opacity-80" : ""}`}>
+                  <span className={`flex h-8 items-center pl-5 text-xs font-black text-white transition-transform ${on ? "-translate-y-0.5" : ""}`}
+                        style={{ backgroundColor: flowAt(i, FUNNEL.length), clipPath: i === 0
+                          ? "polygon(0 0,calc(100% - 10px) 0,100% 50%,calc(100% - 10px) 100%,0 100%)"
+                          : "polygon(0 0,calc(100% - 10px) 0,100% 50%,calc(100% - 10px) 100%,0 100%,10px 50%)",
+                          borderRadius: i === 0 ? "8px 0 0 8px" : undefined }}>
+                    {i + 1}
+                  </span>
+                  <span className="block mt-2 pl-2 text-xl font-black leading-none tabular-nums text-foreground">{n}</span>
+                  <span className={`block mt-1 pl-2 truncate text-[11px] font-bold ${on ? "text-foreground" : "text-muted-foreground"}`}>{FUNNEL_LABEL[st]}</span>
                 </button>
               );
             })}
@@ -494,9 +505,9 @@ export default function RecruitmentClient({ userRole }: Props) {
               const on = statusFilter === st;
               return (
                 <button key={st} type="button" onClick={() => setStatusFilter(on ? "" : st)} aria-pressed={on}
-                  className={`rounded-xl border px-3 py-2 text-left transition-colors cursor-pointer ${on ? "border-danger bg-danger/10" : "border-dashed border-border bg-card hover:border-danger/40"}`}>
+                  className={`rounded-xl border px-4 py-2 text-left transition-colors cursor-pointer ${on ? "border-danger bg-danger/10" : "border-danger/25 bg-danger/5 hover:bg-danger/10"}`}>
                   <span className="block text-xl font-black leading-none tabular-nums text-foreground">{statusCounts[st] ?? 0}</span>
-                  <span className="block mt-1 text-[11px] font-bold text-muted-foreground">{label}</span>
+                  <span className="block mt-1 text-[11px] font-bold text-danger">{label}</span>
                 </button>
               );
             })}

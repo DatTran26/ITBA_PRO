@@ -3,3 +3,4 @@
 export { SharedDashboardButton, sharedDashboardButtonVariants } from "./shared-dashboard-button";
 export { SharedDashboardPageHeader } from "./shared-dashboard-page-header";
 export { SharedStatusChip, sharedStatusChipVariants } from "./shared-status-chip";
+export { ToneIcon, TonePill } from "./tone-chip";
