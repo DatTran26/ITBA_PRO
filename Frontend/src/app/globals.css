@@ -180,7 +180,8 @@ body:has(.tg) {
   --tg-border: #cde9f5;
   --tg-border-light: #e5f3fa;
   --tg-text: #264e6b;
-  --tg-muted: #6b8ca0;
+  /* #6b8ca0 cũ chỉ đạt 3.4:1 trên nền trang — #567487 cùng sắc độ, ≥4.6:1 trên bg/stub/trắng. */
+  --tg-muted: #567487;
   --tg-success: #2e7d64;
   --tg-error: #d62929;
   --tg-error-bg: #fef2f2;
@@ -240,7 +241,7 @@ body:has(.tg) {
   --chart-4: #2e7d64;
   --chart-5: #ffb347;
   --sidebar: var(--tg-white);
-  --sidebar-foreground: var(--tg-muted);
+  --sidebar-foreground: #6b8ca0; /* sidebar nền tối: giữ tông sáng cũ */
   --sidebar-primary: var(--p-deep);
   --sidebar-primary-foreground: #ffffff;
   --sidebar-accent: var(--a2);
