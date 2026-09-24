@@ -216,15 +216,27 @@ export default function DocumentPreview({ job, onSelectBlock }: DocumentPreviewP
                     className="relative max-h-full max-w-full origin-center flex items-center justify-center"
                 >
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                        ref={imgRef}
-                        src={job.previewUrl}
-                        alt={job.file.name}
-                        draggable={false}
-                        onClick={handleImgClick}
-                        className="max-h-[600px] w-auto max-w-full rounded-lg object-contain shadow-2xl ring-1 ring-white/10"
-                        style={{ cursor: hasBlocks ? "crosshair" : "default" }}
-                    />
+                    {job.previewUrl ? (
+                        <img
+                            ref={imgRef}
+                            src={job.previewUrl}
+                            alt={job.file.name}
+                            draggable={false}
+                            onClick={handleImgClick}
+                            className="max-h-[600px] w-auto max-w-full rounded-lg object-contain shadow-2xl ring-1 ring-white/10"
+                            style={{ cursor: hasBlocks ? "crosshair" : "default" }}
+                        />
+                    ) : (
+                        <div className="flex flex-col items-center justify-center p-8 rounded-2xl border border-white/[0.08] bg-[#1A233A]/60 text-center max-w-sm">
+                            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[#36DDAB]/10 text-[#36DDAB] mb-3">
+                                <FileImage className="h-7 w-7" />
+                            </div>
+                            <h4 className="text-sm font-bold text-white">Văn bản tạo từ Mẫu NĐ 30</h4>
+                            <p className="text-xs text-[#94A3B8] mt-1">
+                                Văn bản được tạo trực tiếp từ AI & Hồ sơ HR (không có ảnh scan gốc). Bạn có thể xem trước bản A4 và thẩm định thể thức ở Bàn làm việc bên phải.
+                            </p>
+                        </div>
+                    )}
 
                     {/* SVG Bounding-Box Overlay */}
                     {hasBlocks && showBBoxes && (

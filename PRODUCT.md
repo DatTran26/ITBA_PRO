@@ -1,6 +1,6 @@
 # PRODUCT — Hệ thống HRMS tích hợp AI
 
-> **Trạng thái tài liệu:** Hợp đồng sản phẩm mục tiêu của Town Hown. Tài liệu
+> **Trạng thái tài liệu:** Hợp đồng sản phẩm mục tiêu của DOWN TOWN. Tài liệu
 > này mô tả phạm vi và ràng buộc nghiệp vụ, không khẳng định mọi module đã được
 > triển khai. Phân hệ đang có source là ITBAAI; xem
 > [`docs/downtown/README.md`](docs/downtown/README.md)
@@ -8,7 +8,7 @@
 
 ## Quan hệ giữa tầm nhìn và ứng dụng hiện có
 
-- Town Hown là HRMS bao trùm tài khoản, nhân sự, tuyển dụng, họp, công việc,
+- DOWN TOWN là HRMS bao trùm tài khoản, nhân sự, tuyển dụng, họp, công việc,
   báo cáo, tích hợp, Document AI, đánh giá năng lực, chấm công sinh trắc học và giám sát thị giác máy tính (Computer Vision).
 - `Frontend`, `Backend` và các module Vision AI (`modules/vision-ai/backend`, `modules/face-attendance`) hiện thực phần:
   - Tuyển dụng, kiểm tra/đánh giá, question bank, Document AI, email và quản lý năng lực.

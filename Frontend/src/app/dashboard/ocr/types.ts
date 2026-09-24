@@ -69,3 +69,68 @@ export type OCRQueueAction =
     | { type: "removed"; id: string }
     | { type: "clear_all" }
     | { type: "validation_error_set"; message: string | null };
+
+// ─── Advisory Flow Types (Luồng A - Soạn thảo mới chuẩn Nghị định 30) ──────────
+
+export interface FieldDefinition {
+    key: string;
+    label: string;
+    required: boolean;
+    description: string;
+    input_type: "text" | "textarea" | "date" | "select" | "list";
+    group: string;
+    source_hint: string | null;
+    placeholder: string;
+}
+
+export interface GuidanceResponse {
+    message: string;
+    doc_type: string | null;
+    required_fields: FieldDefinition[];
+    is_resolved: boolean;
+    next_action: "ask_more" | "go_to_field_resolver" | "generate_now";
+    resolution_confidence: number;
+    process_steps: string[];
+}
+
+export interface UserProfile {
+    full_name?: string;
+    organization?: string;
+    department?: string;
+    title?: string;
+    location?: string;
+    phone?: string;
+}
+
+export interface FieldResolverResult {
+    doc_type: string;
+    resolved_values: Record<string, string>;
+    prefilled_keys: string[];
+    missing_required_keys: string[];
+    fields: FieldDefinition[];
+}
+
+export interface DocumentGenerationResult {
+    status: "ready" | "needs_more_info";
+    doc_type: string;
+    validation_ready: boolean;
+    missing_required: string[];
+    export_payload: ND30ExportPayload;
+    preview_markdown: string;
+}
+
+export interface SavedND30Document {
+    id: string;
+    title: string;
+    doc_type: string;
+    created_at: number;
+    file_name: string;
+    export_payload: ND30ExportPayload;
+    preview_markdown?: string;
+    status: "draft" | "issued" | "exported";
+    source: "advisory" | "ocr";
+    signatory_name?: string;
+    company_name?: string;
+    department?: string;
+}
+

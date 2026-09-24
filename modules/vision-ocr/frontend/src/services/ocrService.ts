@@ -1,4 +1,12 @@
-import type { ND30ExportPayload, OCRScanResponse } from "../types/ocr";
+import type {
+  FieldResolverResult,
+  GeneratedDocument,
+  GuidanceMessage,
+  GuidanceResponse,
+  ND30ExportPayload,
+  OCRScanResponse,
+  UserProfile,
+} from "../types/ocr";
 
 const API_BASE_URL = import.meta.env.VITE_API_URL ?? "http://localhost:8000";
 
@@ -118,10 +126,112 @@ export async function validateND30(documentData: Record<string, any>): Promise<a
 export function downloadBlob(blob: Blob, filename: string): void {
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
+  a.style.display = "none";
   a.href = url;
   a.download = filename;
   document.body.appendChild(a);
   a.click();
-  a.remove();
-  URL.revokeObjectURL(url);
+  setTimeout(() => {
+    a.remove();
+    URL.revokeObjectURL(url);
+  }, 1500);
 }
+
+// ─── Advisory Flow API ────────────────────────────────────────────────────────
+
+/**
+ * [Luồng A] Gửi tin nhắn tới Guidance Agent (RAG hội thoại).
+ * Stateless: gửi full conversation_history mỗi request.
+ */
+export async function chatGuidance(
+  message: string,
+  conversationHistory: GuidanceMessage[] = [],
+): Promise<GuidanceResponse> {
+  let response: Response;
+  try {
+    response = await fetch(`${API_BASE_URL}/api/ocr/guidance/chat`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        message,
+        conversation_history: conversationHistory,
+      }),
+    });
+  } catch {
+    throw new OCRServiceError("network");
+  }
+  if (!response.ok) throw new OCRServiceError("service");
+  return response.json() as Promise<GuidanceResponse>;
+}
+
+/**
+ * [Luồng A] Field Resolver: đối chiếu schema với hồ sơ user,
+ * trả về filled_fields (tự điền) và missing_fields (cần hỏi user).
+ */
+export async function resolveFields(
+  docType: string,
+  userProfile: UserProfile,
+  partialAnswers: Record<string, string> = {},
+): Promise<FieldResolverResult> {
+  let response: Response;
+  try {
+    response = await fetch(`${API_BASE_URL}/api/ocr/fields/resolve`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        doc_type: docType,
+        user_profile: userProfile,
+        partial_answers: partialAnswers,
+      }),
+    });
+  } catch {
+    throw new OCRServiceError("network");
+  }
+  if (!response.ok) throw new OCRServiceError("service");
+  return response.json() as Promise<FieldResolverResult>;
+}
+
+/**
+ * [Luồng A] Document Generation Engine: tạo export_payload từ filled_fields có nhãn.
+ * input_mode = "structured" → ND30Validator score cao hơn luồng OCR.
+ */
+export async function generateDocument(
+  docType: string,
+  filledFields: Record<string, string>,
+): Promise<GeneratedDocument> {
+  let response: Response;
+  try {
+    response = await fetch(`${API_BASE_URL}/api/ocr/generate`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        doc_type: docType,
+        filled_fields: filledFields,
+      }),
+    });
+  } catch {
+    throw new OCRServiceError("network");
+  }
+  if (!response.ok) throw new OCRServiceError("service");
+  return response.json() as Promise<GeneratedDocument>;
+}
+
+/**
+ * [Luồng A] Lấy danh sách loại văn bản được hỗ trợ + Field Schema.
+ */
+export async function fetchSupportedSchemas(): Promise<{
+  supported_types: string[];
+  schemas: Record<string, any>;
+}> {
+  let response: Response;
+  try {
+    response = await fetch(`${API_BASE_URL}/api/ocr/guidance/schemas`);
+  } catch {
+    throw new OCRServiceError("network");
+  }
+  if (!response.ok) throw new OCRServiceError("service");
+  return response.json();
+}
+
+
+

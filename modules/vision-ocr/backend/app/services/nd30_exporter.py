@@ -131,8 +131,48 @@ class ND30Exporter:
     STATE_HEADER_LINE1 = "CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM"
     STATE_HEADER_LINE2 = "Độc lập - Tự do - Hạnh phúc"
 
+    # ── Dual-stream entry points ──────────────────────────────────────────────
+
+    def export_structured(self, data: dict) -> io.BytesIO:
+        """
+        [Luồng A — Advisory Flow] Export từ dữ liệu có nhãn tường minh.
+        Input đến từ DocumentGeneratorService (Field Schema đã fill đầy đủ).
+        Không cần suy luận vị trí field → ít lỗi font/vị trí.
+
+        Trả về BytesIO với attribute ``input_mode = "structured"``.
+        """
+        buffer = self._build_docx(data)
+        buffer.input_mode = "structured"  # type: ignore[attr-defined]
+        buffer.requires_manual_review = False  # type: ignore[attr-defined]
+        return buffer
+
+    def export_from_ocr(self, data: dict) -> io.BytesIO:
+        """
+        [Luồng B — OCR Reactive Flow] Export từ dữ liệu suy luận qua OCR.
+        Giữ nguyên logic cũ. Gắn cờ requires_manual_review = True.
+        Frontend nên hiển thị banner cảnh báo yêu cầu review thủ công.
+
+        Trả về BytesIO với attribute ``input_mode = "ocr_inferred"``.
+        """
+        buffer = self._build_docx(data)
+        buffer.input_mode = "ocr_inferred"  # type: ignore[attr-defined]
+        buffer.requires_manual_review = True  # type: ignore[attr-defined]
+        logger.info("ND30Exporter: OCR-inferred export — manual review recommended.")
+        return buffer
+
     def export(self, data: dict) -> io.BytesIO:
-        """Generate DOCX and return as BytesIO stream."""
+        """
+        [Backward-compatible] Auto-detect luồng theo data['input_mode'].
+        - 'structured' → export_structured (luồng A)
+        - 'ocr_inferred' hoặc không có → export_from_ocr (luồng B)
+        """
+        input_mode = data.get("input_mode", "ocr_inferred")
+        if input_mode == "structured":
+            return self.export_structured(data)
+        return self.export_from_ocr(data)
+
+    def _build_docx(self, data: dict) -> io.BytesIO:
+        """Core DOCX generation logic — shared by both streams (structured & ocr_inferred)."""
         doc = Document()
 
         # ── Page margins (NĐ 30 standard) ───────────────
@@ -258,18 +298,60 @@ class ND30Exporter:
 
     def _build_articles(self, doc: Any, data: dict) -> None:
         """Articles / clauses with bold title and body text."""
+        import re
         articles: list[dict] = data.get("articles", [])
+
+        def _is_field_or_bullet(text: str) -> bool:
+            trimmed = text.strip()
+            if re.match(r'^[-+*•–—]\s', trimmed):
+                return True
+            if re.match(r'^(Từ ngày|Đến ngày|Thời gian|Kính mong|Kính đề nghị|Kính xin|Kính chúc|Tôi xin|Tôi cam|Em xin|Xin trân trọng|Trân trọng|Chân thành cảm ơn)', trimmed, re.IGNORECASE):
+                return True
+            m = re.match(r'^([^:：\.\?!]{2,45})\s*[:：]', trimmed)
+            if m:
+                pfx = m.group(1).strip()
+                if not re.match(r'^(Căn cứ|Điều\s+\d+|Khoản\s+\d+|Điểm\s+[a-z]|Quy định|Theo)', pfx, re.IGNORECASE):
+                    return True
+            return False
+
+        KINH_GUI_PATTERN = re.compile(r'^Kính gửi\s*[:：]', re.IGNORECASE)
+
         for art in articles:
-            title = art.get("title", "")
-            content = art.get("content", "")
-            p = _para_normal(doc, "", align="JUSTIFY", first_indent_cm=1.0, size_pt=13)
+            title = (art.get("title") or "").strip()
+            content = art.get("content") or ""
+            raw_lines = content.split("\n")
+
             if title:
-                r_title = p.add_run(f"{title}. ")
+                # E.g. "Điều 1."
+                p_title = _para_normal(doc, "", align="JUSTIFY", first_indent_cm=1.0, size_pt=13)
+                r_title = p_title.add_run(f"{title}. ")
                 r_title.bold = True
                 _set_run_font(r_title, size_pt=13)
-            if content:
-                r_body = p.add_run(content)
-                _set_run_font(r_body, size_pt=13)
+
+                non_empty = [l.strip() for l in raw_lines if l.strip()]
+                if non_empty:
+                    r_body = p_title.add_run(non_empty[0])
+                    _set_run_font(r_body, size_pt=13)
+
+                    for sub_line in non_empty[1:]:
+                        if _is_field_or_bullet(sub_line):
+                            _para_normal(doc, sub_line, align="LEFT", first_indent_cm=0.0, size_pt=13)
+                        else:
+                            _para_normal(doc, sub_line, align="JUSTIFY", first_indent_cm=1.0, size_pt=13)
+            else:
+                # No title (e.g. Bản tường trình, Đơn từ, Giấy nghỉ phép)
+                for line in raw_lines:
+                    trimmed = line.strip()
+                    if not trimmed:
+                        continue
+                    if KINH_GUI_PATTERN.match(trimmed):
+                        _para_normal(doc, trimmed, bold=True, italic=True, align="LEFT", first_indent_cm=1.0, size_pt=13)
+                    elif _is_field_or_bullet(trimmed):
+                        # Form fields / personal info declarations: align flush-left (0cm indent) so they line up straight
+                        _para_normal(doc, trimmed, align="LEFT", first_indent_cm=0.0, size_pt=13)
+                    else:
+                        # Narrative paragraphs: standard Decree 30 indent (1.0cm)
+                        _para_normal(doc, trimmed, align="JUSTIFY", first_indent_cm=1.0, size_pt=13)
 
         if articles:
             doc.add_paragraph()

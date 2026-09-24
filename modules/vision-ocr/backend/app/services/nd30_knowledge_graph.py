@@ -195,12 +195,16 @@ class ND30KnowledgeGraph:
         if any(kw in t or kw in tn for kw in tuong_trinh_kw):
             return "BẢN TƯỜNG TRÌNH"
 
-        # 4. GIẤY NGHỈ PHÉP keywords (exact phrases only, no single-word false matches)
+        # 4. GIẤY NGHỈ PHÉP keywords (supports daily language, travel, vacation, sick leave)
         nghi_phep_kw = [
             "nghỉ phép", "nghi phep", "nhgi phep",
             "xin nghỉ", "xin nghi", "xin nhgi", "nghỉ việc", "nghi viec", "nhgi viec",
             "thôi việc", "thoi viec", "nghỉ ốm", "nghi om", "nghỉ thai sản", "nghi thai san",
-            "muon nghi", "muốn nghỉ"
+            "muon nghi", "muốn nghỉ", "đi chơi", "di choi", "du lịch", "du lich",
+            "nghỉ mát", "nghi mat", "nghỉ làm", "nghi lam", "nghỉ một ngày", "nghi mot ngay",
+            "nghỉ vài ngày", "nghi vai ngay", "nghỉ dưỡng", "nghi duong",
+            "nghỉ việc riêng", "nghi viec rieng", "việc bận", "viec ban",
+            "nghỉ không lương", "nghi khong luong"
         ]
         if any(kw in t or kw in tn for kw in nghi_phep_kw):
             return "GIẤY NGHỈ PHÉP"

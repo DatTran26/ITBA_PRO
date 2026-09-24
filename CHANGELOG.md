@@ -62,7 +62,7 @@ All notable changes to this project are documented in this file.
 
 ### Added
 
-- Town Hown Next.js app (`Frontend/`) with Supabase backend migrations.
+- DOWN TOWN Next.js app (`Frontend/`) with Supabase backend migrations.
 - GitHub Actions `docker-publish`: GHCR `linux/amd64` images and SSH deploy as root.
 - VPS layout `/opt/ITBA-OCR/staging` (port 2026) and `/opt/ITBA-OCR/production` (port 2005).
 

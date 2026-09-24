@@ -8,12 +8,19 @@ from app.services.nd30_exporter import ND30Exporter
 from app.services.nd30_validator import ND30Validator
 from app.services.nd30_ai_generator import ND30AIGenerator
 from app.services.ocr_service import OCRUnavailableError, extract_text_from_image
+from app.services.guidance_agent import GuidanceAgent
+from app.services.field_resolver import FieldResolver, UserProfile
+from app.services.document_generator import DocumentGeneratorService
+from app.services.field_schema import get_schema_dict, list_supported_types
 
 router = APIRouter(prefix="/api/ocr", tags=["ocr"])
 
 _nd30_exporter = ND30Exporter()
 _nd30_validator = ND30Validator()
 _nd30_ai_generator = ND30AIGenerator()
+_guidance_agent = GuidanceAgent()
+_field_resolver = FieldResolver()
+_doc_generator = DocumentGeneratorService()
 
 
 
@@ -419,3 +426,156 @@ async def nd30_copilot(payload: dict):
         return result
     except Exception as exc:
         raise HTTPException(status_code=500, detail=f"Copilot error: {exc}") from exc
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# ADVISORY FLOW — Luồng tư vấn & tạo văn bản từ template (Bổ sung mới)
+# ═══════════════════════════════════════════════════════════════════════════════
+
+
+@router.post("/guidance/chat")
+async def guidance_chat(payload: dict):
+    """
+    [Luồng A — Advisory] RAG hội thoại xác định loại văn bản.
+
+    Stateless: client gửi full conversation_history mỗi request.
+
+    Request body::
+        {
+          "message": str,                    // Tin nhắn mới của người dùng
+          "conversation_history": [          // Lịch sử hội thoại trước đó (optional)
+            {"role": "user", "content": str},
+            {"role": "assistant", "content": str}
+          ]
+        }
+
+    Response::
+        {
+          "message": str,           // AI trả lời/hỏi thêm
+          "doc_type": str | null,   // Loại văn bản đã xác định (null nếu chưa)
+          "required_fields": [...], // Field schema nếu đã xác định
+          "is_resolved": bool,      // True khi xác định xong loại VB
+          "next_action": str,       // "ask_more" | "go_to_field_resolver"
+          "process_steps": [str]    // Các bước người dùng cần làm
+        }
+    """
+    user_message = (payload.get("message") or "").strip()
+    if not user_message:
+        raise HTTPException(status_code=400, detail="Vui lòng nhập tin nhắn (message).")
+
+    conversation_history = payload.get("conversation_history") or payload.get("history") or []
+
+    try:
+        response = _guidance_agent.process(user_message, conversation_history)
+        return response.to_dict()
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=f"Guidance Agent error: {exc}") from exc
+
+
+@router.post("/fields/resolve")
+async def resolve_fields(payload: dict):
+    """
+    [Luồng A — Advisory] Field Resolver: đối chiếu schema với hồ sơ user.
+
+    Tự điền field có source_hint matching với profile, chỉ trả về missing_fields cần hỏi user.
+
+    Request body::
+        {
+          "doc_type": str,                   // Loại văn bản (từ GuidanceAgent)
+          "user_profile": {                  // Hồ sơ user từ Supabase auth session
+            "full_name": str,
+            "organization": str,
+            "title": str,
+            "department": str,
+            "location": str,
+            "id_number": str,
+            "dob": str,
+            "phone": str,
+            "address": str
+          },
+          "partial_answers": {}              // Các field user đã điền (optional)
+        }
+
+    Response::
+        {
+          "doc_type": str,
+          "filled_fields": {},               // Field đã có giá trị
+          "missing_fields": [...],           // Field còn thiếu (cần hỏi user)
+          "prefilled_keys": [...],           // Keys tự điền từ profile
+          "is_complete": bool
+        }
+    """
+    doc_type = (payload.get("doc_type") or "").strip().upper()
+    if not doc_type:
+        raise HTTPException(status_code=400, detail="Vui lòng cung cấp doc_type.")
+
+    schema = get_schema_dict(doc_type)
+    if not schema:
+        supported = list_supported_types()
+        raise HTTPException(
+            status_code=400,
+            detail=f"Loại văn bản '{doc_type}' chưa được hỗ trợ. Hỗ trợ: {', '.join(supported)}"
+        )
+
+    profile_data = payload.get("user_profile") or {}
+    user_profile = UserProfile.from_dict(profile_data)
+    partial_answers = payload.get("partial_answers") or {}
+
+    try:
+        result = _field_resolver.resolve(doc_type, user_profile, partial_answers)
+        return result.to_dict()
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=f"Field Resolver error: {exc}") from exc
+
+
+@router.post("/generate")
+async def generate_document(payload: dict):
+    """
+    [Luồng A — Advisory] Document Generation Engine: tạo văn bản từ template NĐ30.
+
+    Nhận filled_fields đã gắn nhãn, build ND30ExportPayload không suy luận vị trí.
+    Validator score từ luồng này cao hơn đáng kể so với luồng OCR.
+
+    Request body::
+        {
+          "doc_type": str,                   // Loại văn bản
+          "filled_fields": {}                // Tất cả field đã được điền (từ FieldResolver + user)
+        }
+
+    Response::
+        {
+          "doc_type": str,
+          "export_payload": {},              // Sẵn sàng cho nd30_exporter
+          "input_mode": "structured",
+          "validation_ready": bool,
+          "missing_required": [...],
+          "generation_warnings": [...]
+        }
+    """
+    doc_type = (payload.get("doc_type") or "").strip().upper()
+    if not doc_type:
+        raise HTTPException(status_code=400, detail="Vui lòng cung cấp doc_type.")
+
+    filled_fields = payload.get("filled_fields") or payload.get("values") or {}
+
+    try:
+        result = _doc_generator.generate(doc_type, filled_fields)
+        return result.to_dict()
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=f"Document Generator error: {exc}") from exc
+
+
+@router.get("/guidance/schemas")
+async def get_supported_schemas():
+    """
+    [Advisory] Trả về danh sách loại văn bản được hỗ trợ và Field Schema tương ứng.
+    Frontend dùng để hiển thị dropdown chọn loại VB.
+    """
+    from app.services.field_schema import FIELD_SCHEMAS
+    return {
+        "supported_types": list_supported_types(),
+        "schemas": {
+            doc_type: schema.to_dict()
+            for doc_type, schema in FIELD_SCHEMAS.items()
+        }
+    }

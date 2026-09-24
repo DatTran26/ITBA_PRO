@@ -10,6 +10,7 @@ import {
     RotateCcw,
     Layers,
     Sparkles,
+    FileText,
 } from "lucide-react";
 import type { OCRJob, OCRJobStatus } from "../types";
 
@@ -104,13 +105,19 @@ export default function OCRJobQueue({
                         >
                             {/* Left: Thumbnail & Info */}
                             <div className="flex items-center gap-3 min-w-0 flex-1">
-                                <div className="relative h-11 w-11 shrink-0 overflow-hidden rounded-lg border border-white/10 bg-[#0D1322]">
-                                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                                    <img
-                                        src={job.previewUrl}
-                                        alt={job.file.name}
-                                        className="h-full w-full object-cover"
-                                    />
+                                <div className="relative h-11 w-11 shrink-0 overflow-hidden rounded-lg border border-white/10 bg-[#0D1322] flex items-center justify-center">
+                                    {job.previewUrl ? (
+                                        /* eslint-disable-next-line @next/next/no-img-element */
+                                        <img
+                                            src={job.previewUrl}
+                                            alt={job.file.name}
+                                            className="h-full w-full object-cover"
+                                        />
+                                    ) : (
+                                        <div className="flex h-full w-full items-center justify-center bg-gradient-to-tr from-[#5B6CF0]/20 to-[#36DDAB]/20 text-[#36DDAB]">
+                                            <FileText className="h-5 w-5" />
+                                        </div>
+                                    )}
                                     <span className="absolute bottom-0 right-0 rounded-tl bg-black/70 px-1 text-[9px] font-mono text-white/80">
                                         #{idx + 1}
                                     </span>

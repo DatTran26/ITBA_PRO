@@ -13,7 +13,23 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
-        const payload = await req.json();
+        let payload: any;
+        const contentType = req.headers.get("content-type") || "";
+
+        if (
+            contentType.includes("application/x-www-form-urlencoded") ||
+            contentType.includes("multipart/form-data")
+        ) {
+            const formData = await req.formData();
+            const rawPayload = formData.get("payload");
+            if (typeof rawPayload === "string") {
+                payload = JSON.parse(rawPayload);
+            } else {
+                payload = {};
+            }
+        } else {
+            payload = await req.json();
+        }
 
         const fastApiRes = await callVisionOcr("/api/ocr/export-nd30", {
             method: "POST",
@@ -33,16 +49,22 @@ export async function POST(req: NextRequest) {
         }
 
         const buffer = await fastApiRes.arrayBuffer();
-        const filename = encodeURIComponent(
-            `van-ban-nd30-${payload.doc_type || "van-ban"}.docx`.toLowerCase().replace(/\s+/g, "-")
-        );
+        const rawType = String(payload.doc_type || "van-ban");
+        const safeDocType = rawType
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "")
+            .replace(/[đĐ]/g, "d")
+            .toLowerCase()
+            .replace(/[^a-z0-9_\-]/g, "_")
+            .replace(/_+/g, "_");
+        const filename = `ND30_${safeDocType || "van_ban"}.docx`;
 
         return new NextResponse(buffer, {
             status: 200,
             headers: {
                 "Content-Type":
                     "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-                "Content-Disposition": `attachment; filename="${filename}"`,
+                "Content-Disposition": `attachment; filename="${filename}"; filename*=UTF-8''${encodeURIComponent(filename)}`,
             },
         });
     } catch (error: any) {
