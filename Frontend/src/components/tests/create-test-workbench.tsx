@@ -12,17 +12,17 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { toast } from "sonner";
 import { PageTransition, FadeIn, AnimatePresence } from "@/components/ui/motion-wrapper";
 
-import { Sparkles, Bot, ChevronRight, Zap, Brain, Settings, Bell, Database } from "lucide-react";
+import { Sparkles, ChevronRight, Zap, Brain, Settings, Bell, Database, FlaskConical, FileText, Briefcase, TrendingUp, Layers, Clock } from "lucide-react";
+import { SharedDashboardPageHeader, TonePill } from "@/components/shares";
+import FormSection from "@/components/shares/form-section";
+import { toneByName } from "@/lib/ui/tones";
 import LevelConfigStep from "@/components/question-bank/level-config-step";
 import QuestionPullPreview from "@/components/question-bank/question-pull-preview";
 import type { BankQuestion, LevelConfig, QuestionType, ShortageProposal } from "@/components/question-bank/question-bank-types";
-import AppNavbar from "@/components/ui/app-navbar";
-import PageBreadcrumb from "@/components/ui/page-breadcrumb";
 import PageContainer from "@/components/ui/page-container";
 import TargetTypeSelector from "@/components/management/target-type-selector";
 import PositionSelector from "@/components/management/position-selector";
 import GroupSelector from "@/components/management/group-selector";
-import { PremiumBackground } from "@/components/ui/premium-background";
 import { MATRIX_TYPE_MAP, getRoleSpecificMatrix, getBalancedMatrix, getPracticalMatrix } from "./create-test-matrix";
 import CreateTestJdInput from "./create-test-jd-input";
 import CreateTestRoleGrid, { JOB_ROLE_NAMES } from "./create-test-role-grid";
@@ -466,65 +466,60 @@ export function CreateTestWorkbench({ embedded = false, onCreated }: { embedded?
     ) : (
         <>
             {!isEmbed && (
-                <div className="flex items-center justify-between gap-4 mb-4">
-                    <PageBreadcrumb breadcrumbs={[{ label: "Dashboard", href: "/dashboard" }, { label: "Create Test" }]} />
-                    <div className="flex items-center gap-2">
-                        <Button
-                            type="button"
-                            onClick={() => {
-                                setQuestionSource("bank");
-                                setTargetType("employee");
-                                setBankStep("config");
-                                setIsConstraintsOpen(true);
-                            }}
-                            className="bg-success/15 border border-border/35 text-success hover:bg-success/25 rounded-xl h-9 px-4 gap-2"
-                        >
-                            <Database className="w-4 h-4" />
-                            Question Bank
-                        </Button>
-                        <Button
-                            type="button"
-                            onClick={() => {
-                                setQuestionSource("skills");
-                                setTargetType("employee");
-                            }}
-                            className="bg-primary/15 border border-border/35 text-primary hover:bg-primary/25 rounded-xl h-9 px-4 gap-2"
-                        >
-                            <Database className="w-4 h-4" />
-                            From Skills
-                        </Button>
-                    </div>
-                </div>
+                <SharedDashboardPageHeader
+                    className="mb-6"
+                    title="Tạo bài test"
+                    icon={FlaskConical}
+                    badge={{ label: questionSource === "bank" ? "Từ ngân hàng câu hỏi" : "AI soạn đề", tone: questionSource === "bank" ? "teal" : "violet" }}
+                    description="Chọn vai trò và cấp độ (hoặc dán JD để AI tự chọn) — AI soạn bộ câu hỏi theo ma trận bạn cấu hình"
+                    actions={
+                        <div className="flex items-center gap-2">
+                            <Button
+                                variant="outline"
+                                className="h-9 gap-2"
+                                onClick={() => {
+                                    setQuestionSource("bank");
+                                    setTargetType("employee");
+                                    setBankStep("config");
+                                    setIsConstraintsOpen(true);
+                                }}
+                            >
+                                <Database style={{ color: toneByName("teal").mark }} />
+                                Từ ngân hàng câu hỏi
+                            </Button>
+                            <Button
+                                variant="outline"
+                                className="h-9 gap-2"
+                                onClick={() => {
+                                    setQuestionSource("skills");
+                                    setTargetType("employee");
+                                }}
+                            >
+                                <Layers style={{ color: toneByName("orange").mark }} />
+                                Từ kỹ năng
+                            </Button>
+                        </div>
+                    }
+                />
             )}
-                <FadeIn className="text-center mb-12">
-                    <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 text-primary text-xs font-semibold uppercase tracking-wider border border-border/20 mb-6">
-                        <Bot className="w-3.5 h-3.5" />
-                        Deployment Configuration
-                    </div>
-                    <h1 className="text-4xl md:text-5xl font-extralight font-display text-foreground mb-4 tracking-tight">Target Parameters</h1>
-                    <p className="text-muted-foreground font-light max-w-lg mx-auto text-base leading-relaxed">Define the objective constraints. Our AI engine will synthesize an origin-specific 10-question evaluation matrix.</p>
-                </FadeIn>
 
-                <div className="grid grid-cols-1 xl:grid-cols-[4fr_1px_8fr] gap-12 xl:gap-16 relative">
-
-                    {/* Left Column: JD Input */}
-                    <div className="flex flex-col gap-6">
+                <div className="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(0,1.3fr)_minmax(0,0.9fr)]">
+                    <FormSection icon={FileText} tone="blue" title="Mô tả công việc" subtitle="Tuỳ chọn · AI tự điền 2 bước bên" bodyClassName="p-4">
                         <CreateTestJdInput
                             jobDescription={jobDescription}
                             setJobDescription={setJobDescription}
                             isAnalyzing={isAnalyzing}
                             onAnalyze={handleAnalyzeJD}
                         />
-                    </div>
-
-                    {/* Desktop Divider */}
-                    <div className="hidden xl:block w-px relative">
-                        <div className="absolute top-0 bottom-0 left-0 w-px bg-gradient-to-b from-transparent via-white/5 to-transparent" />
-                    </div>
-
-                    {/* Right Column: Roles and Grades */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-                        {/* Step 1: Role Selection */}
+                    </FormSection>
+                    <FormSection
+                        icon={Briefcase}
+                        tone="violet"
+                        title="Vai trò"
+                        subtitle="Chọn 1 vai trò chính"
+                        bodyClassName="p-4"
+                        aside={selectedRole ? <TonePill tone={toneByName("blue")}>{displayRole}</TonePill> : undefined}
+                    >
                         <CreateTestRoleGrid
                             selectedRole={selectedRole}
                             setSelectedRole={setSelectedRole}
@@ -533,61 +528,70 @@ export function CreateTestWorkbench({ embedded = false, onCreated }: { embedded?
                             customRole={customRole}
                             setCustomRole={setCustomRole}
                         />
-
-                        {/* Step 2: Level Selection */}
+                    </FormSection>
+                    <FormSection
+                        icon={TrendingUp}
+                        tone="teal"
+                        title="Cấp độ"
+                        subtitle="Độ khó của đề"
+                        bodyClassName="p-4"
+                        aside={selectedLevel ? <TonePill tone={toneByName("teal")}>{displayLevel}</TonePill> : undefined}
+                    >
                         <CreateTestLevelGrid
                             selectedLevel={selectedLevel}
                             setSelectedLevel={setSelectedLevel}
                             customLevel={customLevel}
                             setCustomLevel={setCustomLevel}
                         />
-                    </div>
+                    </FormSection>
                 </div>
+
+                {!isReady && questionSource !== "bank" && (
+                    <p className="mt-4 text-center text-xs text-muted-foreground">
+                        Chọn vai trò và cấp độ để mở bước tạo đề.
+                    </p>
+                )}
 
                 {/* Finalization Section */}
                 <AnimatePresence>
                     {(isReady || questionSource === 'bank') && (
-                        <FadeIn delay={0.1} className="mt-16 max-w-3xl mx-auto">
-                            <Card className="border-border/30 bg-muted/40 backdrop-blur-2xl overflow-hidden relative shadow-2xl rounded-3xl">
-                                <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent pointer-events-none" />
-                                <CardContent className="p-10 relative z-10">
+                        <FadeIn delay={0.1} className="mt-6">
+                            <Card className="overflow-hidden rounded-2xl border border-border bg-card shadow-[0_2px_14px_color-mix(in_srgb,var(--primary)_8%,transparent)]">
+                                <CardContent className="p-6">
 
-                            <div className="flex flex-col md:flex-row items-center justify-between gap-8">
-                                <div className="flex-1 text-center md:text-left">
-                                    <Label className="text-primary/60 text-xs font-mono uppercase tracking-wider mb-2 block">Synthesis Target</Label>
-                                    <div className="text-2xl text-foreground font-light font-display line-clamp-2">
-                                        {testTitle || (questionSource === 'bank' ? `${displayLevel || 'Junior'} Question Bank Test` : `${displayLevel} ${displayRole}`)}
+                            <div className="flex flex-col items-center justify-between gap-6 md:flex-row">
+                                <div className="min-w-0 flex-1">
+                                    <p className="mb-1 text-xs font-semibold text-muted-foreground">Bài test sẽ tạo</p>
+                                    <div className="line-clamp-2 text-xl font-bold text-foreground">
+                                        {testTitle || (questionSource === 'bank' ? `Đề ngân hàng câu hỏi · ${displayLevel || 'Junior'}` : `${displayLevel} ${displayRole}`)}
                                     </div>
-                                    {testTitle && (
-                                        <div className="text-sm text-muted-foreground mt-1.5 flex items-center gap-2">
-                                            <span className="border border-border/20 text-muted-foreground bg-transparent text-xs font-medium px-2.5 py-0.5 rounded-full uppercase tracking-wider">
-                                                {questionSource === 'bank' ? 'Question Bank • Employee' : `${displayLevel} ${displayRole}`}
-                                            </span>
-                                        </div>
-                                    )}
-                                    <div className="flex flex-wrap items-center justify-center md:justify-start gap-x-4 gap-y-2 mt-4 text-sm text-muted-foreground">
-                                        <span className="flex items-center gap-1.5">{questionSource === 'bank' ? <Database className="w-4 h-4" /> : <Brain className="w-4 h-4" />} {questionSource === 'bank' ? 'Question Bank Pool' : 'Neural Draft Matrix'}</span>
-                                        <span className="hidden sm:block w-1 h-1 rounded-full bg-muted" />
-                                        <span className="font-mono flex items-center gap-1"><Zap className="w-3.5 h-3.5" /> {questionCount} Questions</span>
-                                        <span className="hidden sm:block w-1 h-1 rounded-full bg-muted" />
-                                        <span className="font-mono">T-{String(timeLimit).padStart(2, '0')}:00 TIMELIMIT</span>
+                                    <div className="mt-3 flex flex-wrap items-center gap-2">
+                                        <TonePill tone={toneByName(questionSource === 'bank' ? 'teal' : 'violet')}>
+                                            {questionSource === 'bank' ? <Database className="h-3 w-3" /> : <Brain className="h-3 w-3" />}
+                                            {questionSource === 'bank' ? 'Ngân hàng câu hỏi' : 'AI soạn đề'}
+                                        </TonePill>
+                                        <TonePill tone={toneByName('blue')}><Zap className="h-3 w-3" /> {questionCount} câu</TonePill>
+                                        <TonePill tone={toneByName('orange')}><Clock className="h-3 w-3" /> {timeLimit} phút</TonePill>
+                                        {testTitle && questionSource !== 'bank' && (
+                                            <TonePill tone={toneByName('gold')}>{displayLevel} {displayRole}</TonePill>
+                                        )}
                                     </div>
                                 </div>
                                 <Button
                                     onClick={() => questionSource === 'bank' ? handlePullFromBank(levelConfig ?? buildBankLevelConfig()) : handleCreate()}
                                     disabled={questionSource === 'bank' ? (!isSumValid || isPulling) : ((!selectedRole) || (selectedRole === 'Other' && !customRole) || (!selectedLevel) || (selectedLevel === 'Other' && !customLevel) || isCreating)}
-                                    className="bg-white text-black hover:bg-foreground rounded-2xl h-14 px-10 text-base font-semibold shadow-[0_0_30px_rgba(255,255,255,0.2)] hover:shadow-[0_0_50px_rgba(255,255,255,0.4)] transition-all duration-300 gap-3 overflow-hidden relative group w-full md:w-auto shrink-0 border-none"
+                                    className="h-12 w-full shrink-0 gap-2 rounded-xl px-8 text-sm font-semibold md:w-auto"
                                 >
-                                    <div className="absolute inset-0 bg-gradient-to-r from-indigo-500/0 via-indigo-500/10 to-indigo-500/0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
                                     {isCreating || isPulling ? (
                                         <>
-                                            <span className="w-4 h-4 border-2 border-black/30 border-t-black rounded-full animate-spin" />
-                                            <span>{questionSource === 'bank' ? 'Pulling Bank...' : 'Building Matrix...'}</span>
+                                            <span className="h-4 w-4 animate-spin rounded-full border-2 border-primary-foreground/30 border-t-primary-foreground" />
+                                            <span>{questionSource === 'bank' ? 'Đang lấy câu hỏi...' : 'Đang soạn đề...'}</span>
                                         </>
                                     ) : (
                                         <>
-                                            <span>{questionSource === 'bank' ? 'Execute Generation' : 'Execute Generation'}</span>
-                                            <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                                            <Sparkles />
+                                            <span>{questionSource === 'bank' ? 'Lấy câu hỏi' : 'Tạo bài test'}</span>
+                                            <ChevronRight />
                                         </>
                                     )}
                                 </Button>
@@ -607,7 +611,7 @@ export function CreateTestWorkbench({ embedded = false, onCreated }: { embedded?
                             )}
 
                             {(questionSource === 'ai' || questionSource === 'bank') && (
-                            <div className="mt-8 pt-6 border-t border-border/10 flex items-center justify-between">
+                            <div className="mt-6 flex items-center justify-between border-t border-border pt-5">
                                 {/* Notification Toggle */}
                                 <div className={`flex items-center gap-3 ${questionSource === 'bank' ? 'opacity-0 pointer-events-none' : ''}`}>
                                     <button
@@ -615,70 +619,70 @@ export function CreateTestWorkbench({ embedded = false, onCreated }: { embedded?
                                         role="switch"
                                         aria-checked={notifyOnCreated}
                                         onClick={() => setNotifyOnCreated(!notifyOnCreated)}
-                                        className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--muted)] ${notifyOnCreated ? "bg-white" : "bg-accent"}`}
+                                        className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-2 ${notifyOnCreated ? "bg-primary" : "bg-muted"}`}
                                     >
                                         <span
-                                            className={`pointer-events-none inline-block h-5 w-5 transform rounded-full shadow-lg ring-0 transition-transform duration-200 ${notifyOnCreated ? "translate-x-5 bg-muted" : "translate-x-0 bg-white"}`}
+                                            className={`pointer-events-none inline-block h-5 w-5 transform rounded-full shadow-lg ring-0 transition-transform duration-200 bg-white ${notifyOnCreated ? "translate-x-5" : "translate-x-0"}`}
                                         />
                                     </button>
                                     <div className="flex flex-col">
                                         <span className="text-xs text-muted-foreground flex items-center gap-1.5">
                                             <Bell className="w-3 h-3" />
-                                            Notification when the questionnaire is created
+                                            Thông báo khi đề được tạo xong
                                         </span>
                                         <span className={`text-[10px] mt-0.5 ${notifyOnCreated ? "text-primary" : "text-muted-foreground"}`}>
-                                            {notifyOnCreated ? "Active" : "Inactive"}
+                                            {notifyOnCreated ? "Đang bật" : "Đang tắt"}
                                         </span>
                                     </div>
                                 </div>
                                 <Dialog open={isConstraintsOpen} onOpenChange={setIsConstraintsOpen}>
                                     <DialogTrigger asChild>
-                                        <Button variant="outline" className="bg-transparent border-border/30 text-primary hover:bg-primary/10 rounded-2xl px-6 h-12 transition-all cursor-pointer">
-                                            <Settings className="w-4 h-4 mr-2" />
-                                            Test Constraints & Settings
+                                        <Button variant="outline" className="h-10 gap-2 rounded-xl px-4">
+                                            <Settings />
+                                            Cấu hình đề & ma trận
                                         </Button>
                                     </DialogTrigger>
-                                    <DialogContent className="!max-w-[95vw] md:!max-w-[850px] lg:!max-w-[960px] w-full max-h-[88vh] bg-background/95 border border-border text-foreground rounded-[1.5rem] shadow-2xl p-0 overflow-hidden backdrop-blur-3xl">
-                                        <DialogHeader className="px-6 pt-6 pb-4 border-b border-border bg-card/30">
+                                    <DialogContent className="!max-w-[95vw] md:!max-w-[850px] lg:!max-w-[960px] w-full max-h-[88vh] bg-card border border-border text-foreground rounded-2xl shadow-xl p-0 overflow-hidden">
+                                        <DialogHeader className="px-6 pt-6 pb-4 border-b border-border">
                                             <div className="flex items-center justify-between">
-                                                <DialogTitle className="text-xl font-display font-medium text-foreground">Test Constraints & Design</DialogTitle>
+                                                <DialogTitle className="text-lg font-bold text-foreground">Cấu hình đề & ma trận</DialogTitle>
                                                 <div className="flex items-center gap-2">
                                                     {questionSource === 'bank' && (
                                                         <Button
                                                             type="button"
                                                             variant="outline"
                                                             onClick={() => { setQuestionSource('ai'); setBankStep('config'); setIsConstraintsOpen(false); }}
-                                                            className="h-7 rounded-full border-border/25 bg-primary/10 px-3 text-[10px] font-bold uppercase tracking-wider text-primary hover:bg-primary/20 hover:text-white"
+                                                            className="h-7 rounded-full border-border/25 bg-primary/10 px-3 text-[11px] font-bold text-primary hover:bg-primary/20"
                                                         >
-                                                            Back to AI Generate
+                                                            Quay lại AI soạn đề
                                                         </Button>
                                                     )}
                                                     {isEnhancingInstruction ? (
-                                                        <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-yellow-500/10 border border-yellow-500/20 text-yellow-500 text-[10px] font-bold uppercase tracking-wider">
-                                                            <span className="w-1.5 h-1.5 rounded-full bg-yellow-500 animate-pulse" /> Pending AI Rewrite
+                                                        <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-warning/10 text-warning text-[11px] font-bold">
+                                                            <span className="w-1.5 h-1.5 rounded-full bg-warning animate-pulse" /> AI đang viết lại
                                                         </div>
                                                     ) : isModalReady ? (
-                                                        <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 text-[10px] font-bold uppercase tracking-wider">
-                                                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" /> Ready
+                                                        <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-success/10 text-success text-[11px] font-bold">
+                                                            <span className="w-1.5 h-1.5 rounded-full bg-success" /> Sẵn sàng
                                                         </div>
                                                     ) : (
-                                                        <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-rose-500/10 border border-rose-500/20 text-rose-500 text-[10px] font-bold uppercase tracking-wider">
-                                                            <span className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse" /> Not Ready
+                                                        <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-destructive/10 text-destructive text-[11px] font-bold">
+                                                            <span className="w-1.5 h-1.5 rounded-full bg-destructive animate-pulse" /> Chưa đủ
                                                         </div>
                                                     )}
                                                 </div>
                                             </div>
                                             <DialogDescription className="text-muted-foreground text-[13px] mt-1.5">
-                                                Configure structural boundaries, timings, and intelligence constraints for generation.
+                                                Đối tượng, thời lượng, số câu và tỉ lệ dạng câu hỏi của đề.
                                             </DialogDescription>
                                         </DialogHeader>
-                                        <div className="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-white/5 max-h-[calc(88vh-104px)] overflow-hidden">
+                                        <div className="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-border max-h-[calc(88vh-104px)] overflow-hidden">
 
                                             {/* Left Column: Settings */}
                                             <div className="p-6 space-y-6 bg-transparent overflow-y-auto custom-scrollbar">
                                                 <div>
-                                                    <h3 className="text-[10px] font-bold text-primary uppercase tracking-widest mb-3 flex items-center gap-2">
-                                                        Assessment Target
+                                                    <h3 className="text-xs font-bold text-foreground mb-3 flex items-center gap-2">
+                                                        Đối tượng đánh giá
                                                     </h3>
                                                     <div className="space-y-3">
                                                         <TargetTypeSelector
@@ -703,23 +707,23 @@ export function CreateTestWorkbench({ embedded = false, onCreated }: { embedded?
                                                 </div>
 
                                                 <div>
-                                                    <h3 className="text-[10px] font-bold text-primary uppercase tracking-widest mb-3 flex items-center gap-2">
-                                                        Temporal & Boundary
+                                                    <h3 className="text-xs font-bold text-foreground mb-3 flex items-center gap-2">
+                                                        Thời lượng & giới hạn
                                                     </h3>
                                                     <div className="space-y-3">
                                                         <div className="space-y-1.5">
-                                                            <Label className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide ml-1">Manual Title</Label>
+                                                            <Label className="text-xs font-medium text-muted-foreground">Tiêu đề</Label>
                                                             <Input
                                                                 type="text"
                                                                 value={testTitle}
                                                                 onChange={(e) => setTestTitle(e.target.value)}
                                                                 placeholder="Optional display name override..."
-                                                                className="bg-black/30 border-border h-10 rounded-xl text-foreground placeholder:text-muted-foreground focus-visible:ring-primary/30 text-xs"
+                                                                className="bg-card border-border h-10 rounded-xl text-foreground placeholder:text-muted-foreground focus-visible:ring-primary/30 text-xs"
                                                             />
                                                         </div>
                                                         <div className="grid grid-cols-3 gap-3">
                                                             <div className="space-y-1.5">
-                                                                <Label className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide ml-1">Question<span className="text-rose-500 text-base font-black ml-1 leading-none">*</span></Label>
+                                                                <Label className="text-xs font-medium text-muted-foreground">Số câu<span className="text-destructive text-base font-black ml-1 leading-none">*</span></Label>
                                                                 <Input
                                                                     type="text"
                                                                     inputMode="numeric"
@@ -737,10 +741,10 @@ export function CreateTestWorkbench({ embedded = false, onCreated }: { embedded?
                                                                         setQuestionCountInput(String(clamped));
                                                                         handleQuestionCountChange(clamped);
                                                                     }}
-                                                                    className="bg-black/30 border-border h-10 rounded-xl text-foreground focus-visible:ring-primary/30 text-xs text-center font-mono" />
+                                                                    className="bg-card border-border h-10 rounded-xl text-foreground focus-visible:ring-primary/30 text-xs text-center font-mono" />
                                                             </div>
                                                             <div className="space-y-1.5">
-                                                                <Label className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide ml-1">Time (m)<span className="text-rose-500 text-base font-black ml-1 leading-none">*</span></Label>
+                                                                <Label className="text-xs font-medium text-muted-foreground">Thời gian (phút)<span className="text-destructive text-base font-black ml-1 leading-none">*</span></Label>
                                                                 <Input
                                                                     type="text"
                                                                     inputMode="numeric"
@@ -757,10 +761,10 @@ export function CreateTestWorkbench({ embedded = false, onCreated }: { embedded?
                                                                         setTimeLimit(clamped);
                                                                         setTimeLimitInput(String(clamped));
                                                                     }}
-                                                                    className="bg-black/30 border-border h-10 rounded-xl text-foreground focus-visible:ring-primary/30 text-xs text-center font-mono" />
+                                                                    className="bg-card border-border h-10 rounded-xl text-foreground focus-visible:ring-primary/30 text-xs text-center font-mono" />
                                                             </div>
                                                             <div className="space-y-1.5">
-                                                                <Label className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide ml-1">Participants<span className="text-rose-500 text-base font-black ml-1 leading-none">*</span></Label>
+                                                                <Label className="text-xs font-medium text-muted-foreground">Số người<span className="text-destructive text-base font-black ml-1 leading-none">*</span></Label>
                                                                 <Input
                                                                     type="text"
                                                                     inputMode="numeric"
@@ -774,35 +778,35 @@ export function CreateTestWorkbench({ embedded = false, onCreated }: { embedded?
                                                                         const clamped = isNaN(num) || num < 1 ? 1 : num;
                                                                         setMaxParticipants(String(clamped));
                                                                     }}
-                                                                    className="bg-black/30 border-border h-10 rounded-xl text-foreground focus-visible:ring-primary/30 text-xs text-center font-mono" />
+                                                                    className="bg-card border-border h-10 rounded-xl text-foreground focus-visible:ring-primary/30 text-xs text-center font-mono" />
                                                             </div>
                                                         </div>
 
                                                         <div className="grid grid-cols-2 gap-3">
                                                             <div className="space-y-1.5">
-                                                                <Label className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide ml-1">Start Day</Label>
+                                                                <Label className="text-xs font-medium text-muted-foreground">Ngày bắt đầu</Label>
                                                                 <Input type="datetime-local"
                                                                     value={startTime}
                                                                     onChange={(e) => setStartTime(e.target.value)}
-                                                                    className="bg-black/30 border-border h-10 rounded-xl text-foreground text-[11px] [&::-webkit-calendar-picker-indicator]:invert px-2.5 focus-visible:ring-primary/30 cursor-pointer font-mono" />
+                                                                    className="bg-card border-border h-10 rounded-xl text-foreground text-[11px] px-2.5 focus-visible:ring-primary/30 cursor-pointer font-mono" />
                                                             </div>
                                                             <div className="space-y-1.5">
-                                                                <Label className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide ml-1">Expired Day</Label>
+                                                                <Label className="text-xs font-medium text-muted-foreground">Ngày hết hạn</Label>
                                                                 <Input type="datetime-local"
                                                                     value={expiresAt}
                                                                     onChange={(e) => setExpiresAt(e.target.value)}
-                                                                    className="bg-black/30 border-border h-10 rounded-xl text-foreground text-[11px] [&::-webkit-calendar-picker-indicator]:invert px-2.5 focus-visible:ring-primary/30 cursor-pointer font-mono" />
+                                                                    className="bg-card border-border h-10 rounded-xl text-foreground text-[11px] px-2.5 focus-visible:ring-primary/30 cursor-pointer font-mono" />
                                                             </div>
                                                         </div>
 
                                                         <div className="space-y-1.5">
-                                                            <Label className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide ml-1">Core Instruction</Label>
+                                                            <Label className="text-xs font-medium text-muted-foreground">Chỉ dẫn cho AI</Label>
                                                             <div className="relative">
                                                                 <Textarea
                                                                     value={testDescription}
                                                                     onChange={(e) => setTestDescription(e.target.value)}
                                                                     placeholder="E.g. Focus on logical thinking..."
-                                                                    className="bg-black/30 border-border min-h-[60px] max-h-[80px] overflow-y-auto rounded-xl text-foreground placeholder:text-muted-foreground resize-none text-[12px] pr-10 focus-visible:ring-primary/30 custom-scrollbar" />
+                                                                    className="bg-card border-border min-h-[60px] max-h-[80px] overflow-y-auto rounded-xl text-foreground placeholder:text-muted-foreground resize-none text-[12px] pr-10 focus-visible:ring-primary/30 custom-scrollbar" />
                                                                 {testDescription.trim().length > 0 && (
                                                                     <button
                                                                         type="button"
@@ -813,7 +817,7 @@ export function CreateTestWorkbench({ embedded = false, onCreated }: { embedded?
                                                                     >
                                                                         {isEnhancingInstruction ? (
                                                                             <>
-                                                                                <span className="w-2.5 h-2.5 border border-indigo-300/30 border-t-indigo-300 rounded-full animate-spin" />
+                                                                                <span className="w-2.5 h-2.5 border border-primary/30 border-t-primary rounded-full animate-spin" />
                                                                                 <span className="text-[10px] font-bold">Working...</span>
                                                                             </>
                                                                         ) : (
@@ -831,7 +835,7 @@ export function CreateTestWorkbench({ embedded = false, onCreated }: { embedded?
 
                                                 {questionSource === 'bank' && (
                                                     <div className="pt-6 mt-2 border-t border-border">
-                                                        <h3 className="text-[10px] font-bold text-primary uppercase tracking-widest mb-3 flex items-center gap-2">
+                                                        <h3 className="text-xs font-bold text-foreground mb-3 flex items-center gap-2">
                                                             Question Bank Pull Settings
                                                         </h3>
                                                         <LevelConfigStep
@@ -849,35 +853,35 @@ export function CreateTestWorkbench({ embedded = false, onCreated }: { embedded?
                                             </div>
 
                                             {/* Right Column: Question Format Breakdown */}
-                                            <div className="p-6 bg-black/40 flex flex-col h-full overflow-y-auto custom-scrollbar">
+                                            <div className="p-6 bg-muted/30 flex flex-col h-full overflow-y-auto custom-scrollbar">
                                                 <div className="flex items-center justify-between mb-4">
-                                                    <h3 className="text-[10px] font-bold text-primary uppercase tracking-widest">Format Weights</h3>
-                                                    <div className={`px-3 py-1 rounded-full border inline-flex items-center gap-1.5 transition-all duration-500 ${isSumValid ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400' : 'bg-rose-500/10 border-rose-500/30 text-rose-400 animate-pulse'}`}>
-                                                        <div className={`w-1 h-1 rounded-full ${isSumValid ? 'bg-emerald-500' : 'bg-rose-500 shadow-[0_0_8px_color-mix(in_srgb,var(--danger)_80%,transparent)]'}`} />
-                                                        <span className="text-[9px] font-mono font-bold tracking-wider uppercase">Pool: {currentSum} / {questionCount}</span>
+                                                    <h3 className="text-xs font-bold text-foreground">Tỉ lệ dạng câu hỏi</h3>
+                                                    <div className={`px-3 py-1 rounded-full border inline-flex items-center gap-1.5 transition-all duration-500 ${isSumValid ? 'bg-success/10 border-transparent text-success' : 'bg-destructive/10 border-transparent text-destructive'}`}>
+                                                        <div className={`w-1 h-1 rounded-full ${isSumValid ? 'bg-success' : 'bg-destructive'}`} />
+                                                        <span className="text-[11px] font-bold">Tổng: {currentSum} / {questionCount}</span>
                                                     </div>
                                                 </div>
 
                                                 <div className="mb-4 space-y-3 shrink-0">
-                                                    <div className="flex bg-background/50 p-1 rounded-xl gap-1 border border-border">
+                                                    <div className="flex bg-muted p-1 rounded-xl gap-1 border border-border">
                                                         {presetsList.map(p => (
                                                             <button
                                                                 key={p.id}
                                                                 onClick={() => handleApplyPreset(p.id)}
-                                                                className={`flex-1 text-[9px] font-bold py-1.5 rounded-lg transition-all duration-300 uppercase tracking-widest ${activePreset === p.id ? 'bg-primary text-white shadow-md' : 'text-muted-foreground hover:text-muted-foreground hover:bg-muted'}`}
+                                                                className={`flex-1 text-[11px] font-bold py-1.5 rounded-lg transition-colors ${activePreset === p.id ? 'bg-card text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'}`}
                                                             >
                                                                 {p.name}
                                                             </button>
                                                         ))}
                                                     </div>
-                                                    <div className="text-[10px] text-muted-foreground bg-background/30 px-3 py-2 rounded-xl border border-border leading-relaxed min-h-[40px] flex items-center justify-center text-center italic">
+                                                    <div className="text-[10px] text-muted-foreground bg-muted/40 px-3 py-2 rounded-xl border border-border leading-relaxed min-h-[40px] flex items-center justify-center text-center italic">
                                                         {activePreset !== "custom" ? presetsList.find(p => p.id === activePreset)?.description : "Custom setup active. Exact counts will be met."}
                                                     </div>
                                                 </div>
 
                                                 <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-x-3 gap-y-2">
                                                     {Object.entries(matrix).map(([formatKey, count]) => (
-                                                        <div key={formatKey} className="flex items-center justify-between group bg-background/40 hover:bg-muted/60 p-1.5 pl-2.5 rounded-lg border border-border hover:border-border/20 transition-all cursor-pointer">
+                                                        <div key={formatKey} className="flex items-center justify-between group bg-card hover:bg-muted/60 p-1.5 pl-2.5 rounded-lg border border-border hover:border-border/20 transition-all cursor-pointer">
                                                             <Label className="text-[10px] font-medium text-muted-foreground group-hover:text-foreground transition-colors cursor-pointer w-full leading-tight pr-1" htmlFor={`matrix-${formatKey}`}>
                                                                 {formatKey}
                                                             </Label>
@@ -892,7 +896,7 @@ export function CreateTestWorkbench({ embedded = false, onCreated }: { embedded?
                                                                     setMatrix(prev => ({ ...prev, [formatKey]: val }));
                                                                     setActivePreset("custom");
                                                                 }}
-                                                                className="w-10 h-6 bg-black/60 border-border text-center text-[10px] p-0 focus-visible:ring-1 focus-visible:ring-primary/50 shrink-0 rounded-md hover:border-border/30 transition-all font-mono"
+                                                                className="w-10 h-6 bg-card border-border text-center text-[10px] p-0 focus-visible:ring-1 focus-visible:ring-primary/50 shrink-0 rounded-md hover:border-border/30 transition-all font-mono"
                                                             />
                                                         </div>
                                                     ))}
@@ -916,53 +920,14 @@ export function CreateTestWorkbench({ embedded = false, onCreated }: { embedded?
     );
 
     return (
-        <PageTransition className={`${isEmbed ? "h-full bg-background overflow-hidden rounded-xl" : "min-h-screen bg-transparent overflow-hidden"} text-foreground font-body selection:bg-primary/30 relative`}>
-            {isEmbed ? <EmbeddedPremiumBackground /> : <PremiumBackground />}
-
-            {!isEmbed && <AppNavbar />}
-
+        <PageTransition className={`${isEmbed ? "h-full overflow-hidden rounded-xl bg-background" : ""} text-foreground`}>
             {isEmbed ? (
-                <div className="relative z-10 h-full overflow-y-auto px-4 py-6">
-                    {content}
-                </div>
+                <div className="h-full overflow-y-auto px-4 py-6">{content}</div>
             ) : (
-                <PageContainer className="relative z-10">
-                    {content}
+                <PageContainer>
+                    <div className="pb-12">{content}</div>
                 </PageContainer>
             )}
         </PageTransition>
-    );
-}
-
-function EmbeddedPremiumBackground() {
-    return (
-        <div className="absolute inset-0 z-0 overflow-hidden bg-background">
-            <div
-                className="absolute inset-0 opacity-[0.04] pointer-events-none mix-blend-overlay"
-                style={{
-                    backgroundImage: `url("/textures/noise-256x256.png")`,
-                    backgroundRepeat: "repeat",
-                    backgroundSize: "256px 256px",
-                }}
-            />
-            <div className="absolute -top-[10%] -left-[10%] h-[80%] w-[80%] rounded-full bg-indigo-500/10 blur-[140px]" />
-            <div className="absolute -bottom-[20%] right-0 h-[70%] w-[70%] rounded-full bg-blue-600/10 blur-[120px]" />
-            <div className="absolute left-[20%] top-[30%] h-[40%] w-[40%] rounded-full bg-emerald-500/5 blur-[100px]" />
-            <div className="absolute inset-0 opacity-[0.03] pointer-events-none">
-                <div className="absolute left-[20%] top-0 h-full w-px bg-gradient-to-b from-transparent via-white to-transparent" />
-                <div className="absolute left-[40%] top-0 h-full w-px bg-gradient-to-b from-transparent via-white to-transparent" />
-                <div className="absolute left-[60%] top-0 h-full w-px bg-gradient-to-b from-transparent via-white to-transparent" />
-                <div className="absolute left-[80%] top-0 h-full w-px bg-gradient-to-b from-transparent via-white to-transparent" />
-            </div>
-            <div
-                className="absolute inset-0 opacity-[0.07] pointer-events-none"
-                style={{
-                    backgroundImage: `linear-gradient(#ffffff 1px, transparent 1px), linear-gradient(90deg, #ffffff 1px, transparent 1px)`,
-                    backgroundSize: "100px 100px",
-                    maskImage: "radial-gradient(ellipse at center, black, transparent 80%)",
-                }}
-            />
-            <div className="absolute inset-0 bg-radial-vignette pointer-events-none" />
-        </div>
     );
 }
