@@ -1,7 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
-import AppNavbar from "@/components/ui/app-navbar";
-import PageBreadcrumb from "@/components/ui/page-breadcrumb";
+import PageContainer from "@/components/ui/page-container";
 import ReportComingSoonClient from "./report-coming-soon-client";
 
 export default async function RecruitmentReportPage() {
@@ -10,24 +9,15 @@ export default async function RecruitmentReportPage() {
   if (!user) redirect("/login");
 
   const { data: profile } = await supabase
-    .from("users").select("name, email, role").eq("auth_id", user.id).single();
+    .from("users").select("role").eq("auth_id", user.id).single();
 
   if (!profile || !["hr", "admin", "super_admin"].includes(profile.role ?? "")) {
     redirect("/dashboard/recruitment");
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <AppNavbar
-        user={profile ? { name: profile.name, email: profile.email, role: profile.role } : null}
-      />
-      <div className="pt-[var(--page-top)] px-4 sm:px-6 max-w-[88rem] mx-auto">
-        <PageBreadcrumb breadcrumbs={[
-          { label: "Recruitment", href: "/dashboard/recruitment" },
-          { label: "Báo Cáo" }
-        ]} />
-        <ReportComingSoonClient />
-      </div>
-    </div>
+    <PageContainer>
+      <ReportComingSoonClient />
+    </PageContainer>
   );
 }
