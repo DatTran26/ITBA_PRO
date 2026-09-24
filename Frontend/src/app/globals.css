@@ -253,7 +253,9 @@ body:has(.tg) {
   background-image: linear-gradient(135deg, #fafcff 0%, #e5f3fa 100%);
   background-color: var(--bg);
   background-repeat: no-repeat;
-  min-height: 100%;
+  /* 100vh chứ không 100%: rule này không nằm trong @layer nên đè min-h-screen của
+   * Tailwind; 100% của cha auto-height làm login/reset co lại bằng nội dung. */
+  min-height: 100vh;
   color: var(--tg-text);
   /* Typography TopGo: Josefin Sans làm font chủ đạo, Dela Gothic One cho display */
   --font-display: var(--font-josefin-sans), sans-serif;
