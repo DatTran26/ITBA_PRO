@@ -3,7 +3,6 @@
 import { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
@@ -11,6 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { Plus, Clock, FileText, Trash2, Play, Globe, ListChecks, LayoutTemplate } from "lucide-react";
 import { SharedDashboardButton, SharedDashboardPageHeader } from "@/components/shares";
+import { EmptyState } from "@/components/ui/empty-state";
 import FilterBar from "@/components/crm/filter-bar";
 import type { FilterOption } from "@/lib/crm/types";
 import { toneByName, toneAt, type ToneName } from "@/lib/ui/tones";
@@ -134,10 +134,23 @@ export default function TemplatesClient({ templates: initial, isAdmin, userId }:
 
             {/* Grid */}
             {filtered.length === 0 ? (
-                <Card className="border-border bg-card p-12 text-center">
-                    <FileText className="w-10 h-10 text-muted-foreground mx-auto mb-3" />
-                    <p className="text-muted-foreground">{search ? "No templates match your search" : "No templates yet. Create one to get started."}</p>
-                </Card>
+                (search || levelFilter) ? (
+                    <EmptyState
+                        className="py-16"
+                        icon={<FileText />}
+                        title="Không có mẫu phù hợp"
+                        description="Thử từ khoá khác hoặc bỏ bộ lọc cấp độ."
+                        action={<Button variant="outline" onClick={() => { setSearch(""); setLevelFilter(""); }}>Bỏ bộ lọc</Button>}
+                    />
+                ) : (
+                    <EmptyState
+                        className="py-16"
+                        icon={<LayoutTemplate />}
+                        title="Chưa có mẫu bài test nào"
+                        description="Lưu cấu hình đề hay dùng thành mẫu để tạo bài test nhanh hơn."
+                        action={<Button onClick={() => setShowCreate(true)} className="gap-1.5"><Plus />Tạo mẫu</Button>}
+                    />
+                )
             ) : (
                 <div className="space-y-8">
                     {shelves.map(([role, items], si) => {

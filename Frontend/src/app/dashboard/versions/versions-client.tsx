@@ -13,6 +13,7 @@ import PageBreadcrumb from "@/components/ui/page-breadcrumb";
 import PageContainer from "@/components/ui/page-container";
 import VersionCreateDialog, { type VersionData } from "@/components/dashboard/version-create-dialog";
 import { ArrowUpCircle, Pencil } from "lucide-react";
+import { EmptyState } from "@/components/ui/empty-state";
 import { SharedDashboardPageHeader } from "@/components/shares";
 
 type Status = "draft" | "pending" | "approved" | "rejected" | "archived";
@@ -30,12 +31,12 @@ const STATUS_CONFIG: Record<Status, {
 const CATEGORY_TONE: Record<string, ToneName> = { platform: "blue", feature: "violet", security: "pink", performance: "teal", fix: "orange" };
 
 const ADMIN_TABS: { key: Status | "all"; label: string }[] = [
-    { key: "all", label: "All" },
-    { key: "draft", label: "Draft" },
-    { key: "pending", label: "Pending" },
-    { key: "approved", label: "Published" },
-    { key: "rejected", label: "Rejected" },
-    { key: "archived", label: "Archived" },
+    { key: "all", label: "Tất cả" },
+    { key: "draft", label: "Nháp" },
+    { key: "pending", label: "Chờ duyệt" },
+    { key: "approved", label: "Đã phát hành" },
+    { key: "rejected", label: "Bị từ chối" },
+    { key: "archived", label: "Lưu trữ" },
 ];
 
 const CATEGORIES = [
@@ -242,10 +243,12 @@ export default function VersionsClient({ versions: initialVersions, isAdmin, isS
                 )}
 
                 {displayed.length === 0 && (
-                        <div className="flex flex-col items-center justify-center py-20 text-muted-foreground">
-                            <GitBranch className="w-10 h-10 mb-3 opacity-30" />
-                            <p className="text-sm">Chưa có version nào</p>
-                        </div>
+                        <EmptyState
+                            className="py-16"
+                            icon={<GitBranch />}
+                            title={tab === "all" ? "Chưa có phiên bản nào" : "Không có phiên bản ở trạng thái này"}
+                            description={tab === "all" ? "Các bản phát hành sẽ hiện ở đây theo dòng thời gian." : "Chuyển sang tab khác để xem các phiên bản còn lại."}
+                        />
                     )}
 
                 <ol className={`relative ml-[132px] border-l-2 border-border pl-8 flex flex-col gap-5 ${displayed.length ? "" : "hidden"}`}>
