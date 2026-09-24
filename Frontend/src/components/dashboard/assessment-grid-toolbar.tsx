@@ -164,7 +164,7 @@ export default function AssessmentGridToolbar({
                                                 key={opt.id}
                                                 onClick={() => setDateFilter(opt.id)}
                                                 className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-medium transition-colors ${
-                                                    dateFilter === opt.id ? "bg-warning/10 text-warning" : "hover:bg-white/[0.03] text-muted-foreground"
+                                                    dateFilter === opt.id ? "bg-warning/10 text-warning" : "hover:bg-muted text-muted-foreground"
                                                 }`}
                                             >
                                                 {opt.label}
@@ -173,7 +173,7 @@ export default function AssessmentGridToolbar({
                                         ))}
                                     </div>
 
-                                    <div className="mt-3 pt-3 border-t border-white/[0.05]">
+                                    <div className="mt-3 pt-3 border-t border-border">
                                         <div className="px-3 mb-2">
                                             <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Custom Range</span>
                                         </div>
@@ -187,7 +187,7 @@ export default function AssessmentGridToolbar({
                                                         setStartDate(e.target.value);
                                                         setDateFilter('custom');
                                                     }}
-                                                    className="w-full bg-black/20 border border-white/[0.05] rounded-xl pl-12 pr-3 py-2 text-xs text-foreground focus:outline-none focus:border-warning/30 focus:bg-black/40 transition-all [color-scheme:dark]"
+                                                    className="w-full bg-background border border-border rounded-xl pl-12 pr-3 py-2 text-xs text-foreground focus:outline-none focus:border-warning/30 transition-all"
                                                 />
                                             </div>
                                             <div className="relative group">
@@ -199,7 +199,7 @@ export default function AssessmentGridToolbar({
                                                         setEndDate(e.target.value);
                                                         setDateFilter('custom');
                                                     }}
-                                                    className="w-full bg-black/20 border border-white/[0.05] rounded-xl pl-12 pr-3 py-2 text-xs text-foreground focus:outline-none focus:border-warning/30 focus:bg-black/40 transition-all [color-scheme:dark]"
+                                                    className="w-full bg-background border border-border rounded-xl pl-12 pr-3 py-2 text-xs text-foreground focus:outline-none focus:border-warning/30 transition-all"
                                                 />
                                             </div>
                                         </div>

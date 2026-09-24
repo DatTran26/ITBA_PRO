@@ -12,8 +12,8 @@ export const STATUS_CONFIG: Record<Status, {
 }> = {
     draft: {
         label: "Draft",
-        icon: () => <span className="w-3 h-3 rounded-full bg-slate-400 inline-block" />,
-        bg: "bg-slate-500/10", text: "text-slate-400", border: "border-slate-500/25", dot: "bg-slate-400",
+        icon: () => <span className="w-3 h-3 rounded-full bg-muted-foreground inline-block" />,
+        bg: "bg-muted", text: "text-muted-foreground", border: "border-border", dot: "bg-muted-foreground",
     },
     pending: {
         label: "Chờ duyệt",

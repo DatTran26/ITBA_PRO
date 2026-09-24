@@ -187,7 +187,7 @@ export default function SessionsClient({ userRole }: Props) {
                          style={{ background: "var(--background)", border: "1px solid color-mix(in srgb, var(--primary) 12%, transparent)" }}>
                         <div className="absolute top-0 left-0 right-0 h-[1px]"
                              style={{ background: "linear-gradient(90deg, color-mix(in srgb, var(--primary) 50%, transparent), color-mix(in srgb, var(--primary) 15%, transparent), transparent)" }} />
-                        <div className="px-6 py-4 flex items-center gap-3 border-b border-white/[0.04]">
+                        <div className="px-6 py-4 flex items-center gap-3 border-b border-border">
                             <div className="w-8 h-8 rounded-xl flex items-center justify-center"
                                  style={{ background: "color-mix(in srgb, var(--primary) 12%, transparent)", border: "1px solid color-mix(in srgb, var(--primary) 22%, transparent)" }}>
                                 <Plus className="w-3.5 h-3.5" style={{ color: "var(--primary)" }} />

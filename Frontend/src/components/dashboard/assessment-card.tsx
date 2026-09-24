@@ -39,7 +39,7 @@ export default function AssessmentCard({ test, onToggleStatus, onDelete, isSelec
             >
                 {/* Visual Glass Accent - Inner Reflective Border */}
                 <div className="absolute inset-px rounded-[2.1rem] border border-border pointer-events-none z-10" />
-                <div className="absolute inset-[2px] rounded-[2rem] border border-white/[0.02] pointer-events-none z-10" />
+                <div className="absolute inset-[2px] rounded-[2rem] border border-border pointer-events-none z-10" />
 
                 {/* Top Radiant Accent */}
                 <div className={`absolute top-0 left-1/2 -translate-x-1/2 w-4/5 h-[3px] bg-gradient-to-r from-transparent via-warning/80 to-transparent transition-all duration-700 blur-[2px] ${

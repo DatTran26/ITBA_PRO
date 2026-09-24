@@ -186,7 +186,7 @@ export function TestResultsTable({ results, hasManualQuestions }: TestResultsTab
                     className="border-none"
                     empty={
                         <div className="p-16 flex flex-col items-center justify-center text-center">
-                            <div className="w-12 h-12 rounded-xl bg-white/[0.02] border border-border flex items-center justify-center mb-4">
+                            <div className="w-12 h-12 rounded-xl bg-muted/50 border border-border flex items-center justify-center mb-4">
                                 <User className="w-5 h-5 text-muted-foreground" />
                             </div>
                             <h3 className="text-sm font-bold text-foreground mb-1 font-display">

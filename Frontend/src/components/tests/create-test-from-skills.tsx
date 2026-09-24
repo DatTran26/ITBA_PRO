@@ -35,7 +35,7 @@ interface Props {
   initialSkillIds?: string[];
 }
 
-const fieldCls = "bg-black/30 border-white/5 h-10 rounded-xl text-white focus-visible:ring-primary/30 text-sm";
+const fieldCls = "bg-background border-border h-10 rounded-xl text-foreground focus-visible:ring-primary/30 text-sm";
 
 // Free-text numeric field: lets the user type/clear freely, only normalizing
 // (digits-only + min/max clamp) on blur — avoids the spinner arrows and the

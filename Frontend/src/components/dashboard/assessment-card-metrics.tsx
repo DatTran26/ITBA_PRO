@@ -11,7 +11,7 @@ function MetricBox({ icon: Icon, label, value, color = "var(--muted-foreground)"
     color?: string;
 }) {
     return (
-        <div className="flex flex-col items-start justify-center p-3 rounded-2xl bg-background/40 border border-white/[0.03] hover:bg-background/70 hover:border-border transition-all duration-300">
+        <div className="flex flex-col items-start justify-center p-3 rounded-2xl bg-background/40 border border-border hover:bg-background/70 hover:border-border transition-all duration-300">
             <div className="flex items-center gap-2 mb-1">
                 <Icon className="w-3 h-3" style={{ color }} />
                 <span className="text-[8px] text-muted-foreground uppercase font-black tracking-widest">{label}</span>
@@ -70,7 +70,7 @@ export default function AssessmentCardMetrics({ test }: { test: DashboardTest })
             </div>
 
             {/* Footer - Elegant Divider and Meta Info */}
-            <div className="flex items-center justify-between pt-5 border-t border-white/[0.03]">
+            <div className="flex items-center justify-between pt-5 border-t border-border">
                 <div className="flex items-center gap-6">
                     <div className="flex flex-col gap-0.5">
                         <span className="text-[9px] text-muted-foreground uppercase font-black tracking-[0.1em]">Assessment Index</span>
@@ -93,7 +93,7 @@ export default function AssessmentCardMetrics({ test }: { test: DashboardTest })
                     </div>
                 </div>
 
-                <div className="group/date flex items-center gap-2 text-[10px] text-muted-foreground font-bold bg-white/[0.02] px-3 py-1.5 rounded-xl border border-white/[0.05] hover:bg-primary/5 hover:border-primary/20 transition-all">
+                <div className="group/date flex items-center gap-2 text-[10px] text-muted-foreground font-bold bg-muted/50 px-3 py-1.5 rounded-xl border border-border hover:bg-primary/5 hover:border-primary/20 transition-all">
                     <Calendar className="w-3 h-3 group-hover/date:text-primary transition-colors" />
                     <span className="group-hover/date:text-foreground transition-colors">{new Date(test.created_at).toLocaleDateString("en-GB")}</span>
                 </div>

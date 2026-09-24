@@ -398,7 +398,7 @@ export default function VersionsClient({ versions: initialVersions, isAdmin, isS
                                                         </div>
                                                         <textarea
                                                             rows={3}
-                                                            className="w-full bg-black/40 border border-border rounded-2xl px-5 py-4 text-sm text-foreground placeholder-muted-foreground/40 resize-none h-32 outline-none focus:border-border/30 transition-all font-mono leading-relaxed"
+                                                            className="w-full bg-background border border-border rounded-2xl px-5 py-4 text-sm text-foreground placeholder-muted-foreground/40 resize-none h-32 outline-none focus:border-border/30 transition-all font-mono leading-relaxed"
                                                             placeholder="Dán các bullet points hoặc ghi chú thô tại đây để AI tự động phân loại..."
                                                             value={rawInput}
                                                             onChange={e => setRawInput(e.target.value)}
@@ -471,7 +471,7 @@ export default function VersionsClient({ versions: initialVersions, isAdmin, isS
                                                                     <p className="text-[10px] text-muted-foreground font-medium">Đánh dấu update ưu tiên cao</p>
                                                                 </div>
                                                             </div>
-                                                            <div className={`w-12 h-6 rounded-full p-1 transition-all duration-300 ${editForm.is_critical ? "bg-rose-500" : "bg-black/40"}`}>
+                                                            <div className={`w-12 h-6 rounded-full p-1 transition-all duration-300 ${editForm.is_critical ? "bg-destructive" : "bg-muted-foreground/30"}`}>
                                                                 <div className={`w-4 h-4 rounded-full bg-white transition-all duration-300 ${editForm.is_critical ? "translate-x-6" : "translate-x-0"}`} />
                                                             </div>
                                                         </div>

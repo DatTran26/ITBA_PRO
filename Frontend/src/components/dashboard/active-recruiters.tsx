@@ -33,7 +33,7 @@ export default function ActiveRecruiters({ data }: Props) {
             <CardContent className="relative z-10 flex-1 overflow-y-auto pr-2">
                 <div className="space-y-3">
                     {data.map((r, i) => (
-                        <div key={r.email} className="flex items-center gap-4 px-4 py-3 rounded-xl bg-white/[0.02] border border-white/[0.05] hover:bg-white/[0.04] transition-colors relative group/row overflow-hidden">
+                        <div key={r.email} className="flex items-center gap-4 px-4 py-3 rounded-xl bg-muted/50 border border-border hover:bg-muted transition-colors relative group/row overflow-hidden">
                             <div className="absolute left-0 inset-y-0 w-1 bg-amber-400/50 opacity-0 group-hover/row:opacity-100 transition-opacity" />
                             <span className="text-xs font-black font-display text-muted-foreground w-4 mt-0.5">#{i + 1}</span>
                             <div className="flex-1 min-w-0">

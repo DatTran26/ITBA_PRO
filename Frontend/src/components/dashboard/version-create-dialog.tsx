@@ -185,7 +185,7 @@ export default function VersionCreateDialog({ onCreated }: Props) {
                                         {isStandardizing ? "Analyzing..." : "Optimize with AI"}
                                     </button>
                                 </div>
-                                <textarea rows={4} className={`${inputCls} bg-black/20 border-border resize-none`} placeholder="Paste raw notes here... #123 Fixed header, added avatar UX #456..." value={form.raw_input} onChange={field("raw_input")} />
+                                <textarea rows={4} className={`${inputCls} bg-background border-border resize-none`} placeholder="Paste raw notes here... #123 Fixed header, added avatar UX #456..." value={form.raw_input} onChange={field("raw_input")} />
                             </div>
 
                             <div className="space-y-4 border-t border-border pt-4">

@@ -235,7 +235,7 @@ export default function ScheduleInterviewDialog({
                   value={scheduledAt}
                   onChange={(e) => setScheduledAt(e.target.value)}
                   disabled={loading}
-                  className="w-full h-11 px-4 rounded-xl bg-background border border-border text-foreground text-sm focus:border-primary/50 outline-none disabled:opacity-50 [color-scheme:dark]"
+                  className="w-full h-11 px-4 rounded-xl bg-background border border-border text-foreground text-sm focus:border-primary/50 outline-none disabled:opacity-50"
                 />
               </div>
 

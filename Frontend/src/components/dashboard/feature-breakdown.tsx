@@ -49,7 +49,7 @@ export default function FeatureBreakdown({ data }: Props) {
                     const pct = (item.tokens / totalTokens) * 100;
                     const color = featureColors[item.feature] || "var(--muted-foreground)";
                     return (
-                        <div key={item.feature} className="p-3 rounded-xl bg-white/[0.02] border border-white/[0.02] hover:bg-white/[0.04] transition-colors group/feat">
+                        <div key={item.feature} className="p-3 rounded-xl bg-muted/50 border border-border hover:bg-muted transition-colors group/feat">
                             <div className="flex justify-between items-end mb-2">
                                 <span className="text-[11px] font-bold text-foreground group-hover/feat:text-foreground transition-colors uppercase tracking-wider">{item.feature}</span>
                                 <div className="text-[10px] font-black tracking-widest text-muted-foreground flex gap-2">
@@ -58,7 +58,7 @@ export default function FeatureBreakdown({ data }: Props) {
                                     <span className="text-emerald-400">${item.cost.toFixed(3)}</span>
                                 </div>
                             </div>
-                            <div className="h-1.5 bg-black/40 border border-border rounded-full overflow-hidden relative">
+                            <div className="h-1.5 bg-muted border border-border rounded-full overflow-hidden relative">
                                 <div className="absolute inset-y-0 left-0 rounded-full transition-all duration-1000" style={{ width: `${pct}%`, backgroundColor: color, boxShadow: `0 0 10px ${color}` }} />
                             </div>
                         </div>

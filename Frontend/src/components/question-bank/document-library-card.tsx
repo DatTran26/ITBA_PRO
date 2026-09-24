@@ -16,7 +16,7 @@ interface Props {
 const FILE_ICONS: Record<string, ReactNode> = {
   pdf: <FileType className="h-4 w-4 text-red-400" />,
   docx: <FileText className="h-4 w-4 text-blue-400" />,
-  txt: <File className="h-4 w-4 text-slate-400" />,
+  txt: <File className="h-4 w-4 text-muted-foreground" />,
 };
 
 const STATUS_BADGE: Record<string, { label: string; tone: "neutral" | "info" | "success" | "warning" | "danger" }> = {
@@ -38,7 +38,7 @@ function formatDate(iso: string) {
 }
 
 export function DocumentLibraryCard({ document: doc, lastRunStatus, onSelect, onDelete, selecting }: Props) {
-  const icon = FILE_ICONS[doc.file_type] ?? <File className="h-4 w-4 text-slate-400" />;
+  const icon = FILE_ICONS[doc.file_type] ?? <File className="h-4 w-4 text-muted-foreground" />;
   const badge = lastRunStatus ? STATUS_BADGE[lastRunStatus] : null;
   const runCount = doc.document_sources?.length ?? 0;
   const isReRun = runCount > 0;

@@ -64,7 +64,7 @@ export default function QuestionBankTable({
                   <Fragment key={q.id}>
                     <tr
                       onClick={() => setExpandedId(isExpanded ? null : q.id)}
-                      className="border-b border-white/[0.03] hover:bg-white/[0.02] cursor-pointer transition-colors"
+                      className="border-b border-border hover:bg-muted cursor-pointer transition-colors"
                     >
                       <td className="px-4 py-4 text-sm text-muted-foreground">{(page - 1) * limit + idx + 1}</td>
                       <td className="px-4 py-4">
@@ -101,7 +101,7 @@ export default function QuestionBankTable({
                       )}
                     </tr>
                     {isExpanded && (
-                      <tr className="bg-background border-b border-white/[0.03]">
+                      <tr className="bg-background border-b border-border">
                         <td />
                         <td colSpan={canEdit ? 6 : 5} className="px-4 pb-4 pt-2">
                           <div className="grid grid-cols-2 gap-3 text-xs">

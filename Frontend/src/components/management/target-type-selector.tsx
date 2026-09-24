@@ -37,7 +37,7 @@ export default function TargetTypeSelector({ value, onChange, disabled, allowedT
                             className={`flex flex-col items-start gap-2 p-3 rounded-xl border text-left transition-all duration-300 disabled:opacity-50 ${
                                 active
                                     ? "bg-primary border-border text-white shadow-[0_4px_15px_-3px_color-mix(in_srgb,var(--primary)_40%,transparent)] ring-1 ring-primary"
-                                    : "bg-black/30 border-border text-muted-foreground hover:border-border hover:bg-muted hover:text-white"
+                                    : "bg-muted/50 border-border text-muted-foreground hover:border-border hover:bg-muted hover:text-white"
                             }`}
                         >
                             <div className="flex items-center gap-2">

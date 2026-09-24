@@ -409,7 +409,7 @@ export default function UsersClient({
                                             </div>
                                             <div>
                                                 <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground mb-1">Temporary Passphrase</p>
-                                                <div className="flex items-center justify-between bg-black/40 border border-border rounded-lg p-2">
+                                                <div className="flex items-center justify-between bg-muted/50 border border-border rounded-lg p-2">
                                                     <code className="text-emerald-400 font-mono text-sm px-2">
                                                         {createdCredentials.passphrase}
                                                     </code>

@@ -50,7 +50,7 @@ export default function FilterPill({ value, onChange, options, allLabel, labels,
                         placeholder={`Search ${type}...`}
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
-                        className="w-full h-9 pl-9 pr-3 bg-muted border border-white/[0.05] rounded-xl text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-warning/30 focus:bg-white/[0.08] transition-all"
+                        className="w-full h-9 pl-9 pr-3 bg-muted border border-border rounded-xl text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-warning/30 focus:bg-white/[0.08] transition-all"
                     />
                 </div>
 

@@ -30,7 +30,7 @@ interface LevelCellProps {
 
 function LevelCell({ label, count, percent, barColor, textColor, dotColor }: LevelCellProps) {
   return (
-    <div className="flex-1 px-5 py-4 border-l border-white/[0.04] min-w-0">
+    <div className="flex-1 px-5 py-4 border-l border-border min-w-0">
       <div className="flex items-center gap-1.5 mb-2">
         <span className={`w-1.5 h-1.5 rounded-full ${dotColor} shrink-0`} />
         <span className="text-[10px] uppercase tracking-widest font-semibold text-muted-foreground">{label}</span>
@@ -39,7 +39,7 @@ function LevelCell({ label, count, percent, barColor, textColor, dotColor }: Lev
         <span className={`text-2xl font-extralight tracking-tight ${textColor}`}>{count.toLocaleString()}</span>
         <span className="text-xs text-muted-foreground">{percent}%</span>
       </div>
-      <div className="h-0.5 rounded-full bg-white/[0.05] overflow-hidden">
+      <div className="h-0.5 rounded-full bg-muted/50 overflow-hidden">
         <div
           className={`h-full rounded-full ${barColor} transition-all duration-700`}
           style={{ width: `${percent}%` }}
@@ -56,7 +56,7 @@ export default function QuestionBankStatStrip({ kpis }: Props) {
   const seniorPct = pct(senior, total);
 
   return (
-    <div className="flex rounded-xl border border-white/[0.06] bg-muted/40 backdrop-blur-sm overflow-hidden">
+    <div className="flex rounded-xl border border-border bg-muted/40 backdrop-blur-sm overflow-hidden">
       {/* Total */}
       <div className="px-5 py-4 flex flex-col justify-between min-w-[120px]">
         <div className="flex items-center gap-1.5 mb-2">
@@ -93,7 +93,7 @@ export default function QuestionBankStatStrip({ kpis }: Props) {
       />
 
       {/* Topics */}
-      <div className="px-5 py-4 border-l border-white/[0.04] flex flex-col justify-between min-w-[100px]">
+      <div className="px-5 py-4 border-l border-border flex flex-col justify-between min-w-[100px]">
         <div className="flex items-center gap-1.5 mb-2">
           <Tag className="w-3.5 h-3.5 text-primary" />
           <span className="text-[10px] uppercase tracking-widest font-semibold text-muted-foreground">Topics</span>

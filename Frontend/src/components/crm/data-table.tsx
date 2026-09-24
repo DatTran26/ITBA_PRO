@@ -151,7 +151,7 @@ export default function DataTable<T extends { id: string }>({
                 <tr
                   key={row.id}
                   onClick={() => onRowClick?.(row)}
-                  className={`group border-b border-white/[0.03] transition-all duration-200 ${
+                  className={`group border-b border-border transition-all duration-200 ${
                     onRowClick ? "cursor-pointer" : ""
                   } ${isSelected ? "bg-primary/10 border-l-2 border-l-border" : ""} ${rowClassName ? rowClassName(row) : ""}`}
                 >
