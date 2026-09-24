@@ -188,11 +188,21 @@ export default function ReviewWorkspace({
         });
         const url = URL.createObjectURL(blob);
         const a = document.createElement("a");
-        const baseName = job.file.name.replace(/\.[^/.]+$/, "");
+        a.style.display = "none";
+        const baseName = (job.file.name || "van_ban").replace(/\.[^/.]+$/, "");
+        const safeBaseName = baseName
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "")
+            .replace(/[đĐ]/g, "d")
+            .replace(/[^a-zA-Z0-9_\-]/g, "_");
         a.href = url;
-        a.download = `${baseName}_ocr.${format}`;
+        a.download = `${safeBaseName || "van_ban"}_ocr.${format}`;
+        document.body.appendChild(a);
         a.click();
-        URL.revokeObjectURL(url);
+        setTimeout(() => {
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }, 1500);
         toast.success(`Đã tải xuống file .${format}`);
     };
 
@@ -203,11 +213,14 @@ export default function ReviewWorkspace({
 
         // 1. Loại văn bản
         let docType = prevDoc.doc_type || "QUYẾT ĐỊNH";
-        if (textLower.includes("quyết định") || textLower.includes("quyet dinh")) docType = "QUYẾT ĐỊNH";
+        if (textLower.includes("nghỉ phép") || textLower.includes("nghi phep")) docType = "GIẤY NGHỈ PHÉP";
+        else if (textLower.includes("tường trình") || textLower.includes("tuong trinh")) docType = "BẢN TƯỜNG TRÌNH";
+        else if (textLower.includes("quyết định") || textLower.includes("quyet dinh")) docType = "QUYẾT ĐỊNH";
         else if (textLower.includes("thông báo")) docType = "THÔNG BÁO";
         else if (textLower.includes("tờ trình")) docType = "TỜ TRÌNH";
         else if (textLower.includes("công văn")) docType = "CÔNG VĂN";
         else if (textLower.includes("biên bản")) docType = "BIÊN BẢN";
+        else if (textLower.includes("hợp đồng")) docType = "HỢP ĐỒNG LAO ĐỘNG";
 
         // 2. Cơ quan ban hành
         let organName = prevDoc.organ_name;
@@ -424,31 +437,102 @@ export default function ReviewWorkspace({
     // Official Promulgation / DOCX Export
     const handleExportND30Docx = async () => {
         setIsExporting(true);
-        try {
-            const res = await fetch("/api/ocr/export-nd30", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(nd30Data),
-            });
 
-            if (!res.ok) {
-                const err = await res.json();
-                throw new Error(err.error || "Lỗi xuất văn bản DOCX");
+        const rawType = (nd30Data.doc_type || "van-ban").trim();
+        const safeType = rawType
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "")
+            .replace(/[đĐ]/g, "d")
+            .replace(/[^a-zA-Z0-9_\-]/g, "_")
+            .replace(/_+/g, "_");
+
+        const rawCode = (nd30Data.doc_code || "").trim();
+        const safeCode = rawCode
+            ? "_" +
+              rawCode
+                  .normalize("NFD")
+                  .replace(/[\u0300-\u036f]/g, "")
+                  .replace(/[đĐ]/g, "d")
+                  .replace(/[^a-zA-Z0-9_\-]/g, "_")
+                  .replace(/_+/g, "_")
+            : "";
+
+        const downloadFilename = `ND30_${safeType || "VanBan"}${safeCode}.docx`;
+
+        // Method 1 (Recommended for Edge / Chrome): File System Access API
+        // Prompts Windows native Save dialog with exact filename pre-filled.
+        // Bypasses all browser download manager UUID quarantine quirks.
+        if (typeof window !== "undefined" && "showSaveFilePicker" in window) {
+            try {
+                const handle = await (window as any).showSaveFilePicker({
+                    suggestedName: downloadFilename,
+                    types: [
+                        {
+                            description: "Văn bản Microsoft Word (.docx)",
+                            accept: {
+                                "application/vnd.openxmlformats-officedocument.wordprocessingml.document": [".docx"],
+                            },
+                        },
+                    ],
+                });
+
+                const res = await fetch("/api/ocr/export-nd30", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(nd30Data),
+                });
+
+                if (!res.ok) {
+                    const err = await res.json();
+                    throw new Error(err.error || "Lỗi máy chủ khi tạo văn bản DOCX");
+                }
+
+                const blob = await res.blob();
+                const writable = await handle.createWritable();
+                await writable.write(blob);
+                await writable.close();
+
+                toast.success(`Đã lưu tệp Word: ${downloadFilename}`);
+                setIsExporting(false);
+                return;
+            } catch (pickerErr: any) {
+                if (pickerErr.name === "AbortError") {
+                    // User closed or cancelled the Save dialog
+                    setIsExporting(false);
+                    return;
+                }
+                console.warn("showSaveFilePicker unpermitted or failed, using direct download:", pickerErr);
             }
+        }
 
-            const blob = await res.blob();
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement("a");
-            const slug = (nd30Data.doc_type || "van-ban").toLowerCase().replace(/\s+/g, "-");
-            a.href = url;
-            a.download = `ND30-${slug}-${nd30Data.doc_code.replace(/[\/\\]/g, "_")}.docx`;
-            a.click();
-            URL.revokeObjectURL(url);
-            toast.success("Đã ban hành và tải văn bản Word (.docx) chuẩn Nghị định 30!");
-        } catch (error: any) {
-            console.error("Export DOCX error:", error);
-            toast.error(error.message || "Không thể xuất file Word.");
-        } finally {
+        // Method 2: Direct Top-Level Form POST (No iframe)
+        // Submitting directly at top-level ensures browser handles it as native HTTP attachment
+        try {
+            const form = document.createElement("form");
+            form.method = "POST";
+            form.action = "/api/ocr/export-nd30";
+            form.style.display = "none";
+
+            const input = document.createElement("input");
+            input.type = "hidden";
+            input.name = "payload";
+            input.value = JSON.stringify(nd30Data);
+            form.appendChild(input);
+
+            document.body.appendChild(form);
+            form.submit();
+
+            toast.success("Đang tải tệp Word (.docx) chuẩn Nghị định 30!");
+
+            setTimeout(() => {
+                try {
+                    document.body.removeChild(form);
+                } catch {}
+                setIsExporting(false);
+            }, 3000);
+        } catch (formErr: any) {
+            console.error("Direct form download error:", formErr);
+            toast.error("Không thể xuất file Word.");
             setIsExporting(false);
         }
     };

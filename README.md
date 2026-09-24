@@ -1,6 +1,6 @@
-# Town Hown — AI HRMS workspace
+# DOWN TOWN — AI HRMS workspace
 
-Town Hown là một repository cho sản phẩm HRMS tích hợp AI. Repository gốc sở
+DOWN TOWN là một repository cho sản phẩm HRMS tích hợp AI. Repository gốc sở
 hữu tầm nhìn sản phẩm, quy tắc cộng tác và GitFlow. Source ứng dụng được tách
 thẳng tại `Frontend/` và `Backend/` để tiếp tục tích hợp/mở rộng tại đây.
 
@@ -15,7 +15,7 @@ thẳng tại `Frontend/` và `Backend/` để tiếp tục tích hợp/mở r�
 | Bảo mật | Kênh báo cáo và nguyên tắc xử lý secret | [`SECURITY.md`](SECURITY.md) |
 | Tài liệu | Điều hướng tài liệu hiện hành, lịch sử và tài liệu nhập | [`docs/README.md`](docs/README.md) |
 
-Git status, diff, commit và release đều thuộc repository Town Hown; không tạo
+Git status, diff, commit và release đều thuộc repository DOWN TOWN; không tạo
 nested Git trong `Frontend`/`Backend` và phải tránh stage `.env*`, build output
 hoặc thay đổi không liên quan.
 

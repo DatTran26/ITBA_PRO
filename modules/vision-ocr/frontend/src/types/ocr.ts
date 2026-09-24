@@ -159,3 +159,72 @@ export type OCRQueueAction =
   | { type: "retried"; id: string }
   | { type: "removed"; id: string }
   | { type: "validation_error_set"; message: string | null };
+
+// ─── Advisory Flow Types ─────────────────────────────────────────────────────────────────
+
+export interface GuidanceMessage {
+  role: "user" | "assistant";
+  content: string;
+}
+
+export type AdvisoryNextAction =
+  | "ask_more"
+  | "go_to_field_resolver"
+  | "show_process_guide";
+
+export interface FieldDefinition {
+  key: string;
+  label: string;
+  required: boolean;
+  description: string;
+  input_type: "text" | "textarea" | "date" | "list";
+  group: "co_quan" | "noi_dung" | "ky_duyet" | "noi_nhan" | "ca_nhan";
+  source_hint: string | null;
+  placeholder: string;
+}
+
+export interface GuidanceResponse {
+  message: string;
+  doc_type: string | null;
+  required_fields: FieldDefinition[];
+  is_resolved: boolean;
+  next_action: AdvisoryNextAction;
+  resolution_confidence: number;
+  process_steps: string[];
+}
+
+export interface FieldResolverResult {
+  doc_type: string;
+  filled_fields: Record<string, string>;
+  missing_fields: FieldDefinition[];
+  prefilled_keys: string[];       // Keys tự điền từ profile (hiển thị badge “từ hồ sơ”)
+  is_complete: boolean;
+}
+
+export interface GeneratedDocument {
+  doc_type: string;
+  export_payload: ND30ExportPayload;
+  input_mode: "structured" | "ocr_inferred";
+  validation_ready: boolean;
+  missing_required: string[];
+  generation_warnings: string[];
+}
+
+export interface UserProfile {
+  full_name?: string;
+  email?: string;
+  id_number?: string;
+  dob?: string;
+  organization?: string;
+  department?: string;
+  title?: string;
+  location?: string;
+  phone?: string;
+  address?: string;
+}
+
+/** Bước hiện tại trong luồng Advisory */
+export type AdvisoryStep = "guidance" | "field_form" | "preview" | "export";
+
+/** Phân biệt nguồn gốc input cho export */
+export type ExportInputMode = "structured" | "ocr_inferred";
