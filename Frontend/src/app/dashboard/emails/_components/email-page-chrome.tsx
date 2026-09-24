@@ -28,9 +28,5 @@ export default function EmailBreadcrumb({ current, backHref }: EmailBreadcrumbPr
 }
 
 export const emailInputClass =
-    "w-full rounded-2xl border border-border bg-card px-4 py-3 text-base text-foreground outline-none transition placeholder:text-muted-foreground/70 focus:border-primary/50 focus:ring-4 focus:ring-primary/15 disabled:cursor-not-allowed disabled:opacity-50";
+    "w-full rounded-xl border border-border bg-card px-3.5 py-2.5 text-sm text-foreground outline-none transition placeholder:text-muted-foreground/70 focus:border-primary/50 focus:ring-4 focus:ring-primary/15 disabled:cursor-not-allowed disabled:opacity-50";
 
-export const emailSelectClass = `${emailInputClass} cursor-pointer`;
-
-export const emailPanelClass =
-    "rounded-[1.5rem] border border-border bg-card p-5 shadow-[0_2px_14px_color-mix(in_srgb,var(--primary)_8%,transparent)] backdrop-blur";
