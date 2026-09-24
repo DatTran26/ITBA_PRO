@@ -3,6 +3,7 @@ import { alpha } from "@/lib/utils";
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { HelpCircle, ChevronDown, GitBranch } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
@@ -40,9 +41,14 @@ interface AppNavbarProps {
 export function AppLogo({ showText = true }: { showText?: boolean }) {
     return (
         <Link href="/dashboard" className="flex items-center gap-3 group shrink-0">
-            <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-primary via-primary to-ai flex items-center justify-center text-white font-black text-[12px] shadow-lg shadow-primary/20 ring-2 ring-white/10 shrink-0">
-                AI
-            </div>
+            <Image
+                src="/logo.png"
+                alt="Town Hown"
+                width={545}
+                height={398}
+                className="h-9 w-auto object-contain shrink-0"
+                priority
+            />
             {showText && (
                 <div className="flex flex-col">
                     <span className="text-lg font-bold tracking-tight text-foreground leading-none font-display">
@@ -162,8 +168,6 @@ export default function AppNavbar({
     /* Self-suppress in sidebar layout — NavShell renders sidebar chrome.
      * Outside dashboard (no provider), useUiLayout returns "topnav" so
      * standalone usage (login pages, etc.) keeps current behavior. */
-    if (layout === "sidebar") return null;
-
     /* Fetch user data client-side if not provided via props */
     useEffect(() => {
         if (userProp !== undefined) return;
@@ -181,8 +185,10 @@ export default function AppNavbar({
 
     /* Sync when parent updates user prop */
     useEffect(() => {
-        if (userProp !== undefined) setUser(userProp);
+        if (userProp !== undefined) queueMicrotask(() => setUser(userProp));
     }, [userProp]);
+
+    if (layout === "sidebar") return null;
 
     return (
         <div className="fixed top-4 left-4 right-4 z-50">

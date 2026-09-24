@@ -52,7 +52,7 @@ export default function RecipientPicker({ value, onChange, type, gate, mode = "s
         : "";
 
     useEffect(() => {
-        if (mode === "single") setQuery(singleDisplay);
+        if (mode === "single") queueMicrotask(() => setQuery(singleDisplay));
     }, [mode, singleDisplay]);
 
     // Update portal position when open
@@ -79,11 +79,11 @@ export default function RecipientPicker({ value, onChange, type, gate, mode = "s
     useEffect(() => {
         if (disabled) return;
         if (mode === "single" && value.length > 0 && query === singleDisplay) {
-            setResults([]);
+            queueMicrotask(() => setResults([]));
             return;
         }
-        if (query.length === 1) { setResults([]); setOpen(false); return; }
-        if (query.length === 0 && !focused) { setResults([]); setOpen(false); return; }
+        if (query.length === 1) { queueMicrotask(() => { setResults([]); setOpen(false); }); return; }
+        if (query.length === 0 && !focused) { queueMicrotask(() => { setResults([]); setOpen(false); }); return; }
 
         clearTimeout(timer.current);
         timer.current = setTimeout(async () => {

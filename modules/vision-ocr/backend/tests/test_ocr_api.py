@@ -21,6 +21,17 @@ def test_health_check():
     assert response.json() == {"status": "ok"}
 
 
+def test_cors_does_not_allow_unlisted_origin():
+    response = client.options(
+        "/api/ocr/scan",
+        headers={
+            "Origin": "http://evil.example",
+            "Access-Control-Request-Method": "POST",
+        },
+    )
+    assert response.headers.get("access-control-allow-origin") is None
+
+
 def test_scan_unsupported_mime_type():
     files = {"file": ("test.txt", b"hello world", "text/plain")}
     response = client.post("/api/ocr/scan", files=files)

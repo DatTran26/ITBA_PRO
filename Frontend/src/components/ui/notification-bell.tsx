@@ -28,13 +28,7 @@ export default function NotificationBell({ userRole }: NotificationBellProps) {
     }, [isOpen]);
 
     const formatTime = (iso: string) => {
-        const diff = Date.now() - new Date(iso).getTime();
-        const mins = Math.floor(diff / 60_000);
-        if (mins < 1) return "Just now";
-        if (mins < 60) return `${mins}m ago`;
-        const hrs = Math.floor(mins / 60);
-        if (hrs < 24) return `${hrs}h ago`;
-        return `${Math.floor(hrs / 24)}d ago`;
+        return new Intl.DateTimeFormat(undefined, { dateStyle: "medium", timeStyle: "short" }).format(new Date(iso));
     };
 
     const iconForType = (type: Notification["type"]) => {

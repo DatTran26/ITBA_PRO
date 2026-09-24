@@ -106,7 +106,10 @@ function TechnicalLog({ stepIndex }: { stepIndex: number }) {
   useEffect(() => {
     if (stepIndex < ANALYSIS_STEPS.length) {
       const step = ANALYSIS_STEPS[stepIndex];
-      setLogs(prev => [...prev, `[${new Date().toLocaleTimeString()}] ${step.log}`]);
+      const frame = requestAnimationFrame(() => {
+        setLogs((prev) => [...prev, `[${new Date().toLocaleTimeString()}] ${step.log}`]);
+      });
+      return () => cancelAnimationFrame(frame);
     }
   }, [stepIndex]);
 

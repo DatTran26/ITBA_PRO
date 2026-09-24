@@ -25,7 +25,6 @@ export default function PositionPicker({ value, onChange, className = "" }: Prop
 
     // Fetch job descriptions once
     useEffect(() => {
-        setLoading(true);
         fetch("/api/recruitment/job-descriptions")
             .then((r) => r.json())
             .then(({ jobDescriptions }) => setPositions(jobDescriptions ?? []))

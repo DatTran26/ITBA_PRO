@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { motion } from "framer-motion";
 import {
   ArrowRight,
@@ -75,10 +76,15 @@ export default function LandingPage() {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    setMounted(true);
-    const handleScroll = () => setScrolled(window.scrollY > 40);
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
+    const frame = requestAnimationFrame(() => setMounted(true));
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 50);
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => {
+      cancelAnimationFrame(frame);
+      window.removeEventListener("scroll", handleScroll);
+    };
   }, []);
 
   if (!mounted) return null;
@@ -101,9 +107,7 @@ export default function LandingPage() {
         className="fixed left-1/2 -translate-x-1/2 z-50 w-[min(92%,64rem)] px-6 sm:px-8 rounded-full bg-white/90 backdrop-blur-xl border border-[var(--tg-border)] shadow-[var(--sh)] flex justify-between items-center gap-4"
       >
         <Link href="/" className="flex items-center gap-3 group shrink-0">
-          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-primary to-primary flex items-center justify-center text-white text-[13px] tg-display shadow-[var(--sh)] group-hover:scale-105 transition-transform">
-            IT
-          </div>
+          <Image src="/logo.png" alt="Town Hown" width={545} height={398} className="h-9 w-auto object-contain group-hover:scale-105 transition-transform" priority />
           <span className="tg-display text-xl text-[var(--p-deep)] tracking-tight">ITBA</span>
         </Link>
 
@@ -244,9 +248,7 @@ export default function LandingPage() {
       <footer className="relative z-10 border-t border-[var(--tg-border)] bg-white/70 backdrop-blur-sm px-6 py-12">
         <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-6">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-primary to-primary flex items-center justify-center text-white text-[13px] tg-display">
-              IT
-            </div>
+            <Image src="/logo.png" alt="Town Hown" width={545} height={398} className="h-8 w-auto object-contain" />
             <span className="text-sm text-[var(--tg-muted)]">
               © {new Date().getFullYear()} ITBA · Nền tảng tuyển dụng có AI
             </span>

@@ -2,6 +2,50 @@
 
 All notable changes to this project are documented in this file.
 
+## [0.2.3] - 2026-09-17
+
+### Added
+
+- GHCR images for Vision AI and Vision OCR; VPS deploy starts those sidecars with `web`.
+- Town Hown logo on the landing page, login, and dashboard navbar.
+
+### Changed
+
+- Next.js OCR and NĐ 30 BFF routes call `VISION_OCR_URL` (compose DNS) instead of `localhost:8000`.
+- Vision AI resolves YOLO weights from the `/models` volume and keeps InsightFace cache on disk.
+- Face ID sign-in allowlists staging and production public hosts and prefers `x-forwarded-host` behind Traefik.
+
+### Fixed
+
+- VPS workplace Vision (Face ID, behavior, OCR studio) can run without a local Docker build of the Python APIs.
+
+[0.2.3]: https://github.com/DatTran26/down-town/compare/v0.2.2...v0.2.3
+
+## [0.2.2] - 2026-09-17
+
+### Added
+
+- OpenAI and Gemini provider routing from System Settings, with masked API keys.
+- Face ID re-authentication links, claim-before-process enrollment, and an active-request guard.
+- Internal-user role guard used by settings RLS and privileged Edge Functions.
+- Workplace Vision: Face ID attendance, behavior monitors, and OCR studio on the dashboard.
+- Recruitment management report with KPI snapshot and Excel export.
+- HRMS feature documentation set (PRD feature map 39/39).
+
+### Changed
+
+- AI routes and Edge Functions read provider/model/key from `system_settings`, with env as fallback.
+- Vision AI controller tests accept a persisted match threshold.
+- VPS `remote-up.sh` recreates only the GHCR `web` service (`--no-deps`) so missing local Vision images do not block deploy.
+
+### Fixed
+
+- Privileged Edge Functions require an internal JWT/role before using the service-role client.
+- Face ID sign-in is rate-limited and cannot clear a block with a revoked token.
+- Gemini Vision calls send the API key in `x-goog-api-key` instead of the query string.
+
+[0.2.2]: https://github.com/DatTran26/down-town/compare/v0.2.1...v0.2.2
+
 ## [0.2.1] - 2026-09-02
 
 ### Added

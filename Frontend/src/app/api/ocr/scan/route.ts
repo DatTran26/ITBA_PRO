@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 import { getAuthContext, isAuthError } from "@/lib/api/auth-helpers";
+import { getAiConfig } from "@/lib/get-ai-config";
+import { callVisionOcr } from "@/lib/vision-ocr";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 60; // 60s timeout for vision OCR
@@ -65,92 +67,54 @@ export async function POST(request: Request) {
         const b64Str = buffer.toString("base64");
         const imageB64 = `data:${mimeType};base64,${b64Str}`;
 
-        // Attempt 1: Gemini Vision API (process.env.GEMINI_API_KEY or system_settings)
-        let geminiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_GENAI_API_KEY || "";
-        if (!geminiKey) {
-            const { data: setting } = await ctx.supabase
-                .from("system_settings")
-                .select("value")
-                .eq("key", "gemini_api_key")
-                .maybeSingle();
-            if (setting?.value && typeof setting.value === "string") {
-                geminiKey = setting.value;
-            }
-        }
-
-        if (geminiKey) {
-            try {
-                const text = await extractViaGemini(b64Str, mimeType, geminiKey);
-                if (text) {
-                    return NextResponse.json({
-                        text,
-                        image_b64: imageB64,
-                        status: "success",
-                        engine: "gemini-vision",
-                    });
-                }
-            } catch (geminiErr) {
-                console.warn("[OCR] Gemini Vision failed, attempting fallbacks:", geminiErr);
-            }
-        }
-
-        // Attempt 2: Local FastAPI Python OCR Backend if reachable
+        // Attempt 1: Vision OCR sidecar (Gemini + Tesseract, grounded blocks)
         try {
-            const fastApiRes = await fetch("http://localhost:8000/api/ocr/scan", {
+            const pyForm = new FormData();
+            const blob = new Blob([buffer], { type: mimeType });
+            pyForm.append("file", blob, file.name);
+            const fastApiRes = await callVisionOcr("/api/ocr/scan", {
                 method: "POST",
-                body: (() => {
-                    const pyForm = new FormData();
-                    const blob = new Blob([buffer], { type: mimeType });
-                    pyForm.append("file", blob, file.name);
-                    return pyForm;
-                })(),
-                signal: AbortSignal.timeout(10_000),
+                body: pyForm,
+                signal: AbortSignal.timeout(45_000),
             });
             if (fastApiRes.ok) {
                 const pyData = await fastApiRes.json();
                 return NextResponse.json({
                     text: pyData.text,
                     image_b64: pyData.image_b64 || imageB64,
+                    blocks: pyData.blocks || [],
                     status: "success",
-                    engine: "fastapi-local",
+                    engine: pyData.engine || "fastapi-grounded",
                 });
             }
         } catch {
-            // FastAPI backend not running or timed out — proceed to OpenAI fallback
+            // FastAPI backend not running or timed out — proceed to direct Gemini fallback
         }
 
-        // Attempt 3: OpenAI GPT-4o Vision fallback
-        let openAiKey = process.env.OPENAI_API_KEY || "";
-        if (!openAiKey) {
-            const { data: setting } = await ctx.supabase
-                .from("system_settings")
-                .select("value")
-                .eq("key", "openai_api_key")
-                .maybeSingle();
-            if (setting?.value && typeof setting.value === "string") {
-                openAiKey = setting.value;
-            }
-        }
-
-        if (openAiKey && openAiKey !== "YOUR_OPENAI_API_KEY_HERE") {
+        // Attempt 2: configured provider from System Settings (DB first)
+        const ai = await getAiConfig();
+        if (ai.apiKey) {
             try {
-                const text = await extractViaOpenAI(imageB64, openAiKey);
+                const text = ai.provider === "gemini"
+                    ? await extractViaGemini(b64Str, mimeType, ai.apiKey, ai.model)
+                    : await extractViaOpenAI(imageB64, ai.apiKey, ai.model);
                 if (text) {
                     return NextResponse.json({
                         text,
                         image_b64: imageB64,
+                        blocks: [],
                         status: "success",
-                        engine: "openai-vision",
+                        engine: ai.provider === "gemini" ? "gemini-vision" : "openai-vision",
                     });
                 }
-            } catch (openAiErr) {
-                console.error("[OCR] OpenAI Vision fallback failed:", openAiErr);
+            } catch (visionErr) {
+                console.warn("[OCR] Configured provider vision failed:", visionErr);
             }
         }
 
         return NextResponse.json(
             {
-                error: "No OCR service available. Please configure GEMINI_API_KEY or OPENAI_API_KEY in environment/settings or start the local OCR backend.",
+                error: "No OCR service available. Configure the AI provider API key in System Settings or set VISION_OCR_URL.",
             },
             { status: 503 }
         );
@@ -163,16 +127,21 @@ export async function POST(request: Request) {
     }
 }
 
-async function extractViaGemini(b64Data: string, mimeType: string, apiKey: string): Promise<string> {
-    const models = ["gemini-3.6-flash", "gemini-3.5-flash-lite", "gemini-2.5-flash", "gemini-2.0-flash"];
+async function extractViaGemini(b64Data: string, mimeType: string, apiKey: string, preferredModel?: string): Promise<string> {
+    const models = [preferredModel, "gemini-3.6-flash", "gemini-2.5-flash", "gemini-2.0-flash"].filter(
+        (m, i, arr): m is string => Boolean(m) && arr.indexOf(m) === i
+    );
     let lastError: any = null;
 
     for (const model of models) {
         try {
-            const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+            const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`;
             const response = await fetch(endpoint, {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
+                headers: {
+                    "Content-Type": "application/json",
+                    "x-goog-api-key": apiKey,
+                },
                 body: JSON.stringify({
                     contents: [
                         {
@@ -213,7 +182,7 @@ async function extractViaGemini(b64Data: string, mimeType: string, apiKey: strin
     throw lastError || new Error("Gemini Vision failed across all model fallbacks");
 }
 
-async function extractViaOpenAI(imageB64Url: string, apiKey: string): Promise<string> {
+async function extractViaOpenAI(imageB64Url: string, apiKey: string, model = "gpt-4o"): Promise<string> {
     const response = await fetch("https://api.openai.com/v1/chat/completions", {
         method: "POST",
         headers: {
@@ -221,7 +190,7 @@ async function extractViaOpenAI(imageB64Url: string, apiKey: string): Promise<st
             Authorization: `Bearer ${apiKey}`,
         },
         body: JSON.stringify({
-            model: "gpt-4o",
+            model,
             messages: [
                 {
                     role: "system",

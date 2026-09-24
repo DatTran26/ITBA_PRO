@@ -1,24 +1,11 @@
 import { NextResponse } from "next/server";
-import { OpenAI } from "openai";
-import { logAiUsage } from "@/lib/ai-usage-logger";
-import { getAiConfig } from "@/lib/get-ai-config";
-import { getChatParams } from "@/lib/ai-params";
+import { completeChat } from "@/lib/ai-complete";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 120;
 
 export async function POST(request: Request) {
     try {
-        const { apiKey, model } = await getAiConfig();
-        if (!apiKey || apiKey === "YOUR_OPENAI_API_KEY_HERE") {
-            return NextResponse.json({ error: "OpenAI API key is not configured" }, { status: 500 });
-        }
-
-        const openai = new OpenAI({
-            apiKey,
-            timeout: 120_000,
-        });
-
         const body = await request.json();
         const { job_description } = body;
 
@@ -26,7 +13,7 @@ export async function POST(request: Request) {
             return NextResponse.json({ error: "job_description is required" }, { status: 400 });
         }
 
-        const chatParams = getChatParams(model, {
+        const response = await completeChat({
             messages: [
                 {
                     role: "system",
@@ -46,32 +33,19 @@ Return ONLY a JSON object in this exact format:
   "is_custom_level": boolean,
   "slide_roles": [ "string" ],
   "custom_slide_roles": [ "string" ]
-}`
+}`,
                 },
                 {
                     role: "user",
-                    content: `Job Description:\n"""\n${job_description}\n"""`
-                }
+                    content: `Job Description:\n"""\n${job_description}\n"""`,
+                },
             ],
-            response_format: { type: "json_object" },
-            max_tokens: 2000,
+            json: true,
+            maxTokens: 2000,
+            feature: "analyze-jd",
         });
 
-        const response = await openai.chat.completions.create(chatParams);
-
-        if (response.usage) {
-            logAiUsage({
-                feature: "analyze-jd",
-                model: response.model || "gpt-4o",
-                tokensIn: response.usage.prompt_tokens,
-                tokensOut: response.usage.completion_tokens,
-            });
-        }
-
-        const resultText = response.choices[0].message.content || "{}";
-        const result = JSON.parse(resultText);
-
-        return NextResponse.json(result);
+        return NextResponse.json(JSON.parse(response.content || "{}"));
     } catch (error) {
         console.error("JD Analysis Error:", error);
         const message = error instanceof Error ? error.message : String(error);

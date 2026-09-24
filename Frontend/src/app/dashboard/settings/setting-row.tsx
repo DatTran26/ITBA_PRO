@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/select";
 import { AiApiTesterModal } from "./ai-api-tester-modal";
 import { SharedDashboardButton } from "@/components/shares";
+import { SETTINGS_MASK_PLACEHOLDER } from "@/lib/settings/sensitive";
 
 export type InputType = "text" | "number" | "select" | "toggle" | "json" | "password";
 
@@ -50,15 +51,18 @@ function SettingLabel({ label, description }: { label: string; description: stri
 export function SettingRow({
     setting,
     onChange,
+    showTester = false,
+    testerModels,
 }: {
     setting: SystemSetting;
     onChange: (key: string, value: unknown) => void;
+    showTester?: boolean;
+    testerModels?: string[];
 }) {
     const [localValue, setLocalValue] = useState(String(setting.value ?? ""));
     const [showPassword, setShowPassword] = useState(false);
 
-    const MASK = "\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022";
-    const isMasked = setting.input_type === "password" && localValue === MASK;
+    const isMasked = setting.input_type === "password" && localValue === SETTINGS_MASK_PLACEHOLDER;
     const hasExistingKey = setting.input_type === "password" && localValue !== "" && localValue !== '""';
 
     function handleChange(raw: string) {
@@ -90,14 +94,20 @@ export function SettingRow({
                                 <ShieldAlert className="w-3 h-3" /> Not configured
                             </span>
                         )}
-                        {setting.key === "openai_api_key" && <AiApiTesterModal />}
+                        {showTester && <AiApiTesterModal models={testerModels} />}
                     </div>
                 </div>
                 <div className="relative shrink-0">
                     <input
                         value={isMasked ? "" : localValue === '""' ? "" : localValue}
                         type={showPassword ? "text" : "password"}
-                        placeholder={hasExistingKey ? "Enter new key to replace..." : "sk-proj-..."}
+                        placeholder={
+                            hasExistingKey
+                                ? "Enter new key to replace..."
+                                : setting.key === "gemini_api_key"
+                                    ? "AIza..."
+                                    : "sk-proj-..."
+                        }
                         autoComplete="off"
                         spellCheck={false}
                         onCopy={(e) => e.preventDefault()}
@@ -144,7 +154,17 @@ export function SettingRow({
     if (setting.input_type === "select" && setting.options?.length) {
         return (
             <div className={rowCls}>
-                <SettingLabel label={setting.label} description={setting.description} />
+                <div className="flex-1 min-w-0 pr-6">
+                    <p className="text-sm font-semibold text-foreground">{setting.label}</p>
+                    {setting.description && (
+                        <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">{setting.description}</p>
+                    )}
+                    {showTester && (
+                        <div className="mt-2">
+                            <AiApiTesterModal models={testerModels} />
+                        </div>
+                    )}
+                </div>
                 <Select value={localValue} onValueChange={(v) => handleChange(v ?? localValue)}>
                     <SelectTrigger className="w-full sm:w-48 bg-background/60 border-border/15 text-foreground h-9 text-sm rounded-lg focus:border-border/50 focus:ring-2 focus:ring-primary/15 transition-all">
                         <SelectValue />

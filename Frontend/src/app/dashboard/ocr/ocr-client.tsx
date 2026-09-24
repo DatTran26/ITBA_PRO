@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useReducer, useEffect, useRef } from "react";
+import React, { useReducer, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
-import { ScanText } from "lucide-react";
+import { ScanText, Network, Globe } from "lucide-react";
 import { SharedDashboardPageHeader } from "@/components/shares";
 import PageContainer from "@/components/ui/page-container";
 import PageBreadcrumb from "@/components/ui/page-breadcrumb";
@@ -12,9 +12,13 @@ import UploadLauncher from "./components/upload-launcher";
 import OCRJobQueue from "./components/ocr-job-queue";
 import DocumentPreview from "./components/document-preview";
 import ReviewWorkspace from "./components/review-workspace";
+import ND30GraphRagModal from "./components/nd30-graph-rag-modal";
+import DeepRAGSearchModal from "./components/deep-rag-search-modal";
 
 export default function OCRClient() {
     const [state, dispatch] = useReducer(ocrQueueReducer, initialQueueState);
+    const [showGraphRagModal, setShowGraphRagModal] = useState(false);
+    const [showDeepRagModal, setShowDeepRagModal] = useState(false);
     const isProcessingRef = useRef(false);
 
     // Sequential Queue Processing Engine
@@ -53,6 +57,7 @@ export default function OCRClient() {
                         id: nextJob.id,
                         text: data.text || "",
                         engine: data.engine,
+                        blocks: data.blocks || [],
                     });
                     toast.success(`Đã quét xong: ${nextJob.file.name}`);
                 }
@@ -85,6 +90,11 @@ export default function OCRClient() {
 
     const pending = state.jobs.filter((j) => j.status === "queued" || j.status === "processing").length;
 
+    const handleSelectBlock = (blockId: string | null) => {
+        if (!selectedJob) return;
+        dispatch({ type: "block_selected", id: selectedJob.id, blockId });
+    };
+
     return (
         <PageContainer>
             <div className="space-y-6 pb-8">
@@ -95,6 +105,18 @@ export default function OCRClient() {
                     icon={ScanText}
                     badge={{ label: pending > 0 ? `Đang quét ${pending}` : "Gemini Vision", tone: pending > 0 ? "orange" : "teal" }}
                     description="Trích văn bản in, chữ viết tay và bảng biểu từ ảnh — soi ảnh gốc cạnh bản trích để duyệt từng tài liệu"
+                    actions={(
+                        <div className="flex items-center gap-2">
+                            <button type="button" onClick={() => setShowGraphRagModal(true)} title="Đồ thị tri thức Graph RAG Nghị định 30/2020/NĐ-CP"
+                                className="flex h-10 items-center gap-2 rounded-xl border border-border bg-card px-4 text-sm font-bold text-foreground hover:bg-muted transition-colors">
+                                <Network className="h-4 w-4 text-primary" /> Graph RAG NĐ 30
+                            </button>
+                            <button type="button" onClick={() => setShowDeepRagModal(true)} title="Phân tích chuyên sâu RAG + Web Search Grounding"
+                                className="flex h-10 items-center gap-2 rounded-xl bg-primary px-4 text-sm font-bold text-primary-foreground hover:bg-primary/90 transition-colors">
+                                <Globe className="h-4 w-4" /> AI Deep RAG & Web
+                            </button>
+                        </div>
+                    )}
                 />
 
                 {state.jobs.length === 0 ? (
@@ -122,7 +144,7 @@ export default function OCRClient() {
                                 currentJobCount={state.jobs.length}
                             />
                         </div>
-                        <DocumentPreview job={selectedJob} />
+                        <DocumentPreview job={selectedJob} onSelectBlock={handleSelectBlock} />
                         <ReviewWorkspace
                             job={selectedJob}
                             onTextChange={(id, text) => dispatch({ type: "text_edited", id, text })}
@@ -134,8 +156,30 @@ export default function OCRClient() {
                                 dispatch({ type: "reopened", id });
                                 toast.info("Đã mở lại để chỉnh sửa");
                             }}
+                            onSelectBlock={handleSelectBlock}
+                            onOpenGraphRag={() => setShowGraphRagModal(true)}
                         />
                     </div>
+                )}
+
+                {/* ND30 Graph RAG Knowledge Graph Visualizer Modal */}
+                <ND30GraphRagModal
+                    isOpen={showGraphRagModal}
+                    onClose={() => setShowGraphRagModal(false)}
+                />
+
+                {/* AI Deep RAG + Web Search Grounding Modal */}
+                {showDeepRagModal && (
+                    <DeepRAGSearchModal
+                        isOpen={showDeepRagModal}
+                        onClose={() => setShowDeepRagModal(false)}
+                        ocrText={selectedJob?.editedText || selectedJob?.originalText || "CÔNG TY CỔ PHẦN CÔNG NGHỆ\nQUYẾT ĐỊNH\nVề việc tiếp nhận và bổ nhiệm Trưởng phòng Kỹ thuật\nĐiều 1: Tiếp nhận và bổ nhiệm ông Nguyễn Văn A giữ chức Trưởng phòng Kỹ thuật kể từ ngày 01/04/2026.\nĐiều 2: Các bộ phận liên quan chịu trách nhiệm thi hành.\nTổng Giám đốc ký tên."}
+                        onApplyToWorkspace={(newText) => {
+                            if (selectedJob) {
+                                dispatch({ type: "text_edited", id: selectedJob.id, text: newText });
+                            }
+                        }}
+                    />
                 )}
             </div>
         </PageContainer>

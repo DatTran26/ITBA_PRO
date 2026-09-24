@@ -99,7 +99,10 @@ export default function RecruitmentDashboardClient() {
     setLoading(false);
   }, [from, to, jds]);
 
-  useEffect(() => { fetchData(); }, [fetchData]);
+  useEffect(() => {
+    const timer = setTimeout(() => { void fetchData(); }, 0);
+    return () => clearTimeout(timer);
+  }, [fetchData]);
 
   const sorted = useMemo(() => [...rows].sort((a, b) =>
     sortBy === "total" ? b.total - a.total : b.data[sortBy] - a.data[sortBy]), [rows, sortBy]);

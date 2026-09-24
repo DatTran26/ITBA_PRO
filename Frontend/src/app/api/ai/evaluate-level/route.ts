@@ -1,9 +1,7 @@
 import { NextResponse } from "next/server";
 import { getAuthContext, isAuthError } from "@/lib/api/auth-helpers";
-import { logAiUsage } from "@/lib/ai-usage-logger";
+import { completeChat } from "@/lib/ai-complete";
 import { getAiConfig } from "@/lib/get-ai-config";
-import { getChatParams } from "@/lib/ai-params";
-import OpenAI from "openai";
 
 export const maxDuration = 120;
 
@@ -86,7 +84,7 @@ export async function POST(request: Request) {
     const totalQuestions = (result.tests as unknown as { question_count: number } | null)?.question_count ?? 10;
     const scorePercent = ((result.score ?? 0) / totalQuestions) * 100;
 
-    const { apiKey, model } = await getAiConfig();
+    const { apiKey } = await getAiConfig();
 
     if (!apiKey) {
       return NextResponse.json(ruleBasedSuggestion(scorePercent, position.target_level ?? ""));
@@ -133,28 +131,16 @@ Respond with JSON only:
   "warnings": ["any important caveats, especially for senior"]
 }`;
 
-    const openai = new OpenAI({ apiKey, timeout: 120_000 });
-    const chatParams = getChatParams(model, {
+    const response = await completeChat({
       messages: [{ role: "user", content: prompt }],
-      response_format: { type: "json_object" },
-      max_tokens: 1600, // Increased to allow reasoning room
+      json: true,
+      maxTokens: 1600,
       temperature: 0.3,
+      feature: "evaluate-level",
+      userId: ctx.userId,
     });
 
-    const response = await openai.chat.completions.create(chatParams);
-    const aiData = response;
-
-    if (aiData.usage) {
-      logAiUsage({
-        userId: ctx.userId,
-        feature: "evaluate-level",
-        model: aiData.model || "gpt-4o",
-        tokensIn: aiData.usage.prompt_tokens,
-        tokensOut: aiData.usage.completion_tokens,
-      });
-    }
-
-    const raw = JSON.parse(aiData.choices?.[0]?.message?.content ?? "{}") as LevelSuggestion;
+    const raw = JSON.parse(response.content || "{}") as LevelSuggestion;
 
     // BR-03: senior warning enforcement
     if (raw.suggested_level?.toLowerCase().includes("senior")) {

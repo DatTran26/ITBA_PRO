@@ -1,4 +1,5 @@
 import type {
+  GroundedBlock,
   OCRJob,
   OCRJobStatus,
   OCRQueueAction,
@@ -60,9 +61,13 @@ export function createOCRJobs(
     editedText: "",
     confirmedText: null,
     errorMessage: null,
+    engine: null,
     attemptCount: 0,
     createdAt: createdAt + index,
     startedAt: null,
+    blocks: [],
+    activeBlockId: null,
+    hrFields: {},
   }));
 }
 
@@ -182,6 +187,8 @@ export function ocrQueueReducer(
               editedText: action.text,
               errorMessage: null,
               startedAt: null,
+              blocks: action.blocks ?? [],
+              activeBlockId: action.blocks?.[0]?.id ?? null,
             }
           : null,
       );
@@ -202,6 +209,18 @@ export function ocrQueueReducer(
       return updateJob(state, action.id, (job) =>
         job.status === "needs_review" ? { ...job, editedText: action.text } : null,
       );
+
+    case "block_selected":
+      return updateJob(state, action.id, (job) => ({
+        ...job,
+        activeBlockId: action.blockId,
+      }));
+
+    case "hr_field_set":
+      return updateJob(state, action.id, (job) => ({
+        ...job,
+        hrFields: { ...job.hrFields, [action.field]: action.value },
+      }));
 
     case "confirmed":
       return updateJob(state, action.id, (job) =>
@@ -230,6 +249,8 @@ export function ocrQueueReducer(
               attemptCount: job.attemptCount + 1,
               errorMessage: null,
               startedAt: null,
+              blocks: [],
+              activeBlockId: null,
             }
           : null,
       );

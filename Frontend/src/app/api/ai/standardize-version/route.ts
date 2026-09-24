@@ -1,8 +1,6 @@
 import { NextResponse } from "next/server";
-import OpenAI from "openai";
-import { getAiConfig } from "@/lib/get-ai-config";
+import { completeChat } from "@/lib/ai-complete";
 import { getAuthContext, isAuthError } from "@/lib/api/auth-helpers";
-import { getChatParams } from "@/lib/ai-params";
 
 export const maxDuration = 120;
 
@@ -11,7 +9,6 @@ export async function POST(request: Request) {
         const ctx = await getAuthContext();
         if (isAuthError(ctx)) return ctx;
 
-        // Version management is restricted to authorized administrative personnel
         if (!ctx.isSuperAdmin) {
             return NextResponse.json({ error: "Access denied. Super Admin authorization required for identity standardization." }, { status: 403 });
         }
@@ -21,13 +18,6 @@ export async function POST(request: Request) {
         if (!raw_content) {
             return NextResponse.json({ error: "Missing identity criteria for standardization" }, { status: 400 });
         }
-
-        const { apiKey, model } = await getAiConfig();
-        if (!apiKey) {
-            return NextResponse.json({ error: "Intelligence core offline. API key missing." }, { status: 500 });
-        }
-
-        const openai = new OpenAI({ apiKey, timeout: 120_000 });
 
         const prompt = `You are a professional software release engineer. Standardize the following raw release notes into a professional, friendly, and structured format.
 
@@ -53,21 +43,16 @@ Example JSON response:
   "summary": "Phiên bản này tập trung nâng cấp trải nghiệm chỉnh sửa trực tiếp và vá các lỗ hổng bảo mật hệ thống."
 }`;
 
-        const chatParams = getChatParams(model, {
+        const response = await completeChat({
             messages: [
                 { role: "system", content: "You are a professional release manager identity." },
-                { role: "user", content: prompt }
+                { role: "user", content: prompt },
             ],
-            response_format: { type: "json_object" },
+            json: true,
             temperature: 0.7,
         });
 
-        const response = await openai.chat.completions.create(chatParams);
-
-        const result = JSON.parse(response.choices[0].message.content || "{}");
-
-        return NextResponse.json(result);
-
+        return NextResponse.json(JSON.parse(response.content || "{}"));
     } catch (err: unknown) {
         console.error("[Version Standardizer]", err);
         return NextResponse.json({ error: err instanceof Error ? err.message : "System instance failure" }, { status: 500 });

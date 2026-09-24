@@ -1,5 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
+import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
+import { DEV_AUTH_COOKIE, parseDevAuthCookie } from "@/lib/dev-auth";
 
 export interface AuthContext {
   supabase: Awaited<ReturnType<typeof createClient>>;
@@ -16,8 +18,27 @@ export interface AuthContext {
 
 export async function getAuthContext(): Promise<AuthContext | NextResponse> {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    const { data: { user } } = await supabase.auth.getUser();
+  if (!user) {
+    const cookieStore = await cookies();
+    const devUser = parseDevAuthCookie(cookieStore.get(DEV_AUTH_COOKIE)?.value);
+    if (devUser) {
+      const role = devUser.role;
+      return {
+        supabase,
+        userId: devUser.id,
+        authId: devUser.authId,
+        role,
+        isAdmin: role === "admin" || role === "super_admin",
+        isSuperAdmin: role === "super_admin",
+        isHr: role === "hr",
+        isInterviewer: role === "interviewer",
+        isRecruiter: role === "recruiter",
+        isLeader: role === "leader",
+      };
+    }
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
 
   let { data: userData } = await supabase
     .from("users")

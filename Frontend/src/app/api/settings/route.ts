@@ -2,11 +2,7 @@ import { NextResponse } from "next/server";
 import { getAuthContext, isAuthError } from "@/lib/api/auth-helpers";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { clearAiConfigCache } from "@/lib/get-ai-config";
-
-// Masked placeholder for write-only fields (password type).
-// If this exact value is sent back in a PATCH, the field is skipped.
-const MASK_PLACEHOLDER = "••••••••";
-const SENSITIVE_KEYS = new Set(["openai_api_key"]);
+import { maskSensitiveSettings, SETTINGS_MASK_PLACEHOLDER, SENSITIVE_SETTING_KEYS } from "@/lib/settings/sensitive";
 
 export async function GET() {
     const ctx = await getAuthContext();
@@ -21,14 +17,7 @@ export async function GET() {
 
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
-    // Mask sensitive fields so they can never be read back
-    const masked = (settings ?? []).map((s) => {
-        if (SENSITIVE_KEYS.has(s.key)) {
-            const raw = typeof s.value === "string" ? s.value : "";
-            return { ...s, value: raw ? MASK_PLACEHOLDER : "" };
-        }
-        return s;
-    });
+    const masked = maskSensitiveSettings(settings ?? []);
 
     const categories: Record<string, typeof settings> = {};
     for (const setting of masked) {
@@ -54,12 +43,12 @@ export async function PATCH(request: Request) {
         return NextResponse.json({ error: "Missing updates object" }, { status: 400 });
     }
 
-    const { supabase } = ctx;
+    // Service role: user-session SELECT is denied for openai_api_key, so
+    // UPDATE ... RETURNING via the user client fails even for admins.
+    const admin = createAdminClient();
 
-    // Filter out sensitive fields that were sent back with their mask placeholder
-    // (meaning the admin didn't change them).
     const entries = Object.entries(updates).filter(([key, value]) => {
-        if (SENSITIVE_KEYS.has(key) && value === MASK_PLACEHOLDER) return false;
+        if (SENSITIVE_SETTING_KEYS.has(key) && value === SETTINGS_MASK_PLACEHOLDER) return false;
         return true;
     });
 
@@ -69,7 +58,7 @@ export async function PATCH(request: Request) {
 
     const results = await Promise.all(
         entries.map(([key, value]) =>
-            supabase
+            admin
                 .from("system_settings")
                 .update({ value, updated_at: new Date().toISOString() })
                 .eq("key", key)
@@ -87,7 +76,7 @@ export async function PATCH(request: Request) {
     }
 
     // Invalidate AI config cache if any AI-related keys were changed
-    const AI_CONFIG_KEYS = new Set(["openai_api_key", "ai_model"]);
+    const AI_CONFIG_KEYS = new Set(["ai_provider", "openai_api_key", "gemini_api_key", "ai_model"]);
     const touchedAiKey = entries.some(([key]) => AI_CONFIG_KEYS.has(key));
     if (touchedAiKey) clearAiConfigCache();
 

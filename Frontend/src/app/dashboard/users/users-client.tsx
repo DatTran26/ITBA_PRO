@@ -68,6 +68,7 @@ const ROLE_OPTIONS = [
 
 
 const ROLE_ACCESS_LABEL: Record<string, string> = {
+    user: "Awaiting Role Assignment",
     super_admin: "Root + Version Control",
     admin: "Full Admin",
     leader: "Question Bank + Team Control",

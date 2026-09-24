@@ -60,7 +60,10 @@ export default function JdClient({ userRole }: Props) {
     setLoading(false);
   }, []);
 
-  useEffect(() => { fetchJds(); }, [fetchJds]);
+  useEffect(() => {
+    const timer = window.setTimeout(() => { void fetchJds(); }, 0);
+    return () => window.clearTimeout(timer);
+  }, [fetchJds]);
 
   async function handleDelete(id: string) {
     if (!confirm("Xóa JD này? Nếu đang được dùng sẽ chuyển sang inactive.")) return;

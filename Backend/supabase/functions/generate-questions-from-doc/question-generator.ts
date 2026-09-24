@@ -1,3 +1,5 @@
+import { completeChatFetch, type AiRuntimeConfig } from "../_shared/ai-settings.ts";
+
 export interface AiQuestion {
   question_text: string;
   option_a?: string | null;
@@ -24,8 +26,6 @@ export interface TopicInput {
 }
 
 // 120s gives room for large multi-topic generations; stays within Supabase Edge wall-clock (150s free / 400s paid).
-const OPENAI_TIMEOUT_MS = 120_000;
-
 const SUPPORTED_TYPES = [
   "single_choice", "multiple_choice", "true_false", "matching", "fill_blank",
   "scenario", "ordering", "reading_comprehension", "priority_severity",
@@ -54,22 +54,6 @@ STRICT FIELD RULES (violations cause DB insert failure):
 source_excerpt MUST be a verbatim quote (max ~280 chars) copied from the Source document excerpt that supports the question — used for traceability so reviewers can locate the original passage. Never paraphrase.
 Use null for option_a..option_d that do not apply.`;
 
-function isGpt5Model(model: string): boolean {
-  return model.trim().toLowerCase().startsWith("gpt-5");
-}
-
-function extractResponsesText(data: {
-  output_text?: string;
-  output?: Array<{ content?: Array<{ text?: string }> }>;
-}): string {
-  if (data.output_text) return data.output_text;
-  return data.output
-    ?.flatMap((item) => item.content ?? [])
-    .map((content) => content.text ?? "")
-    .join("\n")
-    .trim() ?? "";
-}
-
 function normalizeQuestion(raw: AiQuestion): AiQuestion {
   const type = raw.question_type || "single_choice";
   const manual = ["short_answer", "sql_logic_code", "short_case_study"].includes(type);
@@ -93,14 +77,12 @@ function normalizeQuestion(raw: AiQuestion): AiQuestion {
 // Generates questions for a single chunk of topics in one OpenAI call.
 async function generateChunk(
   topics: TopicInput[],
-  apiKey: string,
-  model: string,
+  config: AiRuntimeConfig,
   documentText: string,
   perTopicCounts?: Record<string, number>,
   levelRatio?: { junior: number; middle: number; senior: number },
   questionTypes?: string[],
 ): Promise<AiQuestion[]> {
-  const useResponsesApi = isGpt5Model(model);
   const topicText = topics.map((topic, index) => {
     const keyPoints = Array.isArray(topic.key_points) && topic.key_points.length > 0
       ? `\nKey points: ${topic.key_points.join("; ")}`
@@ -132,49 +114,19 @@ async function generateChunk(
     `3. ${typesPrompt}\n\n` +
     `Return JSON only. Ensure every question matches one of the approved topics and includes the corresponding topic_tag matching the topic title exactly.`;
 
-  const requestBody = useResponsesApi
-    ? {
-        model,
-        reasoning: { effort: "medium" },
-        input: [
-          { role: "system", content: [{ type: "input_text", text: TOPIC_SYSTEM_PROMPT }] },
-          { role: "user", content: [{ type: "input_text", text: prompt }] },
-        ],
-      }
-    : {
-        model,
-        temperature: 0.35,
-        response_format: { type: "json_object" },
-        messages: [
-          { role: "system", content: TOPIC_SYSTEM_PROMPT },
-          { role: "user", content: prompt },
-        ],
-      };
-
   const topicLabel = topics.map((t) => t.title).join(", ");
   const t0 = Date.now();
-
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort("openai-timeout"), OPENAI_TIMEOUT_MS);
-  const res = await fetch(useResponsesApi ? "https://api.openai.com/v1/responses" : "https://api.openai.com/v1/chat/completions", {
-    method: "POST",
-    headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
-    body: JSON.stringify(requestBody),
-    signal: controller.signal,
-  }).finally(() => clearTimeout(timeout));
-
-  if (!res.ok) throw new Error(`OpenAI error: ${await res.text()}`);
-  const data = await res.json() as {
-    choices?: { message?: { content?: string } }[];
-    output_text?: string;
-    output?: Array<{ content?: Array<{ text?: string }> }>;
-    usage?: {
-      prompt_tokens?: number; completion_tokens?: number;
-      input_tokens?: number; output_tokens?: number; total_tokens?: number;
-    };
-  };
-  logAiCall(`gen-questions [${topicLabel}]`, model, Date.now() - t0, data.usage ?? {});
-  const content = useResponsesApi ? (extractResponsesText(data) || "{}") : (data.choices?.[0]?.message?.content ?? "{}");
+  const data = await completeChatFetch(config, {
+    system: TOPIC_SYSTEM_PROMPT,
+    user: prompt,
+    json: true,
+    temperature: 0.35,
+  });
+  logAiCall(`gen-questions [${topicLabel}]`, config.model, Date.now() - t0, {
+    prompt_tokens: data.tokensIn,
+    completion_tokens: data.tokensOut,
+  });
+  const content = data.content || "{}";
   const cleaned = content.replace(/^```json?\s*/i, "").replace(/\s*```\s*$/i, "").trim();
   const parsed = JSON.parse(cleaned) as { questions?: unknown[] };
   return Array.isArray(parsed.questions)
@@ -241,21 +193,19 @@ async function runWithConcurrency<T, R>(
 // longer drags down the whole batch — failures surface as per-topic shortages.
 export async function generateQuestionsFromTopicsBatch(
   topics: TopicInput[],
-  apiKey: string,
-  model: string,
+  config: AiRuntimeConfig,
   documentText: string,
   perTopicCounts?: Record<string, number>,
   levelRatio?: { junior: number; middle: number; senior: number },
   questionTypes?: string[],
 ): Promise<AiQuestion[]> {
-  console.log(`[generate-questions-from-doc] start | model:${model} | ${topics.length} topic(s)`);
+  console.log(`[generate-questions-from-doc] start | provider:${config.provider} | model:${config.model} | ${topics.length} topic(s)`);
   const t0 = Date.now();
 
   const results = await runWithConcurrency(topics, MAX_CONCURRENCY, (topic) =>
     generateChunk(
       [topic],
-      apiKey,
-      model,
+      config,
       documentText,
       perTopicCounts ? { [topic.id]: perTopicCounts[topic.id] ?? 5 } : undefined,
       levelRatio,
@@ -278,7 +228,7 @@ export async function generateQuestionsFromTopicsBatch(
   // Only hard-fail when nothing succeeded (e.g. bad key / global timeout); otherwise
   // return partial results so the caller can report shortages per topic.
   if (failures === topics.length && topics.length > 0) {
-    throw new Error("All topic generations failed (likely OpenAI timeout or auth error).");
+    throw new Error("All topic generations failed (likely AI timeout or auth error).");
   }
 
   console.log(
