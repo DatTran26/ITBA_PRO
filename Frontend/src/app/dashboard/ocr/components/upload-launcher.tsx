@@ -1,13 +1,17 @@
 "use client";
 
 import React, { useRef, useState } from "react";
-import { UploadCloud, Image as ImageIcon, AlertCircle, FileText, Sparkles } from "lucide-react";
+import { UploadCloud, Image as ImageIcon, AlertCircle, FileText, Plus } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { toneByName } from "@/lib/ui/tones";
 import type { OCRJob } from "../types";
 
 interface UploadLauncherProps {
     onFilesSelected: (jobs: OCRJob[]) => void;
     onError: (msg: string) => void;
     currentJobCount: number;
+    /** Ô thả nhỏ nằm cuối dải phim khi đã có tài liệu. */
+    compact?: boolean;
 }
 
 const MAX_FILES = 5;
@@ -18,6 +22,7 @@ export default function UploadLauncher({
     onFilesSelected,
     onError,
     currentJobCount,
+    compact = false,
 }: UploadLauncherProps) {
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [isDragging, setIsDragging] = useState(false);
@@ -97,61 +102,85 @@ export default function UploadLauncher({
         handleFiles(e.dataTransfer.files);
     };
 
-    return (
-        <div className="w-full">
-            <input
-                ref={fileInputRef}
-                type="file"
-                multiple
-                accept="image/png,image/jpeg,image/jpg,image/webp"
-                className="hidden"
-                onChange={(e) => handleFiles(e.target.files)}
-            />
+    const full = currentJobCount >= MAX_FILES;
+    const input = (
+        <input
+            ref={fileInputRef}
+            type="file"
+            multiple
+            accept="image/png,image/jpeg,image/jpg,image/webp"
+            className="hidden"
+            onChange={(e) => handleFiles(e.target.files)}
+        />
+    );
+    const dropProps = {
+        onClick: () => !full && fileInputRef.current?.click(),
+        onDragOver: handleDragOver,
+        onDragLeave: handleDragLeave,
+        onDrop: handleDrop,
+        role: "button" as const,
+        tabIndex: full ? -1 : 0,
+        onKeyDown: (e: React.KeyboardEvent) => {
+            if (!full && (e.key === "Enter" || e.key === " ")) {
+                e.preventDefault();
+                fileInputRef.current?.click();
+            }
+        },
+    };
 
+    if (compact) {
+        return (
             <div
-                onClick={() => fileInputRef.current?.click()}
-                onDragOver={handleDragOver}
-                onDragLeave={handleDragLeave}
-                onDrop={handleDrop}
-                className={`group relative cursor-pointer overflow-hidden rounded-2xl border-2 border-dashed transition-all duration-300 ${
-                    isDragging
-                        ? "border-border bg-primary/10 scale-[1.008] shadow-[0_0_30px_color-mix(in_srgb,var(--primary)_25%,transparent)]"
-                        : "border-border bg-muted/60 hover:border-border/60 hover:bg-muted/90 hover:shadow-xl"
-                }`}
+                {...dropProps}
+                aria-disabled={full}
+                className={cn(
+                    "flex shrink-0 items-center gap-2.5 rounded-xl border-2 border-dashed px-3 py-2.5 text-left transition-colors outline-none focus-visible:ring-4 focus-visible:ring-primary/15",
+                    full ? "cursor-not-allowed border-border opacity-60" : "cursor-pointer",
+                    isDragging ? "border-primary bg-primary/5" : "border-border bg-card hover:border-primary/50",
+                )}
             >
-                {/* Decorative background glow */}
-                <div className="absolute -right-16 -top-16 h-32 w-32 rounded-full bg-primary/10 blur-2xl pointer-events-none group-hover:bg-primary/20 transition-all" />
-                <div className="absolute -left-16 -bottom-16 h-32 w-32 rounded-full bg-success/10 blur-2xl pointer-events-none group-hover:bg-success/15 transition-all" />
+                {input}
+                <span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary">
+                    <Plus className="h-4 w-4" />
+                </span>
+                <span className="min-w-0">
+                    <span className="block text-xs font-bold text-foreground">{full ? "Hàng đợi đã đầy" : "Thêm ảnh"}</span>
+                    <span className="block text-[11px] text-muted-foreground">
+                        {currentJobCount}/{MAX_FILES} ảnh · kéo thả hoặc bấm
+                    </span>
+                </span>
+            </div>
+        );
+    }
 
-                <div className="flex flex-col items-center justify-center px-6 py-10 text-center relative z-10">
-                    <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-tr from-primary/20 to-success/20 border border-border group-hover:scale-110 group-hover:border-border/40 transition-all duration-300 shadow-lg">
-                        <UploadCloud className="h-8 w-8 text-primary group-hover:text-primary transition-colors" />
-                    </div>
+    const specs = [
+        { icon: ImageIcon, label: "PNG, JPG, JPEG, WEBP", tone: toneByName("blue") },
+        { icon: FileText, label: "Tối đa 10 MB / ảnh", tone: toneByName("teal") },
+        { icon: AlertCircle, label: `Tối đa ${MAX_FILES} ảnh / phiên`, tone: toneByName("orange") },
+    ];
 
-                    <h3 className="mt-4 text-base font-semibold text-foreground group-hover:text-foreground transition-colors flex items-center gap-2">
-                        <span>Tải lên hình ảnh tài liệu để quét OCR</span>
-                        <Sparkles className="w-4 h-4 text-success" />
-                    </h3>
-
-                    <p className="mt-1 text-sm text-muted-foreground max-w-md">
-                        Kéo và thả file ảnh vào đây, hoặc{" "}
-                        <span className="text-primary font-medium underline underline-offset-4 decoration-primary/50 group-hover:text-primary">
-                            chọn từ máy tính
-                        </span>
-                    </p>
-
-                    <div className="mt-4 flex flex-wrap items-center justify-center gap-2 text-xs text-muted-foreground">
-                        <span className="inline-flex items-center gap-1 rounded-full bg-white/[0.04] px-2.5 py-1 border border-white/[0.06]">
-                            <ImageIcon className="w-3.5 h-3.5 text-primary" /> PNG, JPG, JPEG, WEBP
-                        </span>
-                        <span className="inline-flex items-center gap-1 rounded-full bg-white/[0.04] px-2.5 py-1 border border-white/[0.06]">
-                            <FileText className="w-3.5 h-3.5 text-success" /> Tối đa 10 MB / ảnh
-                        </span>
-                        <span className="inline-flex items-center gap-1 rounded-full bg-white/[0.04] px-2.5 py-1 border border-white/[0.06]">
-                            <AlertCircle className="w-3.5 h-3.5 text-warning" /> Tối đa 5 ảnh / phiên
-                        </span>
-                    </div>
-                </div>
+    return (
+        <div
+            {...dropProps}
+            className={cn(
+                "flex cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed px-6 py-16 text-center transition-colors outline-none focus-visible:ring-4 focus-visible:ring-primary/15",
+                isDragging ? "border-primary bg-primary/5" : "border-border bg-card hover:border-primary/50",
+            )}
+        >
+            {input}
+            <span className="grid h-16 w-16 place-items-center rounded-2xl bg-primary/10 text-primary">
+                <UploadCloud className="h-8 w-8" />
+            </span>
+            <h3 className="mt-4 text-base font-bold text-foreground">Thả ảnh tài liệu vào đây để quét OCR</h3>
+            <p className="mt-1 max-w-md text-sm text-muted-foreground">
+                hoặc <span className="font-semibold text-primary underline underline-offset-4">chọn từ máy tính</span> — ảnh được quét lần lượt, xong ảnh nào duyệt ảnh đó
+            </p>
+            <div className="mt-5 flex flex-wrap items-center justify-center gap-2">
+                {specs.map(({ icon: Icon, label, tone }) => (
+                    <span key={label} className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-bold" style={{ color: tone.ink, backgroundColor: tone.bg }}>
+                        <Icon className="h-3.5 w-3.5" /> {label}
+                    </span>
+                ))}
             </div>
         </div>
     );
