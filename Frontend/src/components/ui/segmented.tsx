@@ -30,7 +30,7 @@ function Segmented<T extends string>({
       data-slot="segmented"
       role="tablist"
       className={cn(
-        "inline-flex gap-0.5 rounded-xl border border-border bg-white/[0.04] p-0.5",
+        "inline-flex gap-0.5 rounded-xl border border-border bg-muted p-0.5",
         className
       )}
     >

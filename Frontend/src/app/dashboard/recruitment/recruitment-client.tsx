@@ -520,33 +520,33 @@ export default function RecruitmentClient({ userRole }: Props) {
             <Search className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
             <input type="text" placeholder="Tìm ứng viên, email, vị trí..." value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="h-8 w-full rounded-lg border border-transparent bg-white/[0.03] pl-8 pr-3 text-xs text-foreground outline-none placeholder:text-muted-foreground transition-colors focus:border-primary/30 focus:bg-white/[0.05]" />
+              className="h-8 w-full rounded-lg border border-border bg-card pl-8 pr-3 text-xs text-foreground outline-none placeholder:text-muted-foreground transition-colors focus:border-primary/40" />
           </div>
           <select value={jdFilter} onChange={(e) => setJdFilter(e.target.value)}
-            className="h-8 min-w-[110px] flex-1 rounded-lg border border-transparent bg-white/[0.03] px-2 text-xs text-muted-foreground outline-none transition-colors focus:border-primary/30 cursor-pointer">
+            className="h-8 min-w-[110px] flex-1 rounded-lg border border-border bg-card px-2 text-xs text-muted-foreground outline-none transition-colors focus:border-primary/40 cursor-pointer">
             <option value="">Tất cả JD</option>
             {jobDescriptions.map(jd => <option key={jd.id} value={jd.id}>{jd.title}</option>)}
           </select>
           <select value={skillFilter} onChange={(e) => setSkillFilter(e.target.value)}
-            className="h-8 min-w-[110px] flex-1 rounded-lg border border-transparent bg-white/[0.03] px-2 text-xs text-muted-foreground outline-none transition-colors focus:border-primary/30 cursor-pointer">
+            className="h-8 min-w-[110px] flex-1 rounded-lg border border-border bg-card px-2 text-xs text-muted-foreground outline-none transition-colors focus:border-primary/40 cursor-pointer">
             <option value="">Tất cả skill</option>
             {skills.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
           </select>
           <select value={cvStatusFilter} onChange={(e) => setCvStatusFilter(e.target.value)}
-            className="h-8 w-28 rounded-lg border border-transparent bg-white/[0.03] px-2 text-xs text-muted-foreground outline-none transition-colors focus:border-primary/30 cursor-pointer">
+            className="h-8 w-28 rounded-lg border border-border bg-card px-2 text-xs text-muted-foreground outline-none transition-colors focus:border-primary/40 cursor-pointer">
             <option value="">CV status</option>
             {CV_STATUS_OPTIONS.map(s => <option key={s} value={s}>{s}</option>)}
           </select>
           <input value={minScore} onChange={(e) => setMinScore(e.target.value)} type="number" min="0" max="100" placeholder="Min score"
-            className="h-8 w-20 rounded-lg border border-transparent bg-white/[0.03] px-2 text-xs text-foreground outline-none placeholder:text-muted-foreground transition-colors focus:border-primary/30" />
+            className="h-8 w-20 rounded-lg border border-border bg-card px-2 text-xs text-foreground outline-none placeholder:text-muted-foreground transition-colors focus:border-primary/40" />
           <input value={maxScore} onChange={(e) => setMaxScore(e.target.value)} type="number" min="0" max="100" placeholder="Max score"
-            className="h-8 w-20 rounded-lg border border-transparent bg-white/[0.03] px-2 text-xs text-foreground outline-none placeholder:text-muted-foreground transition-colors focus:border-primary/30" />
+            className="h-8 w-20 rounded-lg border border-border bg-card px-2 text-xs text-foreground outline-none placeholder:text-muted-foreground transition-colors focus:border-primary/40" />
           <input value={createdFrom} onChange={(e) => setCreatedFrom(e.target.value)} type="date"
-            className="h-8 w-32 rounded-lg border border-transparent bg-white/[0.03] px-2 text-xs text-muted-foreground outline-none scheme-dark transition-colors focus:border-primary/30" />
+            className="h-8 w-32 rounded-lg border border-border bg-card px-2 text-xs text-muted-foreground outline-none transition-colors focus:border-primary/40" />
           <input value={createdTo} onChange={(e) => setCreatedTo(e.target.value)} type="date"
-            className="h-8 w-32 rounded-lg border border-transparent bg-white/[0.03] px-2 text-xs text-muted-foreground outline-none scheme-dark transition-colors focus:border-primary/30" />
+            className="h-8 w-32 rounded-lg border border-border bg-card px-2 text-xs text-muted-foreground outline-none transition-colors focus:border-primary/40" />
           <select value={sortBy} onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
-            className="h-8 w-36 rounded-lg border border-transparent bg-white/[0.03] px-2 text-xs text-muted-foreground outline-none transition-colors focus:border-primary/30 cursor-pointer">
+            className="h-8 w-36 rounded-lg border border-border bg-card px-2 text-xs text-muted-foreground outline-none transition-colors focus:border-primary/40 cursor-pointer">
             <option value="date_desc">Ngày (mới nhất)</option>
             <option value="score_desc">Điểm (cao → thấp)</option>
             <option value="score_asc">Điểm (thấp → cao)</option>
@@ -555,7 +555,7 @@ export default function RecruitmentClient({ userRole }: Props) {
             className={`grid h-8 w-8 shrink-0 cursor-pointer place-items-center rounded-lg border transition-all ${
               activeFilterCount > 0
                 ? "border-primary/35 bg-primary/10 text-primary"
-                : "border-transparent bg-white/[0.03] text-muted-foreground hover:text-muted-foreground"
+                : "border-border bg-card text-muted-foreground hover:text-foreground"
             }`}>
             <RotateCcw className="h-3.5 w-3.5" />
           </button>

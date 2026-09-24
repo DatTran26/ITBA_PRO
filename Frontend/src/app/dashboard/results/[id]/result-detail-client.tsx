@@ -160,7 +160,7 @@ const CATEGORY_CONFIG = {
 const PRIORITY_CONFIG = {
     high: "bg-rose-500/15 text-danger border-rose-500/25",
     medium: "bg-amber-500/15 text-warning border-amber-500/25",
-    low: "bg-slate-500/15 text-muted-foreground border-slate-500/25",
+    low: "bg-muted text-muted-foreground border-border",
 };
 
 export default function ResultDetailClient({
