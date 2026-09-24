@@ -28,10 +28,6 @@ export default function DashboardHeader({ userRole }: { userRole?: string }) {
                     <div>
                         <div className="flex items-center gap-3 mb-1">
                             <h1 className="text-3xl md:text-4xl font-black text-foreground font-display tracking-tight">Dashboard</h1>
-                            <div className="px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 flex items-center gap-1.5 shadow-[0_0_15px_color-mix(in_srgb,var(--success)_10%,transparent)]">
-                                <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                                <span className="text-[10px] font-bold text-emerald-400 uppercase tracking-wider">Protocol Active</span>
-                            </div>
                         </div>
                         <p className="text-muted-foreground font-medium text-xs md:text-sm max-w-2xl leading-relaxed mt-1">
                             Trung tâm điều hành tuyển dụng AI — quản lý đánh giá, theo dõi ứng viên và phân tích chuyên sâu.

@@ -12,13 +12,11 @@ import {
     DialogFooter, DialogHeader, DialogTitle,
 } from "@/components/ui/dialog";
 import DashboardHeader from "@/components/dashboard/dashboard-header";
-import KpiCardGrid from "@/components/crm/kpi-card-grid";
 import OverviewBand from "@/components/shares/overview-band";
 import MonthlyChart from "@/components/dashboard/monthly-chart";
 import PipelineOverview from "@/components/dashboard/pipeline-overview";
 import AssessmentGrid from "@/components/dashboard/assessment-grid";
-import CandidatesAttention from "@/components/dashboard/candidates-attention";
-import AiInsights from "@/components/dashboard/ai-insights";
+import RecruitmentOverview from "@/components/dashboard/recruitment-overview";
 import DashboardModeTabs from "@/components/dashboard/dashboard-mode-tabs";
 import EmployeeKpiCards from "@/components/dashboard/employee-kpi-cards";
 import SkillGapOverview from "@/components/dashboard/skill-gap-overview";
@@ -27,8 +25,7 @@ import TokenUsageChart from "@/components/dashboard/token-usage-chart";
 import FeatureBreakdown from "@/components/dashboard/feature-breakdown";
 import ActiveRecruiters from "@/components/dashboard/active-recruiters";
 import AdminQuickLinks from "@/components/dashboard/admin-quick-links";
-import { ShieldAlert, Trash2, Power, AlertTriangle, CheckCircle2,
-         Database, Send, Clock, CheckCircle, XCircle, Sparkles } from "lucide-react";
+import { Trash2, Power, AlertTriangle } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import type { DashboardUser, DashboardTest, DashboardStats, PipelineStage, AttentionCandidate, MonthlyData, PendingAiResult, DashboardMode, EmployeeStats, SkillGapItem, AdminStats } from "./types";
 import HrDashboardClient from "./hr-dashboard-client";
@@ -100,16 +97,6 @@ export default function DashboardClient({
         }
     }
 
-    // Sáu thẻ trải ngang, lấy thẳng từ DashboardStats mà trang chủ đã tính.
-    const recruitmentKpis = [
-        { label: "Đề thi đang mở", value: stats.activeTests, icon: Database },
-        { label: "Lượt nộp", value: stats.totalSubmissions, icon: Send },
-        { label: "Chờ duyệt", value: stats.pendingReview, icon: Clock },
-        { label: "Đạt", value: stats.passed, icon: CheckCircle },
-        { label: "Không đạt", value: stats.failed, icon: XCircle },
-        { label: "Chờ AI chấm", value: stats.pendingAiReview, icon: Sparkles },
-    ];
-
     return (
         <PageTransition className="min-h-screen bg-transparent text-foreground font-body selection:bg-primary/30 selection:text-white pb-12">
             {layout !== "sidebar" && <AppNavbar user={user} />}
@@ -138,17 +125,14 @@ export default function DashboardClient({
                     </>
                 ) : mode === "recruitment" ? (
                     <>
-                        <div className="mb-6">
-                            <KpiCardGrid items={recruitmentKpis} />
-                        </div>
-
-                        <OverviewBand>
-                            <PipelineOverview stages={pipeline} />
-                            <MonthlyChart data={monthlyData} />
-                            <AiInsights stats={stats} tests={localTests} pendingAiResults={pendingAiResults} />
-                        </OverviewBand>
-
-                        <CandidatesAttention candidates={attentionCandidates} />
+                        <RecruitmentOverview
+                            stats={stats}
+                            tests={localTests}
+                            monthlyData={monthlyData}
+                            attentionCandidates={attentionCandidates}
+                            pendingAiResults={pendingAiResults}
+                        />
+                        <div className="mt-8" />
                         <AssessmentGrid
                             tests={localTests}
                             onToggleStatus={setConfirmToggle}
