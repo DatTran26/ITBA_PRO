@@ -3,8 +3,11 @@
 import { useEffect, useMemo, useState } from "react";
 import {
   ArrowLeft, Copy, ExternalLink, FileText, Loader2, Search,
-  Mic, Square, Pause, Play, Trash2, Upload, Sparkles, Edit3, Save, X, Volume2
+  Mic, Square, Pause, Play, Trash2, Upload, Sparkles, Edit3, Save, X, Volume2, DoorOpen, CalendarX2
 } from "lucide-react";
+import { SharedDashboardPageHeader } from "@/components/shares";
+import { EmptyState } from "@/components/ui/empty-state";
+import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
@@ -408,30 +411,41 @@ export default function InterviewRoomSessionClient({ sessionId }: { sessionId: s
     return <div className="flex justify-center py-24"><Loader2 className="h-6 w-6 animate-spin text-primary" /></div>;
   }
 
-  if (!session) return null;
+  if (!session) {
+    return (
+      <EmptyState
+        className="rounded-2xl border border-border bg-card py-16"
+        icon={<CalendarX2 />}
+        title="Không mở được buổi phỏng vấn"
+        description="Buổi này không tồn tại, chưa được chấp nhận, hoặc dữ liệu phỏng vấn chưa sẵn sàng."
+        action={<Button variant="outline" onClick={() => router.push("/dashboard/interview-room")}><ArrowLeft />Về phòng chờ</Button>}
+      />
+    );
+  }
 
   return (
     <div className="space-y-5">
-      <button onClick={() => router.push("/dashboard/interview-room")} className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground"><ArrowLeft className="h-4 w-4" />Interview Room</button>
-
-      <div className="rounded-2xl border border-border/12 bg-background p-5">
-        <p className="text-xs uppercase tracking-[0.2em] text-primary">Round {session.round}</p>
-        <h1 className="mt-2 text-2xl font-semibold text-foreground">{session.job_descriptions?.title ?? "Interview Session"}</h1>
-        <p className="mt-1 text-sm text-muted-foreground">{new Date(session.scheduled_at).toLocaleString("vi-VN")} · {session.duration_minutes} phút</p>
-      </div>
+      <SharedDashboardPageHeader
+        className="mb-6"
+        title={session.job_descriptions?.title ?? "Buổi phỏng vấn"}
+        icon={DoorOpen}
+        badge={{ label: `Vòng ${session.round}`, tone: session.round === 1 ? "blue" : session.round === 2 ? "violet" : "pink" }}
+        description={`${new Date(session.scheduled_at).toLocaleString("vi-VN")} · ${session.duration_minutes} phút`}
+        actions={<Button variant="outline" onClick={() => router.push("/dashboard/interview-room")}><ArrowLeft />Phòng chờ</Button>}
+      />
 
       <div className="grid gap-5 lg:grid-cols-[360px_1fr]">
-        <div className="rounded-2xl border border-border/12 bg-background p-4">
+        <div className="rounded-2xl border border-border bg-card p-4">
           <div className="relative mb-3">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Tìm tên/email candidate..." className="w-full rounded-lg border border-border/15 bg-background py-2 pl-9 pr-3 text-sm text-foreground focus:border-border/50 focus:outline-none" />
+            <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Tìm tên/email candidate..." className="w-full rounded-lg border border-border bg-card py-2 pl-9 pr-3 text-sm text-foreground focus:border-primary/50 focus:ring-4 focus:ring-primary/15 focus:outline-none" />
           </div>
           <div className="space-y-2">
             {filtered.map((item) => {
               const itemPerson = item.job_applications?.persons;
               const active = selected?.id === item.id;
               return (
-                <button key={item.id} onClick={() => setSelectedId(item.id)} className={`w-full rounded-lg border p-3 text-left transition-colors ${active ? "border-border/40 bg-background/10" : "border-border/12 bg-primary hover:border-border/25"}`}>
+                <button key={item.id} onClick={() => setSelectedId(item.id)} className={`w-full rounded-lg border p-3 text-left transition-colors ${active ? "border-primary bg-primary/5" : "border-border bg-primary hover:border-border"}`}>
                   <p className="truncate text-sm font-semibold text-foreground">{itemPerson?.full_name ?? "Candidate"}</p>
                   <p className="truncate text-xs text-muted-foreground">{itemPerson?.email ?? "-"}</p>
                 </button>
@@ -441,7 +455,7 @@ export default function InterviewRoomSessionClient({ sessionId }: { sessionId: s
           </div>
         </div>
 
-        <div className="rounded-2xl border border-border/12 bg-background p-5">
+        <div className="rounded-2xl border border-border bg-card p-5">
           {!selected || !person ? (
             <p className="text-sm text-muted-foreground">Chọn candidate để xem chi tiết.</p>
           ) : (
@@ -455,17 +469,17 @@ export default function InterviewRoomSessionClient({ sessionId }: { sessionId: s
                   <button
                     onClick={handleExportPdf}
                     disabled={isExporting}
-                    className="inline-flex items-center gap-2 rounded-lg border border-border/30 bg-primary/10 px-3 py-2 text-sm text-primary hover:bg-primary/20 disabled:opacity-50 transition-colors"
+                    className="inline-flex items-center gap-2 rounded-lg border border-border bg-primary/10 px-3 py-2 text-sm text-primary hover:bg-primary/20 disabled:opacity-50 transition-colors"
                   >
                     {isExporting ? <Loader2 className="h-4 w-4 animate-spin" /> : <FileText className="h-4 w-4" />}
                     Xuất PDF Report
                   </button>
-                  <button onClick={() => router.push(`/dashboard/recruitment/${selected.job_application_id}`)} className="inline-flex items-center gap-2 rounded-lg border border-border/30 bg-primary/10 px-3 py-2 text-sm text-primary hover:bg-primary/20 transition-colors"><FileText className="h-4 w-4" />Mở hồ sơ CV</button>
+                  <button onClick={() => router.push(`/dashboard/recruitment/${selected.job_application_id}`)} className="inline-flex items-center gap-2 rounded-lg border border-border bg-primary/10 px-3 py-2 text-sm text-primary hover:bg-primary/20 transition-colors"><FileText className="h-4 w-4" />Mở hồ sơ CV</button>
                 </div>
               </div>
 
               {/* Navigation Tabs */}
-              <div className="flex border-b border-border/12">
+              <div className="flex border-b border-border">
                 <button
                   onClick={() => setActiveTab("info")}
                   className={`px-4 py-2.5 text-sm font-semibold border-b-2 transition-all duration-200 ${
@@ -496,12 +510,12 @@ export default function InterviewRoomSessionClient({ sessionId }: { sessionId: s
                     <Metric label="Test Status" value={sessionResult?.status ?? "not_started"} />
                   </div>
 
-                  <div className="rounded-xl border border-border/12 bg-background p-4">
+                  <div className="rounded-xl border border-border bg-card p-4">
                     <h3 className="text-sm font-semibold text-foreground">CV Analysis</h3>
                     <p className="mt-2 text-sm text-muted-foreground">{screening?.summary ?? "Chưa có summary CV analysis."}</p>
                   </div>
 
-                  <div className="rounded-xl border border-border/12 bg-background p-4">
+                  <div className="rounded-xl border border-border bg-card p-4">
                     <h3 className="text-sm font-semibold text-foreground">Session Test</h3>
                     {session.tests ? (
                       <div className="mt-2 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -515,7 +529,7 @@ export default function InterviewRoomSessionClient({ sessionId }: { sessionId: s
                   </div>
 
                   {sessionResult && (
-                    <div className="rounded-xl border border-border/20 bg-success/10 p-4 text-sm text-success">
+                    <div className="rounded-xl border border-border bg-success/10 p-4 text-sm text-success">
                       Submitted: {sessionResult.submitted_at ? new Date(sessionResult.submitted_at).toLocaleString("vi-VN") : "-"}
                       <button onClick={() => router.push(`/dashboard/results/${sessionResult.id}`)} className="ml-3 inline-flex items-center gap-1 text-foreground underline"><ExternalLink className="h-3 w-3" />View result</button>
                     </div>
@@ -526,7 +540,7 @@ export default function InterviewRoomSessionClient({ sessionId }: { sessionId: s
               {activeTab === "recording" && (
                 <div className="space-y-6">
                   {/* Voice Recorder Control Panel */}
-                  <div className="rounded-xl border border-border/12 bg-background p-5">
+                  <div className="rounded-xl border border-border bg-card p-5">
                     <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                       <div>
                         <h3 className="text-sm font-semibold text-foreground">Ghi âm cuộc phỏng vấn</h3>
@@ -537,14 +551,14 @@ export default function InterviewRoomSessionClient({ sessionId }: { sessionId: s
                       <div className="flex items-center gap-3">
                         {recordingState === "recording" && (
                           <span className="flex h-3 w-3 relative">
-                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-                            <span className="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
+                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-destructive/60 opacity-75"></span>
+                            <span className="relative inline-flex rounded-full h-3 w-3 bg-destructive"></span>
                           </span>
                         )}
                         <span className="text-lg font-mono text-foreground">
                           {recordingState !== "idle" && formatTimer(duration)}
                         </span>
-                        <span className="text-xs uppercase tracking-wider text-muted-foreground bg-background border border-border/15 px-2 py-1 rounded">
+                        <span className="text-xs font-semibold text-muted-foreground bg-muted px-2 py-1 rounded">
                           {recordingState}
                         </span>
                       </div>
@@ -555,7 +569,7 @@ export default function InterviewRoomSessionClient({ sessionId }: { sessionId: s
                       {recordingState === "idle" && !session.recording_url && !audioUrl && (
                         <button
                           onClick={startRecording}
-                          className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-white hover:bg-primary transition-colors"
+                          className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground hover:bg-primary/90 transition-colors"
                         >
                           <Mic className="h-4.5 w-4.5" /> Bắt đầu ghi âm
                         </button>
@@ -571,7 +585,7 @@ export default function InterviewRoomSessionClient({ sessionId }: { sessionId: s
                           </button>
                           <button
                             onClick={stopRecording}
-                            className="inline-flex items-center gap-2 rounded-lg bg-red-500 px-4 py-2.5 text-sm font-semibold text-foreground hover:bg-red-600 transition-colors"
+                            className="inline-flex items-center gap-2 rounded-lg bg-destructive px-4 py-2.5 text-sm font-semibold text-white hover:bg-destructive/90 transition-colors"
                           >
                             <Square className="h-4.5 w-4.5" /> Dừng & Lưu
                           </button>
@@ -582,13 +596,13 @@ export default function InterviewRoomSessionClient({ sessionId }: { sessionId: s
                         <>
                           <button
                             onClick={resumeRecording}
-                            className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-white hover:bg-primary transition-colors"
+                            className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground hover:bg-primary/90 transition-colors"
                           >
                             <Play className="h-4.5 w-4.5" /> Tiếp tục
                           </button>
                           <button
                             onClick={stopRecording}
-                            className="inline-flex items-center gap-2 rounded-lg bg-red-500 px-4 py-2.5 text-sm font-semibold text-foreground hover:bg-red-600 transition-colors"
+                            className="inline-flex items-center gap-2 rounded-lg bg-destructive px-4 py-2.5 text-sm font-semibold text-white hover:bg-destructive/90 transition-colors"
                           >
                             <Square className="h-4.5 w-4.5" /> Dừng & Lưu
                           </button>
@@ -600,7 +614,7 @@ export default function InterviewRoomSessionClient({ sessionId }: { sessionId: s
                         <div className="w-full space-y-3 mt-2">
                           <p className="text-xs text-muted-foreground">Bản ghi âm hoàn tất. Bạn có thể nghe thử trước khi upload:</p>
                           <div className="flex items-center gap-3">
-                            <audio src={audioUrl} controls className="w-full h-10 rounded bg-background" />
+                            <audio src={audioUrl} controls className="w-full h-10 rounded" />
                             <button
                               onClick={uploadAudio}
                               disabled={isUploading}
@@ -616,7 +630,7 @@ export default function InterviewRoomSessionClient({ sessionId }: { sessionId: s
                             <button
                               onClick={discardRecording}
                               disabled={isUploading}
-                              className="inline-flex items-center justify-center p-2 rounded-lg border border-red-500/30 text-red-400 hover:bg-red-500/10 disabled:opacity-50"
+                              className="inline-flex items-center justify-center p-2 rounded-lg border border-destructive/30 text-destructive hover:bg-destructive/10 disabled:opacity-50"
                             >
                               <Trash2 className="h-4.5 w-4.5" />
                             </button>
@@ -628,7 +642,7 @@ export default function InterviewRoomSessionClient({ sessionId }: { sessionId: s
                       {session.signed_recording_url && (
                         <div className="w-full space-y-4 mt-2">
                           <div className="flex items-center justify-between">
-                            <span className="inline-flex items-center gap-1.5 text-xs text-success bg-success/10 px-2.5 py-1 rounded-full border border-border/25">
+                            <span className="inline-flex items-center gap-1.5 text-xs text-success bg-success/10 px-2.5 py-1 rounded-full border border-border">
                               <Volume2 className="h-3.5 w-3.5" /> Đã lưu trên cloud
                             </span>
 
@@ -636,7 +650,7 @@ export default function InterviewRoomSessionClient({ sessionId }: { sessionId: s
                             {recordingState === "idle" && (
                               <button
                                 onClick={startRecording}
-                                className="inline-flex items-center gap-1 text-xs text-red-400 hover:text-red-300 underline"
+                                className="inline-flex items-center gap-1 text-xs text-destructive hover:text-destructive/80 underline"
                               >
                                 Ghi âm đè/lại bản mới
                               </button>
@@ -644,11 +658,11 @@ export default function InterviewRoomSessionClient({ sessionId }: { sessionId: s
                           </div>
 
                           <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-                            <audio src={session.signed_recording_url} controls className="w-full h-10 rounded bg-background" />
+                            <audio src={session.signed_recording_url} controls className="w-full h-10 rounded" />
                             <button
                               onClick={analyzeSession}
                               disabled={isAnalyzing}
-                              className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-5 py-2 text-sm font-semibold text-white hover:bg-primary disabled:opacity-50 whitespace-nowrap"
+                              className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-5 py-2 text-sm font-semibold text-primary-foreground hover:bg-primary/90 disabled:opacity-50 whitespace-nowrap"
                             >
                               {isAnalyzing ? (
                                 <>
@@ -670,8 +684,8 @@ export default function InterviewRoomSessionClient({ sessionId }: { sessionId: s
                   <div className="grid grid-cols-1 xl:grid-cols-2 gap-5">
 
                     {/* Transcript Panel */}
-                    <div className="rounded-xl border border-border/12 bg-background p-4 flex flex-col min-h-[400px]">
-                      <div className="flex items-center justify-between border-b border-border/12 pb-3 mb-3">
+                    <div className="rounded-xl border border-border bg-card p-4 flex flex-col min-h-[400px]">
+                      <div className="flex items-center justify-between border-b border-border pb-3 mb-3">
                         <h3 className="text-sm font-semibold text-foreground flex items-center gap-1.5">
                           <FileText className="h-4 w-4 text-primary" /> Transcript cuộc phỏng vấn
                         </h3>
@@ -698,7 +712,7 @@ export default function InterviewRoomSessionClient({ sessionId }: { sessionId: s
                             <button
                               onClick={() => setIsEditingTranscript(false)}
                               disabled={isSavingTranscript}
-                              className="inline-flex items-center gap-1 text-xs text-red-400 hover:text-foreground"
+                              className="inline-flex items-center gap-1 text-xs text-destructive hover:text-destructive/80"
                             >
                               <X className="h-3.5 w-3.5" /> Hủy
                             </button>
@@ -711,7 +725,7 @@ export default function InterviewRoomSessionClient({ sessionId }: { sessionId: s
                           <textarea
                             value={editedTranscript}
                             onChange={(e) => setEditedTranscript(e.target.value)}
-                            className="w-full flex-1 min-h-[300px] rounded-lg border border-border/15 bg-background p-3 text-sm text-foreground focus:border-border/50 focus:outline-none resize-none font-sans"
+                            className="w-full flex-1 min-h-[300px] rounded-lg border border-border bg-card p-3 text-sm text-foreground focus:border-primary/50 focus:ring-4 focus:ring-primary/15 focus:outline-none resize-none font-sans"
                             placeholder="Nhập nội dung transcript cuộc phỏng vấn..."
                           />
                         ) : (
@@ -727,8 +741,8 @@ export default function InterviewRoomSessionClient({ sessionId }: { sessionId: s
                     </div>
 
                     {/* AI Summary Panel */}
-                    <div className="rounded-xl border border-border/12 bg-background p-4 flex flex-col min-h-[400px]">
-                      <div className="flex items-center justify-between border-b border-border/12 pb-3 mb-3">
+                    <div className="rounded-xl border border-border bg-card p-4 flex flex-col min-h-[400px]">
+                      <div className="flex items-center justify-between border-b border-border pb-3 mb-3">
                         <h3 className="text-sm font-semibold text-foreground flex items-center gap-1.5">
                           <Sparkles className="h-4 w-4 text-warning" /> AI Summary & Đánh giá
                         </h3>
@@ -755,7 +769,7 @@ export default function InterviewRoomSessionClient({ sessionId }: { sessionId: s
                             <button
                               onClick={() => setIsEditingAiSummary(false)}
                               disabled={isSavingAiSummary}
-                              className="inline-flex items-center gap-1 text-xs text-red-400 hover:text-foreground"
+                              className="inline-flex items-center gap-1 text-xs text-destructive hover:text-destructive/80"
                             >
                               <X className="h-3.5 w-3.5" /> Hủy
                             </button>
@@ -768,7 +782,7 @@ export default function InterviewRoomSessionClient({ sessionId }: { sessionId: s
                           <textarea
                             value={editedAiSummary}
                             onChange={(e) => setEditedAiSummary(e.target.value)}
-                            className="w-full flex-1 min-h-[300px] rounded-lg border border-border/15 bg-background p-3 text-sm text-foreground focus:border-border/50 focus:outline-none resize-none font-sans"
+                            className="w-full flex-1 min-h-[300px] rounded-lg border border-border bg-card p-3 text-sm text-foreground focus:border-primary/50 focus:ring-4 focus:ring-primary/15 focus:outline-none resize-none font-sans"
                             placeholder="Nhập nội dung đánh giá bằng định dạng Markdown..."
                           />
                         ) : (
@@ -791,5 +805,5 @@ export default function InterviewRoomSessionClient({ sessionId }: { sessionId: s
 }
 
 function Metric({ label, value }: { label: string; value: string | number }) {
-  return <div className="rounded-xl border border-border/12 bg-background p-4"><p className="text-xs uppercase tracking-wide text-muted-foreground">{label}</p><p className="mt-1 text-xl font-bold text-foreground">{value}</p></div>;
+  return <div className="rounded-xl border border-border bg-card p-4"><p className="text-xs uppercase tracking-wide text-muted-foreground">{label}</p><p className="mt-1 text-xl font-bold text-foreground">{value}</p></div>;
 }
