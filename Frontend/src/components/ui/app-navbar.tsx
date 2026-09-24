@@ -4,7 +4,7 @@ import { alpha } from "@/lib/utils";
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Search, HelpCircle, ChevronDown, GitBranch } from "lucide-react";
+import { HelpCircle, ChevronDown, GitBranch } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import NotificationBell from "@/components/ui/notification-bell";
 import NavbarUserDropdown from "@/components/ui/navbar-user-dropdown";
@@ -35,8 +35,6 @@ interface AppNavbarProps {
     user?: { name: string; email: string; role: string } | null;
     /** Show notification bell (default: true) */
     showNotifications?: boolean;
-    /** Show search bar (default: true) */
-    showSearch?: boolean;
 }
 
 export function AppLogo({ showText = true }: { showText?: boolean }) {
@@ -154,7 +152,6 @@ function VersionsStandaloneLink({ pathname }: { pathname: string }) {
 export default function AppNavbar({
     user: userProp,
     showNotifications = true,
-    showSearch = true,
 }: AppNavbarProps) {
     const [user, setUser] = useState(userProp ?? null);
     const pathname = usePathname();
@@ -205,26 +202,7 @@ export default function AppNavbar({
                     <VersionsStandaloneLink pathname={pathname} />
                 )}
 
-                {/* ── Center: Global Search ── */}
-                {showSearch && (
-                    <div className="flex-1 flex justify-center max-w-md mx-auto">
-                        <div className="relative w-full hidden md:block">
-                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
-                            <input
-                                type="text"
-                                placeholder="Search candidates, assessments, or insights..."
-                                className="w-full h-9 pl-9 pr-4 rounded-lg bg-card/60 border border-muted-foreground/10 text-sm text-foreground placeholder:text-muted-foreground/70 focus:outline-none focus:border-background/40 focus:ring-1 focus:ring-primary/20 transition-all"
-                            />
-                        </div>
-                        {/* Mobile search icon */}
-                        <button className="md:hidden p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors cursor-pointer" title="Search">
-                            <Search className="w-4 h-4" />
-                        </button>
-                    </div>
-                )}
-
-                {/* Spacer when no search */}
-                {!showSearch && <div className="flex-1" />}
+                <div className="flex-1" />
 
                 {/* ── Right: Actions ── */}
                 <div className="flex items-center gap-1 shrink-0">

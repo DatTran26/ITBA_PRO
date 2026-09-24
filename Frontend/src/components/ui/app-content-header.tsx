@@ -1,6 +1,6 @@
 "use client";
 
-import { Menu, Search, HelpCircle } from "lucide-react";
+import { Menu, HelpCircle } from "lucide-react";
 import NotificationBell from "@/components/ui/notification-bell";
 import NavbarUserDropdown from "@/components/ui/navbar-user-dropdown";
 import type { UserRole } from "@/components/ui/nav-config";
@@ -21,15 +21,13 @@ interface AppContentHeaderProps {
     pageTitle?: string;
     /** Breadcrumb trail (last item = current page, no link). */
     breadcrumbs?: BreadcrumbItem[];
-    /** Show search bar (default: true). */
-    showSearch?: boolean;
     /** Show notification bell (default: true). */
     showNotifications?: boolean;
 }
 
 /**
  * Thin utility strip rendered above main content in sidebar layout.
- * Sidebar handles navigation; this strip handles search + bell + help.
+ * Sidebar handles navigation; this strip handles breadcrumbs + bell + help.
  * Renders ONLY when ui_layout === 'sidebar' (NavShell decides).
  */
 export default function AppContentHeader({
@@ -38,7 +36,6 @@ export default function AppContentHeader({
     onMobileMenuClick,
     pageTitle,
     breadcrumbs,
-    showSearch = true,
     showNotifications = true,
 }: AppContentHeaderProps) {
     return (
@@ -70,24 +67,7 @@ export default function AppContentHeader({
                     : pageTitle && <span className="text-foreground truncate">{pageTitle}</span>}
             </div>
 
-            {/* Search center (desktop only) */}
-            {showSearch ? (
-                <div className="flex-1 hidden md:flex justify-center">
-                    <div className="relative w-full max-w-md">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
-                        <input
-                            type="text"
-                            placeholder="Search candidates, assessments, or insights..."
-                            className="w-full h-9 pl-9 pr-4 rounded-lg bg-card/60 border border-muted-foreground/10 text-sm text-foreground placeholder:text-muted-foreground/70 focus:outline-none focus:border-background/40 focus:ring-1 focus:ring-primary/20 transition-all"
-                        />
-                    </div>
-                </div>
-            ) : (
-                <div className="flex-1" />
-            )}
-
-            {/* Mobile spacer when search is hidden */}
-            <div className={showSearch ? "flex-1 md:hidden" : ""} />
+            <div className="flex-1" />
 
             {/* Right: Help + Bell + User */}
             <div className="flex items-center gap-1 shrink-0">
