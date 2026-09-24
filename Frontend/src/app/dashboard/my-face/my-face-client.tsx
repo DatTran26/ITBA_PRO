@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import Image from "next/image";
-import { Camera, Check, Loader2, Play, RefreshCw, ScanFace, Square, Trash2, Upload, X, ShieldCheck } from "lucide-react";
+import { Camera, Check, Loader2, Play, RefreshCw, ScanFace, Square, Upload, X, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
 import AppNavbar from "@/components/ui/app-navbar";
 import PageBreadcrumb from "@/components/ui/page-breadcrumb";
@@ -26,6 +26,8 @@ type Capture = { file: File; url: string };
 
 export default function MyFaceClient() {
   const [enrollment, setEnrollment] = useState<{ id: string; created_at: string } | null>(null);
+  const [reauthRequired, setReauthRequired] = useState(false);
+  const [canSelfEnroll, setCanSelfEnroll] = useState(false);
   const [loaded, setLoaded] = useState(false);
   const [captures, setCaptures] = useState<Array<Capture | null>>(() => ANGLES.map(() => null));
   const [activeAngle, setActiveAngle] = useState(0);
@@ -44,9 +46,17 @@ export default function MyFaceClient() {
 
   const load = useCallback(async () => {
     const response = await fetch("/api/face/self-enroll", { cache: "no-store" });
-    const data = await readApiResponse<{ enrolled: boolean; enrollment: { id: string; created_at: string } | null; error?: string }>(response);
+    const data = await readApiResponse<{
+      enrolled: boolean;
+      enrollment: { id: string; created_at: string } | null;
+      reauthRequired?: boolean;
+      canSelfEnroll?: boolean;
+      error?: string;
+    }>(response);
     if (!response.ok) throw new Error(data.error ?? "Unable to load enrollment status");
     setEnrollment(data.enrollment);
+    setReauthRequired(Boolean(data.reauthRequired));
+    setCanSelfEnroll(Boolean(data.canSelfEnroll));
     setLoaded(true);
   }, []);
 
@@ -191,6 +201,10 @@ export default function MyFaceClient() {
   }
 
   async function enroll() {
+    if (!canSelfEnroll) {
+      toast.error("An administrator must send a face verification link first.");
+      return;
+    }
     if (captures.some((capture) => !capture)) return;
     setBusy(true);
     const body = new FormData();
@@ -210,22 +224,6 @@ export default function MyFaceClient() {
     }
   }
 
-  async function remove() {
-    if (!confirm("Delete your face enrollment? Face ID sign-in and attendance will stop working.")) return;
-    setBusy(true);
-    try {
-      const response = await fetch("/api/face/self-enroll", { method: "DELETE" });
-      const data = await readApiResponse<{ error?: string }>(response);
-      if (!response.ok) throw new Error(data.error ?? "Unable to delete face enrollment");
-      toast.success("Face enrollment deleted");
-      await load();
-    } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Unable to delete face enrollment");
-    } finally {
-      setBusy(false);
-    }
-  }
-
   return (
     <div className="min-h-screen bg-[#121A2E] text-[#ECF0F7]">
       <AppNavbar />
@@ -234,7 +232,11 @@ export default function MyFaceClient() {
         <div className="mb-8 flex items-end justify-between gap-4">
           <div>
             <h1 className="font-display text-4xl font-light">My Face</h1>
-            <p className="mt-2 text-[#8B99B0]">Enroll your face for Face ID sign-in and attendance.</p>
+            <p className="mt-2 text-[#8B99B0]">
+              {reauthRequired
+                ? "An administrator requested a new six-angle face capture before Face ID can be used."
+                : "Your enrolled face is used for Face ID sign-in and attendance. Updates require an administrator link."}
+            </p>
           </div>
           <Button variant="outline" size="icon" title="Refresh" onClick={() => load()}>
             <RefreshCw />
@@ -246,7 +248,7 @@ export default function MyFaceClient() {
           <Card className="mb-6 rounded-lg bg-[#10192B]/80">
             <CardContent className="flex items-center justify-between gap-4 py-4">
               <div className="flex items-center gap-3">
-                {enrollment ? (
+                {enrollment && !reauthRequired ? (
                   <>
                     <ShieldCheck className="size-5 text-[#36DDAB]" />
                     <div>
@@ -260,21 +262,21 @@ export default function MyFaceClient() {
                   <>
                     <ScanFace className="size-5 text-[#FF6B82]" />
                     <div>
-                      <p className="font-medium text-[#FF6B82]">Face not enrolled</p>
-                      <p className="text-xs text-[#8B99B0]">Capture the six face angles below to enroll.</p>
+                      <p className="font-medium text-[#FF6B82]">{reauthRequired ? "Face recapture required" : "Face not enrolled"}</p>
+                      <p className="text-xs text-[#8B99B0]">
+                        {canSelfEnroll
+                          ? "Capture the six face angles below to continue."
+                          : "Ask an administrator to send a face verification link."}
+                      </p>
                     </div>
                   </>
                 )}
               </div>
-              {enrollment && (
-                <Button variant="destructive" size="sm" disabled={busy} onClick={remove}>
-                  <Trash2 className="mr-1 size-4" /> Delete
-                </Button>
-              )}
             </CardContent>
           </Card>
         )}
 
+        {canSelfEnroll ? (
         <div className="grid gap-5 lg:grid-cols-[420px_1fr]">
           {/* Camera & capture panel */}
           <Card className="rounded-lg bg-[#10192B]/80">
@@ -411,12 +413,19 @@ export default function MyFaceClient() {
                 <ul className="list-disc list-inside space-y-1 text-sm">
                   <li>Face images are processed by the internal server and are not sent to external services.</li>
                   <li>Recognition data is stored securely.</li>
-                  <li>You can delete your enrollment at any time.</li>
+                  <li>Face updates require an administrator verification link.</li>
                 </ul>
               </div>
             </CardContent>
           </Card>
         </div>
+        ) : loaded ? (
+          <Card className="rounded-lg bg-[#10192B]/80">
+            <CardContent className="py-8 text-sm text-[#8B99B0]">
+              Face capture is locked until an administrator sends a verification link. Sign in with your password if you already have access, then wait for that link, or open the link from email/chat.
+            </CardContent>
+          </Card>
+        ) : null}
       </PageContainer>
     </div>
   );

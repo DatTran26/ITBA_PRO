@@ -4,7 +4,7 @@ import { DEV_AUTH_COOKIE, parseDevAuthCookie } from '@/lib/dev-auth'
 
 export async function middleware(request: NextRequest) {
     const pathname = request.nextUrl.pathname
-    const publicRoutes = ['/login', '/register', '/reset-password', '/test/']
+    const publicRoutes = ['/login', '/register', '/reset-password', '/face-reauth', '/test/']
     const isPublicRoute = pathname === '/' || publicRoutes.some(r => pathname.startsWith(r))
     const isApiRoute = pathname.startsWith('/api/')
     const hasDevAuth = !!parseDevAuthCookie(request.cookies.get(DEV_AUTH_COOKIE)?.value)
@@ -65,10 +65,21 @@ export async function middleware(request: NextRequest) {
 
     // For authenticated users: enforce routing rules
     if (user) {
-        // All roles land on /dashboard after login — no role check needed
+        const faceReauthRequired = user.user_metadata?.face_reauth_required === true
+        const faceReauthAllowed =
+            pathname.startsWith("/dashboard/my-face") ||
+            pathname.startsWith("/face-reauth") ||
+            pathname.startsWith("/reset-password")
+
         if (pathname === "/login" || pathname === "/register") {
             const url = request.nextUrl.clone();
-            url.pathname = "/dashboard";
+            url.pathname = faceReauthRequired ? "/dashboard/my-face" : "/dashboard";
+            return NextResponse.redirect(url);
+        }
+
+        if (faceReauthRequired && pathname.startsWith("/dashboard") && !faceReauthAllowed) {
+            const url = request.nextUrl.clone();
+            url.pathname = "/dashboard/my-face";
             return NextResponse.redirect(url);
         }
 
@@ -79,7 +90,8 @@ export async function middleware(request: NextRequest) {
             pathname !== "/dashboard" &&
             !pathname.startsWith("/dashboard/recruitment") &&
             !pathname.startsWith("/dashboard/profile") &&
-            !pathname.startsWith("/dashboard/versions");
+            !pathname.startsWith("/dashboard/versions") &&
+            !pathname.startsWith("/dashboard/my-face");
 
         if (isBlockedForHr) {
             const { data: roleData } = await supabase

@@ -25,6 +25,7 @@ Thumbs.db
 secrets/
 TIEN_DO.md
 *.pt
+*.onnx
 /data/vision-ai/
 /models/vision-ai/
 

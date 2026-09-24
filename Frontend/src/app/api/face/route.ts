@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getAuthContext, isAuthError } from "@/lib/api/auth-helpers";
 import { callVisionAi, canManageVision, validateImage } from "@/lib/vision-ai";
 import { getAllFaceUsers, saveFaceEnrollment, deleteFaceEnrollment } from "@/lib/face-store";
+import { completeFaceReauthForUser } from "@/lib/face-reauth";
 
 export const runtime = "nodejs";
 export const maxDuration = 300;
@@ -48,6 +49,7 @@ export async function POST(request: Request) {
     if (!Array.isArray(result.embeddings) || result.embeddings.length !== 6) throw new Error("Invalid enroll response");
 
     await saveFaceEnrollment(target, result.embeddings);
+    await completeFaceReauthForUser(userId);
 
     return NextResponse.json({
       enrollment: {

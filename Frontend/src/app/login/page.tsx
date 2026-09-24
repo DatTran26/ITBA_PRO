@@ -42,6 +42,8 @@ export default function LoginPage() {
     const [isFaceBusy, setIsFaceBusy] = useState(false);
     const [faceAttempts, setFaceAttempts] = useState(0);
     const [isFaceAutoScanning, setIsFaceAutoScanning] = useState(false);
+    const [faceCameras, setFaceCameras] = useState<MediaDeviceInfo[]>([]);
+    const [faceCameraIndex, setFaceCameraIndex] = useState(0);
     const [regCaptures, setRegCaptures] = useState<Array<Capture | null>>(() => REG_ANGLES.map(() => null));
     const [regActiveAngle, setRegActiveAngle] = useState(0);
     const [isRegBusy, setIsRegBusy] = useState(false);
@@ -92,10 +94,7 @@ export default function LoginPage() {
 
         try {
             const loginData = data as LoginSchema;
-            const isLocalhost =
-                typeof window !== "undefined" &&
-                ["localhost", "127.0.0.1", "::1"].includes(window.location.hostname);
-            if (isDevAuthBypass || isLocalhost) {
+            if (isDevAuthBypass) {
                 const response = await fetch("/api/dev-login", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
@@ -123,10 +122,14 @@ export default function LoginPage() {
             // Check security metadata for enforcement protocols
             const { data: { user } } = await supabase.auth.getUser();
             const forceReset = user?.user_metadata?.force_password_change;
+            const faceReauth = user?.user_metadata?.face_reauth_required;
 
             if (forceReset) {
                 toast.info("Security protocol triggered: Standard identity reset required.");
                 router.push("/reset-password");
+            } else if (faceReauth) {
+                toast.info("An administrator requested a new face capture before you can continue.");
+                router.push("/dashboard/my-face");
             } else {
                 toast.success("Neural handshake accepted. Welcome back.");
                 router.push("/dashboard");
@@ -143,24 +146,53 @@ export default function LoginPage() {
     };
 
     // --- Face Login functions with Auto-Scan & 3 Attempts limit ---
-    async function startFaceCamera() {
-        const email = getValues("email")?.trim();
-        if (!email) {
-            toast.error("Enter your email before using Face ID.");
-            return;
-        }
+    async function listFaceCameras() {
+        if (!navigator.mediaDevices?.enumerateDevices) return [];
+        const devices = await navigator.mediaDevices.enumerateDevices();
+        return devices.filter((device) => device.kind === "videoinput");
+    }
+
+    async function startFaceCamera(nextIndex = faceCameraIndex, autoScan = true) {
         setIsFaceLoginOpen(true);
-        setFaceAttempts(0);
-        setIsFaceAutoScanning(true);
+        if (autoScan) {
+            setFaceAttempts(0);
+            setIsFaceAutoScanning(true);
+        }
 
         try {
-            const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" }, audio: false });
+            streamRef.current?.getTracks().forEach((track) => track.stop());
+            let stream = await navigator.mediaDevices.getUserMedia({
+                video: { facingMode: "user" },
+                audio: false,
+            });
+            let cameras = await listFaceCameras();
+            if (!cameras.length) cameras = stream.getVideoTracks().map((track, index) => ({
+                deviceId: track.getSettings().deviceId ?? String(index),
+                groupId: track.getSettings().groupId ?? "",
+                kind: "videoinput" as const,
+                label: track.label || `Camera ${index}`,
+                toJSON() { return this; },
+            }));
+            const index = Math.min(Math.max(0, nextIndex), Math.max(0, cameras.length - 1));
+            const selected = cameras[index];
+            const currentDeviceId = stream.getVideoTracks()[0]?.getSettings().deviceId;
+            if (selected?.deviceId && selected.deviceId !== currentDeviceId) {
+                stream.getTracks().forEach((track) => track.stop());
+                stream = await navigator.mediaDevices.getUserMedia({
+                    video: { deviceId: { exact: selected.deviceId } },
+                    audio: false,
+                });
+                cameras = await listFaceCameras();
+            }
             streamRef.current = stream;
+            setFaceCameras(cameras);
+            setFaceCameraIndex(index);
             if (videoRef.current) videoRef.current.srcObject = stream;
-            // Scan and sign in automatically after the camera settles.
-            window.setTimeout(() => {
-                void triggerAutoFaceLogin(1);
-            }, 1500);
+            if (autoScan) {
+                window.setTimeout(() => {
+                    void triggerAutoFaceLogin(1);
+                }, 1500);
+            }
         } catch {
             setIsFaceAutoScanning(false);
             toast.error("Unable to open the camera. Please allow camera access.");
@@ -175,13 +207,8 @@ export default function LoginPage() {
     }
 
     async function triggerAutoFaceLogin(attemptNumber = 1) {
-        const email = getValues("email")?.trim();
         const video = videoRef.current;
         const canvas = canvasRef.current;
-        if (!email) {
-            toast.error("Enter your email before using Face ID.");
-            return;
-        }
         if (!video || !canvas || video.videoWidth === 0) {
             window.setTimeout(() => void triggerAutoFaceLogin(attemptNumber), 500);
             return;
@@ -198,7 +225,6 @@ export default function LoginPage() {
             if (!blob) throw new Error("Unable to capture a face image");
 
             const body = new FormData();
-            body.append("email", email);
             body.append("image", new File([blob], "face-login.jpg", { type: "image/jpeg" }));
             const response = await fetch("/api/face-login", { method: "POST", body });
             const data = await readApiResponse<{ ok?: boolean; error?: string; redirectUrl?: string }>(response);
@@ -208,7 +234,7 @@ export default function LoginPage() {
             stopFaceCamera();
             router.push(data.redirectUrl ?? "/dashboard");
             router.refresh();
-        } catch {
+        } catch (error) {
             setFaceAttempts(attemptNumber);
             setIsFaceAutoScanning(false);
             if (attemptNumber >= 3) {
@@ -218,7 +244,9 @@ export default function LoginPage() {
                 document.getElementById("password")?.focus();
             } else {
                 toast.error(
-                    `Face does not match (attempt ${attemptNumber}/3). Select Retry below.`
+                    error instanceof Error
+                        ? `${error.message} (attempt ${attemptNumber}/3). Select Retry below.`
+                        : `Face does not match (attempt ${attemptNumber}/3). Select Retry below.`
                 );
             }
         } finally {
@@ -262,11 +290,11 @@ export default function LoginPage() {
     useEffect(() => {
         if (typeof window !== "undefined") {
             const params = new URLSearchParams(window.location.search);
-            if (params.get("tab") === "register") {
+            if (isDevAuthBypass && params.get("tab") === "register") {
                 setActiveTab("register");
             }
         }
-    }, []);
+    }, [isDevAuthBypass]);
 
     function closeFaceRegister() {
         stopAutoCapture();
@@ -467,10 +495,14 @@ export default function LoginPage() {
 
                 <div className="relative z-10 p-16 max-w-xl">
                     <Link href="/" className="inline-flex items-center gap-4 group cursor-pointer mb-20 animate-in fade-in slide-in-from-left duration-700">
-                        <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#5B6CF0] to-[#7C8FFF] flex items-center justify-center text-white font-black text-lg shadow-[0_10px_25px_-5px_rgba(91,108,240,0.5)] group-hover:scale-110 transition-all duration-500 overflow-hidden relative">
-                            <div className="absolute inset-0 bg-gradient-to-tr from-white/0 via-white/20 to-white/0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-in-out" />
-                            AI
-                        </div>
+                        <Image
+                            src="/logo.png"
+                            alt="Town Hown"
+                            width={545}
+                            height={398}
+                            className="h-14 w-auto object-contain group-hover:scale-105 transition-transform duration-500"
+                            priority
+                        />
                         <span className="text-2xl font-bold tracking-tighter text-[#ECF0F7] group-hover:text-white transition-colors font-display uppercase italic">
                             ITBA<span className="text-[#7C8FFF]">.CORE</span>
                         </span>
@@ -502,13 +534,18 @@ export default function LoginPage() {
                     <FadeIn delay={0.1}>
                         <div className="mb-6 lg:hidden flex justify-center">
                             <Link href="/">
-                                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#5B6CF0] to-[#7C8FFF] flex items-center justify-center text-white font-black text-xl shadow-[0_10px_25px_-5px_rgba(91,108,240,0.5)]">
-                                    AI
-                                </div>
+                                <Image
+                                    src="/logo.png"
+                                    alt="Town Hown"
+                                    width={545}
+                                    height={398}
+                                    className="h-16 w-auto object-contain"
+                                    priority
+                                />
                             </Link>
                         </div>
 
-                        {/* Top Auth Tab Switcher */}
+                        {isDevAuthBypass && (
                         <div className="grid grid-cols-2 p-1.5 bg-[#0B1220]/90 rounded-2xl border border-white/10 mb-8 backdrop-blur-md shadow-inner">
                             <button
                                 type="button"
@@ -535,6 +572,7 @@ export default function LoginPage() {
                                 Register
                             </button>
                         </div>
+                        )}
 
                         {/* TAB 1: SIGN IN */}
                         {activeTab === "signin" && (
@@ -638,8 +676,7 @@ export default function LoginPage() {
                                             variant="outline"
                                             className="w-full h-12 rounded-[1rem] border-white/10 bg-[#1B253B]/40 text-[#ECF0F7] hover:bg-[#24304A] font-semibold text-xs flex items-center justify-center gap-2 transition-colors"
                                             onClick={() => {
-                                                setIsFaceLoginOpen(true);
-                                                startFaceCamera();
+                                                void startFaceCamera(faceCameraIndex, true);
                                             }}
                                         >
                                             <ScanFace className="size-4 text-[#7C8FFF]" />
@@ -647,7 +684,7 @@ export default function LoginPage() {
                                         </Button>
                                     ) : (
                                         <div className="space-y-3 rounded-[1rem] border border-[#5B6CF0]/40 bg-[#0B1220]/95 p-3.5 shadow-xl">
-                                            <div className="flex items-center justify-between">
+                                            <div className="flex items-center justify-between gap-3">
                                                 <div className="flex items-center gap-2">
                                                     <ScanFace className="size-4 text-[#7C8FFF]" />
                                                     <p className="text-sm font-semibold text-white">Face ID Sign In</p>
@@ -656,6 +693,27 @@ export default function LoginPage() {
                                                     Attempt: <strong className={faceAttempts >= 2 ? "text-[#FF6B82]" : "text-[#34D399]"}>{faceAttempts}/3</strong>
                                                 </span>
                                             </div>
+
+                                            <label className="block text-[11px] font-bold uppercase tracking-[0.16em] text-[#5A6882]">
+                                                Camera index
+                                                <select
+                                                    className="mt-1.5 h-9 w-full rounded-lg border border-white/10 bg-[#0B1220] px-3 text-sm font-normal normal-case tracking-normal text-[#ECF0F7]"
+                                                    value={String(faceCameraIndex)}
+                                                    disabled={isFaceBusy}
+                                                    onChange={(event) => {
+                                                        const index = Number(event.target.value);
+                                                        setFaceCameraIndex(index);
+                                                        void startFaceCamera(index, false);
+                                                    }}
+                                                    aria-label="Camera index"
+                                                >
+                                                    {(faceCameras.length ? faceCameras : [{ deviceId: "default", label: "Camera 0" } as MediaDeviceInfo]).map((device, index) => (
+                                                        <option key={device.deviceId || String(index)} value={String(index)}>
+                                                            Camera {index}{device.label ? ` — ${device.label}` : ""}
+                                                        </option>
+                                                    ))}
+                                                </select>
+                                            </label>
 
                                             <div className="relative overflow-hidden rounded-xl bg-black aspect-video border border-white/10">
                                                 <video ref={videoRef} autoPlay muted playsInline className="h-full w-full -scale-x-100 object-cover" />
@@ -714,21 +772,14 @@ export default function LoginPage() {
                                     )}
                                 </div>
 
-                                <div className="text-center text-xs text-[#8B99B0] pt-2">
-                                    Don&apos;t have an account yet?{" "}
-                                    <button
-                                        type="button"
-                                        onClick={() => handleTabChange("register")}
-                                        className="text-[#7C8FFF] font-semibold hover:underline ml-1"
-                                    >
-                                        Register with Face ID
-                                    </button>
-                                </div>
+                                <p className="text-center text-xs text-[#8B99B0] pt-2">
+                                    Internal accounts are provisioned by an administrator.
+                                </p>
                             </div>
                         )}
 
                         {/* TAB 2: REGISTER */}
-                        {activeTab === "register" && (
+                        {isDevAuthBypass && activeTab === "register" && (
                             <div className="space-y-6 animate-in fade-in duration-300">
                                 <div className="mb-4 text-center lg:text-left">
                                     <h2 className="text-4xl font-semibold font-display text-[#ECF0F7] mb-2 tracking-tight">

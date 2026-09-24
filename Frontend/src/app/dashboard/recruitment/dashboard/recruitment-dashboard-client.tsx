@@ -25,8 +25,8 @@ export default function RecruitmentDashboardClient() {
   const [data, setData] = useState<DashboardData | null>(null);
   const [jds, setJds] = useState<JdOption[]>([]);
   const [loading, setLoading] = useState(true);
-  const [from, setFrom] = useState(toDateInput(new Date(Date.now() - 30 * 86400_000).toISOString()));
-  const [to, setTo] = useState(toDateInput(new Date().toISOString()));
+  const [from, setFrom] = useState(() => toDateInput(new Date(Date.now() - 30 * 86400_000).toISOString()));
+  const [to, setTo] = useState(() => toDateInput(new Date().toISOString()));
   const [jdId, setJdId] = useState("");
 
   useEffect(() => {
@@ -45,7 +45,10 @@ export default function RecruitmentDashboardClient() {
     setLoading(false);
   }, [from, to, jdId]);
 
-  useEffect(() => { fetchData(); }, [fetchData]);
+  useEffect(() => {
+    const timer = setTimeout(() => { void fetchData(); }, 0);
+    return () => clearTimeout(timer);
+  }, [fetchData]);
 
   const totalApps = data ? Object.values(data.byStatus ?? {}).reduce((a, b) => a + b, 0) : 0;
 

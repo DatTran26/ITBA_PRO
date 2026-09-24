@@ -145,6 +145,27 @@ export async function findUserByEmail(
   };
 }
 
+export async function findRegisteredUserByEmail(
+  email: string
+): Promise<{ id: string; authId?: string; name: string; email: string; role: string } | null> {
+  const normalizedEmail = email.trim().toLowerCase();
+  const admin = createAdminClient();
+  const { data: user, error } = await admin
+    .from("users")
+    .select("id, auth_id, name, email, role")
+    .eq("email", normalizedEmail)
+    .maybeSingle();
+  if (error) throw error;
+  if (!user) return null;
+  return {
+    id: user.id,
+    authId: user.auth_id ?? user.id,
+    name: user.name ?? user.email,
+    email: user.email,
+    role: user.role,
+  };
+}
+
 export async function saveFaceEnrollment(
   user: { id: string; email: string; name?: string; role?: string },
   embeddings: number[][]
@@ -162,16 +183,21 @@ export async function saveFaceEnrollment(
   };
   await writeLocalRegistry(registry);
 
-  // 2. Attempt Supabase save if configured
+  // 2. Persist embeddings to Supabase when server credentials exist.
   try {
     const admin = createAdminClient();
-    await admin.from("user_face_embeddings").delete().eq("user_id", user.id);
-    await admin.from("user_face_embeddings").insert({
+    const { error: deleteError } = await admin.from("user_face_embeddings").delete().eq("user_id", user.id);
+    if (deleteError) throw deleteError;
+    const { error: insertError } = await admin.from("user_face_embeddings").insert({
       user_id: user.id,
       embedding_json: embeddings,
+      angle_count: embeddings.length,
+      is_active: true,
     });
-  } catch {
-    // Supabase server role key not configured in local environment; local file storage is active
+    if (insertError) throw insertError;
+  } catch (error) {
+    if (!process.env.SUPABASE_SERVICE_ROLE_KEY) return;
+    throw error;
   }
 }
 
@@ -181,13 +207,14 @@ export async function getFaceEnrollment(
   // 1. Check Supabase
   try {
     const admin = createAdminClient();
-    const { data: enrollment } = await admin
+    const { data: enrollment, error } = await admin
       .from("user_face_embeddings")
       .select("id, created_at, embedding_json")
       .eq("user_id", userId)
       .order("created_at", { ascending: false })
       .limit(1)
       .maybeSingle();
+    if (error) throw error;
     if (enrollment && Array.isArray(enrollment.embedding_json)) {
       return {
         id: enrollment.id,
@@ -195,8 +222,8 @@ export async function getFaceEnrollment(
         embeddings: enrollment.embedding_json,
       };
     }
-  } catch {
-    // Supabase not available
+  } catch (error) {
+    if (process.env.SUPABASE_SERVICE_ROLE_KEY) throw error;
   }
 
   // 2. Check local registry
@@ -213,6 +240,58 @@ export async function getFaceEnrollment(
   }
 
   return null;
+}
+
+export async function listActiveFaceEnrollments(): Promise<
+  Array<{
+    id: string;
+    authId?: string | null;
+    email: string;
+    name: string;
+    role: string;
+    embeddings: number[][];
+  }>
+> {
+  const admin = createAdminClient();
+  const [{ data: enrollments, error: enrollmentError }, { data: users, error: userError }] = await Promise.all([
+    admin
+      .from("user_face_embeddings")
+      .select("user_id, embedding_json, created_at")
+      .order("created_at", { ascending: false }),
+    admin.from("users").select("id, auth_id, email, name, role, face_reauth_required"),
+  ]);
+  if (enrollmentError) throw enrollmentError;
+  if (userError) throw userError;
+
+  const userMap = new Map((users ?? []).map((user) => [user.id, user]));
+  const seen = new Set<string>();
+  const results: Array<{
+    id: string;
+    authId?: string | null;
+    email: string;
+    name: string;
+    role: string;
+    embeddings: number[][];
+  }> = [];
+
+  for (const row of enrollments ?? []) {
+    if (seen.has(row.user_id)) continue;
+    const embeddings = row.embedding_json;
+    if (!Array.isArray(embeddings) || embeddings.length < 4) continue;
+    const user = userMap.get(row.user_id);
+    if (!user || user.face_reauth_required) continue;
+    seen.add(row.user_id);
+    results.push({
+      id: user.id,
+      authId: user.auth_id,
+      email: user.email,
+      name: user.name ?? user.email,
+      role: user.role,
+      embeddings,
+    });
+  }
+
+  return results;
 }
 
 export async function deleteFaceEnrollment(userId: string): Promise<void> {
@@ -239,22 +318,40 @@ export async function deleteFaceEnrollment(userId: string): Promise<void> {
   }
 }
 
+const FACE_USER_UUID_RE =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+export function isPersistedFaceUserId(userId: string) {
+  return FACE_USER_UUID_RE.test(userId);
+}
+
 export async function getAllFaceUsers(): Promise<FaceUserRecord[]> {
   const usersMap = new Map<string, FaceUserRecord>();
+  const emailToId = new Map<string, string>();
 
-  // 1. Load known local accounts
-  const accounts = await getKnownAccounts();
-  for (const acc of accounts) {
-    usersMap.set(acc.id, {
-      id: acc.id,
-      name: acc.name,
-      email: acc.email,
-      role: acc.role,
-      enrollment: null,
-    });
+  function upsert(user: FaceUserRecord, preferIncoming = false) {
+    const emailKey = user.email.trim().toLowerCase();
+    const existingId = emailKey ? emailToId.get(emailKey) : undefined;
+    if (existingId) {
+      const existing = usersMap.get(existingId);
+      if (!existing) return;
+      const incomingWins = preferIncoming || (isPersistedFaceUserId(user.id) && !isPersistedFaceUserId(existing.id));
+      if (incomingWins && existingId !== user.id) {
+        usersMap.delete(existingId);
+        usersMap.set(user.id, {
+          ...user,
+          enrollment: user.enrollment ?? existing.enrollment,
+        });
+        if (emailKey) emailToId.set(emailKey, user.id);
+        return;
+      }
+      if (!existing.enrollment && user.enrollment) existing.enrollment = user.enrollment;
+      return;
+    }
+    usersMap.set(user.id, user);
+    if (emailKey) emailToId.set(emailKey, user.id);
   }
 
-  // 2. Load Supabase users and enrollments if available
   try {
     const admin = createAdminClient();
     const [{ data: dbUsers }, { data: dbEnrollments }] = await Promise.all([
@@ -265,50 +362,49 @@ export async function getAllFaceUsers(): Promise<FaceUserRecord[]> {
         .order("created_at", { ascending: false }),
     ]);
 
-    if (dbUsers) {
-      for (const u of dbUsers) {
-        usersMap.set(u.id, {
-          id: u.id,
-          name: u.name,
-          email: u.email,
-          role: u.role,
-          enrollment: null,
-        });
+    const enrollments = new Map<string, { id: string; created_at: string }>();
+    for (const enrollment of dbEnrollments ?? []) {
+      if (!enrollments.has(enrollment.user_id)) {
+        enrollments.set(enrollment.user_id, { id: enrollment.id, created_at: enrollment.created_at });
       }
     }
 
-    if (dbEnrollments) {
-      for (const e of dbEnrollments) {
-        const u = usersMap.get(e.user_id);
-        if (u) {
-          u.enrollment = { id: e.id, created_at: e.created_at };
-        }
-      }
+    for (const user of dbUsers ?? []) {
+      upsert({
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        enrollment: enrollments.get(user.id) ?? null,
+      }, true);
     }
   } catch {
     // Supabase unavailable; rely on local accounts
   }
 
-  // 3. Merge local registry
+  const accounts = await getKnownAccounts();
+  for (const acc of accounts) {
+    upsert({
+      id: acc.id,
+      name: acc.name,
+      email: acc.email,
+      role: acc.role,
+      enrollment: null,
+    });
+  }
+
   const registry = await readLocalRegistry();
   for (const [userId, item] of Object.entries(registry)) {
-    let u = usersMap.get(userId);
-    if (!u) {
-      u = {
-        id: userId,
-        name: item.name,
-        email: item.email,
-        role: item.role,
-        enrollment: null,
-      };
-      usersMap.set(userId, u);
-    }
-    if (!u.enrollment) {
-      u.enrollment = {
+    upsert({
+      id: userId,
+      name: item.name,
+      email: item.email,
+      role: item.role,
+      enrollment: {
         id: `local-${userId}`,
         created_at: item.createdAt,
-      };
-    }
+      },
+    });
   }
 
   // 4. Merge disk files status from Python vision-ai storage config

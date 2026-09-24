@@ -5,7 +5,7 @@
 (`notmderpvbafrucqiylc`) dùng cùng bộ object `public` + Storage buckets.
 
 Đồng bộ object (không phải timestamp trong `schema_migrations`) kiểm tra lần
-cuối **2026-09-02**.
+cuối **2026-09-17**.
 
 `docs/downtown/` không inventory từng bảng; file này và
 `docs/_reverse/*/erd.md` là chỗ đọc schema.
@@ -76,6 +76,26 @@ CREATE còn thiếu trên git trước lần đồng bộ này đã được th�
 | Dòng trong `schema_migrations` | Timestamp = tên file | Dashboard / `apply_migration` dùng timestamp khác. Object giống nhau; lịch sử version **không** 1-1. |
 
 Không apply lock assessment lên production trừ khi có quyết định riêng.
+
+## Migrations đã kiểm chứng ngày 2026-09-17
+
+Cả staging `mqwsulanzahqaiecnfwc` và production
+`lhvdtmieaplxzqmpmupe` đã có các object từ:
+
+- `20260917145000_create_internal_user_guard.sql` — chỉ thêm helper role/RLS;
+  không thay đổi public assessment access.
+- `20260917150000_face_reauth_requests.sql` — face re-auth request + policy.
+- `20260917160000_seed_openai_api_key.sql` — write-only OpenAI setting.
+- `20260917170000_ai_provider_settings.sql` — AI provider/Gemini settings và
+  thay policy select để API key không thể đọc qua role `anon`.
+- `20260917180000_face_reauth_active_request_guard.sql` — đảm bảo mỗi tài khoản
+  chỉ có một link Face ID re-auth còn hiệu lực tại một thời điểm.
+
+Trước khi áp các migration trên, snapshot custom-format đã được tạo và kiểm
+chứng bằng `pg_restore --list` cho từng environment. Production đã được kiểm
+tra lại bằng transaction read-only dưới role `anon`: không trả về API-key
+settings. Ledger `supabase_migrations` vẫn có thể khác với tên/timestamp file
+nguồn; đối chiếu object và policy trước khi replay bất kỳ migration nào.
 
 ## Tài liệu liên quan
 

@@ -1349,7 +1349,7 @@ export default function ReviewWorkspace({
                                         </>
                                     ) : (
                                         <div className="text-center py-12 text-[#94A3B8] text-sm">
-                                            Bấm nút "Kiểm định Thể thức" để đối chiếu văn bản.
+                                            Bấm nút &quot;Kiểm định Thể thức&quot; để đối chiếu văn bản.
                                         </div>
                                     )}
                                 </div>

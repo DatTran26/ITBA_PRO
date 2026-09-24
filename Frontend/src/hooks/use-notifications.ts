@@ -34,7 +34,7 @@ export function useNotifications(userRole?: string) {
         if (stored) {
             try {
                 const parsed: Notification[] = JSON.parse(stored);
-                setNotifications(parsed.filter((n) => n.type !== "version_approved"));
+                queueMicrotask(() => setNotifications(parsed.filter((n) => n.type !== "version_approved")));
             } catch { /* ignore corrupt data */ }
         }
     }, []);
@@ -207,17 +207,22 @@ export function useNotifications(userRole?: string) {
     /* Polling — wait until userRole is resolved to avoid super_admin race on mount */
     useEffect(() => {
         if (userRole === undefined) return;
-        checkForNewResults();
-        checkForPendingVersions();
-        checkForApprovedVersions();
-        checkForNewInterviewAssignments();
+        const initial = window.setTimeout(() => {
+            checkForNewResults();
+            checkForPendingVersions();
+            checkForApprovedVersions();
+            checkForNewInterviewAssignments();
+        }, 0);
         const interval = setInterval(() => {
             checkForNewResults();
             checkForPendingVersions();
             checkForApprovedVersions();
             checkForNewInterviewAssignments();
         }, POLL_INTERVAL);
-        return () => clearInterval(interval);
+        return () => {
+            window.clearTimeout(initial);
+            clearInterval(interval);
+        };
     }, [userRole, checkForNewResults, checkForPendingVersions, checkForApprovedVersions, checkForNewInterviewAssignments]);
 
     /* Mark all read — derive IDs from committed state to avoid stale snapshot */

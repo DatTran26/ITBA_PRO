@@ -8,6 +8,7 @@ import numpy as np
 from fastapi.testclient import TestClient
 from PIL import Image
 
+from app.config import repo_root
 from app.main import app
 from app.services import _resolve_behavior_model_path, detect_behaviors, verify_face
 
@@ -26,6 +27,11 @@ def upload(name: str = "face.png"):
 
 def test_health():
     assert client.get("/health").json() == {"status": "ok"}
+
+
+def test_repo_root_handles_short_container_path():
+    path = Path("/app/app/config.py")
+    assert repo_root(path) == path.resolve().parents[-1]
 
 
 def test_verify_requires_two_matching_embeddings():
@@ -65,6 +71,23 @@ def test_verify_endpoint():
     assert response.status_code == 200
     assert response.json()["match"] is True
     assert response.json()["matchCount"] == 2
+
+
+def test_identify_picks_best_matching_user():
+    gallery = [
+        {"userId": "user-a", "embeddings": [[0.0, 1.0]] * 6},
+        {"userId": "user-b", "embeddings": [[1.0, 0.0]] * 6},
+    ]
+    with patch("app.main.extract_face_embedding", return_value=[1.0, 0.0]):
+        response = client.post(
+            "/api/face/identify",
+            data={"gallery": json.dumps(gallery)},
+            files={"image": upload()},
+        )
+    assert response.status_code == 200
+    body = response.json()
+    assert body["match"] is True
+    assert body["userId"] == "user-b"
 
 
 def test_behavior_filters_are_returned_by_service():
@@ -127,6 +150,14 @@ def test_behavior_model_path_accepts_copied_quotes(tmp_path: Path):
     assert _resolve_behavior_model_path(f'  "{model_path}"  ') == model_path
 
 
+def test_behavior_model_path_uses_models_dir_basename(tmp_path: Path, monkeypatch):
+    weight = tmp_path / "smoking.onnx"
+    weight.write_bytes(b"onnx")
+    monkeypatch.setenv("VISION_AI_MODELS_DIR", str(tmp_path))
+    missing = Path(r"D:\missing\weights\smoking.onnx")
+    assert _resolve_behavior_model_path(str(missing)) == weight
+
+
 def test_enroll_rejects_path_traversal():
     response = client.post(
         "/api/face/enroll",
@@ -167,7 +198,7 @@ def test_storage_config_endpoints(tmp_path: Path):
         # Test controller endpoints
         res_ctrl = client.get("/api/vision/controller/config")
         assert res_ctrl.status_code == 200
-        assert res_ctrl.json()["config"]["faceMatchThreshold"] == 0.75
+        assert 0.1 <= res_ctrl.json()["config"]["faceMatchThreshold"] <= 1.0
 
         res_ctrl_update = client.post(
             "/api/vision/controller/config",

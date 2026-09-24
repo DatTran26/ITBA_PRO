@@ -48,7 +48,7 @@ export default function SidebarRecentNav({ collapsed, onLinkClick }: Props) {
         prevPath.current = pathname;
         const entry = resolveEntry(pathname);
         if (entry) pushPage(pathname, entry);
-        setRecent(readStored().filter(p => p.href !== pathname).slice(0, 3));
+        queueMicrotask(() => setRecent(readStored().filter(p => p.href !== pathname).slice(0, 3)));
     }, [pathname]);
 
     if (recent.length === 0) return null;

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { callVisionOcr } from "@/lib/vision-ocr";
 
 export async function GET(req: NextRequest) {
     try {
@@ -12,7 +13,7 @@ export async function GET(req: NextRequest) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
-        const fastApiRes = await fetch("http://localhost:8000/api/ocr/nd30/knowledge-graph", {
+        const fastApiRes = await callVisionOcr("/api/ocr/nd30/knowledge-graph", {
             method: "GET",
             headers: { "Content-Type": "application/json" },
             signal: AbortSignal.timeout(10_000),

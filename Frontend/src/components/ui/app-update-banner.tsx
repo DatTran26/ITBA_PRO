@@ -15,7 +15,7 @@ export default function AppUpdateBanner() {
 
     // 1. Handle mounting to avoid hydration mismatch with localStorage
     useEffect(() => {
-        setMounted(true);
+        const frame = requestAnimationFrame(() => setMounted(true));
 
         // 2. Check initial auth session
         const supabase = createClient();
@@ -28,7 +28,10 @@ export default function AppUpdateBanner() {
             setIsLoggedIn(!!session);
         });
 
-        return () => subscription.unsubscribe();
+        return () => {
+            cancelAnimationFrame(frame);
+            subscription.unsubscribe();
+        };
     }, []);
 
     // 4. Check if this version is already dismissed in localStorage
@@ -36,9 +39,9 @@ export default function AppUpdateBanner() {
         if (!mounted || !serverVersion) return;
         const dismissedVersion = localStorage.getItem("app_update_dismissed");
         if (dismissedVersion === serverVersion) {
-            setDismissed(true);
+            queueMicrotask(() => setDismissed(true));
         } else {
-            setDismissed(false);
+            queueMicrotask(() => setDismissed(false));
         }
     }, [mounted, serverVersion]);
 
