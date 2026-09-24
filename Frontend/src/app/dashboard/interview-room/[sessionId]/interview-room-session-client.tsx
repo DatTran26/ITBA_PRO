@@ -7,6 +7,7 @@ import {
 } from "lucide-react";
 import { SharedDashboardPageHeader } from "@/components/shares";
 import { EmptyState } from "@/components/ui/empty-state";
+import PageBreadcrumb from "@/components/ui/page-breadcrumb";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -425,13 +426,13 @@ export default function InterviewRoomSessionClient({ sessionId }: { sessionId: s
 
   return (
     <div className="space-y-5">
+      <PageBreadcrumb breadcrumbs={[{ label: "Interview Room", href: "/dashboard/interview-room" }, { label: session.job_descriptions?.title ?? "Session" }]} />
       <SharedDashboardPageHeader
         className="mb-6"
         title={session.job_descriptions?.title ?? "Buổi phỏng vấn"}
         icon={DoorOpen}
         badge={{ label: `Vòng ${session.round}`, tone: session.round === 1 ? "blue" : session.round === 2 ? "violet" : "pink" }}
         description={`${new Date(session.scheduled_at).toLocaleString("vi-VN")} · ${session.duration_minutes} phút`}
-        actions={<Button variant="outline" onClick={() => router.push("/dashboard/interview-room")}><ArrowLeft />Phòng chờ</Button>}
       />
 
       <div className="grid gap-5 lg:grid-cols-[360px_1fr]">

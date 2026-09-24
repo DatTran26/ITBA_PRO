@@ -524,7 +524,7 @@ export default function CvAnalyzeClient({ id, userRole }: Props) {
             {person.fullName.trim().split(/\s+/).map((w) => w[0]).filter((_, i, a) => i === 0 || i === a.length - 1).join("").toUpperCase()}
           </span>
           <div className="min-w-0">
-            <h1 className="text-2xl font-black text-foreground truncate tracking-tight">{person.fullName}</h1>
+            <h1 className="truncate font-display text-2xl md:text-3xl font-black leading-tight tracking-tight text-foreground">{person.fullName}</h1>
             <div className="flex items-center gap-3 mt-1">
               <span className="text-sm text-muted-foreground truncate">{person.email}</span>
               {jobDescription && (

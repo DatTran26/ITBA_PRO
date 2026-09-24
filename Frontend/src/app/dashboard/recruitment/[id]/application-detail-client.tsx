@@ -469,7 +469,7 @@ export default function ApplicationDetailClient({ id, userRole }: Props) {
                         </span>
                         <div className="flex flex-col gap-1.5 mt-0.5">
                             <div className="flex items-center gap-4">
-                                <h1 className="text-2xl font-black text-foreground tracking-tight">
+                                <h1 className="font-display text-2xl md:text-3xl font-black leading-tight tracking-tight text-foreground">
                                     {person.fullName}
                                 </h1>
 

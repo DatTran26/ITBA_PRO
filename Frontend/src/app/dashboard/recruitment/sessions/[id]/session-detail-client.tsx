@@ -197,7 +197,7 @@ export default function SessionDetailClient({ id, userRole }: Props) {
             {isSessionPast && <span className="rounded-full bg-muted px-2.5 py-0.5 text-xs font-bold text-muted-foreground">Đã diễn ra</span>}
             {session.notification_sent_at && <span className="rounded-full bg-success/10 px-2.5 py-0.5 text-xs font-bold text-success">Đã gửi lịch</span>}
           </div>
-          <h1 className="mt-3 text-3xl font-black leading-tight text-foreground truncate">{session.job_descriptions?.title ?? "Buổi phỏng vấn"}</h1>
+          <h1 className="mt-3 truncate font-display text-2xl md:text-3xl font-black leading-tight tracking-tight text-foreground">{session.job_descriptions?.title ?? "Buổi phỏng vấn"}</h1>
           <div className="mt-4 flex flex-wrap gap-2 text-sm">
             <span className="inline-flex items-center gap-2 rounded-full px-3 py-1.5 font-semibold" style={{ color: "var(--primary)", backgroundColor: "color-mix(in srgb, var(--primary) 10%, var(--card))" }}>
               <LocationIcon className="h-4 w-4" />{LOCATION_LABEL[session.location_type]}{session.location_detail ? ` · ${session.location_detail}` : ""}

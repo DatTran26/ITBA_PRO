@@ -645,7 +645,7 @@ export default function ResultDetailClient({
                                     <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-6">
                                         {/* Name + meta */}
                                         <div className="space-y-1">
-                                            <h1 className="text-3xl font-black text-foreground tracking-tight leading-tight">{result.candidate_name}</h1>
+                                            <h1 className="font-display text-2xl md:text-3xl font-black leading-tight tracking-tight text-foreground">{result.candidate_name}</h1>
                                             <p className="text-muted-foreground font-light text-base">{result.candidate_email}</p>
                                             <div className="flex flex-wrap items-center gap-3 mt-4">
                                                 <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-muted border border-border text-[11px] text-muted-foreground font-light">

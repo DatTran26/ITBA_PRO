@@ -60,7 +60,7 @@ export default function PersonIdentityCard({ person, tags, memberships, stats, o
           </button>
         </div>
 
-        <h1 className="mt-4 text-2xl font-black leading-tight text-foreground">{person.full_name}</h1>
+        <h1 className="mt-4 font-display text-2xl md:text-3xl font-black leading-tight tracking-tight text-foreground">{person.full_name}</h1>
         <p className="mt-1 text-sm text-muted-foreground">
           {person.type === "candidate" ? "Ứng viên" : "Nhân viên"}
           {person.positions && <> · <span className="font-semibold text-foreground">{person.positions.title}</span></>}

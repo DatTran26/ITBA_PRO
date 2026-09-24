@@ -25,6 +25,7 @@ import {
 } from "@/lib/recruitment/report";
 import { SharedDashboardPageHeader, TonePill } from "@/components/shares";
 import { Button } from "@/components/ui/button";
+import PageBreadcrumb from "@/components/ui/page-breadcrumb";
 import { flowAt, toneByName } from "@/lib/ui/tones";
 
 /** Trạng thái rớt khỏi phễu — tô đỏ nhạt thay vì dải flow. */
@@ -176,6 +177,7 @@ export default function ReportComingSoonClient() {
 
   return (
     <div className="flex flex-col gap-5 pb-12">
+      <PageBreadcrumb breadcrumbs={[{ label: "Recruitment", href: "/dashboard/recruitment" }, { label: "Report" }]} />
       <SharedDashboardPageHeader
         className="mb-0"
         title="Báo cáo tuyển dụng"

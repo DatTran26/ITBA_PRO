@@ -5,6 +5,7 @@ import Link from "next/link";
 import { AlertTriangle, CalendarClock, ChevronRight, DoorOpen, FileCheck2, FileX2, MapPin, RotateCcw, Video } from "lucide-react";
 import { SharedDashboardPageHeader, TonePill } from "@/components/shares";
 import { EmptyState } from "@/components/ui/empty-state";
+import PageBreadcrumb from "@/components/ui/page-breadcrumb";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { toneByName, type ToneName } from "@/lib/ui/tones";
@@ -72,6 +73,7 @@ export default function InterviewRoomClient() {
 
   return (
     <div>
+      <PageBreadcrumb breadcrumbs={[{ label: "Dashboard", href: "/dashboard" }, { label: "Interview Room" }]} />
       <SharedDashboardPageHeader
         title="Phòng phỏng vấn"
         icon={DoorOpen}

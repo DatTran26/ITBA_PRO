@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { ScanText } from "lucide-react";
 import { SharedDashboardPageHeader } from "@/components/shares";
 import PageContainer from "@/components/ui/page-container";
+import PageBreadcrumb from "@/components/ui/page-breadcrumb";
 import { ocrQueueReducer, initialQueueState } from "./ocr-queue-reducer";
 import type { OCRJob } from "./types";
 import UploadLauncher from "./components/upload-launcher";
@@ -87,6 +88,7 @@ export default function OCRClient() {
     return (
         <PageContainer>
             <div className="space-y-6 pb-8">
+                <PageBreadcrumb breadcrumbs={[{ label: "Recruitment", href: "/dashboard/recruitment" }, { label: "Vision OCR" }]} />
                 <SharedDashboardPageHeader
                     className="mb-6"
                     title="Vision OCR"

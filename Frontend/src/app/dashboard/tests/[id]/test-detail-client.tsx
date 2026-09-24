@@ -548,7 +548,7 @@ export default function TestDetailClient({
                             /* ── View Mode ── */
                             <>
                                 <div className="mb-6 flex items-start gap-3">
-                                    <h1 className="text-4xl lg:text-5xl font-black tracking-tight text-foreground leading-tight">
+                                    <h1 className="font-display text-2xl md:text-3xl font-black leading-tight tracking-tight text-foreground">
                                         {displayTitle}
                                     </h1>
                                     <button

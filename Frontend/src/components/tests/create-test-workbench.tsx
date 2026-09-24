@@ -15,6 +15,7 @@ import { PageTransition, FadeIn, AnimatePresence } from "@/components/ui/motion-
 import { Sparkles, ChevronRight, Zap, Brain, Settings, Bell, Database, FlaskConical, FileText, Briefcase, TrendingUp, Layers, Clock } from "lucide-react";
 import { SharedDashboardPageHeader, TonePill } from "@/components/shares";
 import FormSection from "@/components/shares/form-section";
+import PageBreadcrumb from "@/components/ui/page-breadcrumb";
 import { toneByName } from "@/lib/ui/tones";
 import LevelConfigStep from "@/components/question-bank/level-config-step";
 import QuestionPullPreview from "@/components/question-bank/question-pull-preview";
@@ -466,6 +467,8 @@ export function CreateTestWorkbench({ embedded = false, onCreated }: { embedded?
     ) : (
         <>
             {!isEmbed && (
+                <>
+                <PageBreadcrumb breadcrumbs={[{ label: "Dashboard", href: "/dashboard" }, { label: "Create Test" }]} />
                 <SharedDashboardPageHeader
                     className="mb-6"
                     title="Tạo bài test"
@@ -501,6 +504,7 @@ export function CreateTestWorkbench({ embedded = false, onCreated }: { embedded?
                         </div>
                     }
                 />
+                </>
             )}
 
                 <div className="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(0,1.3fr)_minmax(0,0.9fr)]">
