@@ -1,8 +1,16 @@
+<<<<<<< HEAD
+# DOWN TOWN — AI HRMS workspace
+
+DOWN TOWN là một repository cho sản phẩm HRMS tích hợp AI. Repository gốc sở
+hữu tầm nhìn sản phẩm, quy tắc cộng tác và GitFlow. Source ứng dụng được tách
+thẳng tại `Frontend/` và `Backend/` để tiếp tục tích hợp/mở rộng tại đây.
+=======
 # Town Hown — Hệ thống quản lý nhân sự tích hợp AI (AI-powered HRMS)
 
 [![License: MIT](LICENSE)](https://github.com/DatTran26/down-town/blob/main/LICENSE)
 [![Release](https://img.shields.io/github/v/release/DatTran26/down-town)](https://github.com/DatTran26/down-town/releases)
 [![Repo](https://img.shields.io/badge/github-down--town-blue)](https://github.com/DatTran26/down-town)
+>>>>>>> origin/develop
 
 Town Hown là một hệ thống quản lý nhân sự (HRMS) B2B mã nguồn mở, tích hợp AI
 có kiểm soát: AI trích xuất, so khớp, tóm tắt và soạn thảo, còn mọi quyết định

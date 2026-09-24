@@ -1,0 +1,2925 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DOWN TOWN AI-First HRMS - Bài Thuyết Trình 7 Slide (MLAI Hackathon Design)</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-outer: #f6efe7;
+            --bg-gradient: radial-gradient(ellipse at 80% 10%, #fef5ec 0%, #fbf8f5 55%, #f5e9dc 100%);
+            --slide-bg: #ffffff;
+            
+            --primary-orange: #ea580c;
+            --primary-orange-light: #fff3eb;
+            --primary-orange-border: rgba(234, 88, 12, 0.22);
+            
+            --navy-deep: #0f172a;
+            --navy-slate: #1e293b;
+            --navy-text: #334155;
+            --navy-muted: #64748b;
+            --navy-light-border: #e2e8f0;
+            
+            --tag-pred: #ea580c;
+            --tag-dec: #0284c7;
+            --tag-act: #16a34a;
+            --tag-learn: #9333ea;
+            --tag-sys: #475569;
+
+            --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background: var(--bg-outer);
+            background-image: var(--bg-gradient);
+            color: var(--navy-deep);
+            font-family: var(--font-sans);
+            min-height: 100vh;
+            line-height: 1.42;
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+        }
+
+        /* TOP TOOLBAR */
+        .top-toolbar {
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 28px;
+            background: rgba(255, 255, 255, 0.94);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--navy-light-border);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+        }
+
+        .toolbar-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .brand-logo-badge {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, #ea580c, #f97316);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #ffffff;
+            font-weight: 800;
+            font-size: 14px;
+            box-shadow: 0 3px 10px rgba(234, 88, 12, 0.3);
+        }
+
+        .brand-title-text {
+            font-size: 13.5px;
+            font-weight: 800;
+            color: var(--navy-deep);
+        }
+
+        .brand-sub-badge {
+            font-family: var(--font-mono);
+            font-size: 9.5px;
+            font-weight: 700;
+            background: var(--primary-orange-light);
+            color: var(--primary-orange);
+            border: 1px solid var(--primary-orange-border);
+            padding: 2px 7px;
+            border-radius: 5px;
+        }
+
+        .toolbar-center {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .slide-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #cbd5e1;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .slide-dot.active {
+            background: var(--primary-orange);
+            transform: scale(1.35);
+            box-shadow: 0 0 8px rgba(234, 88, 12, 0.5);
+        }
+
+        .toolbar-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .tool-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 6px 14px;
+            background: #ffffff;
+            border: 1px solid #cbd5e1;
+            border-radius: 7px;
+            font-family: var(--font-sans);
+            font-size: 12.5px;
+            font-weight: 600;
+            color: var(--navy-slate);
+            cursor: pointer;
+            transition: all 0.18s;
+        }
+
+        .tool-btn:hover {
+            background: #f8fafc;
+            border-color: var(--primary-orange);
+            color: var(--primary-orange);
+        }
+
+        .tool-btn.active {
+            background: var(--primary-orange-light);
+            border-color: var(--primary-orange);
+            color: var(--primary-orange);
+        }
+
+        /* PRESENTATION CANVAS (16:9 RATIO) */
+        .presentation-wrapper {
+            padding: 20px 16px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .slide-canvas {
+            width: 100%;
+            max-width: 1240px;
+            aspect-ratio: 16 / 9;
+            background: #ffffff;
+            border-radius: 20px;
+            padding: 22px 36px 16px 36px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            box-shadow: 0 20px 50px rgba(217, 119, 6, 0.08), 0 4px 16px rgba(15, 23, 42, 0.04);
+            border: 1px solid rgba(234, 88, 12, 0.16);
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        /* BACKGROUND ARTWORK (IDENTICAL TO USER REFERENCE SCREENSHOT) */
+        .mlai-bg-art {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .bg-dot-matrix {
+            position: absolute;
+            width: 120px;
+            height: 90px;
+            background-image: radial-gradient(rgba(234, 88, 12, 0.25) 1.5px, transparent 1.5px);
+            background-size: 11px 11px;
+        }
+
+        .bg-dot-matrix-tr { top: 16px; right: 80px; opacity: 0.8; }
+        .bg-dot-matrix-bl { bottom: 16px; left: 36px; opacity: 0.55; }
+
+        /* Soft rising orange sun on the horizon */
+        .bg-sun-orb {
+            position: absolute;
+            right: 32%;
+            bottom: 30px;
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(251, 146, 60, 0.6) 0%, rgba(251, 146, 60, 0) 70%);
+            filter: blur(14px);
+            opacity: 0.85;
+        }
+
+        /* Dune Landscape Curves */
+        .bg-dunes-svg {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 180px;
+        }
+
+        /* Top-Right Vertical Typography */
+        .bg-top-right-credo {
+            position: absolute;
+            top: 22px;
+            right: 36px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 2px;
+            font-family: var(--font-sans);
+            font-size: 8px;
+            font-weight: 700;
+            color: #94a3b8;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+        }
+
+        /* Bottom-Right Vertical Typography */
+        .bg-bottom-right-credo {
+            position: absolute;
+            bottom: 42px;
+            right: 36px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 2px;
+            font-family: var(--font-sans);
+            font-size: 8px;
+            font-weight: 700;
+            color: #94a3b8;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+        }
+
+        .slide-canvas > *:not(.mlai-bg-art) { position: relative; z-index: 1; }
+
+        /* MODE SLIDE VS DOC */
+        body.mode-slide .slide-canvas { display: none; }
+        body.mode-slide .slide-canvas.active-slide {
+            display: flex;
+            animation: slideEntrance 0.24s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes slideEntrance {
+            from { opacity: 0; transform: translateY(6px) scale(0.99); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        body.mode-doc .slide-canvas {
+            display: flex !important;
+            margin-bottom: 36px;
+            aspect-ratio: auto;
+            min-height: 640px;
+        }
+
+        /* HEADER & TITLE */
+        .slide-top-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 2px;
+        }
+
+        .category-eyebrow {
+            display: inline-flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+
+        .category-name {
+            font-family: var(--font-mono);
+            font-size: 10.5px;
+            font-weight: 700;
+            color: var(--navy-muted);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .category-underline {
+            width: 36px;
+            height: 2.5px;
+            background: var(--primary-orange);
+            border-radius: 2px;
+        }
+
+        .track-badge-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            background: #ffffff;
+            border: 1px solid var(--primary-orange-border);
+            padding: 3.5px 11px;
+            border-radius: 999px;
+            box-shadow: 0 2px 6px rgba(234, 88, 12, 0.06);
+        }
+
+        .badge-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: var(--primary-orange);
+            box-shadow: 0 0 5px var(--primary-orange);
+        }
+
+        .badge-text {
+            font-family: var(--font-sans);
+            font-size: 10.5px;
+            font-weight: 700;
+            color: var(--primary-orange);
+        }
+
+        .slide-title-block {
+            margin-top: 2px;
+            margin-bottom: 10px;
+        }
+
+        .slide-title {
+            font-size: 24px;
+            font-weight: 800;
+            color: var(--navy-deep);
+            line-height: 1.2;
+            letter-spacing: -0.4px;
+        }
+
+        .title-accent-bar {
+            width: 220px;
+            height: 4px;
+            background: var(--primary-orange);
+            border-radius: 99px;
+            margin-top: 6px;
+        }
+
+        /* TWO-COLUMN GRID */
+        .slide-grid-2col {
+            display: grid;
+            grid-template-columns: 1fr 1.05fr;
+            gap: 18px;
+            align-items: start;
+        }
+
+        .col-left, .col-right {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        /* ==================== SLIDE 1 SPECIFIC HERO STYLES (EXACT USER SCREENSHOT) ==================== */
+        .slide1-hero-container {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .slide1-main-split {
+            display: grid;
+            grid-template-columns: 0.85fr 1.15fr;
+            gap: 18px;
+            align-items: center;
+        }
+
+        .slide1-col-left {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .slide1-lead-p {
+            font-size: 13.5px;
+            color: var(--navy-slate);
+            line-height: 1.5;
+        }
+
+        .section-micro-eyebrow {
+            font-family: var(--font-mono);
+            font-size: 9px;
+            font-weight: 700;
+            color: var(--navy-muted);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-bottom: 6px;
+        }
+
+        .pillars-3cards-row {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+        }
+
+        .pillar-card {
+            background: #ffffff;
+            border: 1px solid #f1e9df;
+            border-radius: 10px;
+            padding: 9px 8px;
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+            box-shadow: 0 4px 12px rgba(15, 23, 42, 0.03);
+            transition: all 0.15s;
+        }
+
+        .pillar-card:hover {
+            transform: translateY(-2px);
+            border-color: var(--primary-orange);
+            box-shadow: 0 6px 16px rgba(234, 88, 12, 0.08);
+        }
+
+        .pillar-brand {
+            font-size: 11px;
+            font-weight: 800;
+            color: var(--navy-deep);
+            letter-spacing: 0.5px;
+        }
+
+        .pillar-slogan {
+            font-size: 9.5px;
+            color: var(--navy-muted);
+            line-height: 1.35;
+        }
+
+        /* 5-Card Process Sequence (Center-Right) */
+        .slide1-col-right {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .process-cards-sequence {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .proc-step-card {
+            flex: 1;
+            background: #ffffff;
+            border: 1px solid #f0e6dc;
+            border-radius: 12px;
+            padding: 10px 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            gap: 3px;
+            box-shadow: 0 6px 16px rgba(15, 23, 42, 0.04);
+            transition: all 0.18s;
+        }
+
+        .proc-step-card:hover {
+            transform: translateY(-2px);
+            border-color: var(--primary-orange);
+            box-shadow: 0 8px 20px rgba(234, 88, 12, 0.1);
+        }
+
+        .proc-icon {
+            font-size: 16px;
+            line-height: 1;
+        }
+
+        .proc-name {
+            font-size: 10.5px;
+            font-weight: 800;
+            color: var(--navy-deep);
+        }
+
+        .proc-desc {
+            font-size: 8.5px;
+            color: var(--navy-muted);
+            line-height: 1.25;
+            margin-bottom: 2px;
+        }
+
+        .proc-bullet-text {
+            font-size: 8.5px;
+            color: var(--navy-slate);
+            line-height: 1.25;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .proc-arrow {
+            color: var(--primary-orange);
+            font-size: 14px;
+            font-weight: 800;
+        }
+
+        /* Dashed Return Loop with Pill Badge */
+        .feedback-loop-container {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding-top: 4px;
+        }
+
+        .feedback-dashed-line {
+            position: absolute;
+            left: 20px;
+            right: 20px;
+            top: 50%;
+            height: 18px;
+            border-bottom: 2px dashed var(--primary-orange);
+            border-left: 2px dashed var(--primary-orange);
+            border-right: 2px dashed var(--primary-orange);
+            border-radius: 0 0 10px 10px;
+            z-index: 0;
+        }
+
+        .feedback-pill-badge {
+            position: relative;
+            z-index: 1;
+            background: linear-gradient(135deg, #ea580c, #f97316);
+            color: #ffffff;
+            font-size: 10px;
+            font-weight: 700;
+            padding: 3px 14px;
+            border-radius: 999px;
+            box-shadow: 0 2px 8px rgba(234, 88, 12, 0.25);
+            letter-spacing: 0.3px;
+        }
+
+        /* ==================== SLIDE 2 SPECIFIC FLOW STYLES (RECREATING PAGE 2) ==================== */
+        .slide-layout-flow {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .mlai-4stages-cards {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr auto 1fr auto 1fr;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .stage-large-card {
+            background: #ffffff;
+            border: 1px solid #f0e6dc;
+            border-radius: 12px;
+            padding: 12px 12px;
+            box-shadow: 0 6px 18px rgba(15, 23, 42, 0.04);
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .stage-num-title {
+            font-size: 14px;
+            font-weight: 800;
+            color: var(--navy-deep);
+        }
+
+        .stage-question {
+            font-size: 10.5px;
+            color: var(--navy-muted);
+            line-height: 1.35;
+        }
+
+        .stage-bullet-note {
+            font-size: 9.5px;
+            color: var(--navy-slate);
+            background: #fdf8f4;
+            border: 1px solid #fae4d0;
+            border-radius: 6px;
+            padding: 4px 7px;
+            margin-top: 2px;
+            line-height: 1.35;
+        }
+
+        .stage-arrow {
+            color: var(--primary-orange);
+            font-size: 18px;
+            font-weight: 800;
+        }
+
+        .recurrent-loop-bar {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            background: #fff8f2;
+            border: 1.5px dashed rgba(234, 88, 12, 0.4);
+            border-radius: 8px;
+            padding: 5px 14px;
+        }
+
+        .loop-text {
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--primary-orange);
+            letter-spacing: 0.3px;
+        }
+
+        .loop-arrow-left, .loop-arrow-right {
+            color: var(--primary-orange);
+            font-size: 13px;
+            font-weight: 800;
+        }
+
+        .unified-platform-callout {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 6px 12px;
+        }
+
+        .up-badge {
+            font-family: var(--font-mono);
+            font-size: 9px;
+            font-weight: 700;
+            color: #ffffff;
+            background: var(--tag-sys);
+            padding: 2px 7px;
+            border-radius: 4px;
+            white-space: nowrap;
+        }
+
+        .up-text {
+            font-size: 11px;
+            color: var(--navy-slate);
+        }
+
+        .judge-box-page2 {
+            background: #ffffff;
+            border: 1px solid #cbd5e1;
+            border-left: 4px solid var(--navy-deep);
+            border-radius: 8px;
+            padding: 8px 14px;
+            font-size: 10px;
+            color: var(--navy-slate);
+            line-height: 1.4;
+        }
+
+        /* ==================== SLIDE 3 SPECIFIC STYLES (RECREATING PAGE 3) ==================== */
+        .mlai-persona-card {
+            background: #ffffff;
+            border: 1px solid #f0e6dc;
+            border-radius: 14px;
+            padding: 14px 16px;
+            box-shadow: 0 6px 18px rgba(15, 23, 42, 0.03);
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .persona-avatar-circle {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: #ffedd5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            border: 1.5px solid #fed7aa;
+        }
+
+        .persona-card-name {
+            font-size: 15px;
+            font-weight: 800;
+            color: var(--navy-deep);
+        }
+
+        .persona-card-scope {
+            font-size: 10.5px;
+            color: var(--navy-muted);
+        }
+
+        .persona-micro-cards-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-top: 6px;
+        }
+
+        .p-micro-card {
+            background: #fdf8f3;
+            border: 1px solid #fae4d0;
+            border-radius: 8px;
+            padding: 7px 9px;
+            display: flex;
+            align-items: center;
+            gap: 7px;
+        }
+
+        .p-micro-icon { font-size: 14px; }
+        .p-micro-title { font-size: 10px; font-weight: 700; color: var(--navy-deep); display: block; }
+        .p-micro-sub { font-size: 8.5px; color: var(--navy-muted); display: block; }
+
+        .mlai-pills-list {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .mlai-pill-row {
+            background: #ffffff;
+            border: 1px solid #f0e6dc;
+            border-radius: 999px;
+            padding: 7px 14px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 3px 10px rgba(15, 23, 42, 0.03);
+            transition: all 0.15s;
+        }
+
+        .mlai-pill-row:hover {
+            border-color: var(--primary-orange);
+            transform: translateX(3px);
+            box-shadow: 0 5px 14px rgba(234, 88, 12, 0.08);
+        }
+
+        .orange-circle-num {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--primary-orange);
+            color: #ffffff;
+            font-size: 10px;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .pill-content {
+            flex: 1;
+            font-size: 10.5px;
+            line-height: 1.35;
+        }
+
+        .pill-title-strong {
+            color: var(--navy-deep);
+            margin-right: 4px;
+        }
+
+        .pill-body-span {
+            color: var(--navy-slate);
+        }
+
+        /* ==================== SLIDE 4 SPECIFIC ARCHITECTURE STYLES ==================== */
+        .tech-diagram-card {
+            background: #ffffff;
+            border: 1px solid #f0e6dc;
+            border-radius: 12px;
+            padding: 11px 14px;
+            box-shadow: 0 6px 18px rgba(15, 23, 42, 0.03);
+        }
+
+        .tech-diagram-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 7px;
+        }
+
+        .tech-chip {
+            font-family: var(--font-mono);
+            font-size: 8.5px;
+            font-weight: 700;
+            background: #eff6ff;
+            color: #1d4ed8;
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        .tech-title {
+            font-size: 12.5px;
+            font-weight: 800;
+            color: var(--navy-deep);
+        }
+
+        .arch-box-flow {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .arch-node {
+            border-radius: 7px;
+            padding: 6px 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 1px;
+        }
+
+        .onprem-node {
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+        }
+
+        .onprem-node strong { font-size: 10.5px; color: #166534; }
+        .onprem-node span { font-size: 9px; color: #15803d; }
+
+        .cloud-node {
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+        }
+
+        .cloud-node strong { font-size: 10.5px; color: #1e40af; }
+        .cloud-node span { font-size: 9px; color: #1d4ed8; }
+
+        .arch-switch {
+            text-align: center;
+            font-family: var(--font-mono);
+            font-size: 8.5px;
+            font-weight: 700;
+            color: var(--primary-orange);
+        }
+
+        .latency-benchmarks {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 6px;
+            margin-top: 7px;
+            padding-top: 6px;
+            border-top: 1px dashed #e2e8f0;
+        }
+
+        .bench-item {
+            font-size: 9.5px;
+            color: var(--navy-slate);
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .bench-item strong { color: var(--primary-orange); font-family: var(--font-mono); }
+
+        /* ==================== SLIDE 5 SPECIFIC 5W1H MATRIX STYLES ==================== */
+        .slide-layout-matrix {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .matrix-5rows-card {
+            background: #ffffff;
+            border: 1px solid #f0e6dc;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 6px 18px rgba(15, 23, 42, 0.03);
+        }
+
+        .matrix-row {
+            display: grid;
+            grid-template-columns: 120px 1fr 130px;
+            align-items: center;
+            gap: 12px;
+            padding: 8px 14px;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .matrix-row:last-child { border-bottom: none; }
+
+        .matrix-label {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .m-tag {
+            font-family: var(--font-mono);
+            font-size: 8.5px;
+            font-weight: 700;
+            background: #ffedd5;
+            color: var(--primary-orange);
+            padding: 1.5px 5px;
+            border-radius: 4px;
+        }
+
+        .matrix-label strong { font-size: 11px; color: var(--navy-deep); }
+
+        .matrix-text {
+            font-size: 10.5px;
+            color: var(--navy-slate);
+            line-height: 1.35;
+        }
+
+        .matrix-status {
+            font-family: var(--font-mono);
+            font-size: 9.5px;
+            font-weight: 700;
+            color: #0369a1;
+            background: #f0f9ff;
+            border: 1px solid #bae6fd;
+            padding: 2.5px 8px;
+            border-radius: 999px;
+            text-align: center;
+        }
+
+        /* ==================== SLIDE 6 SPECIFIC ROADMAP STYLES ==================== */
+        .slide-layout-roadmap {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .roadmap-timeline {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr auto 1fr;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .timeline-step {
+            background: #ffffff;
+            border: 1px solid #f0e6dc;
+            border-radius: 12px;
+            padding: 10px 12px;
+            box-shadow: 0 6px 18px rgba(15, 23, 42, 0.03);
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+
+        .time-pill {
+            font-family: var(--font-mono);
+            font-size: 9px;
+            font-weight: 700;
+            color: var(--primary-orange);
+            background: #fff7ed;
+            padding: 2px 7px;
+            border-radius: 4px;
+            display: inline-block;
+            align-self: flex-start;
+        }
+
+        .time-title {
+            font-size: 12.5px;
+            font-weight: 800;
+            color: var(--navy-deep);
+        }
+
+        .time-text {
+            font-size: 9.5px;
+            color: var(--navy-slate);
+            line-height: 1.3;
+        }
+
+        .timeline-connector {
+            color: var(--primary-orange);
+            font-size: 16px;
+            font-weight: 800;
+        }
+
+        .kpi-stats-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .stat-card {
+            background: #ffffff;
+            border: 1px solid #f0e6dc;
+            border-radius: 12px;
+            padding: 10px 16px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            box-shadow: 0 6px 18px rgba(15, 23, 42, 0.03);
+        }
+
+        .stat-big-num {
+            font-size: 38px;
+            font-weight: 800;
+            color: var(--primary-orange);
+            line-height: 1;
+            font-family: var(--font-mono);
+        }
+
+        .stat-meta {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .stat-headline {
+            font-size: 12px;
+            font-weight: 800;
+            color: var(--navy-deep);
+        }
+
+        .stat-desc {
+            font-size: 9.5px;
+            color: var(--navy-slate);
+            line-height: 1.3;
+        }
+
+        /* ==================== SLIDE 7 SPECIFIC VISION STYLES ==================== */
+        .vision-manifesto-card {
+            background: linear-gradient(135deg, #0f172a, #1e293b);
+            border-radius: 14px;
+            padding: 14px 16px;
+            color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            box-shadow: 0 10px 25px rgba(15, 23, 42, 0.15);
+        }
+
+        .manifesto-badge {
+            font-family: var(--font-mono);
+            font-size: 8.5px;
+            font-weight: 700;
+            background: rgba(234, 88, 12, 0.25);
+            color: #fb923c;
+            padding: 2px 7px;
+            border-radius: 4px;
+            align-self: flex-start;
+        }
+
+        .manifesto-title {
+            font-size: 13.5px;
+            font-weight: 800;
+            line-height: 1.25;
+            color: #ffffff;
+        }
+
+        .manifesto-quote {
+            font-size: 10px;
+            color: #cbd5e1;
+            line-height: 1.4;
+            font-style: italic;
+        }
+
+        .manifesto-pillars {
+            display: flex;
+            gap: 8px;
+            margin-top: 3px;
+        }
+
+        .manifesto-pillars span {
+            font-size: 9px;
+            font-weight: 600;
+            color: #fed7aa;
+            background: rgba(255, 255, 255, 0.08);
+            padding: 2px 7px;
+            border-radius: 4px;
+        }
+
+        /* ==================== COMMON CALLOUTS & BANNERS ==================== */
+        .dual-callouts-row {
+            display: grid;
+            grid-template-columns: 1.15fr 0.85fr;
+            gap: 10px;
+            align-items: stretch;
+        }
+
+        .judge-q-card {
+            background: #ffffff;
+            border: 1px solid #cbd5e1;
+            border-left: 3.5px solid var(--navy-deep);
+            border-radius: 10px;
+            padding: 9px 12px;
+            box-shadow: 0 4px 12px rgba(15, 23, 42, 0.02);
+        }
+
+        .judge-q-card-compact {
+            background: #ffffff;
+            border: 1px solid #cbd5e1;
+            border-left: 3.5px solid var(--navy-deep);
+            border-radius: 8px;
+            padding: 7px 11px;
+            font-size: 9.5px;
+            color: var(--navy-slate);
+            line-height: 1.35;
+        }
+
+        .card-badge-label {
+            font-family: var(--font-mono);
+            font-size: 8.5px;
+            font-weight: 700;
+            color: var(--navy-muted);
+            margin-bottom: 2px;
+        }
+
+        .q-title {
+            font-size: 10.5px;
+            font-weight: 700;
+            color: var(--navy-deep);
+            margin-bottom: 2px;
+        }
+
+        .a-body {
+            font-size: 10px;
+            color: var(--navy-slate);
+            line-height: 1.35;
+        }
+
+        /* Recreating the signature peach banner with thick orange left border from Slide 7 of MLAI PDF */
+        .reality-banner-mlai {
+            background: #fff4ed;
+            border: 1px solid #fed7aa;
+            border-left: 4px solid var(--primary-orange);
+            border-radius: 8px;
+            padding: 7px 11px;
+            font-size: 9.5px;
+            color: #7c2d12;
+            line-height: 1.35;
+        }
+
+        .reality-banner-compact {
+            background: #fff4ed;
+            border: 1px solid #fed7aa;
+            border-left: 4px solid var(--primary-orange);
+            border-radius: 8px;
+            padding: 7px 11px;
+            font-size: 9.5px;
+            color: #7c2d12;
+            line-height: 1.35;
+        }
+
+        .reality-orange-tag {
+            color: var(--primary-orange);
+            font-weight: 800;
+        }
+
+        .stage-tag {
+            font-family: var(--font-mono);
+            font-size: 8.5px;
+            font-weight: 700;
+            padding: 2px 6px;
+            border-radius: 4px;
+            white-space: nowrap;
+        }
+
+        .badge-pred { background: #fff7ed; color: var(--tag-pred); border: 1px solid #fed7aa; }
+        .badge-dec { background: #f0f9ff; color: var(--tag-dec); border: 1px solid #bae6fd; }
+        .badge-act { background: #f0fdf4; color: var(--tag-act); border: 1px solid #bbf7d0; }
+        .badge-learn { background: #faf5ff; color: var(--tag-learn); border: 1px solid #e9d5ff; }
+        .badge-sys { background: #f8fafc; color: var(--tag-sys); border: 1px solid #e2e8f0; }
+
+        /* ==================== FOOTER (AUTHENTIC USER SCREENSHOT) ==================== */
+        .slide-footer-mlai {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-top: 10px;
+            border-top: 1px solid #f1e9df;
+            margin-top: 4px;
+        }
+
+        .footer-left-mlai, .footer-right-mlai {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+        }
+
+        .footer-bar-mlai {
+            width: 18px;
+            height: 2px;
+            background: var(--primary-orange);
+            border-radius: 1px;
+        }
+
+        .footer-text-mlai {
+            font-family: var(--font-mono);
+            font-size: 9px;
+            font-weight: 700;
+            color: var(--navy-muted);
+            letter-spacing: 0.8px;
+        }
+
+        .footer-page-num {
+            font-family: var(--font-mono);
+            font-size: 10.5px;
+            font-weight: 800;
+            color: var(--primary-orange);
+        }
+
+        .footer-slogan-mlai {
+            font-family: var(--font-mono);
+            font-size: 9px;
+            font-weight: 700;
+            color: var(--navy-muted);
+            letter-spacing: 0.8px;
+        }
+
+        /* PRESENTER NOTES DRAWER */
+        .presenter-drawer {
+            display: none;
+            background: #ffffff;
+            border: 1px solid #fed7aa;
+            border-top: 3px solid var(--primary-orange);
+            border-radius: 10px;
+            padding: 10px 14px;
+            margin-top: 8px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+            animation: drawerOpen 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .presenter-drawer.open { display: block; }
+
+        @keyframes drawerOpen {
+            from { opacity: 0; transform: translateY(-4px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .drawer-header-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 6px;
+            padding-bottom: 4px;
+            border-bottom: 1px dashed #fed7aa;
+        }
+
+        .drawer-speaker-info {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .speaker-name { font-size: 11px; color: var(--navy-deep); }
+
+        .speaker-time-pill {
+            font-family: var(--font-mono);
+            font-size: 9px;
+            font-weight: 700;
+            background: #fff7ed;
+            color: var(--primary-orange);
+            padding: 1px 6px;
+            border-radius: 4px;
+        }
+
+        .drawer-shortcut-hint {
+            font-size: 9.5px;
+            color: var(--navy-muted);
+        }
+
+        .drawer-body-content {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+
+        .speaker-script-p {
+            font-size: 10.5px;
+            color: var(--navy-slate);
+            line-height: 1.4;
+        }
+
+        .speaker-hook-p {
+            font-size: 10px;
+            color: var(--primary-orange);
+            line-height: 1.35;
+        }
+
+        /* FULLSCREEN ADJUSTMENTS */
+        body.is-fullscreen {
+            background: #0f172a;
+        }
+
+        body.is-fullscreen .top-toolbar {
+            display: none;
+        }
+
+        body.is-fullscreen .presentation-wrapper {
+            padding: 0;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        body.is-fullscreen .slide-canvas {
+            max-width: 96vw;
+            max-height: 94vh;
+            border-radius: 12px;
+        }
+
+        /* ==================== COVER SLIDE STYLES (HUTECH CONTEST) ==================== */
+        .slide-cover-canvas {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 24px 42px 18px 42px !important;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cover-container {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            height: 100%;
+            position: relative;
+            z-index: 10;
+        }
+
+        .cover-top-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-bottom: 12px;
+            border-bottom: 1px solid rgba(226, 232, 240, 0.85);
+        }
+
+        .hutech-brand-badge {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .hutech-logo-shield {
+            width: 44px;
+            height: 44px;
+            background: linear-gradient(135deg, #1e40af, #0284c7);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #facc15;
+            font-weight: 900;
+            font-size: 9px;
+            letter-spacing: 0.5px;
+            box-shadow: 0 4px 14px rgba(30, 64, 175, 0.25);
+            border: 2px solid #facc15;
+        }
+
+        .hutech-dept-info {
+            display: flex;
+            flex-direction: column;
+            gap: 1px;
+            text-align: left;
+        }
+
+        .hutech-univ-name {
+            font-family: var(--font-mono);
+            font-size: 10px;
+            font-weight: 700;
+            color: #64748b;
+            letter-spacing: 0.8px;
+            text-transform: uppercase;
+        }
+
+        .hutech-dept-title {
+            font-size: 14px;
+            font-weight: 800;
+            color: #1e3a8a;
+            letter-spacing: 0.2px;
+        }
+
+        .contest-round-badge {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            padding: 6px 14px;
+            border-radius: 99px;
+        }
+
+        .round-dot-live {
+            width: 9px;
+            height: 9px;
+            background: #10b981;
+            border-radius: 50%;
+            box-shadow: 0 0 8px #10b981;
+            animation: pulseDot 1.5s infinite;
+        }
+
+        @keyframes pulseDot {
+            0% { transform: scale(0.9); opacity: 0.8; }
+            50% { transform: scale(1.3); opacity: 1; }
+            100% { transform: scale(0.9); opacity: 0.8; }
+        }
+
+        .round-text-group {
+            display: flex;
+            flex-direction: column;
+            text-align: left;
+        }
+
+        .round-name {
+            font-family: var(--font-mono);
+            font-size: 9.5px;
+            font-weight: 700;
+            color: #1d4ed8;
+        }
+
+        .round-date {
+            font-size: 11px;
+            font-weight: 800;
+            color: #0f172a;
+        }
+
+        .cover-hero-center {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            margin: auto 0;
+            gap: 8px;
+        }
+
+        .contest-eyebrow-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: linear-gradient(90deg, #fff7ed, #fef2f2);
+            border: 1px solid #fed7aa;
+            color: var(--primary-orange);
+            padding: 4px 18px;
+            border-radius: 99px;
+            font-size: 11.5px;
+            font-weight: 800;
+            letter-spacing: 0.6px;
+            box-shadow: 0 2px 8px rgba(234, 88, 12, 0.08);
+        }
+
+        .eyebrow-star {
+            color: #f59e0b;
+            font-size: 12px;
+        }
+
+        .contest-slogan-text {
+            font-family: var(--font-mono);
+            font-size: 11px;
+            font-weight: 700;
+            color: #475569;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .project-title-cluster {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 3px;
+        }
+
+        .project-main-title {
+            font-size: 58px;
+            font-weight: 900;
+            color: #0f172a;
+            line-height: 1;
+            letter-spacing: -1.5px;
+            background: linear-gradient(135deg, #0f172a 30%, #ea580c 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .title-glow-bar {
+            width: 260px;
+            height: 5px;
+            background: linear-gradient(90deg, #1e40af, #ea580c);
+            border-radius: 99px;
+            margin: 4px 0 6px 0;
+        }
+
+        .project-subtitle-vn {
+            font-size: 19px;
+            font-weight: 800;
+            color: #1e293b;
+            letter-spacing: -0.2px;
+        }
+
+        .project-subtitle-en {
+            font-size: 12.5px;
+            color: #64748b;
+            font-weight: 500;
+            letter-spacing: 0.3px;
+        }
+
+        .team-hero-card {
+            display: inline-flex;
+            align-items: center;
+            gap: 16px;
+            background: #ffffff;
+            border: 1.5px solid #fed7aa;
+            border-radius: 14px;
+            padding: 9px 24px;
+            box-shadow: 0 8px 24px rgba(234, 88, 12, 0.08);
+            margin-top: 4px;
+        }
+
+        .team-badge-left {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+        }
+
+        .team-icon {
+            font-size: 22px;
+        }
+
+        .team-title-wrap {
+            display: flex;
+            flex-direction: column;
+            text-align: left;
+        }
+
+        .team-sub-label {
+            font-family: var(--font-mono);
+            font-size: 9px;
+            font-weight: 700;
+            color: #94a3b8;
+            letter-spacing: 0.6px;
+        }
+
+        .team-name-highlight {
+            font-size: 18px;
+            font-weight: 900;
+            color: var(--primary-orange);
+            letter-spacing: 0.5px;
+            font-family: var(--font-mono);
+        }
+
+        .team-divider {
+            width: 1px;
+            height: 34px;
+            background: #fed7aa;
+        }
+
+        .team-members-info {
+            display: flex;
+            flex-direction: column;
+            text-align: left;
+            gap: 2px;
+        }
+
+        .team-univ-label {
+            font-size: 11.5px;
+            font-weight: 700;
+            color: #1e293b;
+        }
+
+        .team-stack-label {
+            font-family: var(--font-mono);
+            font-size: 9.5px;
+            color: #64748b;
+        }
+
+        .cover-3pillars-row {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-top: 6px;
+        }
+
+        .cover-pillar-card {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 10px 14px;
+            display: flex;
+            align-items: center;
+            gap: 11px;
+            box-shadow: 0 4px 12px rgba(15, 23, 42, 0.03);
+            transition: transform 0.2s, border-color 0.2s;
+        }
+
+        .cover-pillar-card:hover {
+            transform: translateY(-2px);
+            border-color: #cbd5e1;
+        }
+
+        .cover-p-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            flex-shrink: 0;
+        }
+
+        .cover-p-text {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            text-align: left;
+        }
+
+        .cover-p-text strong {
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 0.2px;
+        }
+
+        .cover-p-text span {
+            font-size: 9.5px;
+            color: #64748b;
+            line-height: 1.35;
+        }
+
+        .cover-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-top: 10px;
+            border-top: 1px solid rgba(226, 232, 240, 0.85);
+            font-family: var(--font-mono);
+            font-size: 9.5px;
+            font-weight: 700;
+            color: #64748b;
+        }
+
+        .cover-f-left {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .f-dot {
+            width: 6px;
+            height: 6px;
+            background: var(--primary-orange);
+            border-radius: 50%;
+        }
+
+        .cover-f-right {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+    </style>
+</head>
+<body class="mode-slide">
+    <!-- TOP TOOLBAR -->
+    <nav class="top-toolbar">
+        <div class="toolbar-brand">
+            <div class="brand-logo-badge">TH</div>
+            <div>
+                <span class="brand-title-text">DOWN TOWN HRMS</span>
+                <span class="brand-sub-badge">NHÓM DOWN TOWN · HUTECH</span>
+            </div>
+        </div>
+
+        <div class="toolbar-center">
+            <button class="slide-dot active" onclick="goToSlide(1)" title="Trang Đầu: Nhóm DOWN TOWN"></button>
+            <button class="slide-dot" onclick="goToSlide(2)" title="Track 01: Chuỗi Bài Toán"></button>
+            <button class="slide-dot" onclick="goToSlide(3)" title="Track 02: Vòng Lặp 4 Khâu"></button>
+            <button class="slide-dot" onclick="goToSlide(4)" title="Track 03: Giải Pháp & Tác Vụ"></button>
+            <button class="slide-dot" onclick="goToSlide(5)" title="Track 04: Kiến Trúc Model Controller"></button>
+            <button class="slide-dot" onclick="goToSlide(6)" title="Track 05: Đánh Giá Khả Thi 5W1H"></button>
+            <button class="slide-dot" onclick="goToSlide(7)" title="Track 06: Lộ Trình & Hiệu Quả"></button>
+            <button class="slide-dot" onclick="goToSlide(8)" title="Track 07: Tổng Kết & Q&A"></button>
+        </div>
+
+        <div class="toolbar-actions">
+            <button class="tool-btn" id="btn-notes" onclick="toggleNotes()">
+                <span>🎙️</span> <span>Ghi chú [N]</span>
+            </button>
+            <button class="tool-btn" id="btn-mode" onclick="toggleMode()">
+                <span>📄</span> <span>Dạng Doc [M]</span>
+            </button>
+            <button class="tool-btn" id="btn-fullscreen" onclick="toggleFullscreen()">
+                <span>⛶</span> <span>Toàn màn hình [F]</span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- PRESENTATION CONTAINER -->
+    <main class="presentation-wrapper">
+        
+        <section class="slide-canvas slide-cover-canvas active-slide" id="slide-1" data-slide-index="1">
+            <!-- BACKGROUND ART LAYER FROM HUTECH POSTER THEME -->
+            <div class="mlai-bg-art">
+                <div class="bg-dot-matrix bg-dot-matrix-tr"></div>
+                <div class="bg-dot-matrix bg-dot-matrix-bl"></div>
+                <div class="bg-sun-orb" style="right: 80px; top: -70px; width: 420px; height: 420px; background: radial-gradient(circle, rgba(2, 132, 199, 0.18) 0%, rgba(234, 88, 12, 0.15) 50%, rgba(246, 239, 231, 0) 72%);"></div>
+                <svg class="bg-dunes-svg" viewBox="0 0 1440 280" preserveAspectRatio="none">
+                    <path d="M0 190 Q 360 170, 720 200 T 1440 160 L 1440 280 L 0 280 Z" fill="#e0f2fe" opacity="0.4"/>
+                    <path d="M0 220 Q 420 190, 880 220 T 1440 185 L 1440 280 L 0 280 Z" fill="#fef3c7" opacity="0.5"/>
+                    <path d="M0 250 Q 520 220, 980 245 T 1440 215 L 1440 280 L 0 280 Z" fill="#edd0b3" opacity="0.45"/>
+                    <path d="M 460 245 Q 860 225, 1440 195" stroke="#0284c7" stroke-width="2.5" stroke-dasharray="8 6" fill="none" opacity="0.6"/>
+                </svg>
+                <div class="bg-top-right-credo">
+                    <span>HUTECH</span>
+                    <span>KHOA CNTT</span>
+                    <span>AI CONTEST 2026</span>
+                </div>
+                <div class="bg-bottom-right-credo">
+                    <span>ĐỘI THI</span>
+                    <span>DOWN TOWN</span>
+                    <span>DOWN TOWN</span>
+                    <span>HRMS AI</span>
+                </div>
+            </div>
+
+            <!-- COVER SLIDE CONTENT -->
+            <div class="cover-container">
+                <!-- TOP BADGE ROW: HUTECH & CONTEST STAGE -->
+                <div class="cover-top-row">
+                    <div class="hutech-brand-badge">
+                        <div class="hutech-logo-shield">
+                            <span>HUTECH</span>
+                        </div>
+                        <div class="hutech-dept-info">
+                            <span class="hutech-univ-name">ĐẠI HỌC CÔNG NGHỆ TP.HCM</span>
+                            <strong class="hutech-dept-title">KHOA CÔNG NGHỆ THÔNG TIN</strong>
+                        </div>
+                    </div>
+
+                    <div class="contest-round-badge">
+                        <span class="round-dot-live"></span>
+                        <div class="round-text-group">
+                            <span class="round-name">VÒNG BÁN KẾT (ONLINE)</span>
+                            <strong class="round-date">19h00 · Ngày 17/09/2026</strong>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- HERO CENTER SECTION -->
+                <div class="cover-hero-center" style="margin: auto 0; padding: 20px 0; gap: 14px;">
+                    <div class="contest-eyebrow-pill">
+                        <span class="eyebrow-star">★</span>
+                        <span>CUỘC THI XÂY DỰNG HỆ ĐIỀU HÀNH DOANH NGHIỆP SỐ AI</span>
+                        <span class="eyebrow-star">★</span>
+                    </div>
+
+                    <div class="contest-slogan-text">
+                        SÁNG TẠO — ỨNG DỤNG — DẪN ĐẦU CHUYỂN ĐỔI SỐ
+                    </div>
+
+                    <div class="project-title-cluster" style="gap: 6px;">
+                        <h1 class="project-main-title" style="font-size: 64px;">DOWN TOWN</h1>
+                        <div class="title-glow-bar" style="width: 280px; height: 6px;"></div>
+                        <h2 class="project-subtitle-vn" style="font-size: 21px;">
+                            HỆ ĐIỀU HÀNH DOANH NGHIỆP SỐ QUẢN TRỊ NHÂN SỰ TÍCH HỢP AI
+                        </h2>
+                        <p class="project-subtitle-en" style="font-size: 13.5px;">
+                            AI-First Human Resource Management Operating System · Kiến Trúc Khép Kín 4 Khâu
+                        </p>
+                    </div>
+
+                    <!-- TEAM IDENTIFIER CARD -->
+                    <div class="team-hero-card" style="margin-top: 10px; padding: 12px 28px;">
+                        <div class="team-badge-left">
+                            <span class="team-icon">🚀</span>
+                            <div class="team-title-wrap">
+                                <span class="team-sub-label">NHÓM DỰ THI</span>
+                                <strong class="team-name-highlight" style="font-size: 20px;">DOWN TOWN</strong>
+                            </div>
+                        </div>
+                        <div class="team-divider" style="height: 38px;"></div>
+                        <div class="team-members-info">
+                            <span class="team-univ-label" style="font-size: 12.5px;">Khoa Công Nghệ Thông Tin — Trường Đại học Công Nghệ TP.HCM (HUTECH)</span>
+                            <span class="team-stack-label">Next.js 16 · FastAPI · Google Gemini Vision VLM · FastFace 512-D · YOLOv8</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- COVER FOOTER BAR -->
+                <footer class="cover-footer">
+                    <div class="cover-f-left">
+                        <span class="f-dot"></span>
+                        <span>HỆ SINH THÁI KHÉP KÍN 4 KHÂU: DỰ BÁO ➔ QUYẾT ĐỊNH ➔ HÀNH ĐỘNG ➔ HỌC LẠI</span>
+                    </div>
+                    <div class="cover-f-right">
+                        <span>hutech.edu.vn/khoacntt</span>
+                        <span>·</span>
+                        <span>NHÓM DOWN TOWN</span>
+                    </div>
+                </footer>
+            </div>
+
+            <!-- PRESENTER NOTES (COLLAPSIBLE DRAWER) -->
+            <div class="presenter-drawer" id="notes-1">
+                <div class="drawer-header-row">
+                    <div class="drawer-speaker-info">
+                        <span class="speaker-icon">🎙️</span>
+                        <strong class="speaker-name">Đội ngũ DOWN TOWN</strong>
+                        <span class="speaker-time-pill">⏱ Chuẩn: 30 giây</span>
+                    </div>
+                    <span class="drawer-shortcut-hint">Phím tắt <strong>[N]</strong> ẩn/hiện kịch bản</span>
+                </div>
+                <div class="drawer-body-content">
+                    <p class="speaker-script-p"><strong>Lời thoại mở đầu:</strong> "Kính chào Hội đồng Ban Giám khảo và Quý Thầy Cô Khoa Công nghệ Thông tin HUTECH! Chúng tôi là nhóm DOWN TOWN. Hôm nay, nhóm xin đại diện mang đến Cuộc thi Xây dựng Hệ điều hành Doanh nghiệp số AI đề tài: DOWN TOWN — Hệ điều hành Quản trị Nhân sự AI-First khép kín 4 khâu, giải quyết triệt để sự đứt gãy trong quy trình vận hành nhân sự số của doanh nghiệp."</p>
+                    <p class="speaker-hook-p"><strong>Câu nối chuyển slide (Transition Hook):</strong> 👉 <em>"Sau đây, xin kính mời Ban Giám khảo cùng bước vào dòng chảy bài toán cốt lõi của đề tài."</em></p>
+                </div>
+            </div>
+        </section>
+    
+        <section class="slide-canvas" id="slide-2" data-slide-index="2">
+            <!-- BACKGROUND ART LAYER FROM USER REFERENCE SCREENSHOT -->
+            <div class="mlai-bg-art">
+                <!-- Dot matrix grids -->
+                <div class="bg-dot-matrix bg-dot-matrix-tr"></div>
+                <div class="bg-dot-matrix bg-dot-matrix-bl"></div>
+
+                <!-- Luminous orange sun rising on horizon -->
+                <div class="bg-sun-orb"></div>
+
+                <!-- Organic Sand Dune Curves with Flagpole -->
+                <svg class="bg-dunes-svg" viewBox="0 0 1440 280" preserveAspectRatio="none">
+                    <!-- Layer 1: Distant soft dune -->
+                    <path d="M0 190 Q 360 170, 720 200 T 1440 160 L 1440 280 L 0 280 Z" fill="#fcf0e2" opacity="0.65"/>
+                    <!-- Layer 2: Mid dune -->
+                    <path d="M0 220 Q 420 190, 880 220 T 1440 185 L 1440 280 L 0 280 Z" fill="#f7dfc6" opacity="0.55"/>
+                    <!-- Layer 3: Foreground dune -->
+                    <path d="M0 250 Q 520 220, 980 245 T 1440 215 L 1440 280 L 0 280 Z" fill="#edd0b3" opacity="0.45"/>
+                    <!-- White dashed trail -->
+                    <path d="M 460 245 Q 860 225, 1440 195" stroke="#ffffff" stroke-width="3.5" stroke-dasharray="8 6" fill="none" opacity="0.8"/>
+                    <!-- Minimalist flagpole on right hill -->
+                    <line x1="1395" y1="190" x2="1395" y2="135" stroke="#1e293b" stroke-width="2.5"/>
+                    <polygon points="1395,135 1430,148 1395,161" fill="#ea580c"/>
+                </svg>
+
+                <!-- Top-Right Vertical Typography Stack -->
+                <div class="bg-top-right-credo">
+                    <span>IDEAS</span>
+                    <span>PEOPLE</span>
+                    <span>GREATER IMPACT</span>
+                </div>
+
+                <!-- Bottom-Right Vertical Typography Stack -->
+                <div class="bg-bottom-right-credo">
+                    <span>Ý TƯỞNG</span>
+                    <span>HÔM NAY</span>
+                    <span>GIÁ TRỊ</span>
+                    <span>NGÀY MAI</span>
+                </div>
+            </div>
+
+            <!-- SLIDE TOP HEADER -->
+            <header class="slide-top-header">
+                <div class="category-eyebrow">
+                    <span class="category-name">CLB MÃ NGUỒN MỞ HUTECH // BUỔI TRAINING MLAI HACKATHON 2026</span>
+                    <div class="category-underline"></div>
+                </div>
+                <div class="track-badge-pill">
+                    <span class="badge-dot"></span>
+                    <span class="badge-text">TRACK 01: NỖI ĐAU HR</span>
+                </div>
+            </header>
+
+            <!-- SLIDE MAIN TITLE -->
+            <div class="slide-title-block">
+                <h1 class="slide-title">Một Đề Tài Là Một Chuỗi Bài Toán Nhân Sự</h1>
+                <div class="title-accent-bar"></div>
+            </div>
+
+            <!-- BESPOKE SLIDE BODY CONTENT -->
+            
+        <div class="slide1-hero-container">
+            <div class="slide1-main-split" style="grid-template-columns: 0.85fr 1.15fr; gap: 24px; align-items: center; min-height: 520px;">
+                <!-- LEFT COLUMN: Lead Description & Core Philosophy -->
+                <div class="slide1-col-left" style="gap: 16px;">
+                    <div class="slide1-lead-box" style="background: #ffffff; border: 1.5px solid #fed7aa; border-left: 5px solid var(--primary-orange); border-radius: 12px; padding: 20px 22px; box-shadow: 0 4px 16px rgba(234, 88, 12, 0.06);">
+                        <span style="font-family: var(--font-mono); font-size: 9.5px; font-weight: 700; color: var(--primary-orange); letter-spacing: 1px; text-transform: uppercase; display: block; margin-bottom: 8px;">NGUYÊN LÝ THIẾT KẾ DÒNG CHẢY</span>
+                        <p class="slide1-lead-p" style="font-size: 14.5px; line-height: 1.6; color: var(--navy-slate);">
+                            Một đề tài không bao giờ là những giải pháp rời rạc. DOWN TOWN liên kết chặt chẽ thành một dòng chảy duy nhất: từ <strong>Dự báo</strong>, <strong>Quyết định</strong>, tới <strong>Hành động</strong> và <strong>Học lại</strong> từ dữ liệu vận hành thực tế.
+                        </p>
+                    </div>
+
+                    <div class="slide1-value-card" style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px 20px; box-shadow: 0 4px 12px rgba(15, 23, 42, 0.03);">
+                        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+                            <span style="font-size: 16px;">⚡</span>
+                            <strong style="font-size: 12.5px; color: var(--navy-deep);">Mục Tiêu Giải Quyết Triệt Để</strong>
+                        </div>
+                        <p style="font-size: 11.5px; color: #64748b; line-height: 1.55;">
+                            Giải phóng <strong>70% thời gian</strong> thao tác giấy tờ, loại bỏ hoàn toàn đứt gãy giữa các bộ phận tuyển dụng — khảo thí — chấm công, đồng thời trao quyền cho nhà quản trị bằng góc nhìn tổng thể thời gian thực.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- RIGHT COLUMN: 5 Process Cards with Icons & Orange Return Loop -->
+                <div class="slide1-col-right">
+                    <div class="process-cards-sequence">
+                        <div class="proc-step-card">
+                            <span class="proc-icon">💡</span>
+                            <strong class="proc-name">Bài toán 1</strong>
+                            <span class="proc-desc">Khởi tạo vấn đề</span>
+                            <p class="proc-bullet-text">Doanh nghiệp lãng phí 30% thời gian do các phần mềm nhân sự rời rạc.</p>
+                        </div>
+                        <div class="proc-arrow">→</div>
+
+                        <div class="proc-step-card">
+                            <span class="proc-icon">📊</span>
+                            <strong class="proc-name">Bài toán 2</strong>
+                            <span class="proc-desc">Phân tích và dự báo</span>
+                            <p class="proc-bullet-text">Dữ liệu phân mảnh làm tê liệt khả năng dự báo và ra quyết định.</p>
+                        </div>
+                        <div class="proc-arrow">→</div>
+
+                        <div class="proc-step-card">
+                            <span class="proc-icon">⚙️</span>
+                            <strong class="proc-name">Bài toán 3</strong>
+                            <span class="proc-desc">Thiết kế giải pháp</span>
+                            <p class="proc-bullet-text">Quy trình lọc hồ sơ thủ công gây quá tải và bỏ sót ứng viên giỏi.</p>
+                        </div>
+                        <div class="proc-arrow">→</div>
+
+                        <div class="proc-step-card">
+                            <span class="proc-icon">👥</span>
+                            <strong class="proc-name">Bài toán 4</strong>
+                            <span class="proc-desc">Triển khai tác nghiệp</span>
+                            <p class="proc-bullet-text">Chấm công truyền thống dễ gian lận và tốn hàng chục giờ đối soát.</p>
+                        </div>
+                        <div class="proc-arrow">→</div>
+
+                        <div class="proc-step-card">
+                            <span class="proc-icon">🎯</span>
+                            <strong class="proc-name">Bài toán n</strong>
+                            <span class="proc-desc">Tạo giá trị thực tiễn</span>
+                            <p class="proc-bullet-text">Hệ thống thiếu cơ chế học lại khiến các sai sót lặp đi lặp lại.</p>
+                        </div>
+                    </div>
+
+                    <!-- DASHED RETURN LOOP WITH PILL BADGE -->
+                    <div class="feedback-loop-container">
+                        <div class="feedback-dashed-line"></div>
+                        <div class="feedback-pill-badge">học lại từ kết quả thật</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+
+            <!-- AUTHENTIC MLAI FOOTER (MATCHING USER REFERENCE SCREENSHOT) -->
+            <footer class="slide-footer-mlai">
+                <div class="footer-left-mlai">
+                    <span class="footer-bar-mlai"></span>
+                    <span class="footer-text-mlai">CÔNG NGHỆ · CỘNG ĐỒNG · GIÁ TRỊ THẬT</span>
+                </div>
+                <div class="footer-center-mlai">
+                    <span class="footer-page-num">1 / 7</span>
+                </div>
+                <div class="footer-right-mlai">
+                    <span class="footer-slogan-mlai">HACK TO A BRIGHTER TOMORROW</span>
+                    <span class="footer-bar-mlai"></span>
+                </div>
+            </footer>
+
+            <!-- PRESENTER NOTES (COLLAPSIBLE DRAWER) -->
+            <div class="presenter-drawer" id="notes-2">
+                <div class="drawer-header-row">
+                    <div class="drawer-speaker-info">
+                        <span class="speaker-icon">🎙️</span>
+                        <strong class="speaker-name">Speaker 1 (Product Lead)</strong>
+                        <span class="speaker-time-pill">⏱ Chuẩn: 55 giây</span>
+                    </div>
+                    <span class="drawer-shortcut-hint">Phím tắt <strong>[N]</strong> ẩn/hiện kịch bản</span>
+                </div>
+                <div class="drawer-body-content">
+                    <p class="speaker-script-p"><strong>Lời thoại thuyết trình:</strong> "Kính thưa Hội đồng Giám khảo, hãy hình dung một buổi sáng thứ Hai của chị Lan – Trưởng phòng Nhân sự một doanh nghiệp 150 người. Chị phải mở cùng lúc 5 cửa sổ: Zalo nhận CV, Excel đối soát công, máy chấm công vân tay báo lỗi, và hàng chục email khiếu nại. Chuỗi 4 khâu từ Dự báo, Quyết định, Hành động đến Học lại hoàn toàn bị đứt gãy. Doanh nghiệp không thiếu phần mềm, họ thiếu một sợi dây liên kết thông minh."</p>
+                    <p class="speaker-hook-p"><strong>Câu nối chuyển slide (Transition Hook):</strong> 👉 <em>"Vậy làm thế nào để hàn gắn 4 mắt xích bị đứt gãy này thành một dòng chảy duy nhất và có khả năng tự học? DOWN TOWN chính là lời giải trọn vẹn."</em></p>
+                </div>
+            </div>
+        </section>
+        
+        <section class="slide-canvas" id="slide-3" data-slide-index="3">
+            <!-- BACKGROUND ART LAYER FROM USER REFERENCE SCREENSHOT -->
+            <div class="mlai-bg-art">
+                <!-- Dot matrix grids -->
+                <div class="bg-dot-matrix bg-dot-matrix-tr"></div>
+                <div class="bg-dot-matrix bg-dot-matrix-bl"></div>
+
+                <!-- Luminous orange sun rising on horizon -->
+                <div class="bg-sun-orb"></div>
+
+                <!-- Organic Sand Dune Curves with Flagpole -->
+                <svg class="bg-dunes-svg" viewBox="0 0 1440 280" preserveAspectRatio="none">
+                    <!-- Layer 1: Distant soft dune -->
+                    <path d="M0 190 Q 360 170, 720 200 T 1440 160 L 1440 280 L 0 280 Z" fill="#fcf0e2" opacity="0.65"/>
+                    <!-- Layer 2: Mid dune -->
+                    <path d="M0 220 Q 420 190, 880 220 T 1440 185 L 1440 280 L 0 280 Z" fill="#f7dfc6" opacity="0.55"/>
+                    <!-- Layer 3: Foreground dune -->
+                    <path d="M0 250 Q 520 220, 980 245 T 1440 215 L 1440 280 L 0 280 Z" fill="#edd0b3" opacity="0.45"/>
+                    <!-- White dashed trail -->
+                    <path d="M 460 245 Q 860 225, 1440 195" stroke="#ffffff" stroke-width="3.5" stroke-dasharray="8 6" fill="none" opacity="0.8"/>
+                    <!-- Minimalist flagpole on right hill -->
+                    <line x1="1395" y1="190" x2="1395" y2="135" stroke="#1e293b" stroke-width="2.5"/>
+                    <polygon points="1395,135 1430,148 1395,161" fill="#ea580c"/>
+                </svg>
+
+                <!-- Top-Right Vertical Typography Stack -->
+                <div class="bg-top-right-credo">
+                    <span>IDEAS</span>
+                    <span>PEOPLE</span>
+                    <span>GREATER IMPACT</span>
+                </div>
+
+                <!-- Bottom-Right Vertical Typography Stack -->
+                <div class="bg-bottom-right-credo">
+                    <span>Ý TƯỞNG</span>
+                    <span>HÔM NAY</span>
+                    <span>GIÁ TRỊ</span>
+                    <span>NGÀY MAI</span>
+                </div>
+            </div>
+
+            <!-- SLIDE TOP HEADER -->
+            <header class="slide-top-header">
+                <div class="category-eyebrow">
+                    <span class="category-name">MỞ ĐẦU // KHUNG CHUNG</span>
+                    <div class="category-underline"></div>
+                </div>
+                <div class="track-badge-pill">
+                    <span class="badge-dot"></span>
+                    <span class="badge-text">TRACK 02: GIẢI PHÁP</span>
+                </div>
+            </header>
+
+            <!-- SLIDE MAIN TITLE -->
+            <div class="slide-title-block">
+                <h1 class="slide-title">Bốn Khâu Của Mọi Đề Tài: Dự Báo, Quyết Định, Hành Động Và Học Lại</h1>
+                <div class="title-accent-bar"></div>
+            </div>
+
+            <!-- BESPOKE SLIDE BODY CONTENT -->
+            
+        <div class="slide-layout-flow">
+            <!-- 4 PROMINENT FLOW STEP CARDS -->
+            <div class="mlai-4stages-cards">
+                <div class="stage-large-card">
+                    <div class="stage-num-title">1. Dự báo</div>
+                    <p class="stage-question">Mô hình ước lượng cái gì mà hiện chưa biết?</p>
+                    <div class="stage-bullet-note"><strong>Thực thi:</strong> Khâu dự báo: AI tự động phân tích hồ sơ và ước lượng năng lực.</div>
+                </div>
+                <div class="stage-arrow">➔</div>
+
+                <div class="stage-large-card">
+                    <div class="stage-num-title">2. Quyết định</div>
+                    <p class="stage-question">Ai chọn, dựa vào ràng buộc và mục tiêu nào?</p>
+                    <div class="stage-bullet-note"><strong>Thực thi:</strong> Khâu quyết định: Gợi ý xếp hạng ứng viên theo quy tắc nghiệp vụ minh bạch.</div>
+                </div>
+                <div class="stage-arrow">➔</div>
+
+                <div class="stage-large-card">
+                    <div class="stage-num-title">3. Hành động</div>
+                    <p class="stage-question">Sản phẩm làm gì ngoài đời, bấm nút nào thì thay đổi gì?</p>
+                    <div class="stage-bullet-note"><strong>Thực thi:</strong> Khâu hành động: Tự động gửi thư mời và đồng bộ dữ liệu sang Kanban.</div>
+                </div>
+                <div class="stage-arrow">➔</div>
+
+                <div class="stage-large-card">
+                    <div class="stage-num-title">4. Học lại</div>
+                    <p class="stage-question">Kết quả thật quay về mô hình bằng đường nào?</p>
+                    <div class="stage-bullet-note"><strong>Thực thi:</strong> Khâu học lại: Thao tác duyệt thực tế liên tục tối ưu hóa mô hình AI.</div>
+                </div>
+            </div>
+
+            <!-- AUTHENTIC DASHED RETURN LOOP -->
+            <div class="recurrent-loop-bar">
+                <span class="loop-arrow-left">⮤</span>
+                <span class="loop-text">dữ liệu mới, sai số, phản hồi của người dùng thật liên tục cập nhật mô hình</span>
+                <span class="loop-arrow-right">⮡</span>
+            </div>
+
+            <!-- 5TH BULLET: UNIFIED PLATFORM BANNER -->
+            <div class="unified-platform-callout">
+                <span class="up-badge">NỀN TẢNG CHUNG</span>
+                <p class="up-text">Nền tảng hợp nhất giải quyết triệt để tình trạng phân mảnh dữ liệu nội bộ.</p>
+            </div>
+        </div>
+        
+
+            <!-- AUTHENTIC MLAI FOOTER (MATCHING USER REFERENCE SCREENSHOT) -->
+            <footer class="slide-footer-mlai">
+                <div class="footer-left-mlai">
+                    <span class="footer-bar-mlai"></span>
+                    <span class="footer-text-mlai">CÔNG NGHỆ · CỘNG ĐỒNG · GIÁ TRỊ THẬT</span>
+                </div>
+                <div class="footer-center-mlai">
+                    <span class="footer-page-num">2 / 7</span>
+                </div>
+                <div class="footer-right-mlai">
+                    <span class="footer-slogan-mlai">HACK TO A BRIGHTER TOMORROW</span>
+                    <span class="footer-bar-mlai"></span>
+                </div>
+            </footer>
+
+            <!-- PRESENTER NOTES (COLLAPSIBLE DRAWER) -->
+            <div class="presenter-drawer" id="notes-3">
+                <div class="drawer-header-row">
+                    <div class="drawer-speaker-info">
+                        <span class="speaker-icon">🎙️</span>
+                        <strong class="speaker-name">Speaker 1 (Product Lead)</strong>
+                        <span class="speaker-time-pill">⏱ Chuẩn: 60 giây</span>
+                    </div>
+                    <span class="drawer-shortcut-hint">Phím tắt <strong>[N]</strong> ẩn/hiện kịch bản</span>
+                </div>
+                <div class="drawer-body-content">
+                    <p class="speaker-script-p"><strong>Lời thoại thuyết trình:</strong> "Để giải quyết tận gốc bài toán, DOWN TOWN được kiến trúc theo chuẩn 4 khâu của một hệ thống thông minh. Ở khâu Dự báo, AI trích xuất thông tin chưa biết. Ở khâu Quyết định, con người kết hợp cùng gợi ý của máy để phê duyệt. Khâu Hành động biến quyết định thành kết quả ngoài đời thực chỉ bằng một nút bấm. Và điểm khác biệt nhất nằm ở khâu Học lại: mỗi thao tác chấp nhận hay từ chối của HR đều trở thành dữ liệu vàng giúp mô hình thông minh hơn mỗi ngày."</p>
+                    <p class="speaker-hook-p"><strong>Câu nối chuyển slide (Transition Hook):</strong> 👉 <em>"Sau đây, xin mời Tech Lead trình bày chi tiết chuỗi 4 bài toán thực thi mà DOWN TOWN đã hiện thực hóa vào sản phẩm."</em></p>
+                </div>
+            </div>
+        </section>
+        
+        <section class="slide-canvas" id="slide-4" data-slide-index="4">
+            <!-- BACKGROUND ART LAYER FROM USER REFERENCE SCREENSHOT -->
+            <div class="mlai-bg-art">
+                <!-- Dot matrix grids -->
+                <div class="bg-dot-matrix bg-dot-matrix-tr"></div>
+                <div class="bg-dot-matrix bg-dot-matrix-bl"></div>
+
+                <!-- Luminous orange sun rising on horizon -->
+                <div class="bg-sun-orb"></div>
+
+                <!-- Organic Sand Dune Curves with Flagpole -->
+                <svg class="bg-dunes-svg" viewBox="0 0 1440 280" preserveAspectRatio="none">
+                    <!-- Layer 1: Distant soft dune -->
+                    <path d="M0 190 Q 360 170, 720 200 T 1440 160 L 1440 280 L 0 280 Z" fill="#fcf0e2" opacity="0.65"/>
+                    <!-- Layer 2: Mid dune -->
+                    <path d="M0 220 Q 420 190, 880 220 T 1440 185 L 1440 280 L 0 280 Z" fill="#f7dfc6" opacity="0.55"/>
+                    <!-- Layer 3: Foreground dune -->
+                    <path d="M0 250 Q 520 220, 980 245 T 1440 215 L 1440 280 L 0 280 Z" fill="#edd0b3" opacity="0.45"/>
+                    <!-- White dashed trail -->
+                    <path d="M 460 245 Q 860 225, 1440 195" stroke="#ffffff" stroke-width="3.5" stroke-dasharray="8 6" fill="none" opacity="0.8"/>
+                    <!-- Minimalist flagpole on right hill -->
+                    <line x1="1395" y1="190" x2="1395" y2="135" stroke="#1e293b" stroke-width="2.5"/>
+                    <polygon points="1395,135 1430,148 1395,161" fill="#ea580c"/>
+                </svg>
+
+                <!-- Top-Right Vertical Typography Stack -->
+                <div class="bg-top-right-credo">
+                    <span>IDEAS</span>
+                    <span>PEOPLE</span>
+                    <span>GREATER IMPACT</span>
+                </div>
+
+                <!-- Bottom-Right Vertical Typography Stack -->
+                <div class="bg-bottom-right-credo">
+                    <span>Ý TƯỞNG</span>
+                    <span>HÔM NAY</span>
+                    <span>GIÁ TRỊ</span>
+                    <span>NGÀY MAI</span>
+                </div>
+            </div>
+
+            <!-- SLIDE TOP HEADER -->
+            <header class="slide-top-header">
+                <div class="category-eyebrow">
+                    <span class="category-name">TÁC NGHIỆP // CHUỖI BÀI TOÁN THỰC THI</span>
+                    <div class="category-underline"></div>
+                </div>
+                <div class="track-badge-pill">
+                    <span class="badge-dot"></span>
+                    <span class="badge-text">TRACK 03: TÍNH NĂNG LÕI</span>
+                </div>
+            </header>
+
+            <!-- SLIDE MAIN TITLE -->
+            <div class="slide-title-block">
+                <h1 class="slide-title">Bốn Trụ Cột Vận Hành Giải Quyết Trọn Vẹn Chuỗi Tác Nghiệp Trọng Yếu</h1>
+                <div class="title-accent-bar"></div>
+            </div>
+
+            <!-- BESPOKE SLIDE BODY CONTENT -->
+            
+        <div class="slide-grid-2col" style="align-items: center; min-height: 480px;">
+            <!-- LEFT: PERSONA CARD WITH CIRCULAR AVATAR & 2 MICRO CARDS -->
+            <div class="col-left">
+                <div class="mlai-persona-card" style="box-shadow: 0 8px 24px rgba(15, 23, 42, 0.05); border: 1.5px solid #fed7aa;">
+                    <div class="persona-avatar-circle">👤</div>
+                    <h2 class="persona-card-name">Chuyên viên Tuyển dụng & Giám sát Vận hành</h2>
+                    <p class="persona-card-scope">Thao tác trực tiếp · Xử lý hàng ngày · Tối ưu hiệu suất làm việc</p>
+
+                    <div class="persona-micro-cards-row" style="margin-top: 14px;">
+                        <div class="p-micro-card">
+                            <span class="p-micro-icon">⚡</span>
+                            <div>
+                                <strong class="p-micro-title">Tuyển dụng: 2.3s OCR</strong>
+                                <span class="p-micro-sub">trích xuất và chấm điểm tức thì</span>
+                            </div>
+                        </div>
+                        <div class="p-micro-card">
+                            <span class="p-micro-icon">📷</span>
+                            <div>
+                                <strong class="p-micro-title">Chấm công: FastFace</strong>
+                                <span class="p-micro-sub">nhận diện 6 góc dưới 0.3s</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- RIGHT: 4 ROUNDED WHITE PILLS WITH NUMBERED ORANGE CIRCLES -->
+            <div class="col-right">
+                <div class="mlai-pills-list">
+                    
+                    <div class="mlai-pill-row">
+                        <span class="orange-circle-num">1</span>
+                        <div class="pill-content">
+                            <span class="pill-body-span">Tuyển dụng: Trích xuất thông tin hồ sơ bằng OCR chuẩn xác trong hai giây.</span>
+                        </div>
+                    </div>
+                    <div class="mlai-pill-row">
+                        <span class="orange-circle-num">2</span>
+                        <div class="pill-content">
+                            <span class="pill-body-span">Khảo thí: Tự động sinh đề và chấm thi trắc nghiệm trong mười lăm phút.</span>
+                        </div>
+                    </div>
+                    <div class="mlai-pill-row">
+                        <span class="orange-circle-num">3</span>
+                        <div class="pill-content">
+                            <span class="pill-body-span">Chấm công: Nhận diện khuôn mặt đa góc nghiêng ngăn chặn gian lận điểm danh.</span>
+                        </div>
+                    </div>
+                    <div class="mlai-pill-row">
+                        <span class="orange-circle-num">4</span>
+                        <div class="pill-content">
+                            <span class="pill-body-span">Thị giác máy tính: Giám sát an toàn khu vực làm việc bằng YOLOv8.</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+
+            <!-- AUTHENTIC MLAI FOOTER (MATCHING USER REFERENCE SCREENSHOT) -->
+            <footer class="slide-footer-mlai">
+                <div class="footer-left-mlai">
+                    <span class="footer-bar-mlai"></span>
+                    <span class="footer-text-mlai">CÔNG NGHỆ · CỘNG ĐỒNG · GIÁ TRỊ THẬT</span>
+                </div>
+                <div class="footer-center-mlai">
+                    <span class="footer-page-num">3 / 7</span>
+                </div>
+                <div class="footer-right-mlai">
+                    <span class="footer-slogan-mlai">HACK TO A BRIGHTER TOMORROW</span>
+                    <span class="footer-bar-mlai"></span>
+                </div>
+            </footer>
+
+            <!-- PRESENTER NOTES (COLLAPSIBLE DRAWER) -->
+            <div class="presenter-drawer" id="notes-4">
+                <div class="drawer-header-row">
+                    <div class="drawer-speaker-info">
+                        <span class="speaker-icon">🎙️</span>
+                        <strong class="speaker-name">Speaker 2 (Tech Lead)</strong>
+                        <span class="speaker-time-pill">⏱ Chuẩn: 70 giây</span>
+                    </div>
+                    <span class="drawer-shortcut-hint">Phím tắt <strong>[N]</strong> ẩn/hiện kịch bản</span>
+                </div>
+                <div class="drawer-body-content">
+                    <p class="speaker-script-p"><strong>Lời thoại thuyết trình:</strong> "Kính thưa Hội đồng, DOWN TOWN hiện thực hóa bằng các trụ cột công nghệ rõ ràng. Thứ nhất, module Document AI quét và phân tích CV trong đúng 2.3 giây. Thứ hai, hệ thống TestHub sinh đề thi thích ứng 15 phút đánh giá đúng năng lực ứng viên. Thứ ba, camera FastFace nhận diện 6 góc khuôn mặt cực nhạy, chống giả mạo bằng ảnh in. Và thứ tư, hệ thống thị giác máy tính YOLOv8 giám sát an toàn khu vực làm việc."</p>
+                    <p class="speaker-hook-p"><strong>Câu nối chuyển slide (Transition Hook):</strong> 👉 <em>"Để vận hành mượt mà các trụ cột đó mà vẫn bảo đảm chi phí tối thiểu cho doanh nghiệp, chúng tôi đã thiết kế một cơ chế điều phối mô hình đặc biệt."</em></p>
+                </div>
+            </div>
+        </section>
+        
+        <section class="slide-canvas" id="slide-5" data-slide-index="5">
+            <!-- BACKGROUND ART LAYER FROM USER REFERENCE SCREENSHOT -->
+            <div class="mlai-bg-art">
+                <!-- Dot matrix grids -->
+                <div class="bg-dot-matrix bg-dot-matrix-tr"></div>
+                <div class="bg-dot-matrix bg-dot-matrix-bl"></div>
+
+                <!-- Luminous orange sun rising on horizon -->
+                <div class="bg-sun-orb"></div>
+
+                <!-- Organic Sand Dune Curves with Flagpole -->
+                <svg class="bg-dunes-svg" viewBox="0 0 1440 280" preserveAspectRatio="none">
+                    <!-- Layer 1: Distant soft dune -->
+                    <path d="M0 190 Q 360 170, 720 200 T 1440 160 L 1440 280 L 0 280 Z" fill="#fcf0e2" opacity="0.65"/>
+                    <!-- Layer 2: Mid dune -->
+                    <path d="M0 220 Q 420 190, 880 220 T 1440 185 L 1440 280 L 0 280 Z" fill="#f7dfc6" opacity="0.55"/>
+                    <!-- Layer 3: Foreground dune -->
+                    <path d="M0 250 Q 520 220, 980 245 T 1440 215 L 1440 280 L 0 280 Z" fill="#edd0b3" opacity="0.45"/>
+                    <!-- White dashed trail -->
+                    <path d="M 460 245 Q 860 225, 1440 195" stroke="#ffffff" stroke-width="3.5" stroke-dasharray="8 6" fill="none" opacity="0.8"/>
+                    <!-- Minimalist flagpole on right hill -->
+                    <line x1="1395" y1="190" x2="1395" y2="135" stroke="#1e293b" stroke-width="2.5"/>
+                    <polygon points="1395,135 1430,148 1395,161" fill="#ea580c"/>
+                </svg>
+
+                <!-- Top-Right Vertical Typography Stack -->
+                <div class="bg-top-right-credo">
+                    <span>IDEAS</span>
+                    <span>PEOPLE</span>
+                    <span>GREATER IMPACT</span>
+                </div>
+
+                <!-- Bottom-Right Vertical Typography Stack -->
+                <div class="bg-bottom-right-credo">
+                    <span>Ý TƯỞNG</span>
+                    <span>HÔM NAY</span>
+                    <span>GIÁ TRỊ</span>
+                    <span>NGÀY MAI</span>
+                </div>
+            </div>
+
+            <!-- SLIDE TOP HEADER -->
+            <header class="slide-top-header">
+                <div class="category-eyebrow">
+                    <span class="category-name">KIẾN TRÚC // CHUỖI BÀI TOÁN NỐI NHAU</span>
+                    <div class="category-underline"></div>
+                </div>
+                <div class="track-badge-pill">
+                    <span class="badge-dot"></span>
+                    <span class="badge-text">TRACK 04: CÔNG NGHỆ</span>
+                </div>
+            </header>
+
+            <!-- SLIDE MAIN TITLE -->
+            <div class="slide-title-block">
+                <h1 class="slide-title">Bảy Bài Toán Nối Nhau Trong Một Đề Tài: Kiến Trúc Model Controller</h1>
+                <div class="title-accent-bar"></div>
+            </div>
+
+            <!-- BESPOKE SLIDE BODY CONTENT -->
+            
+        <div class="slide-grid-2col" style="align-items: center; min-height: 480px;">
+            <!-- LEFT: ARCHITECTURE FLOW & BENCHMARKS -->
+            <div class="col-left">
+                <div class="tech-diagram-card">
+                    <div class="tech-diagram-header">
+                        <span class="tech-chip">ARCHITECTURE</span>
+                        <h3 class="tech-title">Cơ Chế Điều Phối Model Controller</h3>
+                    </div>
+                    <div class="arch-box-flow">
+                        <div class="arch-node onprem-node">
+                            <strong>🖥️ Local Engine (On-premise)</strong>
+                            <span>FastFace & YOLOv8 · 0 Đồng Token · Bảo mật 100%</span>
+                        </div>
+                        <div class="arch-switch">⇅ Tự động chuyển mạch thông minh</div>
+                        <div class="arch-node cloud-node">
+                            <strong>☁️ Cloud Foundation Models</strong>
+                            <span>Mã hóa ẩn danh · Soạn thảo NĐ 30 & Sinh đề thi</span>
+                        </div>
+                    </div>
+                    <div class="latency-benchmarks">
+                        <div class="bench-item"><span>GPU RTX 4060:</span> <strong>0.3s / lượt</strong></div>
+                        <div class="bench-item"><span>CPU Intel i7:</span> <strong>1.1s / lượt</strong></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- RIGHT: TECH BULLETS -->
+            <div class="col-right">
+                <div class="mlai-pills-list">
+                    
+                    <div class="mlai-pill-row">
+                        <span class="orange-circle-num">1</span>
+                        <div class="pill-content"><span class="pill-body-span">Bộ điều phối thông minh tự động lựa chọn mô hình cục bộ hoặc đám mây.</span></div>
+                        <span class="stage-tag badge-pred">khâu: dự báo</span>
+                    </div>
+                    <div class="mlai-pill-row">
+                        <span class="orange-circle-num">2</span>
+                        <div class="pill-content"><span class="pill-body-span">Xử lý chấm công và thị giác máy tính chạy cục bộ với độ trễ thấp.</span></div>
+                        <span class="stage-tag badge-dec">khâu: quyết định</span>
+                    </div>
+                    <div class="mlai-pill-row">
+                        <span class="orange-circle-num">3</span>
+                        <div class="pill-content"><span class="pill-body-span">Tối ưu hóa tài nguyên phần cứng giúp doanh nghiệp tiết kiệm chi phí vận hành.</span></div>
+                        <span class="stage-tag badge-act">khâu: hành động</span>
+                    </div>
+                    <div class="mlai-pill-row">
+                        <span class="orange-circle-num">4</span>
+                        <div class="pill-content"><span class="pill-body-span">Triển khai trên máy chủ nội bộ giúp bảo vệ tối đa bí mật kinh doanh.</span></div>
+                        <span class="stage-tag badge-learn">khâu: học lại</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+
+            <!-- AUTHENTIC MLAI FOOTER (MATCHING USER REFERENCE SCREENSHOT) -->
+            <footer class="slide-footer-mlai">
+                <div class="footer-left-mlai">
+                    <span class="footer-bar-mlai"></span>
+                    <span class="footer-text-mlai">CÔNG NGHỆ · CỘNG ĐỒNG · GIÁ TRỊ THẬT</span>
+                </div>
+                <div class="footer-center-mlai">
+                    <span class="footer-page-num">4 / 7</span>
+                </div>
+                <div class="footer-right-mlai">
+                    <span class="footer-slogan-mlai">HACK TO A BRIGHTER TOMORROW</span>
+                    <span class="footer-bar-mlai"></span>
+                </div>
+            </footer>
+
+            <!-- PRESENTER NOTES (COLLAPSIBLE DRAWER) -->
+            <div class="presenter-drawer" id="notes-5">
+                <div class="drawer-header-row">
+                    <div class="drawer-speaker-info">
+                        <span class="speaker-icon">🎙️</span>
+                        <strong class="speaker-name">Speaker 2 (Tech Lead)</strong>
+                        <span class="speaker-time-pill">⏱ Chuẩn: 60 giây</span>
+                    </div>
+                    <span class="drawer-shortcut-hint">Phím tắt <strong>[N]</strong> ẩn/hiện kịch bản</span>
+                </div>
+                <div class="drawer-body-content">
+                    <p class="speaker-script-p"><strong>Lời thoại thuyết trình:</strong> "Điểm tự hào lớn nhất về mặt kỹ thuật của DOWN TOWN là cơ chế Model Controller. Chúng tôi không phụ thuộc thụ động vào OpenAI hay bất kỳ bên thứ ba nào. Hệ thống ưu tiên chạy các mô hình nguồn mở tối ưu cục bộ như FastFace và YOLOv8 on-premise để bảo mật dữ liệu tuyệt đối với chi phí bằng 0. Khi cần xử lý các tác vụ phức tạp, Model Controller mới định tuyến ra các LLM lớn có mã hóa ẩn danh."</p>
+                    <p class="speaker-hook-p"><strong>Câu nối chuyển slide (Transition Hook):</strong> 👉 <em>"Một hệ thống công nghệ ấn tượng là chưa đủ, tính khả thi toàn diện trên bài toán kinh doanh thực tế được chứng minh ra sao?"</em></p>
+                </div>
+            </div>
+        </section>
+        
+        <section class="slide-canvas" id="slide-6" data-slide-index="6">
+            <!-- BACKGROUND ART LAYER FROM USER REFERENCE SCREENSHOT -->
+            <div class="mlai-bg-art">
+                <!-- Dot matrix grids -->
+                <div class="bg-dot-matrix bg-dot-matrix-tr"></div>
+                <div class="bg-dot-matrix bg-dot-matrix-bl"></div>
+
+                <!-- Luminous orange sun rising on horizon -->
+                <div class="bg-sun-orb"></div>
+
+                <!-- Organic Sand Dune Curves with Flagpole -->
+                <svg class="bg-dunes-svg" viewBox="0 0 1440 280" preserveAspectRatio="none">
+                    <!-- Layer 1: Distant soft dune -->
+                    <path d="M0 190 Q 360 170, 720 200 T 1440 160 L 1440 280 L 0 280 Z" fill="#fcf0e2" opacity="0.65"/>
+                    <!-- Layer 2: Mid dune -->
+                    <path d="M0 220 Q 420 190, 880 220 T 1440 185 L 1440 280 L 0 280 Z" fill="#f7dfc6" opacity="0.55"/>
+                    <!-- Layer 3: Foreground dune -->
+                    <path d="M0 250 Q 520 220, 980 245 T 1440 215 L 1440 280 L 0 280 Z" fill="#edd0b3" opacity="0.45"/>
+                    <!-- White dashed trail -->
+                    <path d="M 460 245 Q 860 225, 1440 195" stroke="#ffffff" stroke-width="3.5" stroke-dasharray="8 6" fill="none" opacity="0.8"/>
+                    <!-- Minimalist flagpole on right hill -->
+                    <line x1="1395" y1="190" x2="1395" y2="135" stroke="#1e293b" stroke-width="2.5"/>
+                    <polygon points="1395,135 1430,148 1395,161" fill="#ea580c"/>
+                </svg>
+
+                <!-- Top-Right Vertical Typography Stack -->
+                <div class="bg-top-right-credo">
+                    <span>IDEAS</span>
+                    <span>PEOPLE</span>
+                    <span>GREATER IMPACT</span>
+                </div>
+
+                <!-- Bottom-Right Vertical Typography Stack -->
+                <div class="bg-bottom-right-credo">
+                    <span>Ý TƯỞNG</span>
+                    <span>HÔM NAY</span>
+                    <span>GIÁ TRỊ</span>
+                    <span>NGÀY MAI</span>
+                </div>
+            </div>
+
+            <!-- SLIDE TOP HEADER -->
+            <header class="slide-top-header">
+                <div class="category-eyebrow">
+                    <span class="category-name">KHẢ THI // MA TRẬN 5W1H TOÀN DIỆN</span>
+                    <div class="category-underline"></div>
+                </div>
+                <div class="track-badge-pill">
+                    <span class="badge-dot"></span>
+                    <span class="badge-text">TRACK 05: ĐÁNH GIÁ 5W1H</span>
+                </div>
+            </header>
+
+            <!-- SLIDE MAIN TITLE -->
+            <div class="slide-title-block">
+                <h1 class="slide-title">Bàn Tròn Khả Thi 5W1H: Kỹ Thuật, Vận Hành, Chi Phí Và Pháp Lý</h1>
+                <div class="title-accent-bar"></div>
+            </div>
+
+            <!-- BESPOKE SLIDE BODY CONTENT -->
+            
+        <div class="slide-layout-matrix">
+            <div class="matrix-5rows-card">
+                <div class="matrix-row">
+                    <div class="matrix-label"><span class="m-tag">WHO</span><strong>Khách Hàng</strong></div>
+                    <p class="matrix-text">Khách hàng mục tiêu: Doanh nghiệp SME từ 50 đến 1000 nhân sự chuyển đổi số.</p>
+                    <span class="matrix-status">SME 50-1000 NV</span>
+                </div>
+                <div class="matrix-row">
+                    <div class="matrix-label"><span class="m-tag">WHAT</span><strong>Phạm Vi</strong></div>
+                    <p class="matrix-text">Phạm vi: Chuẩn hóa trọn vẹn luồng dữ liệu từ tuyển dụng đến quản trị.</p>
+                    <span class="matrix-status">Dữ Liệu Xuyên Suốt</span>
+                </div>
+                <div class="matrix-row">
+                    <div class="matrix-label"><span class="m-tag">HOW</span><strong>Kỹ Thuật</strong></div>
+                    <p class="matrix-text">Kỹ thuật: Xây dựng trên NextJS, FastAPI, PostgreSQL cùng hàng đợi Redis xử lý nhanh.</p>
+                    <span class="matrix-status">NextJS & FastAPI</span>
+                </div>
+                <div class="matrix-row">
+                    <div class="matrix-label"><span class="m-tag">OPS</span><strong>Vận Hành</strong></div>
+                    <p class="matrix-text">Vận hành: Giao diện trực quan giúp nhân sự làm quen trong vòng hai giờ.</p>
+                    <span class="matrix-status">Làm Quen 2 Giờ</span>
+                </div>
+                <div class="matrix-row">
+                    <div class="matrix-label"><span class="m-tag">LAW</span><strong>Pháp Lý</strong></div>
+                    <p class="matrix-text">Pháp lý: Tuân thủ nghiêm ngặt Nghị định 13 bảo vệ dữ liệu sinh trắc học.</p>
+                    <span class="matrix-status">Nghị Định 13/CP</span>
+                </div>
+            </div>
+        </div>
+        
+
+            <!-- AUTHENTIC MLAI FOOTER (MATCHING USER REFERENCE SCREENSHOT) -->
+            <footer class="slide-footer-mlai">
+                <div class="footer-left-mlai">
+                    <span class="footer-bar-mlai"></span>
+                    <span class="footer-text-mlai">CÔNG NGHỆ · CỘNG ĐỒNG · GIÁ TRỊ THẬT</span>
+                </div>
+                <div class="footer-center-mlai">
+                    <span class="footer-page-num">5 / 7</span>
+                </div>
+                <div class="footer-right-mlai">
+                    <span class="footer-slogan-mlai">HACK TO A BRIGHTER TOMORROW</span>
+                    <span class="footer-bar-mlai"></span>
+                </div>
+            </footer>
+
+            <!-- PRESENTER NOTES (COLLAPSIBLE DRAWER) -->
+            <div class="presenter-drawer" id="notes-6">
+                <div class="drawer-header-row">
+                    <div class="drawer-speaker-info">
+                        <span class="speaker-icon">🎙️</span>
+                        <strong class="speaker-name">Speaker 2 (Tech Lead)</strong>
+                        <span class="speaker-time-pill">⏱ Chuẩn: 65 giây</span>
+                    </div>
+                    <span class="drawer-shortcut-hint">Phím tắt <strong>[N]</strong> ẩn/hiện kịch bản</span>
+                </div>
+                <div class="drawer-body-content">
+                    <p class="speaker-script-p"><strong>Lời thoại thuyết trình:</strong> "Chúng tôi phân tích tính khả thi theo ma trận 5W1H toàn diện. Về Kỹ thuật, stack NextJS, FastAPI và Redis đảm bảo khả năng chịu tải hàng ngàn request đồng thời. Về Vận hành, UX được tối giản theo tư duy One-click action, nhân viên chỉ mất 2 giờ để sử dụng thành thạo. Về Chi phí, kiến trúc lai giúp doanh nghiệp SME tiết kiệm 80% ngân sách so với các giải pháp quốc tế. Và về Pháp lý, cơ chế consent minh bạch giúp doanh nghiệp hoàn toàn yên tâm trước quy định bảo vệ dữ liệu cá nhân."</p>
+                    <p class="speaker-hook-p"><strong>Câu nối chuyển slide (Transition Hook):</strong> 👉 <em>"Với nền móng khả thi vững chắc đó, lộ trình đưa DOWN TOWN vào thực tế và các chỉ số đo lường hiệu quả được xác lập như thế nào?"</em></p>
+                </div>
+            </div>
+        </section>
+        
+        <section class="slide-canvas" id="slide-7" data-slide-index="7">
+            <!-- BACKGROUND ART LAYER FROM USER REFERENCE SCREENSHOT -->
+            <div class="mlai-bg-art">
+                <!-- Dot matrix grids -->
+                <div class="bg-dot-matrix bg-dot-matrix-tr"></div>
+                <div class="bg-dot-matrix bg-dot-matrix-bl"></div>
+
+                <!-- Luminous orange sun rising on horizon -->
+                <div class="bg-sun-orb"></div>
+
+                <!-- Organic Sand Dune Curves with Flagpole -->
+                <svg class="bg-dunes-svg" viewBox="0 0 1440 280" preserveAspectRatio="none">
+                    <!-- Layer 1: Distant soft dune -->
+                    <path d="M0 190 Q 360 170, 720 200 T 1440 160 L 1440 280 L 0 280 Z" fill="#fcf0e2" opacity="0.65"/>
+                    <!-- Layer 2: Mid dune -->
+                    <path d="M0 220 Q 420 190, 880 220 T 1440 185 L 1440 280 L 0 280 Z" fill="#f7dfc6" opacity="0.55"/>
+                    <!-- Layer 3: Foreground dune -->
+                    <path d="M0 250 Q 520 220, 980 245 T 1440 215 L 1440 280 L 0 280 Z" fill="#edd0b3" opacity="0.45"/>
+                    <!-- White dashed trail -->
+                    <path d="M 460 245 Q 860 225, 1440 195" stroke="#ffffff" stroke-width="3.5" stroke-dasharray="8 6" fill="none" opacity="0.8"/>
+                    <!-- Minimalist flagpole on right hill -->
+                    <line x1="1395" y1="190" x2="1395" y2="135" stroke="#1e293b" stroke-width="2.5"/>
+                    <polygon points="1395,135 1430,148 1395,161" fill="#ea580c"/>
+                </svg>
+
+                <!-- Top-Right Vertical Typography Stack -->
+                <div class="bg-top-right-credo">
+                    <span>IDEAS</span>
+                    <span>PEOPLE</span>
+                    <span>GREATER IMPACT</span>
+                </div>
+
+                <!-- Bottom-Right Vertical Typography Stack -->
+                <div class="bg-bottom-right-credo">
+                    <span>Ý TƯỞNG</span>
+                    <span>HÔM NAY</span>
+                    <span>GIÁ TRỊ</span>
+                    <span>NGÀY MAI</span>
+                </div>
+            </div>
+
+            <!-- SLIDE TOP HEADER -->
+            <header class="slide-top-header">
+                <div class="category-eyebrow">
+                    <span class="category-name">LỘ TRÌNH // HIỆU QUẢ KỲ VỌNG & KPIS</span>
+                    <div class="category-underline"></div>
+                </div>
+                <div class="track-badge-pill">
+                    <span class="badge-dot"></span>
+                    <span class="badge-text">TRACK 06: ROADMAP 2026</span>
+                </div>
+            </header>
+
+            <!-- SLIDE MAIN TITLE -->
+            <div class="slide-title-block">
+                <h1 class="slide-title">Làm Trọn Bốn Bài, Rút Gọn Ba Bài: Lộ Trình Hiện Thực Hóa</h1>
+                <div class="title-accent-bar"></div>
+            </div>
+
+            <!-- BESPOKE SLIDE BODY CONTENT -->
+            
+        <div class="slide-layout-roadmap">
+            <!-- 3 HORIZONTAL MILESTONES -->
+            <div class="roadmap-timeline">
+                <div class="timeline-step">
+                    <div class="time-pill">QUÝ 2 / 2026</div>
+                    <h4 class="time-title">Pilot Thử Nghiệm</h4>
+                    <p class="time-text">Quý hai 2026: Thử nghiệm phiên bản tối thiểu cho ba doanh nghiệp đối tác.</p>
+                </div>
+                <div class="timeline-connector">➔</div>
+                <div class="timeline-step">
+                    <div class="time-pill">QUÝ 3 / 2026</div>
+                    <h4 class="time-title">Tích Hợp Vision AI</h4>
+                    <p class="time-text">Quý ba 2026: Tích hợp hoàn chỉnh mô hình thị giác AI và xử lý họp.</p>
+                </div>
+                <div class="timeline-connector">➔</div>
+                <div class="timeline-step">
+                    <div class="time-pill">QUÝ 4 / 2026</div>
+                    <h4 class="time-title">Thương Mại Hóa</h4>
+                    <p class="time-text">Quý bốn 2026: Thương mại hóa và ra mắt tính năng dự báo biến động.</p>
+                </div>
+            </div>
+
+            <!-- BIG STAT CALLOUTS -->
+            <div class="kpi-stats-row">
+                <div class="stat-card">
+                    <div class="stat-big-num">70%</div>
+                    <div class="stat-meta">
+                        <strong class="stat-headline">Tiết Kiệm Thời Gian Lọc CV</strong>
+                        <p class="stat-desc">Tiết kiệm 70% thời gian sàng lọc hồ sơ cho bộ phận nhân sự.</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-big-num">100%</div>
+                    <div class="stat-meta">
+                        <strong class="stat-headline">Loại Bỏ Gian Lận Chấm Công</strong>
+                        <p class="stat-desc">Chấm dứt hoàn toàn gian lận điểm danh và sai lệch bảng lương.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+
+            <!-- AUTHENTIC MLAI FOOTER (MATCHING USER REFERENCE SCREENSHOT) -->
+            <footer class="slide-footer-mlai">
+                <div class="footer-left-mlai">
+                    <span class="footer-bar-mlai"></span>
+                    <span class="footer-text-mlai">CÔNG NGHỆ · CỘNG ĐỒNG · GIÁ TRỊ THẬT</span>
+                </div>
+                <div class="footer-center-mlai">
+                    <span class="footer-page-num">6 / 7</span>
+                </div>
+                <div class="footer-right-mlai">
+                    <span class="footer-slogan-mlai">HACK TO A BRIGHTER TOMORROW</span>
+                    <span class="footer-bar-mlai"></span>
+                </div>
+            </footer>
+
+            <!-- PRESENTER NOTES (COLLAPSIBLE DRAWER) -->
+            <div class="presenter-drawer" id="notes-7">
+                <div class="drawer-header-row">
+                    <div class="drawer-speaker-info">
+                        <span class="speaker-icon">🎙️</span>
+                        <strong class="speaker-name">Speaker 1 (Product Lead)</strong>
+                        <span class="speaker-time-pill">⏱ Chuẩn: 60 giây</span>
+                    </div>
+                    <span class="drawer-shortcut-hint">Phím tắt <strong>[N]</strong> ẩn/hiện kịch bản</span>
+                </div>
+                <div class="drawer-body-content">
+                    <p class="speaker-script-p"><strong>Lời thoại thuyết trình:</strong> "Lộ trình triển khai của DOWN TOWN gồm 3 chặng đường rõ ràng. Quý 2/2026, chúng tôi triển khai Pilot thực tế tại 3 doanh nghiệp đối tác để thẩm định khâu Tuyển dụng và Chấm công. Quý 3/2026, hoàn thiện module Vision AI và xử lý giọng nói. Quý 4/2026, chính thức thương mại hóa dịch vụ. Hiệu quả được chứng minh bằng các con số thực tế: cắt giảm 70% thời gian lọc CV, rút ngắn thời gian chốt bảng công từ 3 ngày xuống còn 15 phút."</p>
+                    <p class="speaker-hook-p"><strong>Câu nối chuyển slide (Transition Hook):</strong> 👉 <em>"Và để khép lại bài trình bày hôm nay, xin gửi tới Hội đồng thông điệp cốt lõi định hình nên sứ mệnh của DOWN TOWN."</em></p>
+                </div>
+            </div>
+        </section>
+        
+        <section class="slide-canvas" id="slide-8" data-slide-index="8">
+            <!-- BACKGROUND ART LAYER FROM USER REFERENCE SCREENSHOT -->
+            <div class="mlai-bg-art">
+                <!-- Dot matrix grids -->
+                <div class="bg-dot-matrix bg-dot-matrix-tr"></div>
+                <div class="bg-dot-matrix bg-dot-matrix-bl"></div>
+
+                <!-- Luminous orange sun rising on horizon -->
+                <div class="bg-sun-orb"></div>
+
+                <!-- Organic Sand Dune Curves with Flagpole -->
+                <svg class="bg-dunes-svg" viewBox="0 0 1440 280" preserveAspectRatio="none">
+                    <!-- Layer 1: Distant soft dune -->
+                    <path d="M0 190 Q 360 170, 720 200 T 1440 160 L 1440 280 L 0 280 Z" fill="#fcf0e2" opacity="0.65"/>
+                    <!-- Layer 2: Mid dune -->
+                    <path d="M0 220 Q 420 190, 880 220 T 1440 185 L 1440 280 L 0 280 Z" fill="#f7dfc6" opacity="0.55"/>
+                    <!-- Layer 3: Foreground dune -->
+                    <path d="M0 250 Q 520 220, 980 245 T 1440 215 L 1440 280 L 0 280 Z" fill="#edd0b3" opacity="0.45"/>
+                    <!-- White dashed trail -->
+                    <path d="M 460 245 Q 860 225, 1440 195" stroke="#ffffff" stroke-width="3.5" stroke-dasharray="8 6" fill="none" opacity="0.8"/>
+                    <!-- Minimalist flagpole on right hill -->
+                    <line x1="1395" y1="190" x2="1395" y2="135" stroke="#1e293b" stroke-width="2.5"/>
+                    <polygon points="1395,135 1430,148 1395,161" fill="#ea580c"/>
+                </svg>
+
+                <!-- Top-Right Vertical Typography Stack -->
+                <div class="bg-top-right-credo">
+                    <span>IDEAS</span>
+                    <span>PEOPLE</span>
+                    <span>GREATER IMPACT</span>
+                </div>
+
+                <!-- Bottom-Right Vertical Typography Stack -->
+                <div class="bg-bottom-right-credo">
+                    <span>Ý TƯỞNG</span>
+                    <span>HÔM NAY</span>
+                    <span>GIÁ TRỊ</span>
+                    <span>NGÀY MAI</span>
+                </div>
+            </div>
+
+            <!-- SLIDE TOP HEADER -->
+            <header class="slide-top-header">
+                <div class="category-eyebrow">
+                    <span class="category-name">TỔNG KẾT // SẴN SÀNG PHẢN BIỆN</span>
+                    <div class="category-underline"></div>
+                </div>
+                <div class="track-badge-pill">
+                    <span class="badge-dot"></span>
+                    <span class="badge-text">TRACK 07: KẾT LUẬN & Q&A</span>
+                </div>
+            </header>
+
+            <!-- SLIDE MAIN TITLE -->
+            <div class="slide-title-block">
+                <h1 class="slide-title">DOWN TOWN: Tương Lai Của Quản Trị Nhân Sự Kỷ Nguyên Trí Tuệ Nhân Tạo</h1>
+                <div class="title-accent-bar"></div>
+            </div>
+
+            <!-- BESPOKE SLIDE BODY CONTENT -->
+            
+        <div class="slide-grid-2col" style="align-items: center; min-height: 480px;">
+            <div class="col-left">
+                <div class="vision-manifesto-card">
+                    <span class="manifesto-badge">SỨ MỆNH CỐT LÕI</span>
+                    <h2 class="manifesto-title">Hệ Điều Hành Nhân Sự Thông Minh Có Khả Năng Tự Học</h2>
+                    <p class="manifesto-quote">"DOWN TOWN không bán phần mềm quản lý nhân sự tĩnh, chúng tôi trao cho doanh nghiệp một hệ điều hành nhân sự tự học khép kín 4 khâu, biến dữ liệu con người thành lợi thế cạnh tranh vượt trội."</p>
+                    <div class="manifesto-pillars">
+                        <span>✓ Khép kín 4 khâu</span>
+                        <span>✓ On-premise an toàn</span>
+                        <span>✓ Human-in-the-loop</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-right">
+                <div class="mlai-pills-list">
+                    <div class="mlai-pill-row">
+                        <span class="orange-circle-num">1</span>
+                        <div class="pill-content"><span class="pill-body-span">DOWN TOWN định nghĩa lại cách thức doanh nghiệp tương tác với dữ liệu nhân sự.</span></div>
+                        <span class="stage-tag badge-sys">nền tảng chung</span>
+                    </div>
+                    <div class="mlai-pill-row">
+                        <span class="orange-circle-num">2</span>
+                        <div class="pill-content"><span class="pill-body-span">Giải phóng bộ phận nhân sự khỏi các tác vụ thủ công lặp đi lặp lại.</span></div>
+                        <span class="stage-tag badge-pred">khâu: dự báo</span>
+                    </div>
+                    <div class="mlai-pill-row">
+                        <span class="orange-circle-num">3</span>
+                        <div class="pill-content"><span class="pill-body-span">Mô hình kinh doanh linh hoạt giúp doanh nghiệp tối ưu chi phí đầu tư.</span></div>
+                        <span class="stage-tag badge-dec">khâu: quyết định</span>
+                    </div>
+                    <div class="mlai-pill-row">
+                        <span class="orange-circle-num">4</span>
+                        <div class="pill-content"><span class="pill-body-span">Cam kết bảo vệ dữ liệu cá nhân theo các tiêu chuẩn an toàn quốc tế.</span></div>
+                        <span class="stage-tag badge-act">khâu: hành động</span>
+                    </div>
+                    <div class="mlai-pill-row">
+                        <span class="orange-circle-num">5</span>
+                        <div class="pill-content"><span class="pill-body-span">Đội ngũ sẵn sàng trả lời các câu hỏi phản biện chuyên sâu từ hội đồng.</span></div>
+                        <span class="stage-tag badge-learn">khâu: học lại</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+
+            <!-- AUTHENTIC MLAI FOOTER (MATCHING USER REFERENCE SCREENSHOT) -->
+            <footer class="slide-footer-mlai">
+                <div class="footer-left-mlai">
+                    <span class="footer-bar-mlai"></span>
+                    <span class="footer-text-mlai">CÔNG NGHỆ · CỘNG ĐỒNG · GIÁ TRỊ THẬT</span>
+                </div>
+                <div class="footer-center-mlai">
+                    <span class="footer-page-num">7 / 7</span>
+                </div>
+                <div class="footer-right-mlai">
+                    <span class="footer-slogan-mlai">HACK TO A BRIGHTER TOMORROW</span>
+                    <span class="footer-bar-mlai"></span>
+                </div>
+            </footer>
+
+            <!-- PRESENTER NOTES (COLLAPSIBLE DRAWER) -->
+            <div class="presenter-drawer" id="notes-8">
+                <div class="drawer-header-row">
+                    <div class="drawer-speaker-info">
+                        <span class="speaker-icon">🎙️</span>
+                        <strong class="speaker-name">Speaker 1 (Product Lead)</strong>
+                        <span class="speaker-time-pill">⏱ Chuẩn: 50 giây</span>
+                    </div>
+                    <span class="drawer-shortcut-hint">Phím tắt <strong>[N]</strong> ẩn/hiện kịch bản</span>
+                </div>
+                <div class="drawer-body-content">
+                    <p class="speaker-script-p"><strong>Lời thoại thuyết trình:</strong> "Kính thưa Hội đồng Giám khảo, DOWN TOWN không chỉ là một bài thi Hackathon hay một phần mềm quản lý nhân sự tĩnh. Chúng tôi mang đến một hệ điều hành nhân sự tự học, nơi AI và con người cộng sinh chặt chẽ để kiến tạo giá trị thực. Toàn bộ mã nguồn, mô hình và dữ liệu đã sẵn sàng trên máy chủ thử nghiệm. Chúng tôi xin chân thành cảm ơn và sẵn sàng lắng nghe mọi câu hỏi đóng góp từ quý vị."</p>
+                    <p class="speaker-hook-p"><strong>Câu nối chuyển slide (Transition Hook):</strong> 👉 <em>"Xin trân trọng cảm ơn Hội đồng Giám khảo. Nhóm xin phép bắt đầu phiên hỏi đáp phản biện."</em></p>
+                </div>
+            </div>
+        </section>
+        
+    </main>
+
+    <!-- CLIENT SCRIPT -->
+    <script>
+        let currentSlide = 1;
+        const totalSlides = 8;
+        let isDocMode = false;
+        let showNotes = false;
+
+        function updateSlideView() {
+            if (isDocMode) return;
+            
+            document.querySelectorAll('.slide-canvas').forEach((el, i) => {
+                if (i + 1 === currentSlide) {
+                    el.classList.add('active-slide');
+                } else {
+                    el.classList.remove('active-slide');
+                }
+            });
+
+            document.querySelectorAll('.slide-dot').forEach((dot, i) => {
+                if (i + 1 === currentSlide) {
+                    dot.classList.add('active');
+                } else {
+                    dot.classList.remove('active');
+                }
+            });
+        }
+
+        function goToSlide(n) {
+            if (n >= 1 && n <= totalSlides) {
+                currentSlide = n;
+                updateSlideView();
+            }
+        }
+
+        function nextSlide() {
+            if (currentSlide < totalSlides) {
+                currentSlide++;
+                updateSlideView();
+            }
+        }
+
+        function prevSlide() {
+            if (currentSlide > 1) {
+                currentSlide--;
+                updateSlideView();
+            }
+        }
+
+        function toggleNotes() {
+            showNotes = !showNotes;
+            document.querySelectorAll('.presenter-drawer').forEach(d => {
+                if (showNotes) d.classList.add('open');
+                else d.classList.remove('open');
+            });
+            document.getElementById('btn-notes').classList.toggle('active', showNotes);
+        }
+
+        function toggleMode() {
+            isDocMode = !isDocMode;
+            document.body.classList.toggle('mode-doc', isDocMode);
+            document.body.classList.toggle('mode-slide', !isDocMode);
+            document.getElementById('btn-mode').classList.toggle('active', isDocMode);
+            if (!isDocMode) updateSlideView();
+        }
+
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(err => alert(err.message));
+                document.body.classList.add('is-fullscreen');
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                    document.body.classList.remove('is-fullscreen');
+                }
+            }
+        }
+
+        document.addEventListener('fullscreenchange', () => {
+            if (!document.fullscreenElement) {
+                document.body.classList.remove('is-fullscreen');
+            }
+        });
+
+        // KEYBOARD SHORTCUTS
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === 'Space') {
+                e.preventDefault();
+                nextSlide();
+            } else if (e.key === 'ArrowLeft') {
+                e.preventDefault();
+                prevSlide();
+            } else if (e.key === 'f' || e.key === 'F') {
+                toggleFullscreen();
+            } else if (e.key === 'n' || e.key === 'N') {
+                toggleNotes();
+            } else if (e.key === 'm' || e.key === 'M') {
+                toggleMode();
+            } else if (e.key >= '1' && e.key <= '8') {
+                goToSlide(parseInt(e.key));
+            }
+        });
+
+        // INIT
+        updateSlideView();
+    </script>
+</body>
+</html>
