@@ -12,14 +12,10 @@ import {
     DialogFooter, DialogHeader, DialogTitle,
 } from "@/components/ui/dialog";
 import DashboardHeader from "@/components/dashboard/dashboard-header";
-import OverviewBand from "@/components/shares/overview-band";
-import MonthlyChart from "@/components/dashboard/monthly-chart";
-import PipelineOverview from "@/components/dashboard/pipeline-overview";
 import AssessmentGrid from "@/components/dashboard/assessment-grid";
 import RecruitmentOverview from "@/components/dashboard/recruitment-overview";
+import EmployeeOverview from "@/components/dashboard/employee-overview";
 import DashboardModeTabs from "@/components/dashboard/dashboard-mode-tabs";
-import EmployeeKpiCards from "@/components/dashboard/employee-kpi-cards";
-import SkillGapOverview from "@/components/dashboard/skill-gap-overview";
 import AdminKpiCards from "@/components/dashboard/admin-kpi-cards";
 import TokenUsageChart from "@/components/dashboard/token-usage-chart";
 import FeatureBreakdown from "@/components/dashboard/feature-breakdown";
@@ -141,16 +137,13 @@ export default function DashboardClient({
                     </>
                 ) : (
                     <>
-                        <div className="mb-6">
-                            <EmployeeKpiCards stats={employeeStats ?? null} />
-                        </div>
-
-                        <OverviewBand>
-                            <PipelineOverview stages={pipeline} title="Tiến trình đánh giá" />
-                            <MonthlyChart data={monthlyData} />
-                            <SkillGapOverview gaps={skillGaps ?? []} />
-                        </OverviewBand>
-
+                        <EmployeeOverview
+                            stats={employeeStats ?? null}
+                            pipeline={pipeline}
+                            monthlyData={monthlyData}
+                            skillGaps={skillGaps ?? []}
+                        />
+                        <div className="mt-8" />
                         <AssessmentGrid
                             tests={localTests}
                             onToggleStatus={setConfirmToggle}

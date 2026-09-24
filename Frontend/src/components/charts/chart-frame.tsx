@@ -32,7 +32,7 @@ export default function ChartFrame({
             className,
         )}>
             <CardContent className="p-5 h-full flex flex-col">
-                <div className="flex items-start justify-between gap-3 mb-4">
+                <div className="flex items-start justify-between gap-3 mb-4 pb-3 border-b border-border">
                     <div className="min-w-0">
                         <h3 className="text-base font-bold text-foreground leading-tight">{title}</h3>
                         {subtitle && <p className="mt-1 text-xs text-muted-foreground">{subtitle}</p>}

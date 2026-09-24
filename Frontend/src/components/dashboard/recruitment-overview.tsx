@@ -6,17 +6,18 @@ import { AlertTriangle, ArrowRight, Brain, CheckCircle2, Clock, FileText, Loader
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import MiniBar from "@/components/charts/mini-bar";
-import { TonePill } from "@/components/shares";
-import { flowAt, toneByName, type ToneName } from "@/lib/ui/tones";
+import ChartFrame from "@/components/charts/chart-frame";
+import { ActionRow, KpiTile } from "./dash-kit";
+import { toneByName, toneFor, type ToneName } from "@/lib/ui/tones";
 import { cn } from "@/lib/utils";
 import type { AttentionCandidate, DashboardStats, DashboardTest, MonthlyData, PendingAiResult } from "@/app/dashboard/types";
 
 const MONTHS = ["T1", "T2", "T3", "T4", "T5", "T6", "T7", "T8", "T9", "T10", "T11", "T12"];
 
 const REASONS: { key: AttentionCandidate["reason"]; title: string; hint: string; tone: ToneName; icon: typeof Clock }[] = [
-    { key: "pending_review", title: "Chờ kết luận", hint: "Đã chấm, cần HR quyết Đạt/Không đạt", tone: "orange", icon: Clock },
-    { key: "no_ai_analysis", title: "Chưa có AI chấm", hint: "Bài nộp chưa được AI phân tích", tone: "violet", icon: Brain },
-    { key: "borderline", title: "Sát ngưỡng", hint: "Điểm quanh mức đạt — nên xem kỹ", tone: "pink", icon: AlertTriangle },
+    { key: "pending_review", title: "Chờ Kết Luận", hint: "Đã chấm, cần HR quyết Đạt/Không đạt", tone: "orange", icon: Clock },
+    { key: "no_ai_analysis", title: "Chưa Có AI Chấm", hint: "Bài nộp chưa được AI phân tích", tone: "violet", icon: Brain },
+    { key: "borderline", title: "Sát Ngưỡng", hint: "Điểm quanh mức đạt — nên xem kỹ", tone: "pink", icon: AlertTriangle },
 ];
 
 interface Props {
@@ -39,63 +40,55 @@ export default function RecruitmentOverview({ stats, tests, monthlyData, attenti
     const months = monthlyData.slice(0, last + 1);
 
     const flow = [
-        { label: "Lượt nộp", value: stats.totalSubmissions, icon: Send, hint: `${stats.activeTests} đề đang mở` },
-        { label: "Chờ AI chấm", value: stats.pendingAiReview, icon: Brain, hint: "chưa có phân tích" },
-        { label: "Chờ kết luận", value: stats.pendingReview, icon: Clock, hint: "cần HR quyết định" },
+        { label: "Lượt nộp", value: stats.totalSubmissions, icon: Send, tone: toneByName("blue"), pill: `${stats.activeTests} đề đang mở` },
+        { label: "Chờ AI chấm", value: stats.pendingAiReview, icon: Brain, tone: toneByName("violet"), pill: "Chưa phân tích" },
+        { label: "Chờ kết luận", value: stats.pendingReview, icon: Clock, tone: toneByName("orange"), pill: "Cần HR quyết" },
     ];
 
     return (
-        <div className="space-y-6">
-            {/* Dòng chảy bài nộp → kết luận */}
-            <div className="flex items-stretch gap-3">
-                <div className="grid flex-1 grid-cols-3 overflow-hidden rounded-2xl border border-border bg-card">
-                    {flow.map((f, i) => {
-                        const color = flowAt(i, 4);
-                        return (
-                            <div key={f.label} className="relative border-l border-border p-5 first:border-l-0">
-                                <span className="absolute inset-x-0 top-0 h-1" style={{ backgroundColor: color }} />
-                                <div className="flex items-center gap-2 text-xs font-semibold text-muted-foreground">
-                                    <f.icon className="h-3.5 w-3.5" style={{ color }} /> {f.label}
-                                </div>
-                                <p className="mt-2 font-display text-3xl font-black tabular-nums text-foreground">{f.value}</p>
-                                <p className="mt-1 text-[11px] text-muted-foreground">{f.hint}</p>
-                                {i < flow.length - 1 && (
-                                    <ArrowRight className="absolute -right-2 top-1/2 z-10 h-4 w-4 -translate-y-1/2 rounded-full bg-card text-muted-foreground" aria-hidden />
-                                )}
-                            </div>
-                        );
-                    })}
-                </div>
-                {/* Kết luận: đạt / không đạt + tỉ lệ đạt */}
-                <div className="w-80 shrink-0 rounded-2xl border border-border bg-card p-5">
-                    <div className="flex items-center justify-between">
-                        <span className="text-xs font-semibold text-muted-foreground">Đã kết luận · {decided}</span>
-                        {passRate !== null && <TonePill tone={toneByName("teal")}>Tỉ lệ đạt {passRate}%</TonePill>}
+        <div className="space-y-5">
+            {/* Dòng chảy bài nộp → kết luận: 3 thẻ nối bằng mũi tên + khối kết luận */}
+            <div className="grid grid-cols-[repeat(3,minmax(0,1fr))_minmax(0,1.35fr)] items-start gap-3.5">
+                {flow.map((f, i) => (
+                    <div key={f.label} className="relative">
+                        <KpiTile label={f.label} value={f.value} icon={f.icon} tone={f.tone} pill={f.pill} />
+                        {i < flow.length - 1 && (
+                            <span className="absolute -right-[13px] top-1/2 z-10 grid h-5 w-5 -translate-y-1/2 place-items-center rounded-full border border-border bg-card text-muted-foreground" aria-hidden>
+                                <ArrowRight className="h-3 w-3" />
+                            </span>
+                        )}
                     </div>
-                    <div className="mt-3 flex items-end gap-6">
+                ))}
+                <ChartFrame
+                    className="h-auto"
+                    title="Đã Kết Luận"
+                    subtitle={`${decided} bài đã có kết quả`}
+                    tag={passRate !== null ? { label: `Tỉ lệ đạt ${passRate}%`, tone: "teal" } : undefined}
+                >
+                    <div className="flex items-end gap-8">
                         <div>
-                            <p className="flex items-center gap-1.5 text-[11px] font-semibold text-success"><CheckCircle2 className="h-3.5 w-3.5" />Đạt</p>
-                            <p className="font-display text-3xl font-black tabular-nums text-foreground">{stats.passed}</p>
+                            <p className="flex items-center gap-1.5 text-xs font-bold text-success"><CheckCircle2 className="h-3.5 w-3.5" />Đạt</p>
+                            <p className="text-[28px] font-extrabold leading-none tabular-nums text-foreground">{stats.passed}</p>
                         </div>
                         <div>
-                            <p className="flex items-center gap-1.5 text-[11px] font-semibold text-destructive"><XCircle className="h-3.5 w-3.5" />Không đạt</p>
-                            <p className="font-display text-3xl font-black tabular-nums text-foreground">{stats.failed}</p>
+                            <p className="flex items-center gap-1.5 text-xs font-bold text-destructive"><XCircle className="h-3.5 w-3.5" />Không đạt</p>
+                            <p className="text-[28px] font-extrabold leading-none tabular-nums text-foreground">{stats.failed}</p>
                         </div>
                     </div>
                     {decided > 0 && (
-                        <div className="mt-3 flex h-1.5 overflow-hidden rounded-full bg-muted" aria-hidden>
-                            <span className="bg-success" style={{ flex: stats.passed }} />
-                            <span className="bg-destructive/70" style={{ flex: stats.failed }} />
+                        <div className="mt-3 flex h-2 gap-0.5 overflow-hidden rounded-full bg-muted" aria-hidden>
+                            <span className="rounded-full bg-success" style={{ flex: stats.passed }} />
+                            <span className="rounded-full bg-destructive/70" style={{ flex: stats.failed }} />
                         </div>
                     )}
-                </div>
+                </ChartFrame>
             </div>
 
-            <div className="grid grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)] gap-6">
+            <div className="grid grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)] gap-5">
                 {/* MiniBar tự có khung card (ChartFrame) — không bọc thêm */}
                 <div className="min-w-0">
                     <MiniBar
-                        title="Kết quả theo tháng"
+                        title="Kết Quả Theo Tháng"
                         height={200}
                         series={[
                             { label: "Đạt", color: "var(--success)" },
@@ -145,107 +138,86 @@ function TodoPanel({ stats, tests, pendingAiResults }: { stats: DashboardStats; 
         .slice(0, 3);
 
     const violet = toneByName("violet"), orange = toneByName("orange"), pink = toneByName("pink");
-    const nothing = total === 0 && stats.pendingReview === 0 && hardTests.length === 0;
+    const count = (total > 0 ? 1 : 0) + (stats.pendingReview > 0 ? 1 : 0) + hardTests.length;
 
     return (
-        <div className="flex flex-col rounded-2xl border border-border bg-card p-5">
-            <h3 className="text-sm font-bold text-foreground">Việc cần làm</h3>
-            <p className="text-xs text-muted-foreground">Các bài nộp và đề đang cần bạn xử lý</p>
-
-            {nothing ? (
-                <p className="m-auto py-8 text-center text-sm text-muted-foreground">Không có việc tồn đọng.</p>
-            ) : (
-                <ul className="mt-4 space-y-3">
-                    {total > 0 && (
-                        <li className="rounded-xl p-3.5" style={{ backgroundColor: violet.bg }}>
-                            <div className="flex items-center gap-3">
-                                <Brain className="h-4 w-4 shrink-0" style={{ color: violet.ink }} />
-                                <p className="flex-1 text-sm" style={{ color: violet.ink }}>
-                                    <b>{total}</b> bài chưa được AI chấm
-                                </p>
+        <ChartFrame
+            title="Việc Cần Làm"
+            subtitle="Bài nộp và đề đang chờ bạn xử lý"
+            tag={count > 0 ? { label: `${count} việc`, tone: "pink" } : undefined}
+            empty={count === 0}
+            emptyLabel="Không có việc tồn đọng"
+        >
+            <div className="space-y-2.5">
+                {total > 0 && (
+                    <div>
+                        <ActionRow
+                            icon={Brain}
+                            tone={violet}
+                            title={`${total} bài chưa được AI chấm`}
+                            sub="Chấm hàng loạt để có điểm phân tích"
+                            action={
                                 <Button size="sm" onClick={runAiAnalysis} disabled={isRunning} className="gap-1.5">
                                     {isRunning ? <><Loader2 className="animate-spin" />{completed}/{total}</> : <><Play />Chấm tất cả</>}
                                 </Button>
+                            }
+                        />
+                        {isRunning && (
+                            <div className="mt-1.5 h-1 overflow-hidden rounded-full bg-muted">
+                                <div className="h-full rounded-full transition-all" style={{ width: `${(completed / total) * 100}%`, backgroundColor: violet.mark }} />
                             </div>
-                            {isRunning && (
-                                <div className="mt-2.5 h-1 overflow-hidden rounded-full bg-card">
-                                    <div className="h-full rounded-full transition-all" style={{ width: `${(completed / total) * 100}%`, backgroundColor: violet.mark }} />
-                                </div>
-                            )}
-                        </li>
-                    )}
-                    {stats.pendingReview > 0 && (
-                        <li className="flex items-center gap-3 rounded-xl p-3.5" style={{ backgroundColor: orange.bg, color: orange.ink }}>
-                            <Clock className="h-4 w-4 shrink-0" />
-                            <p className="flex-1 text-sm"><b>{stats.pendingReview}</b> bài chờ kết luận Đạt/Không đạt</p>
-                            <a href="#attention" className="text-xs font-bold underline-offset-4 hover:underline">Xem</a>
-                        </li>
-                    )}
-                    {hardTests.map((t) => (
-                        <li key={t.id}>
-                            <Link href={`/dashboard/tests/${t.id}`} className="flex items-center gap-3 rounded-xl p-3.5 transition hover:opacity-90" style={{ backgroundColor: pink.bg, color: pink.ink }}>
-                                <TrendingDown className="h-4 w-4 shrink-0" />
-                                <p className="min-w-0 flex-1 text-sm">
-                                    <b>{t.rate}%</b> trượt ở <span className="font-semibold">{t.name}</span> — cân nhắc giảm độ khó
-                                </p>
-                                <ArrowRight className="h-3.5 w-3.5 shrink-0" />
-                            </Link>
-                        </li>
-                    ))}
-                </ul>
-            )}
-        </div>
+                        )}
+                    </div>
+                )}
+                {stats.pendingReview > 0 && (
+                    <ActionRow icon={Clock} tone={orange} title={`${stats.pendingReview} bài chờ kết luận`} sub="Quyết Đạt / Không đạt" pill="Ưu tiên" href="#attention" />
+                )}
+                {hardTests.map((t) => (
+                    <ActionRow key={t.id} icon={TrendingDown} tone={pink} title={`${t.rate}% trượt · ${t.name}`} sub="Cân nhắc giảm độ khó của đề" href={`/dashboard/tests/${t.id}`} />
+                ))}
+            </div>
+        </ChartFrame>
     );
 }
 
 function AttentionBoard({ candidates }: { candidates: AttentionCandidate[] }) {
     if (candidates.length === 0) return null;
     return (
-        <section id="attention" className="scroll-mt-24">
-            <div className="mb-3 flex items-center gap-2">
-                <h2 className="text-base font-bold text-foreground">Ứng viên cần chú ý</h2>
-                <span className="rounded-full bg-muted px-2 py-0.5 text-[11px] font-bold text-muted-foreground">{candidates.length}</span>
-            </div>
-            <div className="grid grid-cols-3 gap-4">
-                {REASONS.map((r) => {
-                    const items = candidates.filter((c) => c.reason === r.key);
-                    const tone = toneByName(r.tone);
-                    return (
-                        <div key={r.key} className="flex flex-col overflow-hidden rounded-2xl border border-border bg-card">
-                            <div className="flex items-center gap-2.5 border-b border-border px-4 py-3">
-                                <span className="grid h-7 w-7 place-items-center rounded-lg" style={{ backgroundColor: tone.bg, color: tone.ink }}>
-                                    <r.icon className="h-3.5 w-3.5" />
-                                </span>
-                                <div className="min-w-0 flex-1">
-                                    <p className="text-sm font-bold text-foreground">{r.title} <span className="text-muted-foreground">· {items.length}</span></p>
-                                    <p className="truncate text-[11px] text-muted-foreground">{r.hint}</p>
-                                </div>
-                            </div>
-                            {items.length === 0 ? (
-                                <p className="px-4 py-6 text-center text-xs text-muted-foreground">Không có ai</p>
-                            ) : (
-                                <ul className="max-h-72 divide-y divide-border overflow-y-auto">
-                                    {items.map((c) => {
-                                        const pct = c.totalQuestions > 0 ? Math.round((c.score / c.totalQuestions) * 100) : 0;
-                                        return (
-                                            <li key={c.id}>
-                                                <Link href={`/dashboard/results/${c.id}`} className="group flex items-center gap-3 px-4 py-2.5 transition hover:bg-muted/50">
-                                                    <span className="min-w-0 flex-1">
-                                                        <span className="block truncate text-sm font-semibold text-foreground">{c.candidate_name}</span>
-                                                        <span className="flex items-center gap-1 truncate text-[11px] text-muted-foreground"><FileText className="h-3 w-3 shrink-0" />{c.testName}</span>
-                                                    </span>
-                                                    <span className={cn("shrink-0 text-sm font-bold tabular-nums", pct >= 50 ? "text-foreground" : "text-muted-foreground")}>{pct}%</span>
-                                                    <ArrowRight className="h-3.5 w-3.5 shrink-0 text-muted-foreground transition group-hover:translate-x-0.5 group-hover:text-primary" />
-                                                </Link>
-                                            </li>
-                                        );
-                                    })}
-                                </ul>
-                            )}
-                        </div>
-                    );
-                })}
-            </div>
+        <section id="attention" className="scroll-mt-24 grid grid-cols-3 gap-5">
+            {REASONS.map((r) => {
+                const items = candidates.filter((c) => c.reason === r.key);
+                return (
+                    <ChartFrame
+                        key={r.key}
+                        title={r.title}
+                        subtitle={r.hint}
+                        tag={{ label: `${items.length} người`, tone: r.tone }}
+                        empty={items.length === 0}
+                        emptyLabel="Không có ai"
+                    >
+                        <ul className="-mx-1 max-h-72 space-y-0.5 overflow-y-auto">
+                            {items.map((c) => {
+                                const pct = c.totalQuestions > 0 ? Math.round((c.score / c.totalQuestions) * 100) : 0;
+                                const av = toneFor(c.candidate_name);
+                                const initials = c.candidate_name.split(/\s+/).filter(Boolean).slice(-2).map((w) => w[0]).join("").toUpperCase();
+                                return (
+                                    <li key={c.id}>
+                                        <Link href={`/dashboard/results/${c.id}`} className="group flex items-center gap-3 rounded-xl px-1 py-2 transition hover:bg-muted/60">
+                                            <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full text-[11px] font-bold" style={{ backgroundColor: av.bg, color: av.ink }}>{initials}</span>
+                                            <span className="min-w-0 flex-1">
+                                                <span className="block truncate text-sm font-bold text-foreground">{c.candidate_name}</span>
+                                                <span className="flex items-center gap-1 truncate text-xs text-muted-foreground"><FileText className="h-3 w-3 shrink-0" />{c.testName}</span>
+                                            </span>
+                                            <span className={cn("shrink-0 text-sm font-extrabold tabular-nums", pct >= 50 ? "text-foreground" : "text-muted-foreground")}>{pct}%</span>
+                                            <ArrowRight className="h-3.5 w-3.5 shrink-0 text-muted-foreground transition group-hover:translate-x-0.5 group-hover:text-primary" />
+                                        </Link>
+                                    </li>
+                                );
+                            })}
+                        </ul>
+                    </ChartFrame>
+                );
+            })}
         </section>
     );
 }
