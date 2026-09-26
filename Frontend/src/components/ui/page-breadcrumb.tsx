@@ -34,7 +34,7 @@ export default function PageBreadcrumb({ breadcrumbs, backHref }: PageBreadcrumb
             {derivedBack && (
                 <Link
                     href={derivedBack}
-                    className="inline-flex items-center gap-1.5 text-xs font-medium text-[#4A6080] hover:text-[#60A5FA] transition-colors duration-150 cursor-pointer group"
+                    className="inline-flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-primary transition-colors duration-150 cursor-pointer group"
                 >
                     <ArrowLeft className="w-3 h-3 transition-transform duration-150 group-hover:-translate-x-0.5" />
                     Back to {backLabel}
@@ -49,24 +49,24 @@ export default function PageBreadcrumb({ breadcrumbs, backHref }: PageBreadcrumb
                         return (
                             <li key={idx} className="flex items-center gap-0.5">
                                 {idx > 0 && (
-                                    <ChevronRight className="w-3 h-3 text-[#2A3A52] mx-0.5 flex-shrink-0" />
+                                    <ChevronRight className="w-3 h-3 text-primary mx-0.5 flex-shrink-0" />
                                 )}
                                 {isLast ? (
                                     <span
                                         aria-current="page"
-                                        className="text-sm font-semibold text-[#E2E8F0] tracking-wide"
+                                        className="text-sm font-semibold text-primary tracking-wide"
                                     >
                                         {item.label}
                                     </span>
                                 ) : item.href ? (
                                     <Link
                                         href={item.href}
-                                        className="text-sm text-[#4A6080] hover:text-[#60A5FA] transition-colors duration-150 cursor-pointer"
+                                        className="text-sm text-muted-foreground hover:text-primary transition-colors duration-150 cursor-pointer"
                                     >
                                         {item.label}
                                     </Link>
                                 ) : (
-                                    <span className="text-sm text-[#4A6080]">{item.label}</span>
+                                    <span className="text-sm text-muted-foreground">{item.label}</span>
                                 )}
                             </li>
                         );

@@ -33,22 +33,22 @@ export default function QuestionTypePicker({
   return (
     <div className={cn("space-y-3", className)}>
       <div className="flex items-center justify-between">
-        <p className="text-xs text-[#8B99B0] font-medium uppercase tracking-wider">
+        <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">
           Question Types
         </p>
         <div className="flex gap-2 text-xs">
           <button
             type="button"
             onClick={handleSelectAll}
-            className="text-xs text-[#7C8FFF] hover:text-[#5B6CF0] transition-colors font-medium bg-transparent border-0 cursor-pointer"
+            className="text-xs text-primary hover:text-primary transition-colors font-medium bg-transparent border-0 cursor-pointer"
           >
             Select All
           </button>
-          <span className="text-[#5A6882]">|</span>
+          <span className="text-muted-foreground">|</span>
           <button
             type="button"
             onClick={handleClearAll}
-            className="text-xs text-[#8B99B0] hover:text-[#ECF0F7] transition-colors font-medium bg-transparent border-0 cursor-pointer"
+            className="text-xs text-muted-foreground hover:text-foreground transition-colors font-medium bg-transparent border-0 cursor-pointer"
           >
             Clear All
           </button>
@@ -66,8 +66,8 @@ export default function QuestionTypePicker({
               className={cn(
                 "px-3 py-1.5 rounded-lg text-xs font-medium border transition-all cursor-pointer select-none",
                 isSelected
-                  ? "bg-[#5B6CF0]/15 border-[#5B6CF0]/40 text-[#7C8FFF] shadow-[0_2px_8px_rgba(91,108,240,0.15)]"
-                  : "bg-[#161E30]/40 border-[#8B99B0]/10 text-[#8B99B0] hover:border-[#8B99B0]/20 hover:text-[#ECF0F7] hover:bg-[#1E2840]/30"
+                  ? "bg-primary/15 border-border/40 text-primary shadow-[0_2px_8px_color-mix(in_srgb,var(--primary)_15%,transparent)]"
+                  : "bg-card/40 border-border/10 text-muted-foreground hover:border-border/20 hover:text-foreground hover:bg-muted/30"
               )}
             >
               {opt.label}

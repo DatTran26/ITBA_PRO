@@ -18,12 +18,12 @@ const LEVEL_LABELS: Record<number, string> = { 1: "Beginner", 2: "Basic", 3: "In
 
 export default function SkillRequirementRow({ req, onLevelChange, onMandatoryToggle, onDelete, isSaving }: Props) {
   return (
-    <div className="flex items-center gap-3 px-3 py-2 rounded-lg bg-[#0C1220] border border-[#8B99B0]/10 hover:border-[#8B99B0]/20 transition-colors">
+    <div className="flex items-center gap-3 px-3 py-2 rounded-lg bg-background border border-border/10 hover:border-border/20 transition-colors">
       {/* Skill info */}
       <div className="flex-1 min-w-0">
-        <p className="text-sm font-medium text-[#ECF0F7] truncate">{req.skills.name}</p>
+        <p className="text-sm font-medium text-foreground truncate">{req.skills.name}</p>
         {req.skills.category && (
-          <p className="text-xs text-[#5A6882] truncate">{req.skills.category}</p>
+          <p className="text-xs text-muted-foreground truncate">{req.skills.category}</p>
         )}
       </div>
 
@@ -33,10 +33,10 @@ export default function SkillRequirementRow({ req, onLevelChange, onMandatoryTog
         onValueChange={(v) => onLevelChange(req.id, Number(v))}
         disabled={isSaving}
       >
-        <SelectTrigger className="w-36 h-8 bg-[#1E2840] border-[#8B99B0]/15 text-[#ECF0F7] text-xs">
+        <SelectTrigger className="w-36 h-8 bg-muted border-border/15 text-foreground text-xs">
           <SelectValue />
         </SelectTrigger>
-        <SelectContent className="bg-[#1E2840] border-[#8B99B0]/15">
+        <SelectContent className="bg-muted border-border/15">
           {LEVELS.map((l) => (
             <SelectItem key={l} value={String(l)} className="text-xs">
               {l} — {LEVEL_LABELS[l]}
@@ -51,7 +51,7 @@ export default function SkillRequirementRow({ req, onLevelChange, onMandatoryTog
         onClick={() => onMandatoryToggle(req.id, !req.is_mandatory)}
         disabled={isSaving}
         title={req.is_mandatory ? "Mandatory" : "Optional"}
-        className={`p-1.5 rounded-md transition-colors ${req.is_mandatory ? "text-[#FFB86C] bg-[#FFB86C]/10" : "text-[#5A6882] hover:text-[#8B99B0]"}`}
+        className={`p-1.5 rounded-md transition-colors ${req.is_mandatory ? "text-warning bg-warning/10" : "text-muted-foreground hover:text-muted-foreground"}`}
       >
         <Star className="w-4 h-4" fill={req.is_mandatory ? "currentColor" : "none"} />
       </button>
@@ -61,7 +61,7 @@ export default function SkillRequirementRow({ req, onLevelChange, onMandatoryTog
         type="button"
         onClick={() => onDelete(req.id)}
         disabled={isSaving}
-        className="p-1.5 rounded-md text-[#5A6882] hover:text-red-400 hover:bg-red-400/10 transition-colors"
+        className="p-1.5 rounded-md text-muted-foreground hover:text-red-400 hover:bg-red-400/10 transition-colors"
       >
         <Trash2 className="w-4 h-4" />
       </button>

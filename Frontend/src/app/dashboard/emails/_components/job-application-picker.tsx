@@ -3,7 +3,6 @@
 import { useRef, useState, useEffect } from "react";
 import { Search, FileText, X } from "lucide-react";
 import { emailInputClass } from "./email-page-chrome";
-import { SharedDashboardButton } from "@/components/shares";
 
 export interface JobApp {
     id: string;
@@ -77,43 +76,43 @@ export default function JobApplicationPicker({ value, onChange, className = "" }
     return (
         <div ref={containerRef} className={`relative ${className}`}>
             <div className="relative">
-                <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-600" />
+                <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground/70" />
                 <input
                     value={displayValue}
                     onChange={(e) => { setQuery(e.target.value); if (!e.target.value) onChange(null); }}
                     onFocus={() => { if (value) setQuery(""); setOpen(results.length > 0); }}
-                    placeholder="Search job application by candidate name..."
+                    placeholder="Tìm hồ sơ ứng tuyển theo tên ứng viên..."
                     className={`${emailInputClass} pl-11 pr-10`}
                 />
                 {value && (
-                    <SharedDashboardButton onClick={handleClear} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 transition-colors">
+                    <button type="button" onClick={handleClear} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors">
                         <X className="h-3.5 w-3.5" />
-                    </SharedDashboardButton>
+                    </button>
                 )}
             </div>
 
             {open && results.length > 0 && (
-                <ul className="absolute z-20 mt-2 w-full overflow-hidden rounded-2xl border border-white/10 bg-[#0B1220] p-1 shadow-2xl shadow-black/40">
+                <ul className="absolute z-20 mt-2 w-full overflow-hidden rounded-2xl border border-border bg-card p-1 shadow-lg">
                     {results.map((app) => (
                         <li key={app.id}>
-                            <SharedDashboardButton
+                            <button
                                 type="button"
                                 onClick={() => select(app)}
-                                className="flex w-full items-center gap-3 rounded-xl px-3 py-3 text-left transition hover:bg-white/[0.06]"
+                                className="flex w-full items-center gap-3 rounded-xl px-3 py-3 text-left transition hover:bg-muted"
                             >
-                                <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-cyan-300/12 text-cyan-200 shrink-0">
+                                <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10 text-primary shrink-0">
                                     <FileText className="h-4 w-4" />
                                 </span>
                                 <span className="min-w-0">
-                                    <span className="block truncate text-sm font-medium text-[#F6F8FC]">{app.candidate_name}</span>
-                                    <span className="block truncate text-xs text-slate-500">
+                                    <span className="block truncate text-sm font-medium text-primary">{app.candidate_name}</span>
+                                    <span className="block truncate text-xs text-muted-foreground">
                                         {app.position_title}
                                         {app.pipeline_status && (
-                                            <span className="ml-2 text-slate-600">• {STATUS_LABELS[app.pipeline_status] ?? app.pipeline_status}</span>
+                                            <span className="ml-2 text-muted-foreground/70">• {STATUS_LABELS[app.pipeline_status] ?? app.pipeline_status}</span>
                                         )}
                                     </span>
                                 </span>
-                            </SharedDashboardButton>
+                            </button>
                         </li>
                     ))}
                 </ul>

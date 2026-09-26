@@ -13,17 +13,17 @@ const sharedDashboardButtonVariants = cva(
     variants: {
       variant: {
         default:
-          "border border-transparent bg-primary text-primary-foreground shadow-[0_8px_28px_rgba(91,108,240,0.35)] hover:bg-primary/90",
+          "border border-transparent bg-primary text-primary-foreground shadow-[0_8px_28px_color-mix(in_srgb,var(--primary)_35%,transparent)] hover:bg-primary/90",
         primary:
-          "border border-transparent bg-primary text-primary-foreground shadow-[0_8px_28px_rgba(91,108,240,0.35)] hover:bg-primary/90",
+          "border border-transparent bg-primary text-primary-foreground shadow-[0_8px_28px_color-mix(in_srgb,var(--primary)_35%,transparent)] hover:bg-primary/90",
         outline:
-          "border border-border bg-white/[0.04] text-foreground hover:bg-white/[0.08]",
+          "border border-border bg-card text-foreground hover:bg-muted",
         secondary:
-          "border border-border bg-white/[0.04] text-foreground hover:bg-white/[0.08]",
+          "border border-border bg-card text-foreground hover:bg-muted",
         tertiary:
           "border border-transparent bg-transparent text-primary hover:bg-primary/10",
         ghost:
-          "border border-transparent bg-transparent text-muted-foreground hover:bg-white/5 hover:text-foreground",
+          "border border-transparent bg-transparent text-muted-foreground hover:bg-muted hover:text-foreground",
       },
       size: {
         default: "h-11 px-5",
@@ -73,7 +73,7 @@ export function SharedDashboardButton({
       {...props}
     >
       {leadingIcon}
-      <span className={cn("leading-none", labelClassName)}>{children}</span>
+      <span className={cn("inline-flex items-center gap-2 leading-none", labelClassName)}>{children}</span>
       {trailingIcon}
     </Button>
   );

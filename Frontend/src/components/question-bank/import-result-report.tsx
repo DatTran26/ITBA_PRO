@@ -41,8 +41,8 @@ export default function ImportResultReport({ result }: Props) {
           <div className="divide-y divide-white/[0.04] max-h-40 overflow-y-auto">
             {duplicates.map((d) => (
               <div key={d.row} className="flex items-start gap-3 px-4 py-2">
-                <span className="text-xs text-[#5A6882] shrink-0 w-14">Row {d.row}</span>
-                <span className="text-xs text-[#8B99B0] line-clamp-2">{d.question_text}</span>
+                <span className="text-xs text-muted-foreground shrink-0 w-14">Row {d.row}</span>
+                <span className="text-xs text-muted-foreground line-clamp-2">{d.question_text}</span>
               </div>
             ))}
           </div>
@@ -58,7 +58,7 @@ export default function ImportResultReport({ result }: Props) {
           <div className="divide-y divide-white/[0.04] max-h-40 overflow-y-auto">
             {errors.map((e) => (
               <div key={e.row} className="flex items-start gap-3 px-4 py-2">
-                <span className="text-xs text-[#5A6882] shrink-0 w-14">Row {e.row}</span>
+                <span className="text-xs text-muted-foreground shrink-0 w-14">Row {e.row}</span>
                 <span className="text-xs text-red-400/80">{e.reason}</span>
               </div>
             ))}

@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useRef } from "react";
 import { CalendarClock, ChevronDown, Check, X } from "lucide-react";
-import { SharedDashboardButton } from "@/components/shares";
 
 export interface SessionLite {
     id: string;
@@ -100,52 +99,53 @@ export default function SessionPicker({ value, onChange, disabled = false }: Pro
         <div ref={containerRef} className={`relative${disabled ? " opacity-50 pointer-events-none" : ""}`}>
             <div
                 onClick={() => { setOpen(true); inputRef.current?.focus(); }}
-                className="flex items-center gap-2 w-full bg-[#0A1020] border border-white/10 rounded-xl px-3 py-2.5 cursor-text"
+                className="flex items-center gap-2 w-full bg-card border border-border rounded-xl px-3 py-2.5 cursor-text focus-within:border-primary/50 focus-within:ring-4 focus-within:ring-primary/15"
             >
-                <CalendarClock className="w-3.5 h-3.5 text-cyan-200/60 shrink-0" />
+                <CalendarClock className="w-3.5 h-3.5 text-primary/70 shrink-0" />
                 <input
                     ref={inputRef}
                     value={displayValue}
                     onChange={(e) => { setQuery(e.target.value); if (!open) setOpen(true); }}
                     onFocus={() => setOpen(true)}
-                    placeholder={loading ? "Loading sessions..." : "Select interview session..."}
-                    className="flex-1 bg-transparent text-sm text-[#F6F8FC] placeholder:text-slate-600 outline-none min-w-0"
+                    placeholder={loading ? "Đang tải phiên..." : "Chọn phiên phỏng vấn..."}
+                    className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground/70 outline-none min-w-0"
                 />
                 {value && !open ? (
-                    <SharedDashboardButton onClick={handleClear} className="text-slate-500 hover:text-slate-300 transition-colors">
+                    <button type="button" onClick={handleClear} className="text-muted-foreground hover:text-foreground transition-colors">
                         <X className="w-3.5 h-3.5" />
-                    </SharedDashboardButton>
+                    </button>
                 ) : (
-                    <ChevronDown className={`w-3.5 h-3.5 text-slate-500 transition-transform shrink-0 ${open ? "rotate-180" : ""}`} />
+                    <ChevronDown className={`w-3.5 h-3.5 text-muted-foreground transition-transform shrink-0 ${open ? "rotate-180" : ""}`} />
                 )}
             </div>
 
             {open && (
-                <div className="absolute z-50 top-full mt-1.5 w-full bg-[#0D1628] border border-white/10 rounded-xl shadow-xl overflow-hidden">
+                <div className="absolute z-50 top-full mt-1.5 w-full bg-card border border-border rounded-xl shadow-lg overflow-hidden">
                     <div className="max-h-52 overflow-y-auto">
                         {filtered.length === 0 ? (
-                            <p className="px-4 py-3 text-sm text-slate-500">
-                                {query ? "No matching sessions" : "No sessions found"}
+                            <p className="px-4 py-3 text-sm text-muted-foreground">
+                                {query ? "Không có phiên khớp" : "Chưa có phiên nào"}
                             </p>
                         ) : (
                             filtered.map((s) => (
-                                <SharedDashboardButton
+                                <button
+                                    type="button"
                                     key={s.id}
                                     onClick={() => handleSelect(s)}
-                                    className="w-full flex items-center gap-3 px-4 py-2.5 text-left hover:bg-white/[0.06] transition-colors"
+                                    className="w-full flex items-center gap-3 px-4 py-2.5 text-left hover:bg-muted transition-colors"
                                 >
                                     <span className="flex-1 min-w-0">
-                                        <span className="block text-sm text-[#F6F8FC] truncate">
+                                        <span className="block text-sm text-primary truncate">
                                             Round {s.round}{s.jd_title ? ` • ${s.jd_title}` : ""}
                                         </span>
-                                        <span className="block text-xs text-slate-500 truncate">
+                                        <span className="block text-xs text-muted-foreground truncate">
                                             {new Date(s.scheduled_at).toLocaleDateString("vi-VN", {
                                                 weekday: "short", day: "2-digit", month: "2-digit", year: "numeric",
                                             })} • {s.candidate_count} candidates
                                         </span>
                                     </span>
-                                    {value?.id === s.id && <Check className="w-3.5 h-3.5 text-cyan-400 shrink-0" />}
-                                </SharedDashboardButton>
+                                    {value?.id === s.id && <Check className="w-3.5 h-3.5 text-primary shrink-0" />}
+                                </button>
                             ))
                         )}
                     </div>

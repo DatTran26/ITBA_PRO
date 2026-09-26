@@ -147,10 +147,10 @@ export default function NotesPanel({ entityType, entityId }: NotesPanelProps) {
       <div className="space-y-4">
         {Array.from({ length: 3 }).map((_, i) => (
           <div key={i} className="flex gap-4">
-            <div className="w-10 h-10 rounded-full bg-[#222C4A] animate-pulse shrink-0" />
+            <div className="w-10 h-10 rounded-full bg-accent animate-pulse shrink-0" />
             <div className="flex-1 space-y-2">
-              <div className="h-4 w-1/4 bg-[#222C4A] rounded animate-pulse" />
-              <div className="h-16 bg-[#222C4A] rounded-xl animate-pulse" />
+              <div className="h-4 w-1/4 bg-accent rounded animate-pulse" />
+              <div className="h-16 bg-accent rounded-xl animate-pulse" />
             </div>
           </div>
         ))}
@@ -169,12 +169,12 @@ export default function NotesPanel({ entityType, entityId }: NotesPanelProps) {
         className="flex-1 overflow-y-auto custom-scrollbar pr-2 space-y-6 relative z-10"
       >
         {notes.length === 0 ? (
-          <div className="flex flex-col items-center py-12 text-center border overflow-hidden relative bg-gradient-to-br from-[#1E2840]/30 to-[#121A2F]/30 backdrop-blur-sm border-white/5 rounded-2xl">
-            <div className="w-14 h-14 rounded-full bg-gradient-to-br from-[#7C8FFF]/20 to-[#A855F7]/20 border border-[#7C8FFF]/30 flex items-center justify-center mb-4 shadow-[0_0_25px_rgba(124,143,255,0.15)]">
-              <StickyNote className="w-6 h-6 text-[#7C8FFF]" />
+          <div className="flex flex-col items-center py-12 text-center border overflow-hidden relative bg-gradient-to-br from-muted/30 to-background/30 backdrop-blur-sm border-border rounded-2xl">
+            <div className="w-14 h-14 rounded-full bg-gradient-to-br from-primary/20 to-ai/20 border border-border/30 flex items-center justify-center mb-4 shadow-[0_0_25px_color-mix(in_srgb,var(--primary)_15%,transparent)]">
+              <StickyNote className="w-6 h-6 text-primary" />
             </div>
-            <p className="text-[14px] font-bold text-[#C8D0E0]">Chưa có ghi chú nào</p>
-            <p className="text-[12.5px] text-[#5A6882] mt-2 max-w-[250px] leading-relaxed">Hãy chia sẻ góc nhìn hoặc bình luận đầu tiên của bạn về ứng viên này.</p>
+            <p className="text-[14px] font-bold text-foreground">Chưa có ghi chú nào</p>
+            <p className="text-[12.5px] text-muted-foreground mt-2 max-w-[250px] leading-relaxed">Hãy chia sẻ góc nhìn hoặc bình luận đầu tiên của bạn về ứng viên này.</p>
           </div>
         ) : (
           <div className="flex flex-col gap-5">
@@ -188,7 +188,7 @@ export default function NotesPanel({ entityType, entityId }: NotesPanelProps) {
               return (
                 <div key={note.id} className="flex gap-4 group animate-in fade-in slide-in-from-bottom-2 duration-500">
                   {/* Timeline Avatar */}
-                  <div className={`w-10 h-10 rounded-full bg-gradient-to-br ${getAvatarGradient(author)} flex items-center justify-center shrink-0 border-2 border-[#151D2E] shadow-[0_0_15px_rgba(0,0,0,0.5)] relative z-10 mt-1`}>
+                  <div className={`w-10 h-10 rounded-full bg-gradient-to-br ${getAvatarGradient(author)} flex items-center justify-center shrink-0 border-2 border-border shadow-[0_0_15px_rgba(0,0,0,0.5)] relative z-10 mt-1`}>
                     <span className="text-white font-bold text-[13px] tracking-wider">{initials}</span>
                   </div>
 
@@ -197,11 +197,11 @@ export default function NotesPanel({ entityType, entityId }: NotesPanelProps) {
                     {/* Header: Name, Time, Actions */}
                     <div className="flex items-center justify-between gap-3 px-1">
                       <div className="flex items-center gap-2 truncate">
-                        <span className="text-[13px] font-semibold text-[#ECF0F7] truncate">
-                          {author} {isMine && <span className="text-[#8B99B0] font-medium text-[11px] ml-1">(Bạn)</span>}
+                        <span className="text-[13px] font-semibold text-foreground truncate">
+                          {author} {isMine && <span className="text-muted-foreground font-medium text-[11px] ml-1">(Bạn)</span>}
                         </span>
-                        <span className="text-white/20 text-[10px]">•</span>
-                        <span className="text-[11px] font-medium text-[#5A6882] whitespace-nowrap">
+                        <span className="text-muted-foreground text-[10px]">•</span>
+                        <span className="text-[11px] font-medium text-muted-foreground whitespace-nowrap">
                           {formatRelativeTime(note.created_at)}
                         </span>
                       </div>
@@ -212,7 +212,7 @@ export default function NotesPanel({ entityType, entityId }: NotesPanelProps) {
                           variant="ghost"
                           size="sm"
                           onClick={() => handleTogglePin(note)}
-                          className={`h-6 w-6 p-0 rounded-md bg-[#1E2840]/50 hover:bg-[#222C4A] shadow-sm ${note.is_pinned ? "text-[#F59E0B]" : "text-[#5A6882] hover:text-[#C8D0E0]"}`}
+                          className={`h-6 w-6 p-0 rounded-md bg-muted/50 hover:bg-accent shadow-sm ${note.is_pinned ? "text-warning" : "text-muted-foreground hover:text-foreground"}`}
                           aria-label={note.is_pinned ? "Bỏ ghim" : "Ghim ghi chú"}
                         >
                           {note.is_pinned ? <PinOff className="w-3 h-3" /> : <Pin className="w-3 h-3" />}
@@ -221,7 +221,7 @@ export default function NotesPanel({ entityType, entityId }: NotesPanelProps) {
                           variant="ghost"
                           size="sm"
                           onClick={() => handleDelete(note.id)}
-                          className="h-6 w-6 p-0 rounded-md bg-[#1E2840]/50 hover:bg-[#3E1A25] text-[#5A6882] hover:text-[#EF4444] transition-colors shadow-sm"
+                          className="h-6 w-6 p-0 rounded-md bg-muted/50 hover:bg-muted text-muted-foreground hover:text-danger transition-colors shadow-sm"
                           aria-label="Xóa"
                         >
                           <Trash2 className="w-3 h-3" />
@@ -231,24 +231,24 @@ export default function NotesPanel({ entityType, entityId }: NotesPanelProps) {
 
                     {/* Bubble */}
                     <div className={`p-4 rounded-b-2xl rounded-tr-2xl relative transition-all duration-300 border backdrop-blur-md ${note.is_pinned
-                      ? "bg-gradient-to-br from-[#F59E0B]/5 to-[#1A233A]/80 border-[#F59E0B]/30 shadow-[0_4px_25px_rgba(245,158,11,0.05)]"
-                      : "bg-gradient-to-br from-[#1E2840]/60 to-[#121A2F]/60 border-white/5 shadow-lg group-hover:border-white/10 group-hover:shadow-xl"
+                      ? "bg-gradient-to-br from-warning/5 to-muted/80 border-border/30 shadow-[0_4px_25px_color-mix(in_srgb,var(--warning)_5%,transparent)]"
+                      : "bg-gradient-to-br from-muted/60 to-background/60 border-border shadow-lg group-hover:border-border group-hover:shadow-xl"
                       }`}>
                       {note.is_pinned && (
-                        <div className="absolute top-0 right-0 w-32 h-32 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-[#F59E0B]/10 via-transparent to-transparent pointer-events-none rounded-tr-2xl" />
+                        <div className="absolute top-0 right-0 w-32 h-32 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-warning/10 via-transparent to-transparent pointer-events-none rounded-tr-2xl" />
                       )}
 
                       <div className="relative z-10 flex flex-col gap-3">
                         <div className="flex items-center">
                           <Badge
                             variant="outline"
-                            className="text-[10px] px-2 py-0.5 border-white/10 font-bold uppercase tracking-widest bg-[#151D2E]/80 shadow-sm"
+                            className="text-[10px] px-2 py-0.5 border-border font-bold uppercase tracking-widest bg-card/80 shadow-sm"
                             style={{ color: typeConfig.color }}
                           >
                             {typeConfig.label}
                           </Badge>
                         </div>
-                        <p className="text-[13.5px] text-[#C8D0E0] whitespace-pre-wrap leading-relaxed">
+                        <p className="text-[13.5px] text-foreground whitespace-pre-wrap leading-relaxed">
                           {note.content}
                         </p>
                       </div>

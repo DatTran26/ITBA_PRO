@@ -1,0 +1,38 @@
+{
+  "pages": [
+    { "id": "page-1", "name": "Nền tảng" },
+    { "id": "page-2", "name": "Màn hình" }
+  ],
+  "artboards": [
+    { "file": "Foundations.dc.html", "x": 0, "y": 0, "w": 1440, "h": 1700, "page": "page-1", "title": "Nền tảng" },
+    { "file": "Components.dc.html", "x": 1540, "y": 0, "w": 1440, "h": 1560, "page": "page-1", "title": "Thành phần" },
+    { "file": "Landing.dc.html", "x": 0, "y": 0, "w": 1440, "h": 1560, "page": "page-2", "title": "Trang giới thiệu", "is_interactive": true },
+    { "file": "CvAnalysis.dc.html", "x": 1540, "y": 0, "w": 1440, "h": 960, "page": "page-2", "title": "Phân tích CV", "is_interactive": true },
+    { "file": "DocumentAi.dc.html", "x": 0, "y": 1700, "w": 1440, "h": 960, "page": "page-2", "title": "Document AI", "is_interactive": true },
+    { "file": "MeetingTasks.dc.html", "x": 1540, "y": 1700, "w": 1440, "h": 960, "page": "page-2", "title": "Biên bản họp và đầu việc", "is_interactive": true },
+    { "file": "Main.dc.html", "x": 0, "y": 2800, "w": 1440, "h": 1240, "page": "page-2", "title": "HR Dashboard" },
+    { "file": "Pipeline.dc.html", "x": 1540, "y": 2800, "w": 1440, "h": 960, "page": "page-2", "title": "Pipeline tuyển dụng", "is_interactive": true },
+    { "file": "TestTaking.dc.html", "x": 0, "y": 4180, "w": 1440, "h": 900, "page": "page-2", "title": "Làm bài test", "is_interactive": true },
+    { "file": "Login.dc.html", "x": 1540, "y": 4180, "w": 1440, "h": 900, "page": "page-2", "title": "Đăng nhập" },
+    { "file": "TestTakingMobile.dc.html", "x": 0, "y": 5220, "w": 390, "h": 844, "page": "page-2", "title": "Làm bài test, mobile" }
+  ],
+  "annotations": [
+    {
+      "id": "decisions",
+      "x": 0,
+      "y": -340,
+      "w": 620,
+      "page": "page-2",
+      "text": "Dấu ấn: sợi chỉ căn cứ\n\nMỗi kết luận của AI được nối về đúng vùng trong tài liệu gốc. Nét liền là tin cậy cao, nét đứt là cần người xác nhận.\n\nThứ tự nên xem: Trang giới thiệu, Phân tích CV, Document AI, Biên bản họp.\n\nBấm thử: Phát lại demo và Xác nhận ở trang giới thiệu. Phân tích rồi rê chuột từng tiêu chí ở Phân tích CV. Sửa trường Thông tư ở Document AI. Chọn đúng người tên Phương ở Biên bản họp."
+    },
+    {
+      "id": "principles",
+      "x": 1540,
+      "y": -340,
+      "w": 520,
+      "page": "page-1",
+      "text": "Nền sáng Cool Paper + Cobalt, chữ tiêu đề Bricolage Grotesque. Dải mực cobalt #1B2F8F dùng cho trang giới thiệu, đăng nhập và header hồ sơ; thanh điều hướng bên trái dùng cobalt sáng hơn #2549C9. Mọi cặp chữ và nền đã đo WCAG AA. Tên người và số liệu là dữ liệu mẫu."
+    }
+  ],
+  "launch": { "view": "canvas", "page": "page-2" }
+}

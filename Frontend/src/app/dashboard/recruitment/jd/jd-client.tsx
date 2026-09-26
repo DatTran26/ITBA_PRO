@@ -1,8 +1,12 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
-import { Plus, Pencil, Trash2, CheckCircle, XCircle } from "lucide-react";
+import { useState, useEffect, useCallback, useMemo } from "react";
+import { Plus, Pencil, Trash2, FileSearch, CircleSlash } from "lucide-react";
 import JdFormDialog from "@/components/recruitment/jd-form-dialog";
+import { SharedDashboardPageHeader } from "@/components/shares";
+import { toneAt } from "@/lib/ui/tones";
+
+type RawSkill = string | { skill: string; weight?: number };
 
 interface JD {
   id: string;
@@ -20,6 +24,29 @@ interface Props { userRole: string }
 
 const CAN_WRITE = (role: string) => role === "interviewer" || role === "admin" || role === "super_admin";
 
+/* Seed cũ lưu required_skills dạng chuỗi, form lưu dạng {skill}: chuẩn hoá khi đọc. */
+function normalize(jd: Omit<JD, "required_skills"> & { required_skills: RawSkill[] | null }): JD {
+  return {
+    ...jd,
+    required_skills: (jd.required_skills ?? []).map((s) => (typeof s === "string" ? { skill: s } : s)),
+  };
+}
+
+function ThresholdBar({ value }: { value: number | null }) {
+  if (value == null) return <span className="text-xs text-muted-foreground">Không đặt</span>;
+  return (
+    <div className="w-full">
+      <div className="relative h-2 rounded-full bg-success/20 overflow-hidden">
+        <span className="absolute inset-y-0 left-0 bg-danger/35" style={{ width: `${value}%` }} />
+        <span className="absolute -top-0.5 -bottom-0.5 w-0.5 bg-foreground" style={{ left: `${value}%` }} />
+      </div>
+      <p className="mt-1 text-[11px] text-muted-foreground tabular-nums">
+        Điểm AI &lt; <span className="font-bold text-foreground">{value}</span> → gợi ý loại
+      </p>
+    </div>
+  );
+}
+
 export default function JdClient({ userRole }: Props) {
   const [jds, setJds] = useState<JD[]>([]);
   const [loading, setLoading] = useState(true);
@@ -29,7 +56,7 @@ export default function JdClient({ userRole }: Props) {
     setLoading(true);
     const res = await fetch("/api/recruitment/job-descriptions");
     const data = await res.json();
-    setJds(data.jobDescriptions ?? []);
+    setJds((data.jobDescriptions ?? []).map(normalize));
     setLoading(false);
   }, []);
 
@@ -48,90 +75,119 @@ export default function JdClient({ userRole }: Props) {
 
   const canWrite = CAN_WRITE(userRole);
 
+  /* Cột ma trận: kỹ năng xuất hiện ở nhiều JD nhất đứng trước. */
+  const skills = useMemo(() => {
+    const freq = new Map<string, number>();
+    for (const jd of jds) for (const s of jd.required_skills) freq.set(s.skill, (freq.get(s.skill) ?? 0) + 1);
+    return [...freq].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
+  }, [jds]);
+  const activeCount = jds.filter((j) => j.is_active).length;
+  const depts = [...new Set(jds.map((j) => j.department).filter(Boolean))] as string[];
+  const deptTone = (d: string) => toneAt(depts.indexOf(d));
+  const cols = `minmax(260px,1.4fr) repeat(${skills.length}, 40px) 200px ${canWrite ? "72px" : ""}`;
+
   return (
-    <div className="py-6 flex flex-col gap-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-xl font-semibold text-[#ECF0F7]">Job Descriptions</h1>
-        {canWrite && (
+    <div className="pb-12">
+      <SharedDashboardPageHeader
+        title="Job Descriptions"
+        icon={FileSearch}
+        badge={{ label: `${activeCount}/${jds.length} đang dùng · ${skills.length} kỹ năng` }}
+        description="Mỗi JD cần kỹ năng nào, JD nào dùng chung kỹ năng, và ngưỡng loại tự động"
+        actions={canWrite ? (
           <JdFormDialog
             mode="create"
             onSuccess={fetchJds}
             trigger={
-              <button className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-[#7C8FFF] text-white hover:bg-[#7C8FFF]/80 transition-colors">
+              <button className="flex items-center gap-2 h-11 px-5 rounded-xl text-sm font-bold bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg shadow-primary/20 transition-colors cursor-pointer">
                 <Plus className="w-4 h-4" /> Tạo JD
               </button>
             }
           />
-        )}
-      </div>
+        ) : undefined}
+      />
 
       {loading ? (
         <div className="flex justify-center py-16">
-          <div className="w-6 h-6 border-2 border-[#7C8FFF]/30 border-t-[#7C8FFF] rounded-full animate-spin" />
+          <div className="w-6 h-6 border-2 border-border/30 border-t-primary rounded-full animate-spin" />
         </div>
       ) : jds.length === 0 ? (
-        <div className="glass-card p-10 text-center text-[#5A6882] text-sm">
+        <div className="rounded-2xl border border-border bg-card p-12 text-center text-muted-foreground text-sm">
           Chưa có Job Description nào.
         </div>
       ) : (
-        <div className="flex flex-col gap-3">
-          {jds.map((jd) => (
-            <div key={jd.id} className="glass-card p-4 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
-              <div className="flex flex-col gap-1">
-                <div className="flex items-center gap-2">
-                  {jd.is_active
-                    ? <CheckCircle className="w-3.5 h-3.5 text-[#22C55E] shrink-0" />
-                    : <XCircle className="w-3.5 h-3.5 text-[#6B7280] shrink-0" />
-                  }
-                  <span className="text-sm font-medium text-[#ECF0F7]">{jd.title}</span>
-                  {jd.seniority && <span className="text-xs text-[#5A6882]">· {jd.seniority}</span>}
+        <div className="rounded-2xl border border-border bg-card overflow-x-auto shadow-[0_2px_14px_color-mix(in_srgb,var(--primary)_8%,transparent)]">
+          <div className="min-w-max">
+            {/* Tiêu đề cột: tên kỹ năng xoay chéo */}
+            <div className="grid items-end gap-x-0 px-5 pt-5 pb-2 border-b border-border" style={{ gridTemplateColumns: cols }}>
+              <span className="text-[11px] font-bold uppercase tracking-wide text-muted-foreground pb-1">Vị trí</span>
+              {skills.map(([name, n]) => (
+                <div key={name} className="relative h-28" title={`${name} — ${n} JD`}>
+                  <span className="absolute bottom-1 left-1/2 origin-bottom-left -rotate-[55deg] whitespace-nowrap text-xs font-semibold text-foreground">
+                    {name} <span className="text-muted-foreground tabular-nums">{n}</span>
+                  </span>
                 </div>
-
-                {(jd.department || jd.role_key) && (
-                  <p className="text-xs text-[#8B99B0] ml-5">
-                    {[jd.department, jd.role_key].filter(Boolean).join(" · ")}
-                  </p>
-                )}
-
-                {jd.required_skills.length > 0 && (
-                  <div className="flex flex-wrap gap-1 ml-5 mt-1">
-                    {jd.required_skills.slice(0, 6).map((s) => (
-                      <span key={s.skill} className="px-1.5 py-0.5 rounded text-[10px] bg-[#7C8FFF]/10 text-[#7C8FFF]">{s.skill}</span>
-                    ))}
-                    {jd.required_skills.length > 6 && (
-                      <span className="text-[10px] text-[#5A6882]">+{jd.required_skills.length - 6}</span>
-                    )}
-                  </div>
-                )}
-
-                {jd.auto_reject_threshold != null && (
-                  <p className="text-xs text-[#F59E0B] ml-5">Gợi ý review &lt; {jd.auto_reject_threshold}</p>
-                )}
-              </div>
-
-              {canWrite && (
-                <div className="flex items-center gap-2 ml-5 sm:ml-0 shrink-0">
-                  <JdFormDialog
-                    mode="edit"
-                    jd={jd}
-                    onSuccess={fetchJds}
-                    trigger={
-                      <button className="p-1.5 rounded-lg text-[#8B99B0] hover:text-[#7C8FFF] hover:bg-[#7C8FFF]/10 transition-colors">
-                        <Pencil className="w-3.5 h-3.5" />
-                      </button>
-                    }
-                  />
-                  <button
-                    onClick={() => handleDelete(jd.id)}
-                    disabled={deletingId === jd.id}
-                    className="p-1.5 rounded-lg text-[#8B99B0] hover:text-[#EF4444] hover:bg-[#EF4444]/10 transition-colors disabled:opacity-50"
-                  >
-                    <Trash2 className="w-3.5 h-3.5" />
-                  </button>
-                </div>
-              )}
+              ))}
+              <span className="text-[11px] font-bold uppercase tracking-wide text-muted-foreground pb-1 pl-4">Ngưỡng loại</span>
+              {canWrite && <span />}
             </div>
-          ))}
+
+            {jds.map((jd, i) => {
+              const tone = toneAt(i);
+              const has = new Set(jd.required_skills.map((s) => s.skill));
+              return (
+                <div key={jd.id}
+                     className={`group grid items-center px-5 py-3.5 border-b border-border last:border-b-0 hover:bg-muted/40 transition-colors ${jd.is_active ? "" : "opacity-55"}`}
+                     style={{ gridTemplateColumns: cols }}>
+                  <div className="min-w-0 pr-4">
+                    <p className="flex items-center gap-2 font-bold text-foreground truncate">
+                      {jd.title}
+                      {!jd.is_active && (
+                        <span className="inline-flex items-center gap-1 rounded-full bg-muted px-2 py-0.5 text-[10px] font-bold text-muted-foreground">
+                          <CircleSlash className="w-3 h-3" />Ngừng dùng
+                        </span>
+                      )}
+                    </p>
+                    <p className="mt-1 flex items-center gap-2 text-xs text-muted-foreground truncate">
+                      {jd.department && (
+                        <span className="rounded-full px-2 py-0.5 text-[10px] font-bold" style={{ color: deptTone(jd.department).ink, backgroundColor: deptTone(jd.department).bg }}>{jd.department}</span>
+                      )}
+                      {[jd.seniority && jd.seniority[0].toUpperCase() + jd.seniority.slice(1), `${jd.required_skills.length} kỹ năng`].filter(Boolean).join(" · ")}
+                    </p>
+                  </div>
+                  {skills.map(([name]) => (
+                    <div key={name} className="grid place-items-center">
+                      {has.has(name)
+                        ? <span className="w-4 h-4 rounded-full" style={{ backgroundColor: tone.mark }} aria-label={`Cần ${name}`} />
+                        : <span className="w-1.5 h-1.5 rounded-full bg-border" />}
+                    </div>
+                  ))}
+                  <div className="pl-4"><ThresholdBar value={jd.auto_reject_threshold} /></div>
+                  {canWrite && (
+                    <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <JdFormDialog
+                        mode="edit"
+                        jd={jd}
+                        onSuccess={fetchJds}
+                        trigger={
+                          <button aria-label="Sửa JD" className="p-1.5 rounded-lg text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors cursor-pointer">
+                            <Pencil className="w-4 h-4" />
+                          </button>
+                        }
+                      />
+                      <button
+                        aria-label="Xóa JD"
+                        onClick={() => handleDelete(jd.id)}
+                        disabled={deletingId === jd.id}
+                        className="p-1.5 rounded-lg text-muted-foreground hover:text-danger hover:bg-danger/10 transition-colors disabled:opacity-50 cursor-pointer"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
         </div>
       )}
     </div>

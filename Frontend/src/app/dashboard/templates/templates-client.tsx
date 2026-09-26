@@ -1,16 +1,19 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-import { Plus, Search, Briefcase, Clock, FileText, Trash2, Play, Globe, User } from "lucide-react";
+import { Plus, Clock, FileText, Trash2, Play, Globe, ListChecks, LayoutTemplate } from "lucide-react";
+import { SharedDashboardButton, SharedDashboardPageHeader } from "@/components/shares";
+import { EmptyState } from "@/components/ui/empty-state";
+import FilterBar from "@/components/crm/filter-bar";
+import type { FilterOption } from "@/lib/crm/types";
+import { toneByName, toneAt, type ToneName } from "@/lib/ui/tones";
 
 interface Template {
     id: string;
@@ -34,11 +37,12 @@ interface Props {
     userId: string;
 }
 
-const levelColors: Record<string, string> = {
-    Junior: "bg-[#36DDAB]/10 text-[#36DDAB] border-[#36DDAB]/20",
-    Mid: "bg-[#7C8FFF]/10 text-[#7C8FFF] border-[#7C8FFF]/20",
-    Senior: "bg-[#FF6B82]/10 text-[#FF6B82] border-[#FF6B82]/20",
-};
+/* Cấp độ là phân loại, không phải trạng thái: dùng tông, không dùng xanh/đỏ. */
+const LEVEL_TONE: Record<string, ToneName> = { Junior: "teal", Mid: "blue", Senior: "violet" };
+const levelTone = (l: string) => toneByName(LEVEL_TONE[l] ?? "gold");
+
+const LEVELS = ["Junior", "Mid", "Senior"];
+const levelOptions: FilterOption[] = LEVELS.map((l) => ({ value: l, label: l }));
 
 export default function TemplatesClient({ templates: initial, isAdmin, userId }: Props) {
     const router = useRouter();
@@ -48,10 +52,21 @@ export default function TemplatesClient({ templates: initial, isAdmin, userId }:
     const [creating, setCreating] = useState(false);
     const [form, setForm] = useState({ name: "", description: "", job_role: "", level: "Junior", question_count: 10, time_limit: 30, target_type: "candidate", job_description: "", test_description: "" });
 
+    const [levelFilter, setLevelFilter] = useState("");
+
     const filtered = templates.filter((t) =>
-        t.name.toLowerCase().includes(search.toLowerCase()) ||
-        t.job_role.toLowerCase().includes(search.toLowerCase())
+        (!levelFilter || t.level === levelFilter) &&
+        (t.name.toLowerCase().includes(search.toLowerCase()) ||
+            t.job_role.toLowerCase().includes(search.toLowerCase()))
     );
+
+    /* Kệ theo vị trí: role nhiều mẫu nhất lên trước. */
+    const shelves = useMemo(() => {
+        const m = new Map<string, Template[]>();
+        for (const t of filtered) m.set(t.job_role, [...(m.get(t.job_role) ?? []), t]);
+        return [...m].sort((a, b) => b[1].length - a[1].length);
+    }, [filtered]);
+    const roleCount = new Set(templates.map((t) => t.job_role)).size;
 
     async function handleCreate() {
         if (!form.name || !form.job_role) { toast.error("Name and job role are required"); return; }
@@ -92,96 +107,136 @@ export default function TemplatesClient({ templates: initial, isAdmin, userId }:
     }
 
     return (
-        <div className="space-y-6">
-            {/* Header */}
-            <div className="flex items-center justify-between">
-                <div>
-                    <h1 className="text-2xl font-semibold text-[#ECF0F7] font-display">Assessment Templates</h1>
-                    <p className="text-sm text-[#8B99B0] mt-1">{templates.length} template{templates.length !== 1 ? "s" : ""} available</p>
-                </div>
-                <Button onClick={() => setShowCreate(true)} className="bg-[#5B6CF0] hover:bg-[#4F5FD9] text-white cursor-pointer">
-                    <Plus className="w-4 h-4 mr-2" /> New Template
-                </Button>
-            </div>
+        <div className="space-y-6 pb-12 text-foreground">
+            <SharedDashboardPageHeader
+                title="Templates"
+                icon={LayoutTemplate}
+                badge={{ label: `${templates.length} mẫu · ${roleCount} vị trí` }}
+                description="Mẫu đề đánh giá tái sử dụng cho ứng viên và nhân viên"
+                actions={(
+                    <SharedDashboardButton
+                        variant="primary"
+                        onClick={() => setShowCreate(true)}
+                        leadingIcon={<Plus className="h-4 w-4" />}
+                    >
+                        New Template
+                    </SharedDashboardButton>
+                )}
+            />
 
-            {/* Search */}
-            <div className="relative max-w-sm">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#5A6882]" />
-                <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search templates..." className="pl-9 bg-[#1B253B] border-[#8B99B0]/15 text-[#ECF0F7]" />
-            </div>
+            <FilterBar
+                search={search}
+                onSearchChange={setSearch}
+                searchPlaceholder="Tìm theo tên, vị trí..."
+                filters={[{ key: "level", label: "Level", options: levelOptions, value: levelFilter, onChange: setLevelFilter }]}
+                onClearAll={() => { setSearch(""); setLevelFilter(""); }}
+            />
 
             {/* Grid */}
             {filtered.length === 0 ? (
-                <Card className="border-[#8B99B0]/10 bg-[#1B253B] p-12 text-center">
-                    <FileText className="w-10 h-10 text-[#5A6882] mx-auto mb-3" />
-                    <p className="text-[#8B99B0]">{search ? "No templates match your search" : "No templates yet. Create one to get started."}</p>
-                </Card>
+                (search || levelFilter) ? (
+                    <EmptyState
+                        className="py-16"
+                        icon={<FileText />}
+                        title="Không có mẫu phù hợp"
+                        description="Thử từ khoá khác hoặc bỏ bộ lọc cấp độ."
+                        action={<Button variant="outline" onClick={() => { setSearch(""); setLevelFilter(""); }}>Bỏ bộ lọc</Button>}
+                    />
+                ) : (
+                    <EmptyState
+                        className="py-16"
+                        icon={<LayoutTemplate />}
+                        title="Chưa có mẫu bài test nào"
+                        description="Lưu cấu hình đề hay dùng thành mẫu để tạo bài test nhanh hơn."
+                        action={<Button onClick={() => setShowCreate(true)} className="gap-1.5"><Plus />Tạo mẫu</Button>}
+                    />
+                )
             ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {filtered.map((t) => (
-                        <Card key={t.id} className="border-[#8B99B0]/10 bg-[#1B253B] hover:bg-[#222C4A] transition-colors group">
-                            <CardHeader className="pb-2">
-                                <div className="flex items-start justify-between gap-2">
-                                    <CardTitle className="text-sm font-medium text-[#ECF0F7]/90 truncate">{t.name}</CardTitle>
-                                    <Badge variant="outline" className="shrink-0 text-[10px] h-5">
-                                        {t.is_global ? <><Globe className="w-3 h-3 mr-1" />Global</> : <><User className="w-3 h-3 mr-1" />Own</>}
-                                    </Badge>
+                <div className="space-y-8">
+                    {shelves.map(([role, items], si) => {
+                        const tone = toneAt(si);
+                        return (
+                            <section key={role}>
+                                <div className="flex items-baseline gap-3 mb-3">
+                                    <span className="w-2 h-5 rounded-full self-center" style={{ backgroundColor: tone.mark }} />
+                                    <h2 className="text-lg font-extrabold text-foreground">{role}</h2>
+                                    <span className="text-xs font-semibold text-muted-foreground tabular-nums">{items.length} mẫu</span>
                                 </div>
-                                {t.description && <p className="text-xs text-[#8B99B0] line-clamp-2 mt-1">{t.description}</p>}
-                            </CardHeader>
-                            <CardContent className="pt-0 space-y-3">
-                                <div className="flex flex-wrap gap-1.5">
-                                    <Badge className={`${levelColors[t.level] || "bg-[#1B253B] text-[#8B99B0]"} px-2 py-0 h-5 text-[11px] border`}>{t.level}</Badge>
-                                    <Badge variant="outline" className="h-5 text-[11px] text-[#8B99B0] border-[#8B99B0]/15">
-                                        <Briefcase className="w-3 h-3 mr-1" />{t.job_role}
-                                    </Badge>
+                                <div className="flex gap-4 overflow-x-auto pb-3 -mx-1 px-1 snap-x">
+                                    {items.map((t) => {
+                                        const lt = levelTone(t.level);
+                                        return (
+                                            <article key={t.id} className="group snap-start w-[300px] shrink-0 rounded-2xl border border-border bg-card overflow-hidden flex flex-col transition-shadow shadow-[0_2px_14px_color-mix(in_srgb,var(--primary)_8%,transparent)] hover:shadow-[0_8px_24px_color-mix(in_srgb,var(--primary)_14%,transparent)]">
+                                                <div className="h-1.5" style={{ backgroundColor: lt.mark }} />
+                                                <div className="p-5 flex-1 flex flex-col">
+                                                    <div className="flex items-center justify-between gap-2">
+                                                        <span className="rounded-full px-2.5 py-0.5 text-[11px] font-bold" style={{ color: lt.ink, backgroundColor: lt.bg }}>{t.level}</span>
+                                                        <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-muted-foreground">
+                                                            {t.is_global ? <><Globe className="w-3 h-3" />Dùng chung</> : "Của tôi"}
+                                                        </span>
+                                                    </div>
+                                                    <h3 className="mt-3 font-bold text-foreground leading-snug line-clamp-2">{t.name}</h3>
+                                                    <p className="mt-1 text-xs text-muted-foreground line-clamp-2 min-h-8">{t.description}</p>
+                                                    <div className="mt-4 grid grid-cols-2 gap-2">
+                                                        <div className="rounded-xl bg-muted/60 px-3 py-2">
+                                                            <p className="flex items-center gap-1 text-[10px] font-bold uppercase text-muted-foreground"><ListChecks className="w-3 h-3" />Câu hỏi</p>
+                                                            <p className="text-xl font-black tabular-nums text-foreground">{t.question_count}</p>
+                                                        </div>
+                                                        <div className="rounded-xl bg-muted/60 px-3 py-2">
+                                                            <p className="flex items-center gap-1 text-[10px] font-bold uppercase text-muted-foreground"><Clock className="w-3 h-3" />Phút</p>
+                                                            <p className="text-xl font-black tabular-nums text-foreground">{t.time_limit}</p>
+                                                        </div>
+                                                    </div>
+                                                    <p className="mt-3 text-[11px] font-semibold text-muted-foreground">
+                                                        {t.target_type === "employee" ? "Đánh giá nhân viên" : "Đánh giá ứng viên"}
+                                                    </p>
+                                                    <div className="mt-auto pt-4 flex gap-2">
+                                                        <Button size="sm" onClick={() => handleUseTemplate(t)} className="flex-1 h-9 text-xs font-bold bg-primary text-primary-foreground hover:bg-primary/90 cursor-pointer">
+                                                            <Play className="w-3.5 h-3.5 mr-1" /> Dùng mẫu này
+                                                        </Button>
+                                                        {(t.created_by === userId || isAdmin) && (
+                                                            <Button size="sm" variant="ghost" aria-label="Xóa mẫu" onClick={() => handleDelete(t.id)} className="h-9 text-danger hover:text-danger hover:bg-danger/10 cursor-pointer">
+                                                                <Trash2 className="w-3.5 h-3.5" />
+                                                            </Button>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            </article>
+                                        );
+                                    })}
                                 </div>
-                                <div className="flex items-center gap-3 text-xs text-[#5A6882]">
-                                    <span>{t.question_count} questions</span>
-                                    <span className="flex items-center gap-1"><Clock className="w-3 h-3" />{t.time_limit}m</span>
-                                </div>
-                                <div className="flex gap-2 pt-1">
-                                    <Button size="sm" onClick={() => handleUseTemplate(t)} className="flex-1 h-7 text-xs bg-[#5B6CF0]/10 hover:bg-[#5B6CF0]/20 text-[#7C8FFF] border border-[#5B6CF0]/20 cursor-pointer">
-                                        <Play className="w-3 h-3 mr-1" /> Use
-                                    </Button>
-                                    {(t.created_by === userId || isAdmin) && (
-                                        <Button size="sm" variant="ghost" onClick={() => handleDelete(t.id)} className="h-7 text-xs text-[#FF6B82] hover:text-[#FF6B82] hover:bg-[#FF6B82]/10 cursor-pointer">
-                                            <Trash2 className="w-3 h-3" />
-                                        </Button>
-                                    )}
-                                </div>
-                            </CardContent>
-                        </Card>
-                    ))}
+                            </section>
+                        );
+                    })}
                 </div>
             )}
 
             {/* Create Dialog */}
             <Dialog open={showCreate} onOpenChange={setShowCreate}>
-                <DialogContent className="bg-[#1B253B] border-[#8B99B0]/10 text-[#ECF0F7] max-w-lg">
+                <DialogContent className="bg-muted border-border/10 text-foreground max-w-lg">
                     <DialogHeader>
                         <DialogTitle>Create Template</DialogTitle>
                     </DialogHeader>
                     <div className="space-y-4">
-                        <div><Label>Name *</Label><Input value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} placeholder="e.g. Senior Backend Interview" className="bg-[#1B253B] border-[#8B99B0]/15" /></div>
-                        <div><Label>Description</Label><Textarea value={form.description} onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))} placeholder="Brief description..." className="bg-[#1B253B] border-[#8B99B0]/15 h-16" /></div>
+                        <div><Label>Name *</Label><Input value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} placeholder="e.g. Senior Backend Interview" className="bg-muted border-border/15" /></div>
+                        <div><Label>Description</Label><Textarea value={form.description} onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))} placeholder="Brief description..." className="bg-muted border-border/15 h-16" /></div>
                         <div className="grid grid-cols-2 gap-3">
-                            <div><Label>Job Role *</Label><Input value={form.job_role} onChange={(e) => setForm((f) => ({ ...f, job_role: e.target.value }))} placeholder="e.g. Backend Developer" className="bg-[#1B253B] border-[#8B99B0]/15" /></div>
+                            <div><Label>Job Role *</Label><Input value={form.job_role} onChange={(e) => setForm((f) => ({ ...f, job_role: e.target.value }))} placeholder="e.g. Backend Developer" className="bg-muted border-border/15" /></div>
                             <div>
                                 <Label>Level</Label>
-                                <select value={form.level} onChange={(e) => setForm((f) => ({ ...f, level: e.target.value }))} className="w-full h-9 rounded-md bg-[#1B253B] border border-[#8B99B0]/15 text-[#ECF0F7] text-sm px-3">
+                                <select value={form.level} onChange={(e) => setForm((f) => ({ ...f, level: e.target.value }))} className="w-full h-9 rounded-md bg-muted border border-border/15 text-foreground text-sm px-3">
                                     {["Junior", "Mid", "Senior"].map((l) => <option key={l} value={l}>{l}</option>)}
                                 </select>
                             </div>
                         </div>
                         <div className="grid grid-cols-2 gap-3">
-                            <div><Label>Questions</Label><Input type="number" value={form.question_count} onChange={(e) => setForm((f) => ({ ...f, question_count: Number(e.target.value) }))} className="bg-[#1B253B] border-[#8B99B0]/15" /></div>
-                            <div><Label>Time Limit (min)</Label><Input type="number" value={form.time_limit} onChange={(e) => setForm((f) => ({ ...f, time_limit: Number(e.target.value) }))} className="bg-[#1B253B] border-[#8B99B0]/15" /></div>
+                            <div><Label>Questions</Label><Input type="number" value={form.question_count} onChange={(e) => setForm((f) => ({ ...f, question_count: Number(e.target.value) }))} className="bg-muted border-border/15" /></div>
+                            <div><Label>Time Limit (min)</Label><Input type="number" value={form.time_limit} onChange={(e) => setForm((f) => ({ ...f, time_limit: Number(e.target.value) }))} className="bg-muted border-border/15" /></div>
                         </div>
                     </div>
                     <DialogFooter>
-                        <Button variant="ghost" onClick={() => setShowCreate(false)} className="text-[#8B99B0] cursor-pointer">Cancel</Button>
-                        <Button onClick={handleCreate} disabled={creating} className="bg-[#5B6CF0] hover:bg-[#4F5FD9] cursor-pointer">{creating ? "Creating..." : "Create"}</Button>
+                        <Button variant="ghost" onClick={() => setShowCreate(false)} className="text-muted-foreground cursor-pointer">Cancel</Button>
+                        <Button onClick={handleCreate} disabled={creating} className="bg-primary hover:bg-primary cursor-pointer">{creating ? "Creating..." : "Create"}</Button>
                     </DialogFooter>
                 </DialogContent>
             </Dialog>

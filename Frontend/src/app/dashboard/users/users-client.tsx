@@ -4,31 +4,24 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import {
     Users,
-    Plus,
     Search,
     MoreHorizontal,
     Shield,
     UserPlus,
     Trash2,
-    Mail,
-    Calendar,
     Settings2,
     ShieldCheck,
-    UserCircle,
     Loader2,
-    Key,
-    UserCheck,
     XCircle,
-    ArrowLeft,
     Copy,
-    Check
+    Check,
+    KeyRound
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { PageTransition, FadeIn, StaggerContainer, StaggerItem } from "@/components/ui/motion-wrapper";
+import { PageTransition } from "@/components/ui/motion-wrapper";
 import {
     Dialog,
     DialogContent,
@@ -49,10 +42,11 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import Link from "next/link";
 import AppNavbar from "@/components/ui/app-navbar";
 import PageBreadcrumb from "@/components/ui/page-breadcrumb";
 import PageContainer from "@/components/ui/page-container";
+import { SharedDashboardPageHeader } from "@/components/shares";
+import { ROLE_ORDER, ROLE_LABEL, roleTone } from "@/lib/ui/roles";
 
 interface UserProfile {
     id: string;
@@ -72,15 +66,6 @@ const ROLE_OPTIONS = [
     { value: "admin", label: "Admin", description: "Full admin access" },
 ] as const;
 
-const ROLE_BADGE_CLASS: Record<string, string> = {
-    user: "bg-slate-500/10 text-slate-300 border-slate-500/20",
-    super_admin: "bg-rose-500/10 text-rose-400 border-rose-500/20",
-    admin: "bg-[#7C8FFF]/10 text-[#7C8FFF] border-[#7C8FFF]/20",
-    leader: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20",
-    hr: "bg-amber-500/10 text-amber-400 border-amber-500/20",
-    interviewer: "bg-cyan-500/10 text-cyan-400 border-cyan-500/20",
-    recruiter: "bg-[#8B99B0]/5 text-[#8B99B0] border-[#8B99B0]/10",
-};
 
 const ROLE_ACCESS_LABEL: Record<string, string> = {
     user: "Awaiting Role Assignment",
@@ -101,6 +86,7 @@ export default function UsersClient({
 }) {
     const [users, setUsers] = useState<UserProfile[]>(initialUsers);
     const [searchQuery, setSearchQuery] = useState("");
+    const [roleFilter, setRoleFilter] = useState<string>("");
     const [isAddingUser, setIsAddingUser] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [resetConfirmationUser, setResetConfirmationUser] = useState<UserProfile | null>(null);
@@ -132,9 +118,17 @@ export default function UsersClient({
         setTimeout(() => setCopied(false), 2000);
     };
 
+    const countRole = (role: string) => users.filter((u) => u.role === role).length;
+    const resetCount = users.filter((u) => u.force_password_change).length;
+    const rail = [
+        { key: "", label: "Tất cả", hint: "Mọi tài khoản", count: users.length, color: "var(--primary)" },
+        ...ROLE_ORDER.map((r) => ({ key: r as string, label: ROLE_LABEL[r], hint: ROLE_ACCESS_LABEL[r], count: countRole(r), color: roleTone(r).mark })),
+    ];
+
     const filteredUsers = users.filter(u =>
-        u.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        u.email.toLowerCase().includes(searchQuery.toLowerCase())
+        (roleFilter === "" || (roleFilter === "reset" ? u.force_password_change : u.role === roleFilter)) &&
+        (u.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        u.email.toLowerCase().includes(searchQuery.toLowerCase()))
     );
 
     const handleCreateUser = async () => {
@@ -292,12 +286,12 @@ export default function UsersClient({
     };
 
     return (
-        <PageTransition className="min-h-screen bg-[#121A2E] text-[#ECF0F7] font-body selection:bg-[#7C8FFF]/30 overflow-hidden relative">
+        <PageTransition className="min-h-screen bg-background text-foreground font-body selection:bg-primary/30 overflow-hidden relative">
 
             {/* Mesh Gradient Decor */}
             <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden opacity-60">
-                <div className="absolute top-[10%] right-[-10%] w-[40%] h-[40%] bg-[#5B6CF0]/[0.05] blur-[120px] rounded-full" />
-                <div className="absolute bottom-[20%] left-[-10%] w-[30%] h-[30%] bg-[#7C8FFF]/[0.03] blur-[100px] rounded-full" />
+                <div className="absolute top-[10%] right-[-10%] w-[40%] h-[40%] bg-primary/[0.05] blur-[120px] rounded-full" />
+                <div className="absolute bottom-[20%] left-[-10%] w-[30%] h-[30%] bg-primary/[0.03] blur-[100px] rounded-full" />
             </div>
 
             <AppNavbar user={currentUser} />
@@ -306,66 +300,56 @@ export default function UsersClient({
                 <PageBreadcrumb breadcrumbs={[{ label: "Dashboard", href: "/dashboard" }, { label: "Identity Management" }]} />
 
 
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12">
-                    <FadeIn>
-                        <h1 className="text-4xl font-light font-display text-white mb-2">User Directory</h1>
-                        <p className="text-white/40 font-light">Manage system access protocols and administrative agents.</p>
-                    </FadeIn>
-
-                    <div className="flex items-center gap-4">
-                        <FadeIn delay={0.1} className="relative group">
-                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#5A6882] group-focus-within:text-[#7C8FFF] transition-colors" />
-                            <Input
-                                placeholder="Filter identities..."
-                                value={searchQuery}
-                                onChange={(e) => setSearchQuery(e.target.value)}
-                                className="pl-10 w-[240px] md:w-[320px] bg-[#1B253B]/60 border-[#8B99B0]/10 text-[#ECF0F7] placeholder:text-[#5A6882]/70 h-11 rounded-xl focus:border-[#7C8FFF]/40 transition-all font-light"
-                            />
-                        </FadeIn>
-
+                <SharedDashboardPageHeader
+                    title="Users"
+                    icon={Users}
+                    badge={{ label: `${users.length} tài khoản` }}
+                    description="Quản lý tài khoản, vai trò và quyền truy cập hệ thống"
+                    actions={(
+                    <div className="flex items-center gap-3">
                         <Dialog open={isAddingUser} onOpenChange={setIsAddingUser}>
                             <DialogTrigger asChild>
-                                <Button className="bg-[#7C8FFF] hover:bg-[#7C8FFF]/90 text-black shadow-[0_0_20px_rgba(124,143,255,0.3)] hover:-translate-y-0.5 transition-all h-11 px-6 rounded-xl gap-2 font-semibold cursor-pointer">
+                                <Button className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg shadow-primary/20 active:scale-[0.98] transition-all h-11 px-6 rounded-xl gap-2 font-semibold cursor-pointer">
                                     <UserPlus className="w-4 h-4" />
                                     Provision Identity
                                 </Button>
                             </DialogTrigger>
-                            <DialogContent className="bg-[#1B253B] border-white/10 text-white sm:max-w-[425px]">
+                            <DialogContent className="bg-muted border-border text-foreground sm:max-w-[425px]">
                                 <DialogHeader>
                                     <DialogTitle className="text-xl font-display">Provision System Agent</DialogTitle>
-                                    <DialogDescription className="text-white/40">
+                                    <DialogDescription className="text-muted-foreground">
                                         Assign a new operative to the system. A unique security passphrase will be generated automatically.
                                     </DialogDescription>
                                 </DialogHeader>
                                 <div className="space-y-4 py-6">
                                     <div className="space-y-2">
-                                        <Label htmlFor="name" className="text-xs font-semibold uppercase tracking-wider text-white/50">Designation (Name)</Label>
+                                        <Label htmlFor="name" className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Designation (Name)</Label>
                                         <Input
                                             id="name"
                                             value={newUser.name}
                                             onChange={(e) => setNewUser({ ...newUser, name: e.target.value })}
-                                            className="bg-white/5 border-white/10 focus:border-indigo-500/50 h-12 rounded-xl"
+                                            className="bg-muted border-border focus:border-indigo-500/50 h-12 rounded-xl"
                                             placeholder="Agent Identification"
                                         />
                                     </div>
                                     <div className="space-y-2">
-                                        <Label htmlFor="email" className="text-xs font-semibold uppercase tracking-wider text-white/50">Neural Link (Email)</Label>
+                                        <Label htmlFor="email" className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Neural Link (Email)</Label>
                                         <Input
                                             id="email"
                                             type="email"
                                             value={newUser.email}
                                             onChange={(e) => setNewUser({ ...newUser, email: e.target.value })}
-                                            className="bg-white/5 border-white/10 focus:border-indigo-500/50 h-12 rounded-xl"
+                                            className="bg-muted border-border focus:border-indigo-500/50 h-12 rounded-xl"
                                             placeholder="node@system.local"
                                         />
                                     </div>
                                     <div className="space-y-2">
-                                        <Label htmlFor="role" className="text-xs font-semibold uppercase tracking-wider text-white/50">Access Level</Label>
+                                        <Label htmlFor="role" className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Access Level</Label>
                                         <Select value={newUser.role} onValueChange={(v) => setNewUser({ ...newUser, role: v || "recruiter" })}>
-                                            <SelectTrigger className="bg-white/5 border-white/10 focus:border-indigo-500/50 h-12 rounded-xl">
+                                            <SelectTrigger className="bg-muted border-border focus:border-indigo-500/50 h-12 rounded-xl">
                                                 <SelectValue placeholder="Select Access Tier" />
                                             </SelectTrigger>
-                                            <SelectContent className="bg-[#1B253B] border-white/10 text-white">
+                                            <SelectContent className="bg-muted border-border text-foreground">
                                                 {ROLE_OPTIONS.map((role) => (
                                                     <SelectItem key={role.value} value={role.value}>{role.label} ({role.description})</SelectItem>
                                                 ))}
@@ -380,7 +364,7 @@ export default function UsersClient({
                                     <Button
                                         variant="ghost"
                                         onClick={() => setIsAddingUser(false)}
-                                        className="text-white/40 hover:text-white hover:bg-white/5 h-12 rounded-xl"
+                                        className="text-muted-foreground hover:text-foreground hover:bg-muted h-12 rounded-xl"
                                     >
                                         Abort
                                     </Button>
@@ -397,36 +381,36 @@ export default function UsersClient({
 
                         {/* Credentials Dialog */}
                         <Dialog open={!!createdCredentials} onOpenChange={(open) => !open && setCreatedCredentials(null)}>
-                            <DialogContent className="bg-[#1B253B] border-white/10 text-white sm:max-w-[425px]">
+                            <DialogContent className="bg-muted border-border text-foreground sm:max-w-[425px]">
                                 <DialogHeader>
                                     <div className="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center mb-4">
                                         <ShieldCheck className="w-6 h-6 text-emerald-400" />
                                     </div>
                                     <DialogTitle className="text-xl font-display">Identity Provisioned</DialogTitle>
-                                    <DialogDescription className="text-white/40">
+                                    <DialogDescription className="text-muted-foreground">
                                         Share these credentials securely. The user will be required to change their passphrase upon first login.
                                     </DialogDescription>
                                 </DialogHeader>
                                 {createdCredentials && (
                                     <div className="space-y-4 py-4">
-                                        <div className="bg-white/5 border border-white/10 rounded-xl p-4 space-y-3">
+                                        <div className="bg-muted border border-border rounded-xl p-4 space-y-3">
                                             <div>
-                                                <p className="text-[10px] font-semibold uppercase tracking-widest text-white/40 mb-1">Name</p>
-                                                <p className="text-sm font-medium text-white/90">{createdCredentials.name}</p>
+                                                <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground mb-1">Name</p>
+                                                <p className="text-sm font-medium text-muted-foreground">{createdCredentials.name}</p>
                                             </div>
                                             <div>
-                                                <p className="text-[10px] font-semibold uppercase tracking-widest text-white/40 mb-1">Email</p>
-                                                <p className="text-sm font-medium text-white/90">{createdCredentials.email}</p>
+                                                <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground mb-1">Email</p>
+                                                <p className="text-sm font-medium text-muted-foreground">{createdCredentials.email}</p>
                                             </div>
                                             <div>
-                                                <p className="text-[10px] font-semibold uppercase tracking-widest text-white/40 mb-1">Role</p>
+                                                <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground mb-1">Role</p>
                                                 <Badge className="bg-indigo-500/10 text-indigo-400 border-indigo-500/20 px-2 h-5 text-[10px] uppercase font-bold tracking-widest">
                                                     {createdCredentials.role}
                                                 </Badge>
                                             </div>
                                             <div>
-                                                <p className="text-[10px] font-semibold uppercase tracking-widest text-white/40 mb-1">Temporary Passphrase</p>
-                                                <div className="flex items-center justify-between bg-black/40 border border-white/10 rounded-lg p-2">
+                                                <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground mb-1">Temporary Passphrase</p>
+                                                <div className="flex items-center justify-between bg-muted/50 border border-border rounded-lg p-2">
                                                     <code className="text-emerald-400 font-mono text-sm px-2">
                                                         {createdCredentials.passphrase}
                                                     </code>
@@ -449,10 +433,10 @@ export default function UsersClient({
 
                         {/* Reset Confirmation Dialog */}
                         <Dialog open={!!resetConfirmationUser} onOpenChange={(open) => !open && setResetConfirmationUser(null)}>
-                            <DialogContent className="bg-[#1B253B] border-white/10 text-white sm:max-w-[425px]">
+                            <DialogContent className="bg-muted border-border text-foreground sm:max-w-[425px]">
                                 <DialogHeader>
                                     <DialogTitle className="text-xl font-display">Confirm Credential Reset</DialogTitle>
-                                    <DialogDescription className="text-white/40">
+                                    <DialogDescription className="text-muted-foreground">
                                         {resetConfirmationUser ? `Initiate credential reset protocol for ${resetConfirmationUser.email}? A new temporary passphrase will be generated.` : ''}
                                     </DialogDescription>
                                 </DialogHeader>
@@ -460,7 +444,7 @@ export default function UsersClient({
                                     <Button
                                         variant="ghost"
                                         onClick={() => setResetConfirmationUser(null)}
-                                        className="text-white/40 hover:text-white hover:bg-white/5 h-12 rounded-xl"
+                                        className="text-muted-foreground hover:text-foreground hover:bg-muted h-12 rounded-xl"
                                         disabled={isLoading}
                                     >
                                         Cancel
@@ -478,10 +462,10 @@ export default function UsersClient({
 
                         {/* Delete Confirmation Dialog */}
                         <Dialog open={!!deleteConfirmationUser} onOpenChange={(open) => !open && setDeleteConfirmationUser(null)}>
-                            <DialogContent className="bg-[#1B253B] border-white/10 text-white sm:max-w-[425px]">
+                            <DialogContent className="bg-muted border-border text-foreground sm:max-w-[425px]">
                                 <DialogHeader>
                                     <DialogTitle className="text-xl font-display text-rose-500">Confirm Identity Purge</DialogTitle>
-                                    <DialogDescription className="text-white/40">
+                                    <DialogDescription className="text-muted-foreground">
                                         {deleteConfirmationUser ? `Confirm identity termination protocol for ${deleteConfirmationUser.email}? This action is irreversible and all associated access will be permanently revoked.` : ''}
                                     </DialogDescription>
                                 </DialogHeader>
@@ -489,7 +473,7 @@ export default function UsersClient({
                                     <Button
                                         variant="ghost"
                                         onClick={() => setDeleteConfirmationUser(null)}
-                                        className="text-white/40 hover:text-white hover:bg-white/5 h-12 rounded-xl"
+                                        className="text-muted-foreground hover:text-foreground hover:bg-muted h-12 rounded-xl"
                                         disabled={isLoading}
                                     >
                                         Cancel
@@ -497,7 +481,7 @@ export default function UsersClient({
                                     <Button
                                         onClick={confirmDeleteUser}
                                         disabled={isLoading}
-                                        className="bg-rose-600 hover:bg-rose-500 text-white h-12 px-8 rounded-xl font-medium"
+                                        className="bg-rose-600 hover:bg-rose-500 text-foreground h-12 px-8 rounded-xl font-medium"
                                     >
                                         {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Purge Identity"}
                                     </Button>
@@ -506,32 +490,32 @@ export default function UsersClient({
                         </Dialog>
                         {/* Role Update Dialog */}
                         <Dialog open={!!roleUpdateUser} onOpenChange={(open) => !open && setRoleUpdateUser(null)}>
-                            <DialogContent className="bg-[#1B253B] border-white/10 text-white sm:max-w-[425px]">
+                            <DialogContent className="bg-muted border-border text-foreground sm:max-w-[425px]">
                                 <DialogHeader>
                                     <DialogTitle className="text-xl font-display">Update Access Level</DialogTitle>
-                                    <DialogDescription className="text-white/40">
+                                    <DialogDescription className="text-muted-foreground">
                                         Modify administrative permissions for {roleUpdateUser?.email}.
                                     </DialogDescription>
                                 </DialogHeader>
                                 <div className="py-6 space-y-4">
                                     <div className="space-y-2">
-                                        <Label className="text-xs font-semibold uppercase tracking-wider text-white/50">Current Role</Label>
-                                        <div className="flex items-center gap-2 p-3 bg-white/5 border border-white/10 rounded-xl">
+                                        <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Current Role</Label>
+                                        <div className="flex items-center gap-2 p-3 bg-muted border border-border rounded-xl">
                                             <Shield className="w-4 h-4 text-indigo-400" />
                                             <span className="capitalize">{roleUpdateUser?.role}</span>
                                         </div>
                                     </div>
                                     <div className="space-y-2">
-                                        <Label className="text-xs font-semibold uppercase tracking-wider text-white/50">New Access Tier</Label>
+                                        <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">New Access Tier</Label>
                                         <Select
                                             value={newRole}
                                             onValueChange={(v) => setNewRole(v || "")}
                                             disabled={roleUpdateUser?.role === 'admin' && roleUpdateUser?.id !== currentUser.id}
                                         >
-                                            <SelectTrigger className="bg-white/5 border-white/10 focus:border-indigo-500/50 h-12 rounded-xl">
+                                            <SelectTrigger className="bg-muted border-border focus:border-indigo-500/50 h-12 rounded-xl">
                                                 <SelectValue placeholder="Select Access Tier" />
                                             </SelectTrigger>
-                                            <SelectContent className="bg-[#1B253B] border-white/10 text-white">
+                                            <SelectContent className="bg-muted border-border text-foreground">
                                                 {ROLE_OPTIONS.map((role) => (
                                                     <SelectItem key={role.value} value={role.value}>{role.label} ({role.description})</SelectItem>
                                                 ))}
@@ -556,7 +540,7 @@ export default function UsersClient({
                                     <Button
                                         variant="ghost"
                                         onClick={() => setRoleUpdateUser(null)}
-                                        className="text-white/40 hover:text-white hover:bg-white/5 h-12 rounded-xl"
+                                        className="text-muted-foreground hover:text-foreground hover:bg-muted h-12 rounded-xl"
                                         disabled={isLoading}
                                     >
                                         Abort
@@ -572,93 +556,122 @@ export default function UsersClient({
                             </DialogContent>
                         </Dialog>
                     </div>
-                </div>
+                    )}
+                />
 
-                <div className="grid grid-cols-1 gap-6">
-                    <StaggerContainer className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-                        {filteredUsers.map((user, i) => (
-                            <StaggerItem key={user.id}>
-                                <Card className="glass-card glass-card-hover group relative overflow-hidden h-full border-none">
-                                    <div className="absolute top-0 right-0 p-24 bg-[#7C8FFF]/[0.03] rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity" />
+                <div className="grid grid-cols-[260px_1fr] gap-6 items-start">
+                    {/* Rail vai trò: đếm + lọc */}
+                    <nav className="sticky top-24 rounded-2xl border border-border bg-card p-2 shadow-[0_2px_14px_color-mix(in_srgb,var(--primary)_8%,transparent)]">
+                        <p className="px-3 pt-2 pb-1 text-[11px] font-bold uppercase tracking-wide text-muted-foreground">Vai trò</p>
+                        {rail.map((r) => {
+                            const on = roleFilter === r.key;
+                            return (
+                                <button key={r.key || "all"} type="button" onClick={() => setRoleFilter(r.key)} aria-pressed={on}
+                                        className={`w-full flex items-center gap-3 rounded-xl px-3 py-2.5 text-left transition-colors cursor-pointer ${on ? "" : "hover:bg-muted"} ${r.count === 0 && r.key ? "opacity-50" : ""}`}
+                                        style={on ? { backgroundColor: `color-mix(in srgb, ${r.color} 12%, var(--card))` } : undefined}>
+                                    <span className="w-8 h-8 rounded-lg shrink-0 grid place-items-center text-[11px] font-black"
+                                          style={{ color: r.key ? roleTone(r.key).ink : "var(--primary)", backgroundColor: r.key ? roleTone(r.key).bg : "color-mix(in srgb, var(--primary) 12%, var(--card))" }}>
+                                        {r.label.split(" ").map((w) => w[0]).join("").slice(0, 2)}
+                                    </span>
+                                    <span className="flex-1 min-w-0">
+                                        <span className={`block text-sm truncate ${on ? "font-extrabold text-foreground" : "font-semibold text-foreground"}`}>{r.label}</span>
+                                        <span className="block text-[11px] text-muted-foreground truncate">{r.hint}</span>
+                                    </span>
+                                    <span className="text-sm font-bold tabular-nums text-muted-foreground">{r.count}</span>
+                                </button>
+                            );
+                        })}
+                        <div className="my-2 border-t border-border" />
+                        <button type="button" onClick={() => setRoleFilter("reset")} aria-pressed={roleFilter === "reset"}
+                                className={`w-full flex items-center gap-3 rounded-xl px-3 py-2.5 text-left transition-colors cursor-pointer ${roleFilter === "reset" ? "bg-accent" : "hover:bg-muted"}`}>
+                            <span className="w-8 h-8 rounded-lg shrink-0 grid place-items-center text-warning bg-warning/10"><KeyRound className="w-4 h-4" /></span>
+                            <span className="flex-1 text-sm font-semibold text-foreground">Chờ đổi mật khẩu</span>
+                            <span className={`text-sm font-bold tabular-nums ${resetCount ? "text-warning" : "text-muted-foreground"}`}>{resetCount}</span>
+                        </button>
+                    </nav>
 
-                                    <CardContent className="p-6 relative z-10">
-                                        <div className="flex items-start justify-between gap-4">
-                                            <div className="flex items-center gap-4">
-                                                <div className="w-14 h-14 rounded-2xl bg-[#121A2E]/60 border border-[#8B99B0]/10 flex items-center justify-center relative overflow-hidden group-hover:border-[#7C8FFF]/30 transition-colors">
-                                                    <UserCircle className="w-8 h-8 text-[#5A6882] group-hover:text-[#7C8FFF] transition-colors" />
-                                                    <div className="absolute bottom-0 right-0 w-4 h-4 bg-emerald-500 border-2 border-[#1B253B] rounded-full" title="Status: Online" />
-                                                </div>
-                                                <div className="space-y-1">
-                                                    <div className="flex items-center gap-2">
-                                                        <h3 className="text-lg font-medium text-[#ECF0F7] group-hover:text-white transition-colors">{user.name}</h3>
-                                                        <Badge className={`${ROLE_BADGE_CLASS[user.role] ?? ROLE_BADGE_CLASS.recruiter} px-2 h-5 text-[10px] uppercase font-bold tracking-widest`}>
-                                                            {user.role}
-                                                        </Badge>
-                                                    </div>
-                                                    <p className="text-sm text-[#8B99B0] flex items-center gap-2">
-                                                        <Mail className="w-3 h-3" />
-                                                        {user.email}
-                                                    </p>
-                                                </div>
+                    {/* Roster */}
+                    <section className="rounded-2xl border border-border bg-card overflow-hidden shadow-[0_2px_14px_color-mix(in_srgb,var(--primary)_8%,transparent)]">
+                        <div className="flex items-center justify-between gap-4 px-5 py-4 border-b border-border">
+                            <div>
+                                <h2 className="text-lg font-extrabold text-foreground">
+                                    {roleFilter === "reset" ? "Chờ đổi mật khẩu" : roleFilter ? ROLE_LABEL[roleFilter] : "Tất cả tài khoản"}
+                                </h2>
+                                <p className="text-xs text-muted-foreground tabular-nums">{filteredUsers.length} tài khoản</p>
+                            </div>
+                            <div className="relative w-72 group">
+                                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-primary transition-colors pointer-events-none" />
+                                <Input
+                                    placeholder="Tìm theo tên, email..."
+                                    value={searchQuery}
+                                    onChange={(e) => setSearchQuery(e.target.value)}
+                                    className="pl-10 h-10 bg-muted/40 border-border rounded-xl text-foreground placeholder:text-muted-foreground/60"
+                                />
+                            </div>
+                        </div>
+                        <div className="grid grid-cols-[1fr_140px_200px_110px_40px] gap-4 px-5 py-2.5 text-[11px] font-bold uppercase tracking-wide text-muted-foreground bg-muted/40">
+                            <span>Người dùng</span><span>Vai trò</span><span>Quyền</span><span>Tạo lúc</span><span />
+                        </div>
+                        {filteredUsers.length === 0 && (
+                            <p className="px-5 py-12 text-center text-sm text-muted-foreground">Không có tài khoản nào khớp</p>
+                        )}
+                        <ul className="divide-y divide-border">
+                            {filteredUsers.map((user) => {
+                                const tone = roleTone(user.role);
+                                const isMe = user.id === currentUser.id;
+                                return (
+                                    <li key={user.id} className="grid grid-cols-[1fr_140px_200px_110px_40px] items-center gap-4 px-5 py-3 hover:bg-muted/40 transition-colors">
+                                        <div className="flex items-center gap-3 min-w-0">
+                                            <span className="w-10 h-10 shrink-0 rounded-full grid place-items-center text-xs font-bold" style={{ color: tone.ink, backgroundColor: tone.bg }}>
+                                                {(user.name || user.email).trim().split(/\s+/).map((w) => w[0]).slice(-2).join("").toUpperCase()}
+                                            </span>
+                                            <div className="min-w-0">
+                                                <p className="flex items-center gap-2 font-bold text-foreground truncate">
+                                                    {user.name}
+                                                    {isMe && <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-bold text-primary">Bạn</span>}
+                                                    {user.force_password_change && (
+                                                        <span className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold text-warning bg-warning/10">
+                                                            <KeyRound className="w-3 h-3" />Chờ đổi mật khẩu
+                                                        </span>
+                                                    )}
+                                                </p>
+                                                <p className="text-xs text-muted-foreground truncate">{user.email}</p>
                                             </div>
-
-                                            <DropdownMenu>
-                                                <DropdownMenuTrigger render={
-                                                    <Button variant="ghost" size="icon" className="h-8 w-8 text-white/20 hover:text-white hover:bg-white/5 rounded-lg">
-                                                        <MoreHorizontal className="w-4 h-4" />
-                                                    </Button>
-                                                } />
-                                                <DropdownMenuContent align="end" className="bg-[#1B253B] border-white/10 text-white w-48">
-                                                    <DropdownMenuGroup>
-                                                        <DropdownMenuLabel>Identity Controls</DropdownMenuLabel>
-                                                        <DropdownMenuSeparator className="bg-white/5" />
-                                                        <DropdownMenuItem
-                                                            className="focus:bg-white/5 gap-2 cursor-pointer"
-                                                            onClick={() => handleResetCredentials(user)}
-                                                        >
-                                                            <Settings2 className="w-4 h-4 text-white/40" />
-                                                            Update Credentials
-                                                        </DropdownMenuItem>
-                                                        <DropdownMenuItem
-                                                            className="focus:bg-white/5 gap-2 cursor-pointer text-indigo-400 focus:text-indigo-400"
-                                                            onClick={() => handleRoleUpdate(user)}
-                                                        >
-                                                            <Shield className="w-4 h-4" />
-                                                            Change Access Level
-                                                        </DropdownMenuItem>
-                                                        <DropdownMenuItem
-                                                            className="focus:bg-white/5 gap-2 text-rose-400 focus:text-rose-400 cursor-pointer"
-                                                            onClick={() => handleDeleteUser(user)}
-                                                        >
-                                                            <Trash2 className="w-4 h-4" />
-                                                            Purge Identity
-                                                        </DropdownMenuItem>
-                                                    </DropdownMenuGroup>
-                                                </DropdownMenuContent>
-                                            </DropdownMenu>
                                         </div>
-
-                                        <div className="mt-8 flex flex-wrap items-center gap-6 pt-6 border-t border-[#8B99B0]/8">
-                                            <div className="flex items-center gap-2 text-[11px] font-semibold text-[#5A6882] uppercase tracking-widest">
-                                                <Calendar className="w-3.5 h-3.5" />
-                                                <span>Initialized: {new Date(user.created_at).toLocaleDateString("en-US", { month: 'short', year: 'numeric' })}</span>
-                                            </div>
-                                            <div className="flex items-center gap-2 text-[11px] font-semibold text-[#5A6882] uppercase tracking-widest">
-                                                <Key className="w-3.5 h-3.5" />
-                                                <span>Access: {ROLE_ACCESS_LABEL[user.role] ?? 'Standard'}</span>
-                                            </div>
-                                            {user.force_password_change && (
-                                                <div className="flex items-center gap-2 text-[11px] font-semibold text-[#7C8FFF]/70 uppercase tracking-widest bg-[#7C8FFF]/5 px-2 py-1 rounded-md">
-                                                    <Shield className="w-3.5 h-3.5" />
-                                                    <span>Password Reset Required</span>
-                                                </div>
-                                            )}
-                                        </div>
-                                    </CardContent>
-                                </Card>
-                            </StaggerItem>
-                        ))}
-                    </StaggerContainer>
+                                        <span className="justify-self-start rounded-full px-2.5 py-0.5 text-[11px] font-bold" style={{ color: tone.ink, backgroundColor: tone.bg }}>
+                                            {ROLE_LABEL[user.role] ?? user.role}
+                                        </span>
+                                        <span className="text-xs text-muted-foreground truncate">{ROLE_ACCESS_LABEL[user.role] ?? "Standard"}</span>
+                                        <span className="text-xs text-muted-foreground tabular-nums">
+                                            {new Date(user.created_at).toLocaleDateString("vi-VN")}
+                                        </span>
+                                        <DropdownMenu>
+                                            <DropdownMenuTrigger render={
+                                                <Button variant="ghost" size="icon" aria-label="Thao tác" className="h-8 w-8 text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg">
+                                                    <MoreHorizontal className="w-4 h-4" />
+                                                </Button>
+                                            } />
+                                            <DropdownMenuContent align="end" className="bg-card border-border text-foreground w-52">
+                                                <DropdownMenuGroup>
+                                                    <DropdownMenuLabel>{user.name}</DropdownMenuLabel>
+                                                    <DropdownMenuSeparator />
+                                                    <DropdownMenuItem className="gap-2 cursor-pointer" onClick={() => handleResetCredentials(user)}>
+                                                        <Settings2 className="w-4 h-4 text-muted-foreground" />Cấp lại mật khẩu
+                                                    </DropdownMenuItem>
+                                                    <DropdownMenuItem className="gap-2 cursor-pointer" onClick={() => handleRoleUpdate(user)}>
+                                                        <Shield className="w-4 h-4 text-muted-foreground" />Đổi vai trò
+                                                    </DropdownMenuItem>
+                                                    <DropdownMenuItem className="gap-2 cursor-pointer text-danger focus:text-danger" onClick={() => handleDeleteUser(user)}>
+                                                        <Trash2 className="w-4 h-4" />Xóa tài khoản
+                                                    </DropdownMenuItem>
+                                                </DropdownMenuGroup>
+                                            </DropdownMenuContent>
+                                        </DropdownMenu>
+                                    </li>
+                                );
+                            })}
+                        </ul>
+                    </section>
                 </div>
             </PageContainer>
         </PageTransition>

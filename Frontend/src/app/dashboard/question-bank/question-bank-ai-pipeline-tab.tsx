@@ -170,26 +170,26 @@ export default function QuestionBankAiPipelineTab({ onApproved, context = { scop
   if (aiStep === "upload") {
     return (
       <div className="space-y-6">
-        <div className="border border-[#8B99B0]/10 rounded-lg p-6 bg-[#1C2333]/40">
+        <div className="border border-border/10 rounded-lg p-6 bg-card/40">
           <div className="flex items-start gap-3">
-            <BrainCircuit className="w-5 h-5 text-[#7C8FFF] mt-0.5 shrink-0" />
+            <BrainCircuit className="w-5 h-5 text-primary mt-0.5 shrink-0" />
             <div>
-              <h3 className="text-sm font-semibold text-[#E2E8F0] mb-1">AI Question Generator</h3>
-              <p className="text-xs text-[#5A6882] leading-relaxed">
+              <h3 className="text-sm font-semibold text-primary mb-1">AI Question Generator</h3>
+              <p className="text-xs text-muted-foreground leading-relaxed">
                 Upload a document and AI will extract topics for your review. After you approve
                 the topics, it will generate interview questions for each one.
               </p>
-              <ul className="mt-3 space-y-1 text-xs text-[#5A6882]">
+              <ul className="mt-3 space-y-1 text-xs text-muted-foreground">
                 <li className="flex items-center gap-2">
-                  <span className="w-1 h-1 rounded-full bg-[#5A6882]" />
+                  <span className="w-1 h-1 rounded-full bg-muted-foreground" />
                   Supported: .pdf, .docx, .txt - max 50 MB
                 </li>
                 <li className="flex items-center gap-2">
-                  <span className="w-1 h-1 rounded-full bg-[#5A6882]" />
+                  <span className="w-1 h-1 rounded-full bg-muted-foreground" />
                   Step 1: AI extracts topics - you review and edit them
                 </li>
                 <li className="flex items-center gap-2">
-                  <span className="w-1 h-1 rounded-full bg-[#5A6882]" />
+                  <span className="w-1 h-1 rounded-full bg-muted-foreground" />
                   Step 2: AI generates questions only for approved topics
                 </li>
               </ul>
@@ -205,8 +205,8 @@ export default function QuestionBankAiPipelineTab({ onApproved, context = { scop
   if (aiStep === "polling_topics") {
     return (
       <div className="flex flex-col items-center justify-center py-16 gap-4">
-        <Loader2 className="w-8 h-8 text-[#7C8FFF] animate-spin" />
-        <p className="text-sm text-[#8B99B0]">Extracting topics from document...</p>
+        <Loader2 className="w-8 h-8 text-primary animate-spin" />
+        <p className="text-sm text-muted-foreground">Extracting topics from document...</p>
         <DocumentStatusPoller
           documentId={documentId!}
           onStatus={handleTopicPollStatus}
@@ -222,8 +222,8 @@ export default function QuestionBankAiPipelineTab({ onApproved, context = { scop
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <div>
-            <h3 className="text-sm font-semibold text-[#E2E8F0]">Review Topics</h3>
-            <p className="text-xs text-[#5A6882] mt-0.5">
+            <h3 className="text-sm font-semibold text-primary">Review Topics</h3>
+            <p className="text-xs text-muted-foreground mt-0.5">
               Edit, approve, or remove topics before generating questions.
             </p>
           </div>
@@ -231,7 +231,7 @@ export default function QuestionBankAiPipelineTab({ onApproved, context = { scop
             variant="ghost"
             size="sm"
             onClick={reset}
-            className="text-xs text-[#5A6882] hover:text-[#8B99B0]"
+            className="text-xs text-muted-foreground hover:text-muted-foreground"
           >
             <RotateCcw className="w-3 h-3 mr-1" />
             Start over
@@ -249,8 +249,8 @@ export default function QuestionBankAiPipelineTab({ onApproved, context = { scop
   if (aiStep === "generating") {
     return (
       <div className="flex flex-col items-center justify-center py-16 gap-4">
-        <Loader2 className="w-8 h-8 text-[#7C8FFF] animate-spin" />
-        <p className="text-sm text-[#8B99B0]">Generating questions from approved topics...</p>
+        <Loader2 className="w-8 h-8 text-primary animate-spin" />
+        <p className="text-sm text-muted-foreground">Generating questions from approved topics...</p>
         <DocumentStatusPoller
           documentId={documentId!}
           onStatus={handleGenerationPollStatus}
@@ -274,14 +274,14 @@ export default function QuestionBankAiPipelineTab({ onApproved, context = { scop
     return (
       <div className="space-y-4">
         <div className="flex items-center justify-between">
-          <p className="text-xs text-[#5A6882]">
+          <p className="text-xs text-muted-foreground">
             Review the generated questions and approve the ones you want to save.
           </p>
           <Button
             variant="ghost"
             size="sm"
             onClick={reset}
-            className="text-xs text-[#5A6882] hover:text-[#8B99B0]"
+            className="text-xs text-muted-foreground hover:text-muted-foreground"
           >
             <RotateCcw className="w-3 h-3 mr-1" />
             New Upload
@@ -302,10 +302,10 @@ export default function QuestionBankAiPipelineTab({ onApproved, context = { scop
     <div className="flex flex-col items-center justify-center py-16 gap-4">
       <CheckCircle2 className="w-12 h-12 text-green-400" />
       <div className="text-center">
-        <p className="text-base font-semibold text-[#E2E8F0]">
+        <p className="text-base font-semibold text-primary">
           {approvedCount} question{approvedCount !== 1 ? "s" : ""} saved successfully
         </p>
-        <p className="text-xs text-[#5A6882] mt-1">
+        <p className="text-xs text-muted-foreground mt-1">
           The Questions tab has been refreshed with the new additions.
         </p>
       </div>
@@ -313,7 +313,7 @@ export default function QuestionBankAiPipelineTab({ onApproved, context = { scop
         variant="outline"
         size="sm"
         onClick={reset}
-        className="border-[#8B99B0]/20 text-[#8B99B0] hover:text-[#E2E8F0]"
+        className="border-border/20 text-muted-foreground hover:text-primary"
       >
         <RotateCcw className="w-3 h-3 mr-2" />
         Upload Another Document
@@ -356,8 +356,8 @@ function ReviewHydrator({
 
   return (
     <div className="flex flex-col items-center justify-center py-16 gap-4">
-      <Loader2 className="w-8 h-8 text-[#7C8FFF] animate-spin" />
-      <p className="text-sm text-[#8B99B0]">Loading generated questions...</p>
+      <Loader2 className="w-8 h-8 text-primary animate-spin" />
+      <p className="text-sm text-muted-foreground">Loading generated questions...</p>
     </div>
   );
 }

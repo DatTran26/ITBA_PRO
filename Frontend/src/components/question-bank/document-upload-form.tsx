@@ -83,15 +83,15 @@ export default function DocumentUploadForm({ onSuccess, skillId }: Props) {
   return (
     <div className="space-y-5">
       {/* Tabs */}
-      <div className="flex gap-1 bg-[#1E2840]/60 rounded-xl p-1 w-fit border border-[#8B99B0]/10">
+      <div className="flex gap-1 bg-muted/60 rounded-xl p-1 w-fit border border-border/10">
         {(["file", "url"] as Tab[]).map((t) => (
           <button
             key={t}
             onClick={() => setTab(t)}
             className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
               tab === t
-                ? "bg-[#10B981] text-white"
-                : "text-[#8B99B0] hover:text-[#ECF0F7]"
+                ? "bg-success text-white"
+                : "text-muted-foreground hover:text-foreground"
             }`}
           >
             {t === "file" ? <FileText className="w-3.5 h-3.5" /> : <Link className="w-3.5 h-3.5" />}
@@ -107,7 +107,7 @@ export default function DocumentUploadForm({ onSuccess, skillId }: Props) {
           onDrop={handleDrop}
           onClick={() => !loading && inputRef.current?.click()}
           className={`relative flex flex-col items-center justify-center gap-4 border-2 border-dashed rounded-xl py-12 px-6 cursor-pointer transition-colors select-none
-            ${dragging ? "border-[#10B981] bg-[#10B981]/5" : selectedFile ? "border-[#10B981]/40 bg-[#10B981]/5" : "border-[#8B99B0]/20 hover:border-[#8B99B0]/40 bg-[#1E2840]/40"}`}
+            ${dragging ? "border-border bg-success/5" : selectedFile ? "border-border/40 bg-success/5" : "border-border/20 hover:border-border/40 bg-muted/40"}`}
         >
           <input
             ref={inputRef}
@@ -116,21 +116,21 @@ export default function DocumentUploadForm({ onSuccess, skillId }: Props) {
             className="hidden"
             onChange={(e) => { const f = e.target.files?.[0]; if (f) setSelectedFile(f); e.target.value = ""; }}
           />
-          <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${selectedFile ? "bg-[#10B981]/20" : "bg-[#8B99B0]/10"}`}>
-            <Upload className={`w-6 h-6 ${selectedFile ? "text-[#10B981]" : "text-[#8B99B0]"}`} />
+          <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${selectedFile ? "bg-success/20" : "bg-muted-foreground/10"}`}>
+            <Upload className={`w-6 h-6 ${selectedFile ? "text-success" : "text-muted-foreground"}`} />
           </div>
           <div className="text-center">
             {selectedFile ? (
               <>
-                <p className="text-sm font-medium text-[#10B981]">{selectedFile.name}</p>
-                <p className="text-xs text-[#5A6882] mt-1">{(selectedFile.size / 1024).toFixed(0)} KB · Click to change</p>
+                <p className="text-sm font-medium text-success">{selectedFile.name}</p>
+                <p className="text-xs text-muted-foreground mt-1">{(selectedFile.size / 1024).toFixed(0)} KB · Click to change</p>
               </>
             ) : (
               <>
-                <p className="text-sm font-medium text-[#ECF0F7]">
+                <p className="text-sm font-medium text-foreground">
                   {dragging ? "Drop to select" : "Drag & drop or click to browse"}
                 </p>
-                <p className="text-xs text-[#5A6882] mt-1">PDF, DOCX, TXT · Max 50 MB</p>
+                <p className="text-xs text-muted-foreground mt-1">PDF, DOCX, TXT · Max 50 MB</p>
               </>
             )}
           </div>
@@ -141,16 +141,16 @@ export default function DocumentUploadForm({ onSuccess, skillId }: Props) {
             value={url}
             onChange={(e) => setUrl(e.target.value)}
             placeholder="https://example.com/article"
-            className="bg-[#1E2840]/60 border-[#8B99B0]/20 text-[#ECF0F7] placeholder:text-[#5A6882] focus-visible:ring-[#10B981]/40 h-11"
+            className="bg-muted/60 border-border/20 text-foreground placeholder:text-muted-foreground focus-visible:ring-success/40 h-11"
           />
-          <p className="text-xs text-[#5A6882]">The page will be fetched and HTML stripped to extract readable text.</p>
+          <p className="text-xs text-muted-foreground">The page will be fetched and HTML stripped to extract readable text.</p>
         </div>
       )}
 
       <Button
         onClick={submit}
         disabled={loading || (tab === "file" ? !selectedFile : !url.trim())}
-        className="bg-[#10B981] hover:bg-[#0D9E6E] text-white border-0 h-11 px-8 rounded-xl font-medium"
+        className="bg-success hover:bg-success text-white border-0 h-11 px-8 rounded-xl font-medium"
       >
         {loading ? "Processing..." : "Generate Questions"}
       </Button>

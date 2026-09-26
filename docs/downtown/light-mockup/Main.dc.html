@@ -1,0 +1,360 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&amp;family=JetBrains+Mono:wght@500;600&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap">
+  <style>
+    .display { font-family: "Bricolage Grotesque", "Plus Jakarta Sans", system-ui, sans-serif; font-optical-sizing: auto; letter-spacing: -0.02em; }
+    .thread { fill: none; stroke-linecap: round; transition: stroke-dashoffset 600ms cubic-bezier(.2,.8,.2,1), opacity 200ms cubic-bezier(.2,.8,.2,1); }
+    .thread-dot { transition: opacity 200ms cubic-bezier(.2,.8,.2,1); }
+    .src { transition: background-color 200ms cubic-bezier(.2,.8,.2,1); border-radius: 4px; }
+    .ai-item { cursor: default; border-radius: 6px; transition: background-color 200ms cubic-bezier(.2,.8,.2,1); }
+    .ai-item:hover { background: #FFFFFF; }
+    @media (prefers-reduced-motion: reduce) { .thread, .thread-dot, .src, .ai-item { transition: none; } }
+  </style>
+  <style>
+    body { margin: 0; background: #F6F8FB; color: #0F172A; font-family: "Plus Jakarta Sans", system-ui, -apple-system, "Segoe UI", sans-serif; font-size: 14px; line-height: 1.5; -webkit-font-smoothing: antialiased; }
+    a { color: #2F5BEA; text-decoration: none; }
+    a:hover { color: #2549C9; text-decoration: underline; }
+    .mono { font-family: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace; font-variant-numeric: tabular-nums; }
+    button, input { font: inherit; color: inherit; }
+    button { cursor: pointer; }
+    .btn { transition: background-color 120ms cubic-bezier(.2,.8,.2,1), transform 120ms cubic-bezier(.2,.8,.2,1); }
+    .btn:active { transform: scale(.98); }
+    .btn-primary:hover { background: #2549C9 !important; }
+    .btn-quiet:hover { background: #F1F4F8 !important; }
+    .nav { transition: background-color 120ms cubic-bezier(.2,.8,.2,1); }
+    .nav:hover { background: rgba(255,255,255,.08); }
+    aside :focus-visible { outline-color: #FFFFFF; }
+    .row { transition: background-color 120ms cubic-bezier(.2,.8,.2,1); }
+    .row:hover { background: #F8FAFC; }
+    .fbar { position: relative; }
+    .fbar .tip { position: absolute; left: 50%; top: -34px; transform: translateX(-50%); opacity: 0; pointer-events: none; background: #0F172A; color: #FFFFFF; font-size: 12px; padding: 4px 8px; border-radius: 8px; white-space: nowrap; transition: opacity 120ms cubic-bezier(.2,.8,.2,1); }
+    .fbar:hover .tip { opacity: 1; }
+    .fbar:hover .fill { background: #2549C9 !important; }
+    :focus-visible { outline: 2px solid #2F5BEA; outline-offset: 2px; }
+    input::placeholder { color: #6B7485; }
+    @media (prefers-reduced-motion: no-preference) {
+      .rise { animation: rise 280ms cubic-bezier(.2,.8,.2,1) both; }
+      .d1 { animation-delay: 40ms; } .d2 { animation-delay: 80ms; } .d3 { animation-delay: 120ms; } .d4 { animation-delay: 160ms; }
+      @keyframes rise { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+    }
+  </style>
+</helmet>
+<div style="display: flex; width: 1440px; min-height: 1240px; background: #F6F8FB;">
+
+  <aside style="width: 248px; flex-shrink: 0; background: #2549C9; color: #FFFFFF; border-right: 1px solid rgba(255,255,255,.12); display: flex; flex-direction: column; padding: 16px 12px; gap: 20px; box-sizing: border-box;">
+    <div style="display: flex; align-items: center; gap: 10px; padding: 4px 8px;">
+      <div style="width: 28px; height: 28px; border-radius: 8px; background: #FFFFFF; color: #1B2F8F; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px;">D</div>
+      <span style="font-size: 16px; font-weight: 700; letter-spacing: -0.01em;">DownTown</span>
+    </div>
+    <nav style="display: flex; flex-direction: column; gap: 2px;">
+      <div class="nav" style="display: flex; align-items: center; gap: 10px; height: 36px; padding: 0 10px; border-radius: 8px; background: rgba(255,255,255,.14); color: #FFFFFF; font-weight: 600;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"></path></svg>
+        <span>Tổng quan</span>
+      </div>
+    </nav>
+    <div style="display: flex; flex-direction: column; gap: 2px;">
+      <div style="font-size: 12px; font-weight: 600; color: #DCE3FA; padding: 0 10px 4px;">Nhân sự</div>
+      <div class="nav" style="display: flex; align-items: center; gap: 10px; height: 36px; padding: 0 10px; border-radius: 8px; color: #DCE3FA; font-weight: 500;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.5"></circle><path d="M2.5 20c.8-3.5 3.4-5.5 6.5-5.5s5.7 2 6.5 5.5M16 4.6a3.5 3.5 0 0 1 0 6.8M18.5 14.8c1.6.8 2.6 2.6 3 5.2"></path></svg>
+        <span>Nhân viên</span>
+      </div>
+      <div class="nav" style="display: flex; align-items: center; gap: 10px; height: 36px; padding: 0 10px; border-radius: 8px; color: #DCE3FA; font-weight: 500;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="13" rx="2"></rect><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M3 13h18"></path></svg>
+        <span>Vị trí và kỹ năng</span>
+      </div>
+    </div>
+    <div style="display: flex; flex-direction: column; gap: 2px;">
+      <div style="font-size: 12px; font-weight: 600; color: #DCE3FA; padding: 0 10px 4px;">Tuyển dụng</div>
+      <div class="nav" style="display: flex; align-items: center; gap: 10px; height: 36px; padding: 0 10px; border-radius: 8px; color: #DCE3FA; font-weight: 500;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"></rect><path d="M9 3v18M15 3v18"></path></svg>
+        <span>Pipeline</span>
+      </div>
+      <div class="nav" style="display: flex; align-items: center; gap: 10px; height: 36px; padding: 0 10px; border-radius: 8px; color: #DCE3FA; font-weight: 500;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"></rect><path d="M3 10h18M8 3v4M16 3v4"></path></svg>
+        <span>Lịch phỏng vấn</span>
+      </div>
+      <div class="nav" style="display: flex; align-items: center; gap: 10px; height: 36px; padding: 0 10px; border-radius: 8px; color: #DCE3FA; font-weight: 500;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4h11a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3z"></path><path d="M5 17a3 3 0 0 1 3-3h11"></path></svg>
+        <span>Ngân hàng câu hỏi</span>
+      </div>
+      <div class="nav" style="display: flex; align-items: center; gap: 10px; height: 36px; padding: 0 10px; border-radius: 8px; color: #DCE3FA; font-weight: 500;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"></path></svg>
+        <span>Báo cáo</span>
+      </div>
+    </div>
+    <div style="display: flex; flex-direction: column; gap: 2px;">
+      <div style="font-size: 12px; font-weight: 600; color: #DCE3FA; padding: 0 10px 4px;">Hệ thống</div>
+      <div class="nav" style="display: flex; align-items: center; gap: 10px; height: 36px; padding: 0 10px; border-radius: 8px; color: #DCE3FA; font-weight: 500;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"></rect><path d="m3 7 9 6 9-6"></path></svg>
+        <span>Email</span>
+      </div>
+      <div class="nav" style="display: flex; align-items: center; gap: 10px; height: 36px; padding: 0 10px; border-radius: 8px; color: #DCE3FA; font-weight: 500;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h9M17 6h3M4 12h3M11 12h9M4 18h11M19 18h1"></path><circle cx="15" cy="6" r="2"></circle><circle cx="9" cy="12" r="2"></circle><circle cx="17" cy="18" r="2"></circle></svg>
+        <span>Cài đặt</span>
+      </div>
+    </div>
+    <div style="margin-top: auto; display: flex; align-items: center; gap: 10px; padding: 10px; border-top: 1px solid rgba(255,255,255,.16);">
+      <div style="width: 32px; height: 32px; border-radius: 9999px; background: #C9D6FF; color: #1B2F8F; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600;">TM</div>
+      <div style="display: flex; flex-direction: column; line-height: 1.3;">
+        <span style="font-weight: 600; font-size: 13px;">Trần Thị Mai</span>
+        <span style="font-size: 12px; color: #DCE3FA;">HR Manager</span>
+      </div>
+    </div>
+  </aside>
+
+  <main style="flex: 1; display: flex; flex-direction: column; min-width: 0;">
+    <header style="height: 64px; display: flex; align-items: center; justify-content: space-between; padding: 0 32px; border-bottom: 1px solid #E3E8EF; background: #FFFFFF;">
+      <span style="font-size: 13px; color: #5B6577;">Tổng quan</span>
+      <div style="display: flex; align-items: center; gap: 12px;">
+        <label style="display: flex; align-items: center; gap: 8px; width: 320px; height: 36px; padding: 0 12px; border: 1px solid #848FA1; border-radius: 8px; background: #FFFFFF; box-sizing: border-box; color: #5B6577;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></svg>
+          <input placeholder="Tìm ứng viên, vị trí, bài test" style="border: 0; outline: 0; flex: 1; background: transparent; font-size: 13px;">
+        </label>
+        <button class="btn btn-quiet" aria-label="Thông báo" style="width: 36px; height: 36px; border-radius: 8px; border: 1px solid #E3E8EF; background: #FFFFFF; display: flex; align-items: center; justify-content: center; color: #0F172A;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 16v-5a6 6 0 1 1 12 0v5l2 2H4z"></path><path d="M10 21h4"></path></svg>
+        </button>
+      </div>
+    </header>
+
+    <div data-thread-root="main" style="position: relative; padding: 32px; display: flex; flex-direction: column; gap: 24px;">
+      <svg aria-hidden="true" style="position: absolute; left: 0; top: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; z-index: 3;">
+        <sc-for list="{{ mainThreads }}" as="t" hint-placeholder-count="0">
+          <path class="thread" d="{{ t.d }}" pathLength="1" style="stroke: {{ t.color }}; stroke-width: {{ t.width }}px; stroke-dasharray: {{ t.dash }}; stroke-dashoffset: {{ t.offset }}; opacity: {{ t.opacity }};"></path>
+          <circle class="thread-dot" cx="{{ t.x1 }}" cy="{{ t.y1 }}" r="3.5" style="fill: {{ t.color }}; opacity: {{ t.dotOpacity }};"></circle>
+          <circle class="thread-dot" cx="{{ t.x2 }}" cy="{{ t.y2 }}" r="3.5" style="fill: {{ t.color }}; opacity: {{ t.dotOpacity }};"></circle>
+        </sc-for>
+      </svg>
+      <div class="rise" style="display: flex; align-items: flex-end; justify-content: space-between; gap: 24px;">
+        <div style="display: flex; flex-direction: column; gap: 4px;">
+          <h1 class="display" style="margin: 0; font-size: 34px; font-weight: 700; line-height: 1.15;">Tổng quan tuyển dụng</h1>
+          <span style="color: #5B6577;">Tuần 38, từ 15/09 đến 21/09</span>
+        </div>
+        <div style="display: flex; gap: 8px;">
+          <button class="btn btn-quiet" style="height: 40px; padding: 0 16px; border-radius: 8px; border: 1px solid #E3E8EF; background: #FFFFFF; font-weight: 600;">Xuất báo cáo</button>
+          <button class="btn btn-primary" style="height: 40px; padding: 0 16px; border-radius: 8px; border: 0; background: #2F5BEA; color: #FFFFFF; font-weight: 600; display: flex; align-items: center; gap: 8px;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 5v14M5 12h14"></path></svg>
+            Tạo tin tuyển
+          </button>
+        </div>
+      </div>
+
+      <section class="rise d1" style="display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 16px;">
+        <div style="background: #FFFFFF; border: 1px solid #E3E8EF; border-radius: 12px; box-shadow: 0 1px 2px rgba(15,23,42,.05); padding: 20px; display: flex; justify-content: space-between; gap: 24px;">
+          <div style="display: flex; flex-direction: column; gap: 6px;">
+            <span style="font-size: 13px; font-weight: 500; color: #5B6577;">Ứng viên đang trong pipeline</span>
+            <span class="display" style="font-size: 64px; font-weight: 700; line-height: 1;">186</span>
+            <span style="font-size: 13px; color: #15803D; font-weight: 500; display: flex; align-items: center; gap: 4px;">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M9 7h8v8"></path></svg>
+              42 hồ sơ mới trong tuần
+            </span>
+          </div>
+          <div style="display: flex; flex-direction: column; justify-content: flex-end; gap: 8px; min-width: 180px; font-size: 13px;">
+            <div style="display: flex; justify-content: space-between;"><span style="color: #5B6577;">Vị trí đang mở</span><span class="mono" style="font-weight: 600;">9</span></div>
+            <div style="display: flex; justify-content: space-between;"><span style="color: #5B6577;">Chờ HR xem xét</span><span class="mono" style="font-weight: 600;">17</span></div>
+          </div>
+        </div>
+        <div style="background: #FFFFFF; border: 1px solid #E3E8EF; border-radius: 12px; box-shadow: 0 1px 2px rgba(15,23,42,.05); padding: 20px; display: flex; flex-direction: column; gap: 6px;">
+          <span style="font-size: 13px; font-weight: 500; color: #5B6577;">Phỏng vấn tuần này</span>
+          <span class="display" style="font-size: 38px; font-weight: 700; line-height: 1.1;">23</span>
+          <span class="src" data-src="b3" style="font-size: 13px; color: #B45309; font-weight: 500; align-self: flex-start; padding: 1px 3px; background: {{ srcB3 }};">2 lịch chưa có người phỏng vấn</span>
+        </div>
+        <div style="background: #FFFFFF; border: 1px solid #E3E8EF; border-radius: 12px; box-shadow: 0 1px 2px rgba(15,23,42,.05); padding: 20px; display: flex; flex-direction: column; gap: 6px;">
+          <span style="font-size: 13px; font-weight: 500; color: #5B6577;">Offer chờ phản hồi</span>
+          <span class="display" style="font-size: 38px; font-weight: 700; line-height: 1.1;">6</span>
+          <span style="font-size: 13px; color: #5B6577;">3 offer đã được xem</span>
+        </div>
+        <div style="background: #FFFFFF; border: 1px solid #E3E8EF; border-radius: 12px; box-shadow: 0 1px 2px rgba(15,23,42,.05); padding: 20px; display: flex; flex-direction: column; gap: 6px;">
+          <span style="font-size: 13px; font-weight: 500; color: #5B6577;">Thời gian tuyển trung bình</span>
+          <span class="display" style="font-size: 38px; font-weight: 700; line-height: 1.1;">27 <span style="font-size: 16px; color: #5B6577; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-weight: 500;">ngày</span></span>
+          <span style="font-size: 13px; color: #15803D; font-weight: 500;">Nhanh hơn 4 ngày so với tháng 8</span>
+        </div>
+      </section>
+
+      <section class="rise d2" style="display: grid; grid-template-columns: 7fr 5fr; gap: 16px;">
+        <div style="background: #FFFFFF; border: 1px solid #E3E8EF; border-radius: 12px; box-shadow: 0 1px 2px rgba(15,23,42,.05); padding: 20px; display: flex; flex-direction: column; gap: 16px;">
+          <div style="display: flex; justify-content: space-between; align-items: baseline;">
+            <h2 style="margin: 0; font-size: 16px; font-weight: 600;">Phễu tuyển dụng</h2>
+            <span style="font-size: 13px; color: #5B6577;">Tất cả vị trí, tháng 9</span>
+          </div>
+          <div style="display: grid; grid-template-columns: 128px 1fr 48px 56px; column-gap: 12px; row-gap: 10px; align-items: center; font-size: 13px;">
+            <span style="color: #5B6577; font-size: 12px; font-weight: 500;">Trạng thái</span><span></span><span style="color: #5B6577; font-size: 12px; font-weight: 500; text-align: right;">Hồ sơ</span><span style="color: #5B6577; font-size: 12px; font-weight: 500; text-align: right;">Chuyển</span>
+            <span>Mới</span><div class="fbar" style="height: 20px;"><div class="fill" style="width: 100%; height: 100%; background: #2F5BEA; border-radius: 0 4px 4px 0;"></div><span class="tip">Mới: 214 hồ sơ</span></div><span class="mono" style="text-align: right; font-weight: 600;">214</span><span class="mono" style="text-align: right; color: #5B6577;"></span>
+            <span>Đã sàng lọc</span><div class="fbar" style="height: 20px;"><div class="fill" style="width: 73.8%; height: 100%; background: #2F5BEA; border-radius: 0 4px 4px 0;"></div><span class="tip">Đã sàng lọc: 158 hồ sơ, 73.8% từ Mới</span></div><span class="mono" style="text-align: right; font-weight: 600;">158</span><span class="mono" style="text-align: right; color: #5B6577;">73.8%</span>
+            <span>Shortlisted</span><div class="fbar" style="height: 20px;"><div class="fill" style="width: 33.2%; height: 100%; background: #2F5BEA; border-radius: 0 4px 4px 0;"></div><span class="tip">Shortlisted: 71 hồ sơ, 44.9% từ bước trước</span></div><span class="mono" style="text-align: right; font-weight: 600;">71</span><span class="mono" style="text-align: right; color: #5B6577;">44.9%</span>
+            <span>Hẹn phỏng vấn</span><div class="fbar" style="height: 20px;"><div class="fill" style="width: 17.8%; height: 100%; background: #2F5BEA; border-radius: 0 4px 4px 0;"></div><span class="tip">Hẹn phỏng vấn: 38 hồ sơ, 53.5% từ bước trước</span></div><span class="mono" style="text-align: right; font-weight: 600;">38</span><span class="mono src" data-src="b2" style="text-align: right; color: #B45309; background: {{ srcB2 }};">53.5%</span>
+            <span>Đã phỏng vấn</span><div class="fbar" style="height: 20px;"><div class="fill" style="width: 13.6%; height: 100%; background: #2F5BEA; border-radius: 0 4px 4px 0;"></div><span class="tip">Đã phỏng vấn: 29 hồ sơ, 76.3% từ bước trước</span></div><span class="mono" style="text-align: right; font-weight: 600;">29</span><span class="mono" style="text-align: right; color: #5B6577;">76.3%</span>
+            <span>Đạt</span><div class="fbar" style="height: 20px;"><div class="fill" style="width: 6.5%; height: 100%; background: #2F5BEA; border-radius: 0 4px 4px 0;"></div><span class="tip">Đạt: 14 hồ sơ, 48.3% từ bước trước</span></div><span class="mono" style="text-align: right; font-weight: 600;">14</span><span class="mono" style="text-align: right; color: #5B6577;">48.3%</span>
+            <span>Offer</span><div class="fbar" style="height: 20px;"><div class="fill" style="width: 4.2%; height: 100%; background: #2F5BEA; border-radius: 0 4px 4px 0;"></div><span class="tip">Offer: 9 hồ sơ, 64.3% từ bước trước</span></div><span class="mono" style="text-align: right; font-weight: 600;">9</span><span class="mono" style="text-align: right; color: #5B6577;">64.3%</span>
+            <span>Nhận việc</span><div class="fbar" style="height: 20px;"><div class="fill" style="width: 2.8%; height: 100%; background: #2F5BEA; border-radius: 0 4px 4px 0;"></div><span class="tip">Nhận việc: 6 hồ sơ, 66.7% từ bước trước</span></div><span class="mono" style="text-align: right; font-weight: 600;">6</span><span class="mono" style="text-align: right; color: #5B6577;">66.7%</span>
+          </div>
+        </div>
+
+        <div style="background: #EEF2FD; border: 1px solid #D6E0FA; border-radius: 12px; padding: 20px; display: flex; flex-direction: column; gap: 14px;">
+          <div style="display: flex; align-items: center; justify-content: space-between;">
+            <div style="display: flex; align-items: center; gap: 8px; color: #2F5BEA; font-weight: 600; font-size: 13px;">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"></path><path d="M19 16l.7 2 2 .7-2 .7-.7 2-.7-2-2-.7 2-.7z"></path></svg>
+              AI đề xuất
+            </div>
+            <span style="font-size: 12px; color: #5B6577;">Cập nhật 08:30 hôm nay</span>
+          </div>
+          <h2 style="margin: 0; font-size: 16px; font-weight: 600;">Tóm tắt tuần cho HR</h2>
+          <ul style="margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 10px; color: #0F172A;">
+            <li class="ai-item" data-dst="b1" onMouseEnter="{{ hoverB1 }}" onMouseLeave="{{ leave }}">Backend Engineer có 12 hồ sơ trên 75 điểm chưa được xem quá 3 ngày.</li>
+            <li class="ai-item" data-dst="b2" onMouseEnter="{{ hoverB2 }}" onMouseLeave="{{ leave }}">Tỷ lệ từ Shortlisted sang hẹn phỏng vấn giảm từ 61% xuống 53.5% so với tuần trước.</li>
+            <li class="ai-item" data-dst="b3" onMouseEnter="{{ hoverB3 }}" onMouseLeave="{{ leave }}">Ngày 17/09 có 2 lịch phỏng vấn chưa gán người phỏng vấn.</li>
+          </ul>
+          <span style="font-size: 12px; color: #5B6577;">Căn cứ: 214 hồ sơ và 38 lịch phỏng vấn trong phạm vi bạn được xem. Rê chuột vào từng ý để thấy nguồn số liệu.</span>
+          <div style="display: flex; gap: 8px; margin-top: auto;">
+            <button class="btn btn-primary" style="height: 36px; padding: 0 14px; border-radius: 8px; border: 0; background: #2F5BEA; color: #FFFFFF; font-weight: 600; font-size: 13px;">Mở 12 hồ sơ</button>
+            <button class="btn btn-quiet" style="height: 36px; padding: 0 14px; border-radius: 8px; border: 1px solid #D6E0FA; background: #FFFFFF; font-weight: 600; font-size: 13px;">Gán người phỏng vấn</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="rise d3" style="background: #FFFFFF; border: 1px solid #E3E8EF; border-radius: 12px; box-shadow: 0 1px 2px rgba(15,23,42,.05); overflow: hidden;">
+        <div style="display: flex; justify-content: space-between; align-items: center; padding: 16px 20px;">
+          <h2 class="src" data-src="b1" style="margin: 0; font-size: 16px; font-weight: 600; padding: 1px 4px; background: {{ srcB1 }};">Ứng viên cần xem xét</h2>
+          <a href="#">Xem tất cả</a>
+        </div>
+        <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
+          <thead>
+            <tr style="background: #F8FAFC; border-top: 1px solid #E3E8EF; border-bottom: 1px solid #E3E8EF;">
+              <th style="text-align: left; padding: 10px 20px; font-size: 12px; font-weight: 600; color: #5B6577; text-transform: uppercase; letter-spacing: 0.04em;">Ứng viên</th>
+              <th style="text-align: left; padding: 10px 16px; font-size: 12px; font-weight: 600; color: #5B6577; text-transform: uppercase; letter-spacing: 0.04em;">Vị trí</th>
+              <th style="text-align: left; padding: 10px 16px; font-size: 12px; font-weight: 600; color: #5B6577; text-transform: uppercase; letter-spacing: 0.04em;">Điểm AI</th>
+              <th style="text-align: left; padding: 10px 16px; font-size: 12px; font-weight: 600; color: #5B6577; text-transform: uppercase; letter-spacing: 0.04em;">Trạng thái</th>
+              <th style="text-align: right; padding: 10px 20px; font-size: 12px; font-weight: 600; color: #5B6577; text-transform: uppercase; letter-spacing: 0.04em;">Cập nhật</th>
+            </tr>
+          </thead>
+          <tbody>
+            <sc-for list="{{ rows }}" as="row" hint-placeholder-count="5">
+              <tr class="row" style="border-bottom: 1px solid #E3E8EF;">
+                <td style="padding: {{ rowPad }} 20px;">
+                  <div style="display: flex; align-items: center; gap: 12px;">
+                    <div style="width: 32px; height: 32px; border-radius: 9999px; background: #EEF1F5; color: #5B6577; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600;">{{ row.initials }}</div>
+                    <div style="display: flex; flex-direction: column; line-height: 1.35;">
+                      <span style="font-weight: 600;">{{ row.name }}</span>
+                      <span style="font-size: 12px; color: #5B6577;">{{ row.email }}</span>
+                    </div>
+                  </div>
+                </td>
+                <td style="padding: {{ rowPad }} 16px;">{{ row.role }}</td>
+                <td style="padding: {{ rowPad }} 16px;">
+                  <div style="display: flex; align-items: center; gap: 10px;">
+                    <span class="mono" style="font-weight: 600; width: 24px;">{{ row.score }}</span>
+                    <div style="width: {{ row.barW }}; max-width: 80px; height: 6px; border-radius: 9999px; background: #2F5BEA;"></div>
+                  </div>
+                </td>
+                <td style="padding: {{ rowPad }} 16px;">
+                  <span style="display: inline-flex; align-items: center; height: 24px; padding: 0 10px; border-radius: 9999px; font-size: 12px; font-weight: 600; background: {{ row.bg }}; color: {{ row.fg }};">{{ row.status }}</span>
+                </td>
+                <td style="padding: {{ rowPad }} 20px; text-align: right; color: #5B6577; font-size: 13px;">{{ row.updated }}</td>
+              </tr>
+            </sc-for>
+          </tbody>
+        </table>
+      </section>
+
+      <span style="font-size: 12px; color: #5B6577;">Dữ liệu mẫu, không phải số liệu thật.</span>
+    </div>
+  </main>
+</div>
+</x-dc>
+<script data-dc-script data-props='{"density":{"editor":"enum","options":["Cân bằng","Gọn"],"default":"Cân bằng","section":"Mật độ"}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { geo: {}, hover: null };
+  }
+  componentDidMount() {
+    this.onLayout = () => {
+      cancelAnimationFrame(this.layoutRaf);
+      this.layoutRaf = requestAnimationFrame(() => this.measureThreads());
+    };
+    if (window.ResizeObserver) {
+      this.ro = new ResizeObserver(this.onLayout);
+      document.querySelectorAll('[data-thread-root]').forEach((el) => this.ro.observe(el));
+    }
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(this.onLayout);
+    this.onLayout();
+  }
+  componentDidUpdate() {
+    if (this.onLayout) this.onLayout();
+  }
+  componentWillUnmount() {
+    cancelAnimationFrame(this.layoutRaf);
+    if (this.ro) this.ro.disconnect();
+  }
+  measureThreads() {
+    const out = {};
+    document.querySelectorAll('[data-thread-root]').forEach((root) => {
+      const rr = root.getBoundingClientRect();
+      root.querySelectorAll('[data-src]').forEach((s) => {
+        const k = s.getAttribute('data-src');
+        const d = root.querySelector('[data-dst="' + k + '"]');
+        if (!d) return;
+        const a = s.getBoundingClientRect();
+        const b = d.getBoundingClientRect();
+        if (!a.width || !b.width) return;
+        const x1 = Math.round(a.right - rr.left + 6);
+        const y1 = Math.round(a.top + a.height / 2 - rr.top);
+        const x2 = Math.round(b.left - rr.left - 22);
+        const y2 = Math.round(b.top + Math.min(b.height / 2, 11) - rr.top);
+        const bend = Math.max(48, Math.abs(x2 - x1) * 0.5);
+        out[k] = {
+          x1: x1, y1: y1, x2: x2, y2: y2,
+          d: 'M' + x1 + ' ' + y1 + ' C' + (x1 + bend) + ' ' + y1 + ' ' + (x2 - bend) + ' ' + y2 + ' ' + x2 + ' ' + y2
+        };
+      });
+    });
+    if (JSON.stringify(out) !== JSON.stringify(this.state.geo || {})) this.setState({ geo: out });
+  }
+  renderVals() {
+    const compact = (this.props.density ?? 'Cân bằng') === 'Gọn';
+    const tone = {
+      info: ['#EEF2FD', '#2F5BEA'],
+      neutral: ['#EEF1F5', '#5B6577'],
+      success: ['#EAF6EE', '#15803D'],
+      warning: ['#FDF3E6', '#B45309'],
+      danger: ['#FDECEC', '#B91C1C']
+    };
+    const rows = [
+      { initials: 'NN', name: 'Nguyễn Hoàng Nam', email: 'hoangnam.dev@gmail.com', role: 'Backend Engineer', score: 86, status: 'Shortlisted', t: 'info', updated: '2 giờ trước' },
+      { initials: 'PH', name: 'Phạm Quốc Huy', email: 'huy.pham.q@outlook.com', role: 'Backend Engineer', score: 82, status: 'Mới', t: 'info', updated: '3 giờ trước' },
+      { initials: 'TL', name: 'Trịnh Khánh Linh', email: 'khanhlinh.trinh@gmail.com', role: 'Product Designer', score: 79, status: 'Chờ duyệt', t: 'warning', updated: 'Hôm qua' },
+      { initials: 'BT', name: 'Bùi Thanh Tùng', email: 'tung.bt@yahoo.com', role: 'Backend Engineer', score: 68, status: 'Cần HR xem', t: 'warning', updated: 'Hôm qua' },
+      { initials: 'LP', name: 'Lê Minh Phương', email: 'phuong.hrbp@gmail.com', role: 'HRBP', score: 74, status: 'Đạt', t: 'success', updated: '13/09' }
+    ];
+    const s = this.state;
+    const geo = s.geo || {};
+    const mainThreads = ['b1', 'b2', 'b3'].filter((k) => geo[k]).map((k) => {
+      const on = s.hover === k;
+      return {
+        d: geo[k].d, x1: geo[k].x1, y1: geo[k].y1, x2: geo[k].x2, y2: geo[k].y2,
+        color: '#2F5BEA', width: '2', dash: '1 1',
+        offset: on ? '0' : '1', opacity: on ? '1' : '0', dotOpacity: on ? '1' : '0'
+      };
+    });
+    const srcBg = (k) => (s.hover === k ? '#EEF2FD' : 'transparent');
+    return {
+      mainThreads: mainThreads,
+      srcB1: srcBg('b1'), srcB2: srcBg('b2'), srcB3: srcBg('b3'),
+      hoverB1: () => this.setState({ hover: 'b1' }),
+      hoverB2: () => this.setState({ hover: 'b2' }),
+      hoverB3: () => this.setState({ hover: 'b3' }),
+      leave: () => this.setState({ hover: null }),
+      rowPad: compact ? '8px' : '14px',
+      rows: rows.map((r) => Object.assign({}, r, { bg: tone[r.t][0], fg: tone[r.t][1], barW: Math.round(r.score * 0.8) + 'px' }))
+    };
+  }
+}
+</script>
+</body>
+</html>

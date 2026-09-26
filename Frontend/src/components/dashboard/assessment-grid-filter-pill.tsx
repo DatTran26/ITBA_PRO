@@ -30,11 +30,11 @@ export default function FilterPill({ value, onChange, options, allLabel, labels,
             <PopoverTrigger
                 className={`h-9 rounded-2xl text-xs px-4 flex items-center gap-2 transition-all duration-300 font-bold border outline-none cursor-pointer ${
                     isActive
-                        ? "bg-[#FFB86C]/15 text-[#FFB86C] border-[#FFB86C]/30"
-                        : "bg-transparent text-[#5A6882] border-transparent hover:text-[#8B99B0] hover:bg-white/5"
+                        ? "bg-warning/15 text-warning border-warning/30"
+                        : "bg-transparent text-muted-foreground border-transparent hover:text-muted-foreground hover:bg-muted"
                 }`}
             >
-                <Icon className={`w-3.5 h-3.5 ${isActive ? "text-[#FFB86C]" : "text-[#5A6882]"}`} />
+                <Icon className={`w-3.5 h-3.5 ${isActive ? "text-warning" : "text-muted-foreground"}`} />
                 <span className="truncate max-w-[120px]">
                     {isActive ? (labels?.[value] || value) : allLabel}
                 </span>
@@ -42,15 +42,15 @@ export default function FilterPill({ value, onChange, options, allLabel, labels,
             </PopoverTrigger>
             <PopoverContent
                 align="start"
-                className="p-1.5 w-[260px] bg-[#0F172A]/98 backdrop-blur-2xl border-[#8B99B0]/20 rounded-[1.2rem] shadow-[0_20px_50px_rgba(0,0,0,0.5)] z-[60]"
+                className="p-1.5 w-[260px] bg-background/98 backdrop-blur-2xl border-muted-foreground/20 rounded-[1.2rem] shadow-[0_20px_50px_rgba(0,0,0,0.5)] z-[60]"
             >
                 <div className="relative mb-1.5 px-1 pt-1">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[#5A6882]" />
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
                     <input
                         placeholder={`Search ${type}...`}
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
-                        className="w-full h-9 pl-9 pr-3 bg-white/5 border border-white/[0.05] rounded-xl text-xs text-[#ECF0F7] placeholder:text-[#5A6882] focus:outline-none focus:border-[#FFB86C]/30 focus:bg-white/[0.08] transition-all"
+                        className="w-full h-9 pl-9 pr-3 bg-muted border border-border rounded-xl text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-warning/30 focus:bg-white/[0.08] transition-all"
                     />
                 </div>
 
@@ -59,17 +59,17 @@ export default function FilterPill({ value, onChange, options, allLabel, labels,
                     <button
                         onClick={() => { onChange(""); setOpen(false); setSearch(""); }}
                         className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-bold transition-all ${
-                            !isActive ? "bg-[#FFB86C]/10 text-[#FFB86C]" : "hover:bg-white/5 text-[#8B99B0]"
+                            !isActive ? "bg-warning/10 text-warning" : "hover:bg-muted text-muted-foreground"
                         }`}
                     >
                         <div className="flex items-center gap-2">
-                             <div className={`w-1.5 h-1.5 rounded-full ${!isActive ? "bg-[#FFB86C]" : "bg-[#5A6882]/40"}`} />
+                             <div className={`w-1.5 h-1.5 rounded-full ${!isActive ? "bg-warning" : "bg-muted-foreground/40"}`} />
                              {allLabel}
                         </div>
                         {!isActive && <Check className="w-3.5 h-3.5" />}
                     </button>
 
-                    <div className="h-px bg-white/5 my-1 mx-2" />
+                    <div className="h-px bg-muted my-1 mx-2" />
 
                     {filteredOptions.length > 0 ? (
                         filteredOptions.map((opt) => (
@@ -77,18 +77,18 @@ export default function FilterPill({ value, onChange, options, allLabel, labels,
                                 key={opt}
                                 onClick={() => { onChange(opt); setOpen(false); setSearch(""); }}
                                 className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-bold transition-all group ${
-                                    value === opt ? "bg-[#FFB86C]/10 text-[#FFB86C]" : "hover:bg-white/5 text-[#8B99B0]"
+                                    value === opt ? "bg-warning/10 text-warning" : "hover:bg-muted text-muted-foreground"
                                 }`}
                             >
                                 <div className="flex items-center gap-2.5">
-                                    <Icon className={`w-3.5 h-3.5 transition-colors ${value === opt ? "text-[#FFB86C]" : "text-[#5A6882] group-hover:text-[#8B99B0]"}`} />
+                                    <Icon className={`w-3.5 h-3.5 transition-colors ${value === opt ? "text-warning" : "text-muted-foreground group-hover:text-muted-foreground"}`} />
                                     <span className="truncate max-w-[180px]">{labels?.[opt] || opt}</span>
                                 </div>
                                 {value === opt && <Check className="w-3.5 h-3.5" />}
                             </button>
                         ))
                     ) : (
-                        <div className="py-8 text-center text-[10px] text-[#5A6882] font-black uppercase tracking-widest">
+                        <div className="py-8 text-center text-[10px] text-muted-foreground font-black uppercase tracking-widest">
                             No match found
                         </div>
                     )}

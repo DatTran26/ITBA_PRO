@@ -149,12 +149,12 @@ export default function ReviewWorkspace({
 
     if (!job) {
         return (
-            <div className="flex h-full min-h-[420px] flex-col items-center justify-center rounded-2xl border border-white/[0.08] bg-[#1A233A]/40 p-8 text-center backdrop-blur-md">
-                <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/[0.04] border border-white/[0.06] text-[#64748B]">
+            <div className="flex h-full min-h-[420px] flex-col items-center justify-center rounded-2xl border border-border bg-card p-8 text-center">
+                <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-muted text-muted-foreground">
                     <FileText className="h-8 w-8" />
                 </div>
-                <h4 className="mt-4 text-base font-medium text-[#ECF0F7]">Không gian biên tập OCR</h4>
-                <p className="mt-1 text-sm text-[#94A3B8] max-w-xs">
+                <h4 className="mt-4 text-base font-medium text-foreground">Không gian biên tập OCR</h4>
+                <p className="mt-1 text-sm text-muted-foreground max-w-xs">
                     Sau khi quét ảnh, kết quả văn bản, bảng biểu sẽ xuất hiện tại đây để bạn kiểm tra và chỉnh sửa.
                 </p>
             </div>
@@ -538,17 +538,17 @@ export default function ReviewWorkspace({
     };
 
     return (
-        <div className="flex h-full flex-col overflow-hidden rounded-2xl border border-white/[0.08] bg-[#1A233A]/70 backdrop-blur-md shadow-2xl">
+        <div className="flex h-full min-h-0 flex-col overflow-hidden rounded-2xl border border-border bg-card">
             {/* Top Toolbar */}
-            <div className="flex flex-wrap items-center justify-between border-b border-white/[0.08] px-4 py-2.5 bg-[#121A2E]/50 gap-2">
+            <div className="flex flex-wrap items-center justify-between border-b border-border px-4 py-2.5 bg-card/50 gap-2">
                 {/* View Switcher */}
-                <div className="flex items-center gap-1 rounded-xl bg-white/[0.05] p-1 border border-white/[0.08]">
+                <div className="flex items-center gap-1 rounded-xl bg-muted p-1 border border-border">
                     <button
                         onClick={() => setViewMode("edit")}
                         className={`flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-medium transition-all ${
                             viewMode === "edit"
-                                ? "bg-[#5B6CF0] text-white shadow"
-                                : "text-[#94A3B8] hover:text-[#ECF0F7]"
+                                ? "bg-primary text-white shadow"
+                                : "text-muted-foreground hover:text-foreground"
                         }`}
                     >
                         <Edit3 className="h-3.5 w-3.5" />
@@ -558,8 +558,8 @@ export default function ReviewWorkspace({
                         onClick={() => setViewMode("preview")}
                         className={`flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-medium transition-all ${
                             viewMode === "preview"
-                                ? "bg-[#5B6CF0] text-white shadow"
-                                : "text-[#94A3B8] hover:text-[#ECF0F7]"
+                                ? "bg-primary text-white shadow"
+                                : "text-muted-foreground hover:text-foreground"
                         }`}
                     >
                         <Eye className="h-3.5 w-3.5" />
@@ -569,8 +569,8 @@ export default function ReviewWorkspace({
                         onClick={() => setViewMode("diff")}
                         className={`flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-medium transition-all ${
                             viewMode === "diff"
-                                ? "bg-[#5B6CF0] text-white shadow"
-                                : "text-[#94A3B8] hover:text-[#ECF0F7]"
+                                ? "bg-primary text-white shadow"
+                                : "text-muted-foreground hover:text-foreground"
                         }`}
                     >
                         <Sparkles className="h-3.5 w-3.5" />
@@ -583,34 +583,34 @@ export default function ReviewWorkspace({
                     {/* Decree 30 Studio Button */}
                     <button
                         onClick={handleOpenND30Modal}
-                        className="flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-[#D97706]/20 to-[#F59E0B]/30 border border-[#F59E0B]/50 px-3 py-1 text-xs font-semibold text-[#FBBF24] hover:bg-[#F59E0B]/40 hover:text-white transition-all shadow-sm"
+                        className="flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-warning/20 to-warning/30 border border-warning/50 px-3 py-1 text-xs font-semibold text-warning hover:bg-warning/40 hover:text-foreground transition-all shadow-sm"
                         title="Tạo file tự động, thẩm định con dấu & ban hành chuẩn Nghị định 30/2020/NĐ-CP"
                     >
-                        <Stamp className="h-3.5 w-3.5 text-[#F59E0B]" />
+                        <Stamp className="h-3.5 w-3.5 text-warning" />
                         <span>Văn bản NĐ 30</span>
-                        <span className="ml-0.5 rounded-full bg-[#F59E0B]/20 px-1 py-0.2 text-[9px] font-bold text-[#FCD34D]">AI</span>
+                        <span className="ml-0.5 rounded-full bg-warning/20 px-1 py-0.2 text-[9px] font-bold text-warning">AI</span>
                     </button>
 
                     {/* Graph RAG Knowledge Graph Button */}
                     <button
                         onClick={() => onOpenGraphRag ? onOpenGraphRag() : setShowInternalGraphRagModal(true)}
-                        className="flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-[#6366F1]/20 to-[#8B5CF6]/30 border border-[#8B5CF6]/50 px-3 py-1 text-xs font-semibold text-[#C4B5FD] hover:bg-[#8B5CF6]/40 hover:text-white transition-all shadow-sm"
+                        className="flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-primary/20 to-primary/30 border border-primary/50 px-3 py-1 text-xs font-semibold text-primary hover:bg-primary/40 hover:text-foreground transition-all shadow-sm"
                         title="Xem Đồ thị tri thức Graph RAG Nghị định 30/2020/NĐ-CP (DemoT3)"
                     >
-                        <Network className="h-3.5 w-3.5 text-[#A5B4FC]" />
+                        <Network className="h-3.5 w-3.5 text-primary" />
                         <span>Graph RAG</span>
-                        <span className="ml-0.5 rounded-full bg-[#8B5CF6]/30 px-1 py-0.2 text-[9px] font-bold text-[#DDD6FE]">DemoT3</span>
+                        <span className="ml-0.5 rounded-full bg-primary/30 px-1 py-0.2 text-[9px] font-bold text-primary">DemoT3</span>
                     </button>
 
                     {/* AI Deep RAG + Web Search Grounding Button */}
                     <button
                         onClick={() => setShowDeepRagModal(true)}
-                        className="flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-indigo-600/30 via-purple-600/30 to-pink-600/30 border border-pink-500/50 px-3 py-1 text-xs font-bold text-white hover:opacity-90 transition-all shadow-md shadow-purple-500/20"
+                        className="flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-primary/30 via-primary/30 to-primary/30 border border-primary/50 px-3 py-1 text-xs font-bold text-foreground hover:opacity-90 transition-all shadow-md shadow-primary/20"
                         title="AI Deep RAG + Tìm kiếm Web: Tự động hiểu văn bản là gì, đối chiếu RAG NĐ 30 xem thiếu gì, tìm kiếm căn cứ mới nhất trên mạng và tổng hợp bản hoàn thiện 100%"
                     >
-                        <Globe className="h-3.5 w-3.5 text-sky-400 animate-pulse" />
+                        <Globe className="h-3.5 w-3.5 text-primary animate-pulse" />
                         <span>Deep RAG & Web</span>
-                        <span className="ml-0.5 rounded-full bg-pink-500/40 px-1 py-0.2 text-[9px] font-black text-pink-200">AI PRO</span>
+                        <span className="ml-0.5 rounded-full bg-primary/40 px-1 py-0.2 text-[9px] font-black text-primary">AI PRO</span>
                     </button>
 
                     {/* AI Drafting Copilot Toggle Button */}
@@ -618,14 +618,14 @@ export default function ReviewWorkspace({
                         onClick={() => setShowCopilot(!showCopilot)}
                         className={`flex items-center gap-1.5 rounded-lg border px-3 py-1 text-xs font-bold transition-all shadow-sm ${
                             showCopilot
-                                ? "bg-gradient-to-r from-indigo-600 to-pink-600 text-white border-pink-400 shadow-indigo-500/25"
-                                : "border-indigo-500/40 bg-indigo-500/10 text-indigo-300 hover:bg-indigo-500/20"
+                                ? "bg-gradient-to-r from-primary to-primary text-white border-primary shadow-primary/25"
+                                : "border-primary/40 bg-primary/10 text-primary hover:bg-primary/20"
                         }`}
                         title="Bật/Tắt Trợ lý AI Soạn thảo & Hiệu chỉnh thông minh"
                     >
                         <Bot className="h-3.5 w-3.5" />
                         <span>AI Soạn Thảo</span>
-                        <span className="ml-0.5 rounded-full bg-white/20 px-1 py-0.2 text-[9px] font-black">
+                        <span className="ml-0.5 rounded-full bg-card/30 px-1 py-0.2 text-[9px] font-black">
                             {showCopilot ? "ON" : "OFF"}
                         </span>
                     </button>
@@ -633,12 +633,12 @@ export default function ReviewWorkspace({
                     <button
                         onClick={handleCopy}
                         disabled={!currentText}
-                        className="flex items-center gap-1 rounded-lg border border-white/[0.08] bg-white/[0.03] px-2.5 py-1 text-xs text-[#94A3B8] hover:bg-white/[0.08] hover:text-[#ECF0F7] disabled:opacity-40 transition-colors"
+                        className="flex items-center gap-1 rounded-lg border border-border bg-card px-2.5 py-1 text-xs font-medium text-muted-foreground hover:bg-muted hover:text-foreground disabled:opacity-40 transition-colors"
                     >
                         {copied ? (
                             <>
-                                <Check className="h-3.5 w-3.5 text-[#36DDAB]" />
-                                <span className="text-[#36DDAB]">Đã chép</span>
+                                <Check className="h-3.5 w-3.5 text-success" />
+                                <span className="text-success">Đã chép</span>
                             </>
                         ) : (
                             <>
@@ -651,27 +651,27 @@ export default function ReviewWorkspace({
                     <div className="relative group">
                         <button
                             disabled={!currentText}
-                            className="flex items-center gap-1 rounded-lg border border-white/[0.08] bg-white/[0.03] px-2.5 py-1 text-xs text-[#94A3B8] hover:bg-white/[0.08] hover:text-[#ECF0F7] disabled:opacity-40 transition-colors"
+                            className="flex items-center gap-1 rounded-lg border border-border bg-card px-2.5 py-1 text-xs font-medium text-muted-foreground hover:bg-muted hover:text-foreground disabled:opacity-40 transition-colors"
                         >
                             <Download className="h-3.5 w-3.5" />
                             <span>Xuất</span>
                         </button>
-                        <div className="absolute right-0 top-full mt-1 hidden w-36 flex-col rounded-xl border border-white/10 bg-[#1A233A] p-1 shadow-2xl z-30 group-hover:flex">
+                        <div className="absolute right-0 top-full mt-1 hidden w-36 flex-col rounded-xl border border-border bg-card p-1 shadow-2xl z-30 group-hover:flex">
                             <button
                                 onClick={() => handleExport("txt")}
-                                className="flex items-center gap-2 rounded-lg px-2.5 py-1.5 text-xs text-[#94A3B8] hover:bg-[#5B6CF0]/20 hover:text-[#ECF0F7] text-left transition-colors"
+                                className="flex items-center gap-2 rounded-lg px-2.5 py-1.5 text-xs text-muted-foreground hover:bg-muted hover:text-foreground text-left transition-colors"
                             >
                                 File văn bản (.txt)
                             </button>
                             <button
                                 onClick={() => handleExport("md")}
-                                className="flex items-center gap-2 rounded-lg px-2.5 py-1.5 text-xs text-[#94A3B8] hover:bg-[#5B6CF0]/20 hover:text-[#ECF0F7] text-left transition-colors"
+                                className="flex items-center gap-2 rounded-lg px-2.5 py-1.5 text-xs text-muted-foreground hover:bg-muted hover:text-foreground text-left transition-colors"
                             >
                                 Markdown (.md)
                             </button>
                             <button
                                 onClick={handleOpenND30Modal}
-                                className="flex items-center gap-2 rounded-lg px-2.5 py-1.5 text-xs text-[#FBBF24] hover:bg-[#F59E0B]/20 text-left transition-colors border-t border-white/[0.06] mt-1 pt-1.5"
+                                className="flex items-center gap-2 rounded-lg px-2.5 py-1.5 text-xs text-warning hover:bg-warning/20 text-left transition-colors border-t border-border mt-1 pt-1.5"
                             >
                                 <Stamp className="h-3 w-3" />
                                 Word NĐ 30 (.docx)
@@ -682,7 +682,7 @@ export default function ReviewWorkspace({
                     {job.status === "confirmed" ? (
                         <button
                             onClick={() => onReopen(job.id)}
-                            className="flex items-center gap-1.5 rounded-lg bg-[#36DDAB]/20 border border-[#36DDAB]/30 px-3 py-1 text-xs font-semibold text-[#36DDAB] hover:bg-[#36DDAB]/30 transition-colors"
+                            className="flex items-center gap-1.5 rounded-lg bg-success/10 px-3 py-1 text-xs font-semibold text-success hover:bg-success/20 transition-colors"
                         >
                             <CheckCircle2 className="h-3.5 w-3.5" />
                             <span>Đã duyệt (Mở lại)</span>
@@ -691,7 +691,7 @@ export default function ReviewWorkspace({
                         <button
                             onClick={() => onConfirm(job.id)}
                             disabled={!currentText || job.status === "processing"}
-                            className="flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-[#5B6CF0] to-[#7C8FFF] px-3 py-1 text-xs font-semibold text-white shadow-md hover:opacity-90 disabled:opacity-40 transition-opacity"
+                            className="flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1 text-xs font-semibold text-primary-foreground hover:bg-primary/90 disabled:opacity-40 transition-opacity"
                         >
                             <CheckCircle className="h-3.5 w-3.5" />
                             <span>Xác nhận kết quả</span>
@@ -701,18 +701,18 @@ export default function ReviewWorkspace({
             </div>
 
             {/* Main Content Area */}
-            <div className="flex-1 overflow-y-auto p-4 bg-[#0D1322]/60 min-h-[340px]">
+            <div className="flex-1 overflow-y-auto p-4 min-h-0">
                 {/* Visual Grounding Block Highlights */}
                 {job.blocks && job.blocks.length > 0 && (
-                    <div className="mb-3 rounded-xl border border-white/[0.08] bg-[#121A2E]/90 p-2.5">
+                    <div className="mb-3 rounded-xl border border-border bg-card/90 p-2.5">
                         <div className="flex items-center justify-between mb-1.5">
-                            <span className="text-[11px] font-semibold text-[#94A3B8]">
+                            <span className="text-[11px] font-semibold text-muted-foreground">
                                 Vùng văn bản phát hiện ({job.blocks.length}) • Click để soi vị trí trên ảnh
                             </span>
                             {job.activeBlockId && (
                                 <button
                                     onClick={() => onSelectBlock?.(null)}
-                                    className="text-[10px] text-[#7C8FFF] hover:underline"
+                                    className="text-[10px] text-primary hover:underline"
                                 >
                                     Bỏ chọn vùng
                                 </button>
@@ -728,8 +728,8 @@ export default function ReviewWorkspace({
                                         onClick={() => onSelectBlock?.(isSelected ? null : b.id)}
                                         className={`rounded-lg px-2 py-1 text-[11px] transition-all max-w-[220px] truncate border ${
                                             isSelected
-                                                ? "bg-[#5B6CF0] text-white border-[#7C8FFF] shadow-md"
-                                                : "bg-white/[0.04] text-[#94A3B8] border-white/[0.06] hover:bg-white/[0.08] hover:text-[#ECF0F7]"
+                                                ? "bg-primary text-white border-primary shadow-md"
+                                                : "bg-muted text-muted-foreground border-border hover:bg-muted hover:text-foreground"
                                         }`}
                                         title={b.text}
                                     >
@@ -761,41 +761,41 @@ export default function ReviewWorkspace({
                             value={currentText}
                             onChange={(e) => onTextChange(job.id, e.target.value)}
                             placeholder="Văn bản trích xuất từ ảnh sẽ xuất hiện tại đây..."
-                            className="w-full flex-1 resize-none rounded-xl border border-white/[0.06] bg-[#121A2E]/70 p-4 font-mono text-sm leading-relaxed text-[#ECF0F7] placeholder-[#64748B] focus:border-[#5B6CF0] focus:outline-none focus:ring-1 focus:ring-[#5B6CF0]/50"
+                            className="w-full flex-1 resize-none rounded-xl border border-border bg-card p-4 font-mono text-sm leading-relaxed text-foreground placeholder:text-muted-foreground/70 focus:border-primary/50 focus:outline-none focus:ring-4 focus:ring-primary/15"
                             rows={16}
                         />
                     </div>
                 )}
 
                 {viewMode === "preview" && (
-                    <div className="h-full rounded-xl border border-white/[0.06] bg-[#121A2E]/70 p-6 overflow-y-auto prose prose-invert max-w-none prose-table:border prose-table:border-white/10 prose-th:border prose-th:border-white/10 prose-th:bg-white/[0.05] prose-th:p-2 prose-td:border prose-td:border-white/10 prose-td:p-2">
+                    <div className="h-full rounded-xl border border-border bg-card p-6 overflow-y-auto text-sm leading-relaxed text-foreground [&_h1]:mb-3 [&_h1]:text-xl [&_h1]:font-bold [&_h2]:mb-2 [&_h2]:mt-4 [&_h2]:text-lg [&_h2]:font-bold [&_h3]:mt-3 [&_h3]:font-bold [&_p]:my-2 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5 [&_table]:my-3 [&_table]:w-full [&_table]:border-collapse [&_th]:border [&_th]:border-border [&_th]:bg-muted [&_th]:p-2 [&_th]:text-left [&_td]:border [&_td]:border-border [&_td]:p-2">
                         {currentText ? (
                             <ReactMarkdown remarkPlugins={[remarkGfm]}>
                                 {currentText}
                             </ReactMarkdown>
                         ) : (
-                            <p className="text-sm italic text-[#64748B]">Chưa có nội dung để xem trước.</p>
+                            <p className="text-sm italic text-muted-foreground">Chưa có nội dung để xem trước.</p>
                         )}
                     </div>
                 )}
 
                 {viewMode === "diff" && (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 h-full">
-                        <div className="flex flex-col rounded-xl border border-white/[0.06] bg-[#121A2E]/70 p-3">
-                            <div className="flex items-center gap-1.5 text-xs font-semibold text-[#94A3B8] pb-2 border-b border-white/[0.06] mb-2">
-                                <Sparkles className="w-3.5 h-3.5 text-[#5B6CF0]" />
+                        <div className="flex flex-col rounded-xl border border-border bg-muted/30 p-3">
+                            <div className="flex items-center gap-1.5 text-xs font-semibold text-muted-foreground pb-2 border-b border-border mb-2">
+                                <Sparkles className="w-3.5 h-3.5 text-primary" />
                                 <span>OCR Gốc (AI trích xuất)</span>
                             </div>
-                            <pre className="flex-1 whitespace-pre-wrap font-mono text-xs text-[#94A3B8] overflow-y-auto leading-relaxed">
+                            <pre className="flex-1 whitespace-pre-wrap font-mono text-xs text-muted-foreground overflow-y-auto leading-relaxed">
                                 {originalText || "(Trống)"}
                             </pre>
                         </div>
-                        <div className="flex flex-col rounded-xl border border-[#5B6CF0]/20 bg-[#121A2E]/70 p-3">
-                            <div className="flex items-center gap-1.5 text-xs font-semibold text-[#7C8FFF] pb-2 border-b border-white/[0.06] mb-2">
-                                <Edit3 className="w-3.5 h-3.5 text-[#36DDAB]" />
+                        <div className="flex flex-col rounded-xl border border-primary/30 bg-card p-3">
+                            <div className="flex items-center gap-1.5 text-xs font-semibold text-primary pb-2 border-b border-border mb-2">
+                                <Edit3 className="w-3.5 h-3.5 text-success" />
                                 <span>Bản đã chỉnh sửa (Hiện tại)</span>
                             </div>
-                            <pre className="flex-1 whitespace-pre-wrap font-mono text-xs text-[#ECF0F7] overflow-y-auto leading-relaxed">
+                            <pre className="flex-1 whitespace-pre-wrap font-mono text-xs text-foreground overflow-y-auto leading-relaxed">
                                 {currentText || "(Trống)"}
                             </pre>
                         </div>
@@ -804,7 +804,7 @@ export default function ReviewWorkspace({
             </div>
 
             {/* Bottom Status Bar */}
-            <div className="flex items-center justify-between border-t border-white/[0.08] px-4 py-2 bg-[#121A2E]/80 text-[11px] text-[#64748B]">
+            <div className="flex items-center justify-between border-t border-border bg-muted/40 px-4 py-2 text-[11px] text-muted-foreground">
                 <div className="flex items-center gap-3">
                     <span>{wordsCount} từ</span>
                     <span>•</span>
@@ -814,12 +814,12 @@ export default function ReviewWorkspace({
                 </div>
                 <div className="flex items-center gap-2">
                     {job.engine && (
-                        <span className="rounded bg-white/[0.04] px-1.5 py-0.5 font-mono text-[10px] text-[#7C8FFF] border border-white/[0.06]">
+                        <span className="rounded bg-primary/10 px-1.5 py-0.5 font-mono text-[10px] text-primary">
                             Engine: {job.engine}
                         </span>
                     )}
                     {isModified && (
-                        <span className="text-[#F59E0B]">● Đã chỉnh sửa</span>
+                        <span className="text-warning">● Đã chỉnh sửa</span>
                     )}
                 </div>
             </div>
@@ -829,23 +829,23 @@ export default function ReviewWorkspace({
             {/* ========================================================================= */}
             {showND30Modal && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-md animate-in fade-in duration-200">
-                    <div className="flex flex-col h-[92vh] w-full max-w-5xl rounded-2xl border border-white/10 bg-[#0F172A] shadow-2xl overflow-hidden">
+                    <div className="flex flex-col h-[92vh] w-full max-w-5xl rounded-2xl border border-border bg-card shadow-2xl overflow-hidden">
                         {/* Modal Header */}
-                        <div className="flex items-center justify-between border-b border-white/10 px-6 py-4 bg-[#1E293B]/70">
+                        <div className="flex items-center justify-between border-b border-border px-6 py-4 bg-card/70">
                             <div className="flex items-center gap-3">
-                                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#F59E0B]/15 border border-[#F59E0B]/30 text-[#F59E0B]">
+                                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-warning/15 border border-warning/30 text-warning">
                                     <Stamp className="h-5 w-5" />
                                 </div>
                                 <div>
                                     <div className="flex items-center gap-2">
-                                        <h3 className="text-base font-bold text-white tracking-wide">
+                                        <h3 className="text-base font-bold text-foreground tracking-wide">
                                             Trung tâm Thẩm định & Ban hành Nghị định 30/2020/NĐ-CP
                                         </h3>
-                                        <span className="rounded bg-[#5B6CF0]/20 px-2 py-0.5 text-[10px] font-semibold text-[#7C8FFF] border border-[#5B6CF0]/30">
+                                        <span className="rounded bg-primary/20 px-2 py-0.5 text-[10px] font-semibold text-primary border border-primary/30">
                                             Chuẩn Pháp Quy
                                         </span>
                                     </div>
-                                    <p className="text-xs text-[#94A3B8]">
+                                    <p className="text-xs text-muted-foreground">
                                         Tự động hóa bóc tách cấu trúc 9 thành phần thể thức, thẩm định con dấu và phát hành văn bản hành chính.
                                     </p>
                                 </div>
@@ -854,14 +854,14 @@ export default function ReviewWorkspace({
                                 <button
                                     type="button"
                                     onClick={() => setShowInternalGraphRagModal(true)}
-                                    className="flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-[#6366F1]/20 to-[#8B5CF6]/30 border border-[#8B5CF6]/40 px-3 py-1.5 text-xs font-semibold text-[#C4B5FD] hover:bg-[#8B5CF6]/40 hover:text-white transition-colors"
+                                    className="flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-primary/20 to-primary/30 border border-primary/40 px-3 py-1.5 text-xs font-semibold text-primary hover:bg-primary/40 hover:text-foreground transition-colors"
                                 >
-                                    <Network className="h-3.5 w-3.5 text-[#A5B4FC]" />
+                                    <Network className="h-3.5 w-3.5 text-primary" />
                                     <span>Tra cứu Đồ thị Graph RAG</span>
                                 </button>
                                 <button
                                     onClick={() => setShowND30Modal(false)}
-                                    className="rounded-lg p-2 text-[#94A3B8] hover:bg-white/10 hover:text-white transition-colors"
+                                    className="rounded-lg p-2 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
                                 >
                                     <X className="h-5 w-5" />
                                 </button>
@@ -869,14 +869,14 @@ export default function ReviewWorkspace({
                         </div>
 
                         {/* Modal Tabs Navigation & Header Actions */}
-                        <div className="flex flex-wrap items-center justify-between border-b border-white/10 px-6 py-2.5 bg-[#141E33]">
+                        <div className="flex flex-wrap items-center justify-between border-b border-border px-6 py-2.5 bg-muted/40">
                             <div className="flex items-center gap-2">
                                 <button
                                     onClick={() => setNd30Tab("draft")}
                                     className={`flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-semibold transition-all ${
                                         nd30Tab === "draft"
-                                            ? "bg-[#5B6CF0] text-white shadow-lg shadow-[#5B6CF0]/20"
-                                            : "text-[#94A3B8] hover:bg-white/5 hover:text-white"
+                                            ? "bg-primary text-white shadow-lg shadow-primary/20"
+                                            : "text-muted-foreground hover:bg-muted hover:text-foreground"
                                     }`}
                                 >
                                     <Edit3 className="h-4 w-4" />
@@ -889,8 +889,8 @@ export default function ReviewWorkspace({
                                     }}
                                     className={`flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-semibold transition-all ${
                                         nd30Tab === "audit"
-                                            ? "bg-[#5B6CF0] text-white shadow-lg shadow-[#5B6CF0]/20"
-                                            : "text-[#94A3B8] hover:bg-white/5 hover:text-white"
+                                            ? "bg-primary text-white shadow-lg shadow-primary/20"
+                                            : "text-muted-foreground hover:bg-muted hover:text-foreground"
                                     }`}
                                 >
                                     <ShieldCheck className="h-4 w-4" />
@@ -899,10 +899,10 @@ export default function ReviewWorkspace({
                                         <span
                                             className={`ml-1 rounded-full px-1.5 py-0.2 text-[10px] font-bold ${
                                                 validationResult.score >= 85
-                                                    ? "bg-[#10B981]/20 text-[#34D399]"
+                                                    ? "bg-success/20 text-success"
                                                     : validationResult.score >= 60
-                                                    ? "bg-[#F59E0B]/20 text-[#FBBF24]"
-                                                    : "bg-[#EF4444]/20 text-[#F87171]"
+                                                    ? "bg-warning/20 text-warning"
+                                                    : "bg-destructive/20 text-destructive"
                                             }`}
                                         >
                                             {validationResult.score}/100
@@ -913,8 +913,8 @@ export default function ReviewWorkspace({
                                     onClick={() => setNd30Tab("preview")}
                                     className={`flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-semibold transition-all ${
                                         nd30Tab === "preview"
-                                            ? "bg-[#5B6CF0] text-white shadow-lg shadow-[#5B6CF0]/20"
-                                            : "text-[#94A3B8] hover:bg-white/5 hover:text-white"
+                                            ? "bg-primary text-white shadow-lg shadow-primary/20"
+                                            : "text-muted-foreground hover:bg-muted hover:text-foreground"
                                     }`}
                                 >
                                     <FileCheck className="h-4 w-4" />
@@ -926,7 +926,7 @@ export default function ReviewWorkspace({
                                 <button
                                     onClick={handleAutoDraftND30}
                                     disabled={isDrafting}
-                                    className="flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-[#8B5CF6] to-[#6366F1] px-3.5 py-1.5 text-xs font-semibold text-white shadow-md hover:opacity-90 disabled:opacity-50 transition-opacity"
+                                    className="flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-primary to-primary px-3.5 py-1.5 text-xs font-semibold text-white shadow-md hover:opacity-90 disabled:opacity-50 transition-opacity"
                                 >
                                     <Sparkles className={`h-3.5 w-3.5 ${isDrafting ? "animate-spin" : ""}`} />
                                     <span>{isDrafting ? "AI đang bóc tách..." : "⚡ AI Tự động bóc tách từ OCR"}</span>
@@ -934,7 +934,7 @@ export default function ReviewWorkspace({
                                 <button
                                     onClick={handleExportND30Docx}
                                     disabled={isExporting}
-                                    className="flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-[#10B981] to-[#059669] px-3.5 py-1.5 text-xs font-semibold text-white shadow-md hover:opacity-90 disabled:opacity-50 transition-opacity"
+                                    className="flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-success to-success px-3.5 py-1.5 text-xs font-semibold text-white shadow-md hover:opacity-90 disabled:opacity-50 transition-opacity"
                                 >
                                     <Download className={`h-3.5 w-3.5 ${isExporting ? "animate-bounce" : ""}`} />
                                     <span>{isExporting ? "Đang xuất..." : "📥 Ban hành File Word (.docx)"}</span>
@@ -943,107 +943,107 @@ export default function ReviewWorkspace({
                         </div>
 
                         {/* Modal Body */}
-                        <div className="flex-1 overflow-y-auto p-6 bg-[#0B1120]">
+                        <div className="flex-1 overflow-y-auto p-6 bg-card">
                             {/* TAB 1: DRAFTING / EDITING */}
                             {nd30Tab === "draft" && (
                                 <div className="space-y-6">
                                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                        <div className="rounded-xl border border-white/10 bg-[#151F33] p-4 space-y-3">
-                                            <div className="flex items-center gap-2 text-xs font-semibold text-[#94A3B8]">
-                                                <Building2 className="h-4 w-4 text-[#5B6CF0]" />
+                                        <div className="rounded-xl border border-border bg-card p-4 space-y-3">
+                                            <div className="flex items-center gap-2 text-xs font-semibold text-muted-foreground">
+                                                <Building2 className="h-4 w-4 text-primary" />
                                                 <span>Cơ quan ban hành</span>
                                             </div>
                                             <div>
-                                                <label className="text-[11px] text-[#64748B] block mb-1">Cơ quan cấp trên (In hoa đứng)</label>
+                                                <label className="text-[11px] text-muted-foreground block mb-1">Cơ quan cấp trên (In hoa đứng)</label>
                                                 <input
                                                     type="text"
                                                     value={nd30Data.organ_name_upper || ""}
                                                     onChange={(e) => setNd30Data({ ...nd30Data, organ_name_upper: e.target.value })}
-                                                    className="w-full rounded-lg border border-white/10 bg-[#0F172A] px-3 py-1.5 text-xs text-white uppercase focus:border-[#5B6CF0] focus:outline-none"
+                                                    className="w-full rounded-lg border border-border bg-card px-3 py-1.5 text-xs text-foreground uppercase focus:border-primary focus:outline-none"
                                                 />
                                             </div>
                                             <div>
-                                                <label className="text-[11px] text-[#64748B] block mb-1">Cơ quan ban hành trực tiếp (In hoa đậm)</label>
+                                                <label className="text-[11px] text-muted-foreground block mb-1">Cơ quan ban hành trực tiếp (In hoa đậm)</label>
                                                 <input
                                                     type="text"
                                                     value={nd30Data.organ_name}
                                                     onChange={(e) => setNd30Data({ ...nd30Data, organ_name: e.target.value })}
-                                                    className="w-full rounded-lg border border-white/10 bg-[#0F172A] px-3 py-1.5 text-xs text-white uppercase font-bold focus:border-[#5B6CF0] focus:outline-none"
+                                                    className="w-full rounded-lg border border-border bg-card px-3 py-1.5 text-xs text-foreground uppercase font-bold focus:border-primary focus:outline-none"
                                                 />
                                             </div>
                                         </div>
 
-                                        <div className="rounded-xl border border-white/10 bg-[#151F33] p-4 space-y-3">
-                                            <div className="flex items-center gap-2 text-xs font-semibold text-[#94A3B8]">
-                                                <Hash className="h-4 w-4 text-[#5B6CF0]" />
+                                        <div className="rounded-xl border border-border bg-card p-4 space-y-3">
+                                            <div className="flex items-center gap-2 text-xs font-semibold text-muted-foreground">
+                                                <Hash className="h-4 w-4 text-primary" />
                                                 <span>Số hiệu & Địa danh</span>
                                             </div>
                                             <div>
-                                                <label className="text-[11px] text-[#64748B] block mb-1">Số, ký hiệu văn bản (Ví dụ: 12/QĐ-HR)</label>
+                                                <label className="text-[11px] text-muted-foreground block mb-1">Số, ký hiệu văn bản (Ví dụ: 12/QĐ-HR)</label>
                                                 <input
                                                     type="text"
                                                     value={nd30Data.doc_code}
                                                     onChange={(e) => setNd30Data({ ...nd30Data, doc_code: e.target.value })}
-                                                    className="w-full rounded-lg border border-white/10 bg-[#0F172A] px-3 py-1.5 text-xs text-white focus:border-[#5B6CF0] focus:outline-none"
+                                                    className="w-full rounded-lg border border-border bg-card px-3 py-1.5 text-xs text-foreground focus:border-primary focus:outline-none"
                                                 />
                                             </div>
                                             <div className="grid grid-cols-2 gap-2">
                                                 <div>
-                                                    <label className="text-[11px] text-[#64748B] block mb-1">Địa danh</label>
+                                                    <label className="text-[11px] text-muted-foreground block mb-1">Địa danh</label>
                                                     <input
                                                         type="text"
                                                         value={nd30Data.location}
                                                         onChange={(e) => setNd30Data({ ...nd30Data, location: e.target.value })}
-                                                        className="w-full rounded-lg border border-white/10 bg-[#0F172A] px-3 py-1.5 text-xs text-white focus:border-[#5B6CF0] focus:outline-none"
+                                                        className="w-full rounded-lg border border-border bg-card px-3 py-1.5 text-xs text-foreground focus:border-primary focus:outline-none"
                                                     />
                                                 </div>
                                                 <div>
-                                                    <label className="text-[11px] text-[#64748B] block mb-1">Ngày tháng ban hành</label>
+                                                    <label className="text-[11px] text-muted-foreground block mb-1">Ngày tháng ban hành</label>
                                                     <input
                                                         type="text"
                                                         value={nd30Data.date_str}
                                                         onChange={(e) => setNd30Data({ ...nd30Data, date_str: e.target.value })}
-                                                        className="w-full rounded-lg border border-white/10 bg-[#0F172A] px-3 py-1.5 text-xs text-white focus:border-[#5B6CF0] focus:outline-none"
+                                                        className="w-full rounded-lg border border-border bg-card px-3 py-1.5 text-xs text-foreground focus:border-primary focus:outline-none"
                                                     />
                                                 </div>
                                             </div>
                                         </div>
 
-                                        <div className="rounded-xl border border-white/10 bg-[#151F33] p-4 space-y-3">
-                                            <div className="flex items-center gap-2 text-xs font-semibold text-[#94A3B8]">
-                                                <UserCheck className="h-4 w-4 text-[#5B6CF0]" />
+                                        <div className="rounded-xl border border-border bg-card p-4 space-y-3">
+                                            <div className="flex items-center gap-2 text-xs font-semibold text-muted-foreground">
+                                                <UserCheck className="h-4 w-4 text-primary" />
                                                 <span>Người ký & Thẩm quyền</span>
                                             </div>
                                             <div>
-                                                <label className="text-[11px] text-[#64748B] block mb-1">Chức vụ người ký (In hoa đậm)</label>
+                                                <label className="text-[11px] text-muted-foreground block mb-1">Chức vụ người ký (In hoa đậm)</label>
                                                 <input
                                                     type="text"
                                                     value={nd30Data.signer_title}
                                                     onChange={(e) => setNd30Data({ ...nd30Data, signer_title: e.target.value })}
-                                                    className="w-full rounded-lg border border-white/10 bg-[#0F172A] px-3 py-1.5 text-xs text-white uppercase font-bold focus:border-[#5B6CF0] focus:outline-none"
+                                                    className="w-full rounded-lg border border-border bg-card px-3 py-1.5 text-xs text-foreground uppercase font-bold focus:border-primary focus:outline-none"
                                                 />
                                             </div>
                                             <div>
-                                                <label className="text-[11px] text-[#64748B] block mb-1">Họ và tên người ký (Đậm, in hoa/thường)</label>
+                                                <label className="text-[11px] text-muted-foreground block mb-1">Họ và tên người ký (Đậm, in hoa/thường)</label>
                                                 <input
                                                     type="text"
                                                     value={nd30Data.signer_name}
                                                     onChange={(e) => setNd30Data({ ...nd30Data, signer_name: e.target.value })}
-                                                    className="w-full rounded-lg border border-white/10 bg-[#0F172A] px-3 py-1.5 text-xs text-white font-bold focus:border-[#5B6CF0] focus:outline-none"
+                                                    className="w-full rounded-lg border border-border bg-card px-3 py-1.5 text-xs text-foreground font-bold focus:border-primary focus:outline-none"
                                                 />
                                             </div>
                                         </div>
                                     </div>
 
                                     {/* Type & Subject */}
-                                    <div className="rounded-xl border border-white/10 bg-[#151F33] p-4 space-y-3">
+                                    <div className="rounded-xl border border-border bg-card p-4 space-y-3">
                                         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                                             <div>
-                                                <label className="text-[11px] text-[#64748B] block mb-1 font-semibold">Tên loại văn bản</label>
+                                                <label className="text-[11px] text-muted-foreground block mb-1 font-semibold">Tên loại văn bản</label>
                                                 <select
                                                     value={nd30Data.doc_type}
                                                     onChange={(e) => setNd30Data({ ...nd30Data, doc_type: e.target.value })}
-                                                    className="w-full rounded-lg border border-white/10 bg-[#0F172A] px-3 py-2 text-xs text-white font-bold focus:border-[#5B6CF0] focus:outline-none"
+                                                    className="w-full rounded-lg border border-border bg-card px-3 py-2 text-xs text-foreground font-bold focus:border-primary focus:outline-none"
                                                 >
                                                     <option value="QUYẾT ĐỊNH">QUYẾT ĐỊNH</option>
                                                     <option value="THÔNG BÁO">THÔNG BÁO</option>
@@ -1053,12 +1053,12 @@ export default function ReviewWorkspace({
                                                 </select>
                                             </div>
                                             <div className="md:col-span-3">
-                                                <label className="text-[11px] text-[#64748B] block mb-1 font-semibold">Trích yếu nội dung</label>
+                                                <label className="text-[11px] text-muted-foreground block mb-1 font-semibold">Trích yếu nội dung</label>
                                                 <input
                                                     type="text"
                                                     value={nd30Data.subject}
                                                     onChange={(e) => setNd30Data({ ...nd30Data, subject: e.target.value })}
-                                                    className="w-full rounded-lg border border-white/10 bg-[#0F172A] px-3 py-2 text-xs text-white font-medium focus:border-[#5B6CF0] focus:outline-none"
+                                                    className="w-full rounded-lg border border-border bg-card px-3 py-2 text-xs text-foreground font-medium focus:border-primary focus:outline-none"
                                                 />
                                             </div>
                                         </div>
@@ -1066,8 +1066,8 @@ export default function ReviewWorkspace({
 
                                     {/* Legal bases & Articles */}
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                        <div className="rounded-xl border border-white/10 bg-[#151F33] p-4 space-y-2">
-                                            <label className="text-xs font-semibold text-[#94A3B8] block">
+                                        <div className="rounded-xl border border-border bg-card p-4 space-y-2">
+                                            <label className="text-xs font-semibold text-muted-foreground block">
                                                 Căn cứ pháp lý (Mỗi dòng một căn cứ)
                                             </label>
                                             <textarea
@@ -1079,12 +1079,12 @@ export default function ReviewWorkspace({
                                                     })
                                                 }
                                                 rows={5}
-                                                className="w-full rounded-lg border border-white/10 bg-[#0F172A] p-3 font-mono text-xs text-white leading-relaxed focus:border-[#5B6CF0] focus:outline-none"
+                                                className="w-full rounded-lg border border-border bg-card p-3 font-mono text-xs text-foreground leading-relaxed focus:border-primary focus:outline-none"
                                             />
                                         </div>
 
-                                        <div className="rounded-xl border border-white/10 bg-[#151F33] p-4 space-y-2">
-                                            <label className="text-xs font-semibold text-[#94A3B8] block">
+                                        <div className="rounded-xl border border-border bg-card p-4 space-y-2">
+                                            <label className="text-xs font-semibold text-muted-foreground block">
                                                 Nơi nhận (Mỗi dòng một nơi nhận)
                                             </label>
                                             <textarea
@@ -1096,15 +1096,15 @@ export default function ReviewWorkspace({
                                                     })
                                                 }
                                                 rows={5}
-                                                className="w-full rounded-lg border border-white/10 bg-[#0F172A] p-3 font-mono text-xs text-white leading-relaxed focus:border-[#5B6CF0] focus:outline-none"
+                                                className="w-full rounded-lg border border-border bg-card p-3 font-mono text-xs text-foreground leading-relaxed focus:border-primary focus:outline-none"
                                             />
                                         </div>
                                     </div>
 
                                     {/* Articles Section */}
-                                    <div className="rounded-xl border border-white/10 bg-[#151F33] p-4 space-y-3">
+                                    <div className="rounded-xl border border-border bg-card p-4 space-y-3">
                                         <div className="flex items-center justify-between">
-                                            <label className="text-xs font-semibold text-[#94A3B8]">
+                                            <label className="text-xs font-semibold text-muted-foreground">
                                                 Các Điều khoản nội dung chính
                                             </label>
                                             <button
@@ -1119,7 +1119,7 @@ export default function ReviewWorkspace({
                                                         ],
                                                     });
                                                 }}
-                                                className="rounded-lg bg-[#5B6CF0]/20 px-2.5 py-1 text-xs text-[#7C8FFF] hover:bg-[#5B6CF0]/30 transition-colors"
+                                                className="rounded-lg bg-primary/20 px-2.5 py-1 text-xs text-primary hover:bg-primary/30 transition-colors"
                                             >
                                                 + Thêm Điều khoản
                                             </button>
@@ -1136,7 +1136,7 @@ export default function ReviewWorkspace({
                                                             newArts[idx].title = e.target.value;
                                                             setNd30Data({ ...nd30Data, articles: newArts });
                                                         }}
-                                                        className="w-24 rounded-lg border border-white/10 bg-[#0F172A] px-2.5 py-2 text-xs font-bold text-white focus:border-[#5B6CF0] focus:outline-none"
+                                                        className="w-24 rounded-lg border border-border bg-card px-2.5 py-2 text-xs font-bold text-foreground focus:border-primary focus:outline-none"
                                                     />
                                                     <textarea
                                                         value={art.content}
@@ -1147,7 +1147,7 @@ export default function ReviewWorkspace({
                                                         }}
                                                         rows={2}
                                                         placeholder="Nội dung điều khoản..."
-                                                        className="flex-1 rounded-lg border border-white/10 bg-[#0F172A] p-2 text-xs text-white leading-relaxed focus:border-[#5B6CF0] focus:outline-none"
+                                                        className="flex-1 rounded-lg border border-border bg-card p-2 text-xs text-foreground leading-relaxed focus:border-primary focus:outline-none"
                                                     />
                                                     {nd30Data.articles.length > 1 && (
                                                         <button
@@ -1156,7 +1156,7 @@ export default function ReviewWorkspace({
                                                                 const newArts = nd30Data.articles.filter((_, i) => i !== idx);
                                                                 setNd30Data({ ...nd30Data, articles: newArts });
                                                             }}
-                                                            className="rounded-lg p-2 text-[#EF4444] hover:bg-[#EF4444]/10 transition-colors"
+                                                            className="rounded-lg p-2 text-destructive hover:bg-destructive/10 transition-colors"
                                                         >
                                                             <X className="h-4 w-4" />
                                                         </button>
@@ -1173,36 +1173,36 @@ export default function ReviewWorkspace({
                                 <div className="space-y-6">
                                     {isValidating ? (
                                         <div className="flex flex-col items-center justify-center py-16 text-center">
-                                            <div className="h-10 w-10 animate-spin rounded-full border-2 border-[#5B6CF0] border-t-transparent mb-4" />
-                                            <h4 className="text-sm font-semibold text-white">Đang thẩm định 9 thành phần và con dấu...</h4>
-                                            <p className="text-xs text-[#94A3B8] mt-1">Đối chiếu theo quy định tại Nghị định 30/2020/NĐ-CP</p>
+                                            <div className="h-10 w-10 animate-spin rounded-full border-2 border-primary border-t-transparent mb-4" />
+                                            <h4 className="text-sm font-semibold text-foreground">Đang thẩm định 9 thành phần và con dấu...</h4>
+                                            <p className="text-xs text-muted-foreground mt-1">Đối chiếu theo quy định tại Nghị định 30/2020/NĐ-CP</p>
                                         </div>
                                     ) : validationResult ? (
                                         <>
                                             {/* Score & Seal Status Summary Cards */}
                                             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                                 {/* Score Card */}
-                                                <div className="rounded-2xl border border-white/10 bg-[#151F33] p-5 flex flex-col items-center justify-center text-center">
-                                                    <span className="text-xs font-semibold text-[#94A3B8]">ĐIỂM HỢP QUY THỂ THỨC</span>
+                                                <div className="rounded-2xl border border-border bg-card p-5 flex flex-col items-center justify-center text-center">
+                                                    <span className="text-xs font-semibold text-muted-foreground">ĐIỂM HỢP QUY THỂ THỨC</span>
                                                     <div className="my-2 flex items-baseline gap-1">
                                                         <span
                                                             className={`text-4xl font-extrabold ${
                                                                 validationResult.score >= 85
-                                                                    ? "text-[#34D399]"
+                                                                    ? "text-success"
                                                                     : validationResult.score >= 60
-                                                                    ? "text-[#FBBF24]"
-                                                                    : "text-[#F87171]"
+                                                                    ? "text-warning"
+                                                                    : "text-destructive"
                                                             }`}
                                                         >
                                                             {validationResult.score}
                                                         </span>
-                                                        <span className="text-sm text-[#64748B]">/100</span>
+                                                        <span className="text-sm text-muted-foreground">/100</span>
                                                     </div>
                                                     <span
                                                         className={`rounded-full px-3 py-1 text-xs font-semibold ${
                                                             validationResult.is_valid
-                                                                ? "bg-[#10B981]/20 text-[#34D399] border border-[#10B981]/30"
-                                                                : "bg-[#EF4444]/20 text-[#F87171] border border-[#EF4444]/30"
+                                                                ? "bg-success/20 text-success border border-success/30"
+                                                                : "bg-destructive/20 text-destructive border border-destructive/30"
                                                         }`}
                                                     >
                                                         {validationResult.is_valid
@@ -1212,19 +1212,19 @@ export default function ReviewWorkspace({
                                                 </div>
 
                                                 {/* Seal Audit Card */}
-                                                <div className="md:col-span-2 rounded-2xl border border-white/10 bg-[#151F33] p-5">
-                                                    <div className="flex items-center justify-between pb-3 border-b border-white/10 mb-3">
+                                                <div className="md:col-span-2 rounded-2xl border border-border bg-card p-5">
+                                                    <div className="flex items-center justify-between pb-3 border-b border-border mb-3">
                                                         <div className="flex items-center gap-2">
-                                                            <Stamp className="h-5 w-5 text-[#EF4444]" />
-                                                            <h4 className="text-sm font-bold text-white">
+                                                            <Stamp className="h-5 w-5 text-destructive" />
+                                                            <h4 className="text-sm font-bold text-foreground">
                                                                 Thẩm định Con dấu & Chữ ký số (Điều 12, 13 NĐ 30)
                                                             </h4>
                                                         </div>
                                                         <span
                                                             className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${
                                                                 validationResult?.seal_status?.is_compliant
-                                                                    ? "bg-[#10B981]/20 text-[#34D399] border border-[#10B981]/30"
-                                                                    : "bg-[#EF4444]/20 text-[#F87171] border border-[#EF4444]/30"
+                                                                    ? "bg-success/20 text-success border border-success/30"
+                                                                    : "bg-destructive/20 text-destructive border border-destructive/30"
                                                             }`}
                                                         >
                                                             {validationResult?.seal_status?.is_compliant ? "Con dấu chuẩn" : "Con dấu cần lưu ý"}
@@ -1232,30 +1232,30 @@ export default function ReviewWorkspace({
                                                     </div>
 
                                                     <div className="grid grid-cols-2 gap-3 text-xs">
-                                                        <div className="rounded-xl bg-[#0F172A] p-3 border border-white/5">
-                                                            <span className="text-[#64748B] block mb-1">Loại con dấu / hình thức:</span>
-                                                            <span className="font-semibold text-white">
+                                                        <div className="rounded-xl bg-card p-3 border border-border">
+                                                            <span className="text-muted-foreground block mb-1">Loại con dấu / hình thức:</span>
+                                                            <span className="font-semibold text-foreground">
                                                                 {validationResult?.seal_status?.seal_type || "Dấu tròn pháp nhân cơ quan"}
                                                             </span>
                                                         </div>
-                                                        <div className="rounded-xl bg-[#0F172A] p-3 border border-white/5">
-                                                            <span className="text-[#64748B] block mb-1">Vị trí đóng dấu & trùm chữ ký:</span>
-                                                            <span className="font-semibold text-[#38BDF8]">
+                                                        <div className="rounded-xl bg-card p-3 border border-border">
+                                                            <span className="text-muted-foreground block mb-1">Vị trí đóng dấu & trùm chữ ký:</span>
+                                                            <span className="font-semibold text-primary">
                                                                 {validationResult?.seal_status?.overlap_status || "Trùm 1/3 chữ ký về phía bên trái"}
                                                             </span>
                                                         </div>
                                                     </div>
 
-                                                    <p className="mt-3 text-xs text-[#94A3B8] italic">
+                                                    <p className="mt-3 text-xs text-muted-foreground italic">
                                                         💡 Ghi chú: {validationResult?.seal_status?.note || "Đóng dấu trùm lên khoảng 1/3 chữ ký về phía bên trái theo Khoản 2 Điều 33 Nghị định 30/2020/NĐ-CP."}
                                                     </p>
                                                 </div>
                                             </div>
 
                                             {/* 9 Mandatory Components Checklist */}
-                                            <div className="rounded-2xl border border-white/10 bg-[#151F33] p-5">
-                                                <h4 className="text-sm font-bold text-white mb-4 flex items-center gap-2">
-                                                    <FileCheck className="h-4 w-4 text-[#5B6CF0]" />
+                                            <div className="rounded-2xl border border-border bg-card p-5">
+                                                <h4 className="text-sm font-bold text-foreground mb-4 flex items-center gap-2">
+                                                    <FileCheck className="h-4 w-4 text-primary" />
                                                     <span>Danh mục 9 thành phần thể thức bắt buộc theo Nghị định 30</span>
                                                 </h4>
 
@@ -1290,21 +1290,21 @@ export default function ReviewWorkspace({
                                                                 key={key}
                                                                 className={`rounded-xl border p-3 flex flex-col justify-between ${
                                                                     comp?.valid
-                                                                        ? "border-[#10B981]/20 bg-[#10B981]/5"
-                                                                        : "border-[#EF4444]/20 bg-[#EF4444]/5"
+                                                                        ? "border-success/20 bg-success/5"
+                                                                        : "border-destructive/20 bg-destructive/5"
                                                                 }`}
                                                             >
                                                                 <div className="flex items-center justify-between mb-1.5">
-                                                                    <span className="text-xs font-semibold text-white">
+                                                                    <span className="text-xs font-semibold text-foreground">
                                                                         {labelMap[key] || key}
                                                                     </span>
                                                                     {comp?.valid ? (
-                                                                        <CheckCircle2 className="h-4 w-4 text-[#10B981]" />
+                                                                        <CheckCircle2 className="h-4 w-4 text-success" />
                                                                     ) : (
-                                                                        <AlertTriangle className="h-4 w-4 text-[#EF4444]" />
+                                                                        <AlertTriangle className="h-4 w-4 text-destructive" />
                                                                     )}
                                                                 </div>
-                                                                <span className="text-[11px] text-[#94A3B8]">
+                                                                <span className="text-[11px] text-muted-foreground">
                                                                     {comp?.note || "Đang kiểm định"}
                                                                 </span>
                                                             </div>
@@ -1315,9 +1315,9 @@ export default function ReviewWorkspace({
 
                                             {/* Issues & Recommendations */}
                                             {validationResult.issues.length > 0 && (
-                                                <div className="rounded-2xl border border-white/10 bg-[#151F33] p-5 space-y-3">
-                                                    <h4 className="text-sm font-bold text-white flex items-center gap-2">
-                                                        <AlertTriangle className="h-4 w-4 text-[#F59E0B]" />
+                                                <div className="rounded-2xl border border-border bg-card p-5 space-y-3">
+                                                    <h4 className="text-sm font-bold text-foreground flex items-center gap-2">
+                                                        <AlertTriangle className="h-4 w-4 text-warning" />
                                                         <span>Các khuyến nghị hiệu chỉnh thể thức ({validationResult.issues.length})</span>
                                                     </h4>
 
@@ -1325,21 +1325,21 @@ export default function ReviewWorkspace({
                                                         {validationResult.issues.map((issue, idx) => (
                                                             <div
                                                                 key={idx}
-                                                                className="rounded-xl border border-white/5 bg-[#0F172A] p-3 text-xs flex items-start gap-3"
+                                                                className="rounded-xl border border-border bg-card p-3 text-xs flex items-start gap-3"
                                                             >
                                                                 {issue.severity === "error" ? (
-                                                                    <XCircle className="h-4 w-4 text-[#EF4444] shrink-0 mt-0.5" />
+                                                                    <XCircle className="h-4 w-4 text-destructive shrink-0 mt-0.5" />
                                                                 ) : (
-                                                                    <AlertTriangle className="h-4 w-4 text-[#F59E0B] shrink-0 mt-0.5" />
+                                                                    <AlertTriangle className="h-4 w-4 text-warning shrink-0 mt-0.5" />
                                                                 )}
                                                                 <div className="flex-1">
                                                                     <div className="flex items-center gap-2 mb-1">
-                                                                        <span className="font-semibold text-white">{issue.message}</span>
-                                                                        <span className="rounded bg-white/5 px-1.5 py-0.5 text-[10px] text-[#64748B]">
+                                                                        <span className="font-semibold text-foreground">{issue.message}</span>
+                                                                        <span className="rounded bg-muted px-1.5 py-0.5 text-[10px] text-muted-foreground">
                                                                             {issue.citation}
                                                                         </span>
                                                                     </div>
-                                                                    <p className="text-[#94A3B8]">{issue.recommendation}</p>
+                                                                    <p className="text-muted-foreground">{issue.recommendation}</p>
                                                                 </div>
                                                             </div>
                                                         ))}
@@ -1348,7 +1348,7 @@ export default function ReviewWorkspace({
                                             )}
                                         </>
                                     ) : (
-                                        <div className="text-center py-12 text-[#94A3B8] text-sm">
+                                        <div className="text-center py-12 text-muted-foreground text-sm">
                                             Bấm nút &quot;Kiểm định Thể thức&quot; để đối chiếu văn bản.
                                         </div>
                                     )}
@@ -1359,20 +1359,20 @@ export default function ReviewWorkspace({
                             {nd30Tab === "preview" && (
                                 <div className="flex justify-center">
                                     {/* A4 Paper Simulation conforming to ND30 */}
-                                    <div className="w-full max-w-3xl rounded-lg bg-white p-12 text-black shadow-2xl font-serif text-[14px] leading-normal select-text min-h-[900px] border border-gray-300">
+                                    <div className="w-full max-w-3xl rounded-lg bg-white p-12 text-black shadow-2xl font-serif text-[14px] leading-normal select-text min-h-[900px] border border-border">
                                         {/* Header Table (2 Columns) */}
                                         <div className="grid grid-cols-2 gap-4 pb-6">
                                             {/* Left Column: Cơ quan ban hành & Số hiệu */}
                                             <div className="text-center space-y-1">
                                                 {nd30Data.organ_name_upper && (
-                                                    <p className="text-[12px] uppercase font-normal tracking-wide text-gray-800">
+                                                    <p className="text-[12px] uppercase font-normal tracking-wide text-muted-foreground">
                                                         {nd30Data.organ_name_upper}
                                                     </p>
                                                 )}
                                                 <p className="text-[13px] uppercase font-bold text-black border-b border-black inline-block pb-0.5 px-2">
                                                     {nd30Data.organ_name}
                                                 </p>
-                                                <p className="text-[13px] italic pt-1 text-gray-800">
+                                                <p className="text-[13px] italic pt-1 text-muted-foreground">
                                                     Số: {nd30Data.doc_code}
                                                 </p>
                                             </div>
@@ -1385,7 +1385,7 @@ export default function ReviewWorkspace({
                                                 <p className="text-[13px] font-bold text-black border-b border-black inline-block pb-0.5 px-3">
                                                     Độc lập - Tự do - Hạnh phúc
                                                 </p>
-                                                <p className="text-[13px] italic pt-1 text-gray-800">
+                                                <p className="text-[13px] italic pt-1 text-muted-foreground">
                                                     {nd30Data.location}, {nd30Data.date_str}
                                                 </p>
                                             </div>
@@ -1396,7 +1396,7 @@ export default function ReviewWorkspace({
                                             <h2 className="text-[16px] font-bold uppercase tracking-wide text-black">
                                                 {nd30Data.doc_type}
                                             </h2>
-                                            <p className="text-[14px] font-bold text-gray-900 max-w-xl mx-auto">
+                                            <p className="text-[14px] font-bold text-muted-foreground max-w-xl mx-auto">
                                                 {nd30Data.subject}
                                             </p>
                                         </div>
@@ -1430,7 +1430,7 @@ export default function ReviewWorkspace({
                                             {/* Recipients */}
                                             <div className="text-[11.5px] space-y-1">
                                                 <p className="font-bold italic">Nơi nhận:</p>
-                                                <ul className="list-none space-y-0.5 pl-2 text-gray-800">
+                                                <ul className="list-none space-y-0.5 pl-2 text-muted-foreground">
                                                     {nd30Data.recipients.map((rec, i) => (
                                                         <li key={i}>- {rec}</li>
                                                     ))}
@@ -1442,12 +1442,12 @@ export default function ReviewWorkspace({
                                                 <p className="text-[13px] uppercase font-bold tracking-wide text-black">
                                                     {nd30Data.signer_title}
                                                 </p>
-                                                <p className="text-[12px] italic text-gray-500 pb-12">
+                                                <p className="text-[12px] italic text-muted-foreground pb-12">
                                                     (Ký, ghi rõ họ tên và đóng dấu)
                                                 </p>
 
                                                 {/* Visual Red Seal Representation */}
-                                                <div className="absolute top-6 left-6 flex items-center justify-center h-20 w-20 rounded-full border-2 border-[#DC2626]/70 text-[#DC2626] font-bold text-[9px] uppercase tracking-tighter rotate-[-12deg] pointer-events-none opacity-80">
+                                                <div className="absolute top-6 left-6 flex items-center justify-center h-20 w-20 rounded-full border-2 border-destructive/70 text-destructive font-bold text-[9px] uppercase tracking-tighter rotate-[-12deg] pointer-events-none opacity-80">
                                                     <div className="text-center leading-tight">
                                                         <span>★ ĐÃ ĐÓNG DẤU ★</span>
                                                         <br />
@@ -1466,9 +1466,9 @@ export default function ReviewWorkspace({
                         </div>
 
                         {/* Modal Footer */}
-                        <div className="flex items-center justify-between border-t border-white/10 px-6 py-3 bg-[#1E293B]/70">
-                            <div className="flex items-center gap-2 text-xs text-[#94A3B8]">
-                                <Stamp className="h-4 w-4 text-[#F59E0B]" />
+                        <div className="flex items-center justify-between border-t border-border px-6 py-3 bg-card/70">
+                            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                                <Stamp className="h-4 w-4 text-warning" />
                                 <span>Tiêu chuẩn ban hành: Nghị định 30/2020/NĐ-CP • Khổ A4 (210 × 297 mm) • Times New Roman</span>
                             </div>
                             <div className="flex items-center gap-3">
@@ -1479,7 +1479,7 @@ export default function ReviewWorkspace({
                                         setShowND30Modal(false);
                                         toast.success("Đã đồng bộ dữ liệu NĐ 30 ra Trình Soạn Thảo Workspace!");
                                     }}
-                                    className="flex items-center gap-1.5 rounded-xl border border-indigo-500/30 bg-indigo-500/10 px-4 py-2 text-xs font-semibold text-indigo-300 hover:bg-indigo-500/20 transition-colors"
+                                    className="flex items-center gap-1.5 rounded-xl border border-primary/30 bg-primary/10 px-4 py-2 text-xs font-semibold text-primary hover:bg-primary/20 transition-colors"
                                     title="Đồng bộ các chỉnh sửa trong modal này ra trình soạn thảo văn bản"
                                 >
                                     <Sparkles className="h-3.5 w-3.5" />
@@ -1487,14 +1487,14 @@ export default function ReviewWorkspace({
                                 </button>
                                 <button
                                     onClick={() => setShowND30Modal(false)}
-                                    className="rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-xs font-semibold text-white hover:bg-white/10 transition-colors"
+                                    className="rounded-xl border border-border bg-muted px-4 py-2 text-xs font-semibold text-foreground hover:bg-muted transition-colors"
                                 >
                                     Đóng
                                 </button>
                                 <button
                                     onClick={handleExportND30Docx}
                                     disabled={isExporting}
-                                    className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-[#10B981] to-[#059669] px-5 py-2 text-xs font-bold text-white shadow-lg hover:opacity-90 disabled:opacity-50 transition-opacity"
+                                    className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-success to-success px-5 py-2 text-xs font-bold text-white shadow-lg hover:opacity-90 disabled:opacity-50 transition-opacity"
                                 >
                                     <Download className="h-4 w-4" />
                                     <span>Ban hành văn bản DOCX</span>

@@ -5,16 +5,15 @@ import { useRouter } from "next/navigation";
 import AppNavbar from "@/components/ui/app-navbar";
 import PageBreadcrumb from "@/components/ui/page-breadcrumb";
 import PageContainer from "@/components/ui/page-container";
-import { Button } from "@/components/ui/button";
-import { Plus, FolderKanban, Users, ShieldAlert, CheckCircle } from "lucide-react";
-import KpiCardGrid from "@/components/crm/kpi-card-grid";
+import { SharedDashboardButton, SharedDashboardPageHeader } from "@/components/shares";
+import { Plus, FolderKanban } from "lucide-react";
 import FilterBar from "@/components/crm/filter-bar";
 import ViewSwitcher from "@/components/crm/view-switcher";
-import GroupsCardView from "./groups-card-view";
+import GroupsBoard, { SeverityStrip, memberCount } from "./groups-board";
 import GroupsTableView from "./groups-table-view";
 import GroupFormDialog from "@/components/management/group-form-dialog";
-import type { GroupListItem, GroupKpis } from "@/app/dashboard/management-types";
-import type { KpiCardData, FilterOption } from "@/lib/crm/types";
+import type { GroupListItem, GroupKpis, GroupStatus } from "@/app/dashboard/management-types";
+import type { FilterOption } from "@/lib/crm/types";
 
 interface Props {
   groups: GroupListItem[];
@@ -30,57 +29,52 @@ const TYPE_OPTIONS: FilterOption[] = [
   { value: "other", label: "Other" },
 ];
 
-export default function GroupsListClient({ groups, kpis }: Props) {
+export default function GroupsListClient({ groups }: Props) {
   const router = useRouter();
   const [view, setView] = useState<ViewMode>("card");
   const [search, setSearch] = useState("");
   const [typeFilter, setTypeFilter] = useState("");
+  const [statusFilter, setStatusFilter] = useState<GroupStatus | "">("");
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editTarget, setEditTarget] = useState<GroupListItem | null>(null);
 
   const filtered = useMemo(() => {
     return groups.filter((g) => {
+      if (statusFilter && g.status !== statusFilter) return false;
       if (typeFilter && g.type !== typeFilter) return false;
       if (!search) return true;
       return g.name.toLowerCase().includes(search.toLowerCase());
     });
-  }, [groups, search, typeFilter]);
+  }, [groups, search, typeFilter, statusFilter]);
 
-  const kpiCards: KpiCardData[] = [
-    { label: "Total Groups", value: kpis.totalGroups, icon: FolderKanban },
-    { label: "Total Members", value: kpis.totalMembers, icon: Users },
-    { label: "Active Groups", value: kpis.activeGroups, icon: CheckCircle },
-    { label: "At Risk", value: kpis.atRiskGroups, icon: ShieldAlert },
-  ];
-
-  const clearAll = () => { setSearch(""); setTypeFilter(""); };
+  const clearAll = () => { setSearch(""); setTypeFilter(""); setStatusFilter(""); };
   const handleRowClick = (g: GroupListItem) => router.push(`/dashboard/groups/${g.id}`);
   const handleEdit = (g: GroupListItem) => setEditTarget(g);
 
   return (
-    <div className="bg-transparent text-[#ECF0F7] pb-12">
+    <div className="bg-transparent text-foreground pb-12">
       <AppNavbar />
       <PageContainer>
         <PageBreadcrumb breadcrumbs={[{ label: "Dashboard", href: "/dashboard" }, { label: "Groups" }]} />
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-10">
-          <div className="space-y-1">
-            <h1 className="text-4xl font-extralight tracking-tight text-[#ECF0F7] font-display">Team Workspaces</h1>
-            <p className="text-sm text-[#5A6882] font-light">Structure your organization into departments, batches, and high-impact campaigns</p>
-          </div>
-          <Button
-            onClick={() => setDialogOpen(true)}
-            className="bg-[#7C8FFF] hover:bg-[#5B6CF0] text-white h-12 px-8 rounded-xl shadow-lg shadow-[#7C8FFF]/20 transition-all font-semibold gap-2 border-0"
-          >
-            <Plus className="w-5 h-5" /> Create New Group
-          </Button>
-        </div>
+        <SharedDashboardPageHeader
+          title="Groups"
+          icon={FolderKanban}
+          badge={{ label: `${groups.length} nhóm · ${groups.reduce((n, g) => n + memberCount(g), 0)} thành viên` }}
+          description="Chia tổ chức thành phòng ban, đợt tuyển và các chiến dịch trọng điểm"
+          actions={(
+            <SharedDashboardButton variant="primary" onClick={() => setDialogOpen(true)} leadingIcon={<Plus className="h-4 w-4" />}>
+              Create New Group
+            </SharedDashboardButton>
+          )}
+        />
 
-        <KpiCardGrid items={kpiCards} />
+        {groups.length > 0 && <SeverityStrip groups={groups} value={statusFilter} onChange={setStatusFilter} />}
 
-        <div className="flex items-center justify-between gap-3 mt-6 mb-4">
+        <div className="flex items-center justify-between gap-3 mb-6">
           <FilterBar
             search={search}
             onSearchChange={setSearch}
+            searchPlaceholder="Tìm theo tên nhóm..."
             filters={[
               { key: "type", label: "Type", options: TYPE_OPTIONS, value: typeFilter, onChange: setTypeFilter },
             ]}
@@ -89,7 +83,7 @@ export default function GroupsListClient({ groups, kpis }: Props) {
           <ViewSwitcher value={view} onChange={(v) => setView(v as ViewMode)} views={["card", "table"]} />
         </div>
 
-        {view === "card" && <GroupsCardView groups={filtered} onCardClick={handleRowClick} onEdit={handleEdit} />}
+        {view === "card" && <GroupsBoard groups={filtered} onOpen={handleRowClick} onEdit={handleEdit} />}
         {view === "table" && <GroupsTableView groups={filtered} onRowClick={handleRowClick} onEdit={handleEdit} />}
       </PageContainer>
 

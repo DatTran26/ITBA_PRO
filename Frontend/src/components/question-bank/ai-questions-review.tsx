@@ -112,7 +112,7 @@ export function AiQuestionsReview({
       <div className="flex flex-wrap items-center gap-3">
         <button
           onClick={toggleAll}
-          className="text-sm text-[#8B99B0] hover:text-[#ECF0F7] transition-colors"
+          className="text-sm text-muted-foreground hover:text-foreground transition-colors"
         >
           {allSelected ? "Deselect all" : "Select all"} ({questions.length})
         </button>
@@ -121,7 +121,7 @@ export function AiQuestionsReview({
           <select
             value={levelOverride}
             onChange={(e) => setLevelOverride(e.target.value)}
-            className="h-9 px-3 text-sm rounded-lg bg-[#1E2840]/80 border border-[#8B99B0]/20 text-[#8B99B0] focus:outline-none focus:border-[#10B981]/40"
+            className="h-9 px-3 text-sm rounded-lg bg-muted/80 border border-border/20 text-muted-foreground focus:outline-none focus:border-border/40"
           >
             <option value="">Level from AI</option>
             {LEVELS.map((l) => (
@@ -132,7 +132,7 @@ export function AiQuestionsReview({
           <Button
             onClick={approve}
             disabled={loading || selectedKeys.size === 0}
-            className="bg-[#10B981] hover:bg-[#0D9E6E] text-white border-0 h-9 px-5 rounded-xl gap-2"
+            className="bg-success hover:bg-success text-white border-0 h-9 px-5 rounded-xl gap-2"
           >
             <CheckCircle2 className="w-4 h-4" />
             {loading ? "Adding..." : `Add ${selectedKeys.size} to Bank`}
@@ -144,8 +144,8 @@ export function AiQuestionsReview({
         {[...grouped.entries()].map(([tag, items]) => (
           <section key={tag} className="space-y-2">
             <div className="flex items-center gap-2 px-1">
-              <h3 className="text-xs font-semibold text-[#8B99B0] uppercase tracking-wider">{tag}</h3>
-              <span className="text-xs bg-[#8B99B0]/10 text-[#5A6882] px-2 py-0.5 rounded-full">{items.length}</span>
+              <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">{tag}</h3>
+              <span className="text-xs bg-muted-foreground/10 text-muted-foreground px-2 py-0.5 rounded-full">{items.length}</span>
             </div>
             <div className="space-y-2">
               {items.map(({ q, idx }) => (

@@ -87,12 +87,12 @@ export default function OverrideScoreDialog({
         className="absolute inset-0 bg-black/60 backdrop-blur-sm"
         onClick={handleClose}
       />
-      <div className="relative bg-[#151D2E] border border-[#8B99B0]/15 rounded-2xl shadow-2xl shadow-black/40 w-full max-w-md p-6 flex flex-col gap-5">
+      <div className="relative bg-muted border border-muted-foreground/15 rounded-2xl shadow-2xl shadow-black/40 w-full max-w-md p-6 flex flex-col gap-5">
         <div className="flex items-center justify-between">
-          <h2 className="text-base font-semibold text-[#ECF0F7]">Chỉnh điểm ứng viên</h2>
+          <h2 className="text-base font-semibold text-foreground">Chỉnh điểm ứng viên</h2>
           <button
             onClick={handleClose}
-            className="text-[#5A6882] hover:text-[#8B99B0] transition-colors text-lg leading-none cursor-pointer"
+            className="text-muted-foreground hover:text-muted-foreground transition-colors text-lg leading-none cursor-pointer"
             aria-label="Đóng"
           >
             ×
@@ -101,8 +101,8 @@ export default function OverrideScoreDialog({
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <div className="flex flex-col gap-1.5">
-            <label className="text-sm text-[#8B99B0]" htmlFor="override-score">
-              Điểm mới <span className="text-[#EF4444]">*</span>
+            <label className="text-sm text-muted-foreground" htmlFor="override-score">
+              Điểm mới <span className="text-danger">*</span>
             </label>
             <input
               id="override-score"
@@ -114,13 +114,13 @@ export default function OverrideScoreDialog({
               onChange={(e) => setScore(e.target.value)}
               placeholder="0 – 100"
               disabled={loading}
-              className="w-full px-3 py-2 rounded-lg bg-[#0F1628] border border-[#8B99B0]/20 text-[#ECF0F7] text-sm placeholder-[#5A6882] focus:outline-none focus:border-[#7C8FFF]/50 disabled:opacity-50"
+              className="w-full px-3 py-2 rounded-lg bg-card border border-muted-foreground/20 text-foreground text-sm placeholder-muted-foreground focus:outline-none focus:border-background/50 disabled:opacity-50"
             />
           </div>
 
           <div className="flex flex-col gap-1.5">
-            <label className="text-sm text-[#8B99B0]" htmlFor="override-reason">
-              Lý do chỉnh điểm <span className="text-[#EF4444]">*</span>
+            <label className="text-sm text-muted-foreground" htmlFor="override-reason">
+              Lý do chỉnh điểm <span className="text-danger">*</span>
             </label>
             <textarea
               id="override-reason"
@@ -129,15 +129,15 @@ export default function OverrideScoreDialog({
               onChange={(e) => setReason(e.target.value)}
               placeholder="Nhập lý do (tối thiểu 10 ký tự)..."
               disabled={loading}
-              className="w-full px-3 py-2 rounded-lg bg-[#0F1628] border border-[#8B99B0]/20 text-[#ECF0F7] text-sm placeholder-[#5A6882] focus:outline-none focus:border-[#7C8FFF]/50 resize-none disabled:opacity-50"
+              className="w-full px-3 py-2 rounded-lg bg-card border border-muted-foreground/20 text-foreground text-sm placeholder-muted-foreground focus:outline-none focus:border-background/50 resize-none disabled:opacity-50"
             />
-            <span className="text-xs text-[#5A6882] text-right">
+            <span className="text-xs text-muted-foreground text-right">
               {reason.trim().length}/10 ký tự tối thiểu
             </span>
           </div>
 
           {error && (
-            <p className="text-sm text-[#EF4444] bg-[#EF4444]/10 border border-[#EF4444]/20 rounded-lg px-3 py-2">
+            <p className="text-sm text-danger bg-danger/10 border border-danger/20 rounded-lg px-3 py-2">
               {error}
             </p>
           )}
@@ -147,14 +147,14 @@ export default function OverrideScoreDialog({
               type="button"
               onClick={handleClose}
               disabled={loading}
-              className="px-4 py-2 rounded-lg text-sm text-[#8B99B0] hover:text-[#ECF0F7] border border-[#8B99B0]/20 hover:border-[#8B99B0]/40 transition-colors disabled:opacity-50 cursor-pointer"
+              className="px-4 py-2 rounded-lg text-sm text-muted-foreground hover:text-foreground border border-muted-foreground/20 hover:border-muted-foreground/40 transition-colors disabled:opacity-50 cursor-pointer"
             >
               Hủy
             </button>
             <button
               type="submit"
               disabled={loading}
-              className="px-4 py-2 rounded-lg text-sm font-medium bg-[#7C8FFF] text-white hover:bg-[#7C8FFF]/80 transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+              className="px-4 py-2 rounded-lg text-sm font-medium bg-primary text-white hover:bg-primary/80 transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
             >
               {loading ? "Đang lưu..." : "Xác nhận"}
             </button>
@@ -173,7 +173,7 @@ export default function OverrideScoreDialog({
       ) : (
         <button
           onClick={handleOpen}
-          className="px-3 py-1.5 rounded-lg text-sm font-medium bg-[#7C8FFF]/15 border border-[#7C8FFF]/30 text-[#7C8FFF] hover:bg-[#7C8FFF]/25 transition-colors cursor-pointer"
+          className="px-3 py-1.5 rounded-lg text-sm font-medium bg-primary/15 border border-primary/30 text-primary hover:bg-primary/25 transition-colors cursor-pointer"
         >
           Chỉnh điểm
         </button>

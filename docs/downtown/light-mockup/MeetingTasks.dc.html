@@ -1,0 +1,322 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&amp;family=JetBrains+Mono:wght@500;600&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap">
+  <style>
+    body { margin: 0; background: #F6F8FB; color: #0F172A; font-family: "Plus Jakarta Sans", system-ui, -apple-system, "Segoe UI", sans-serif; font-size: 14px; line-height: 1.5; -webkit-font-smoothing: antialiased; }
+    a { color: #2F5BEA; text-decoration: none; }
+    a:hover { color: #2549C9; text-decoration: underline; }
+    .display { font-family: "Bricolage Grotesque", "Plus Jakarta Sans", system-ui, sans-serif; font-optical-sizing: auto; letter-spacing: -0.02em; }
+    .mono { font-family: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace; font-variant-numeric: tabular-nums; }
+    button { font: inherit; color: inherit; cursor: pointer; }
+    .btn { transition: background-color 120ms cubic-bezier(.2,.8,.2,1), transform 120ms cubic-bezier(.2,.8,.2,1); }
+    .btn:active { transform: scale(.98); }
+    .btn-primary:hover { background: #2549C9 !important; }
+    .btn-quiet:hover { background: #F1F4F8 !important; }
+    .nav:hover { background: rgba(255,255,255,.08); }
+    aside :focus-visible { outline-color: #FFFFFF; }
+    .task { transition: border-color 200ms cubic-bezier(.2,.8,.2,1), background-color 200ms cubic-bezier(.2,.8,.2,1); }
+    .opt { transition: border-color 120ms cubic-bezier(.2,.8,.2,1), background-color 120ms cubic-bezier(.2,.8,.2,1); }
+    .opt:hover { border-color: #848FA1 !important; }
+    .thread { fill: none; stroke-linecap: round; transition: stroke-dashoffset 600ms cubic-bezier(.2,.8,.2,1), opacity 200ms cubic-bezier(.2,.8,.2,1), stroke-width 200ms cubic-bezier(.2,.8,.2,1); }
+    .thread-dot { transition: opacity 200ms cubic-bezier(.2,.8,.2,1); }
+    .src { transition: background-color 200ms cubic-bezier(.2,.8,.2,1), box-shadow 200ms cubic-bezier(.2,.8,.2,1); border-radius: 4px; }
+    :focus-visible { outline: 2px solid #2F5BEA; outline-offset: 2px; }
+    @media (prefers-reduced-motion: reduce) { .thread, .thread-dot, .src, .task, .opt, .btn { transition: none; } }
+  </style>
+</helmet>
+<div style="display: flex; width: 1440px; height: 960px; background: #F6F8FB; overflow: hidden;">
+
+  <aside style="width: 248px; flex-shrink: 0; background: #2549C9; color: #FFFFFF; border-right: 1px solid rgba(255,255,255,.12); display: flex; flex-direction: column; padding: 16px 12px; gap: 20px; box-sizing: border-box;">
+    <div style="display: flex; align-items: center; gap: 10px; padding: 4px 8px;">
+      <div style="width: 28px; height: 28px; border-radius: 8px; background: #FFFFFF; color: #1B2F8F; display: flex; align-items: center; justify-content: center; font-weight: 700;">D</div>
+      <span class="display" style="font-size: 17px; font-weight: 700;">DownTown</span>
+    </div>
+    <div class="nav" style="display: flex; align-items: center; gap: 10px; height: 36px; padding: 0 10px; border-radius: 8px; color: #DCE3FA; font-weight: 500;">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"></path></svg>
+      <span>Tổng quan</span>
+    </div>
+    <div style="display: flex; flex-direction: column; gap: 2px;">
+      <div style="font-size: 12px; font-weight: 600; color: #DCE3FA; padding: 0 10px 4px;">Công việc</div>
+      <div class="nav" style="display: flex; align-items: center; gap: 10px; height: 36px; padding: 0 10px; border-radius: 8px; background: rgba(255,255,255,.14); color: #FFFFFF; font-weight: 600;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="11" rx="3"></rect><path d="M5 11a7 7 0 0 0 14 0M12 18v3"></path></svg>
+        <span>Cuộc họp</span>
+      </div>
+      <div class="nav" style="display: flex; align-items: center; gap: 10px; height: 36px; padding: 0 10px; border-radius: 8px; color: #DCE3FA; font-weight: 500;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"></rect><path d="M9 3v18M15 3v18"></path></svg>
+        <span>Kanban</span>
+      </div>
+    </div>
+  </aside>
+
+  <main style="flex: 1; display: flex; flex-direction: column; min-width: 0;">
+    <header style="padding: 24px 32px 16px; display: flex; flex-direction: column; gap: 8px;">
+      <span style="font-size: 13px; color: #5B6577;">Cuộc họp / Họp tuyển dụng tuần 38</span>
+      <div style="display: flex; align-items: center; gap: 12px;">
+        <h1 class="display" style="margin: 0; font-size: 30px; font-weight: 700; line-height: 1.15;">Biên bản và đầu việc</h1>
+        <span style="display: inline-flex; align-items: center; height: 24px; padding: 0 10px; border-radius: 9999px; font-size: 12px; font-weight: 600; background: #EEF1F5; color: #5B6577;">Mở rộng sau v1</span>
+      </div>
+      <span style="color: #5B6577;">14/09, 45 phút, 5 người tham gia. Chủ trì: Trần Thị Mai</span>
+    </header>
+
+    <div data-thread-root="meeting" style="position: relative; flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(0, 1fr) 520px; gap: 72px; padding: 4px 32px 24px;">
+      <section data-thread-edge style="background: #FFFFFF; border: 1px solid #E3E8EF; border-radius: 12px; box-shadow: 0 1px 2px rgba(15,23,42,.05); display: flex; flex-direction: column; min-height: 0; overflow: hidden;">
+        <div style="padding: 14px 20px; border-bottom: 1px solid #E3E8EF; display: flex; justify-content: space-between; align-items: center;">
+          <h2 style="margin: 0; font-size: 16px; font-weight: 600;">Bản chép lời</h2>
+          <span style="font-size: 13px; color: #5B6577;">Tự động từ file ghi âm, chủ trì đã rà soát</span>
+        </div>
+        <div data-thread-scroll style="flex: 1; min-height: 0; overflow: auto; padding: 8px 20px 16px; display: flex; flex-direction: column;">
+          <div style="display: grid; grid-template-columns: 72px minmax(0, 1fr); gap: 12px; padding: 12px 0; border-bottom: 1px solid #E3E8EF;">
+            <span class="mono" style="font-size: 12px; color: #5B6577; padding-top: 2px;">00:02:14</span>
+            <div><div style="font-weight: 600; font-size: 13px;">Trần Thị Mai</div><div>Vị trí Backend Engineer đang có 12 hồ sơ trên 75 điểm mà chưa ai xem.</div></div>
+          </div>
+          <div style="display: grid; grid-template-columns: 72px minmax(0, 1fr); gap: 12px; padding: 12px 0; border-bottom: 1px solid #E3E8EF;">
+            <span class="mono" style="font-size: 12px; color: #5B6577; padding-top: 2px;">00:02:31</span>
+            <div><div style="font-weight: 600; font-size: 13px;">Đỗ Minh Khôi</div><div><span class="src" data-src="t1" style="padding: 1px 3px; background: {{ hlT1 }}; box-shadow: {{ ringT1 }};">Tôi sẽ lọc và chuyển shortlist trước thứ Tư.</span></div></div>
+          </div>
+          <div style="display: grid; grid-template-columns: 72px minmax(0, 1fr); gap: 12px; padding: 12px 0; border-bottom: 1px solid #E3E8EF;">
+            <span class="mono" style="font-size: 12px; color: #5B6577; padding-top: 2px;">00:05:48</span>
+            <div><div style="font-weight: 600; font-size: 13px;">Trần Thị Mai</div><div>Lịch phỏng vấn ngày 17 còn thiếu người gửi lịch cho hai ứng viên.</div></div>
+          </div>
+          <div style="display: grid; grid-template-columns: 72px minmax(0, 1fr); gap: 12px; padding: 12px 0; border-bottom: 1px solid #E3E8EF;">
+            <span class="mono" style="font-size: 12px; color: #5B6577; padding-top: 2px;">00:06:02</span>
+            <div><div style="font-weight: 600; font-size: 13px;">Phương <span style="font-weight: 500; color: #B45309;">(chưa xác định người)</span></div><div><span class="src" data-src="t2" style="padding: 1px 3px; background: {{ hlT2 }}; box-shadow: {{ ringT2 }};">Để Phương nhận, em gửi lịch cho ứng viên ngay trong hôm nay.</span></div></div>
+          </div>
+          <div style="display: grid; grid-template-columns: 72px minmax(0, 1fr); gap: 12px; padding: 12px 0; border-bottom: 1px solid #E3E8EF;">
+            <span class="mono" style="font-size: 12px; color: #5B6577; padding-top: 2px;">00:11:20</span>
+            <div><div style="font-weight: 600; font-size: 13px;">Vũ Ngọc Ánh</div><div>Bộ câu hỏi Go còn thiếu phần xử lý đồng thời.</div></div>
+          </div>
+          <div style="display: grid; grid-template-columns: 72px minmax(0, 1fr); gap: 12px; padding: 12px 0; border-bottom: 1px solid #E3E8EF;">
+            <span class="mono" style="font-size: 12px; color: #5B6577; padding-top: 2px;">00:11:45</span>
+            <div><div style="font-weight: 600; font-size: 13px;">Trần Thị Mai</div><div><span class="src" data-src="t3" style="padding: 1px 3px; background: {{ hlT3 }}; box-shadow: {{ ringT3 }};">Ánh bổ sung vào ngân hàng câu hỏi, hạn cuối tuần sau nhé.</span></div></div>
+          </div>
+          <div style="display: grid; grid-template-columns: 72px minmax(0, 1fr); gap: 12px; padding: 12px 0;">
+            <span class="mono" style="font-size: 12px; color: #5B6577; padding-top: 2px;">00:14:03</span>
+            <div><div style="font-weight: 600; font-size: 13px;">Đỗ Minh Khôi</div><div>Thống nhất giữ ngưỡng sàng lọc 70 điểm.</div></div>
+          </div>
+        </div>
+      </section>
+
+      <section style="display: flex; flex-direction: column; gap: 12px; min-height: 0;">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <h2 style="margin: 0; font-size: 16px; font-weight: 600;">3 đầu việc AI đề xuất</h2>
+          <span style="display: inline-flex; align-items: center; gap: 6px; height: 24px; padding: 0 10px; border-radius: 9999px; background: #EEF2FD; color: #2F5BEA; font-size: 12px; font-weight: 600;">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"></path></svg>
+            AI đề xuất
+          </span>
+        </div>
+
+        <div data-thread-scroll style="flex: 1; min-height: 0; overflow: auto; display: flex; flex-direction: column; gap: 10px;">
+          <article class="task" data-dst="t1" onMouseEnter="{{ hoverT1 }}" onMouseLeave="{{ leave }}" style="background: #FFFFFF; border: 1px solid {{ borderT1 }}; border-radius: 12px; padding: 14px 16px; display: flex; flex-direction: column; gap: 8px;">
+            <span style="font-weight: 600;">Lọc và chuyển shortlist hồ sơ Backend Engineer</span>
+            <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; font-size: 13px;">
+              <div><div style="font-size: 12px; color: #5B6577;">Phụ trách</div><div style="font-weight: 500;">Đỗ Minh Khôi</div></div>
+              <div><div style="font-size: 12px; color: #5B6577;">Hạn</div><div style="font-weight: 500;">17/09, thứ Tư</div></div>
+              <div><div style="font-size: 12px; color: #5B6577;">Ưu tiên</div><div style="font-weight: 500;">Cao</div></div>
+            </div>
+          </article>
+
+          <article class="task" data-dst="t2" onMouseEnter="{{ hoverT2 }}" onMouseLeave="{{ leave }}" style="background: {{ bgT2 }}; border: 1px solid {{ borderT2 }}; border-radius: 12px; padding: 14px 16px; display: flex; flex-direction: column; gap: 8px;">
+            <span style="font-weight: 600;">Gửi lịch phỏng vấn ngày 17/09 cho 2 ứng viên</span>
+            <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; font-size: 13px;">
+              <div><div style="font-size: 12px; color: #5B6577;">Phụ trách</div><div style="font-weight: 500; color: {{ ownerColor }};">{{ ownerLabel }}</div></div>
+              <div><div style="font-size: 12px; color: #5B6577;">Hạn</div><div style="font-weight: 500;">15/09, hôm nay</div></div>
+              <div><div style="font-size: 12px; color: #5B6577;">Ưu tiên</div><div style="font-weight: 500;">Cao</div></div>
+            </div>
+            <sc-if value="{{ needsPick }}" hint-placeholder-val="{{ true }}">
+              <div role="radiogroup" aria-label="Chọn người phụ trách" style="display: flex; flex-direction: column; gap: 6px; margin-top: 2px;">
+                <span style="font-size: 13px; color: #B45309; font-weight: 500;">Có 2 nhân viên tên Phương. Chọn đúng người trước khi tạo việc.</span>
+                <div style="display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 8px;">
+                  <button class="opt" role="radio" aria-checked="false" onClick="{{ pickHrbp }}" style="min-height: 44px; text-align: left; padding: 8px 12px; border-radius: 8px; border: 1px solid #E3E8EF; background: #FFFFFF;">
+                    <div style="font-weight: 600; font-size: 13px;">Lê Minh Phương</div>
+                    <div style="font-size: 12px; color: #5B6577;">HRBP, Phòng Nhân sự</div>
+                  </button>
+                  <button class="opt" role="radio" aria-checked="false" onClick="{{ pickAcc }}" style="min-height: 44px; text-align: left; padding: 8px 12px; border-radius: 8px; border: 1px solid #E3E8EF; background: #FFFFFF;">
+                    <div style="font-weight: 600; font-size: 13px;">Nguyễn Thu Phương</div>
+                    <div style="font-size: 12px; color: #5B6577;">Kế toán, Phòng Tài chính</div>
+                  </button>
+                </div>
+              </div>
+            </sc-if>
+          </article>
+
+          <article class="task" data-dst="t3" onMouseEnter="{{ hoverT3 }}" onMouseLeave="{{ leave }}" style="background: #FFFFFF; border: 1px solid {{ borderT3 }}; border-radius: 12px; padding: 14px 16px; display: flex; flex-direction: column; gap: 8px;">
+            <span style="font-weight: 600;">Bổ sung câu hỏi xử lý đồng thời vào bộ câu hỏi Go</span>
+            <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; font-size: 13px;">
+              <div><div style="font-size: 12px; color: #5B6577;">Phụ trách</div><div style="font-weight: 500;">Vũ Ngọc Ánh</div></div>
+              <div><div style="font-size: 12px; color: #5B6577;">Hạn</div><div style="font-weight: 500;">26/09</div></div>
+              <div><div style="font-size: 12px; color: #5B6577;">Ưu tiên</div><div style="font-weight: 500;">Trung bình</div></div>
+            </div>
+          </article>
+
+          <div style="padding: 12px 16px; border-radius: 12px; background: #F1F4F8; font-size: 13px;">
+            <span style="font-weight: 600;">Quyết định ghi nhận:</span> giữ ngưỡng sàng lọc 70 điểm cho Backend Engineer.
+          </div>
+        </div>
+
+        <div style="background: #FFFFFF; border: 1px solid #E3E8EF; border-radius: 12px; padding: 14px 16px; display: flex; flex-direction: column; gap: 10px;">
+          <sc-if value="{{ notCreated }}" hint-placeholder-val="{{ true }}">
+            <button role="checkbox" aria-checked="{{ chaired }}" onClick="{{ toggleChair }}" style="display: flex; align-items: center; gap: 10px; padding: 0; border: 0; background: transparent; text-align: left; font-size: 13px; min-height: 32px;">
+              <span style="width: 18px; height: 18px; flex-shrink: 0; border-radius: 6px; border: 1.5px solid {{ boxBorder }}; background: {{ boxBg }}; color: #FFFFFF; display: flex; align-items: center; justify-content: center; box-sizing: border-box;">
+                <sc-if value="{{ chaired }}" hint-placeholder-val="{{ false }}"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-10"></path></svg></sc-if>
+              </span>
+              Tôi là chủ trì và đã kiểm tra biên bản
+            </button>
+            <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px;">
+              <span style="font-size: 13px; color: #5B6577;">{{ helper }}</span>
+              <button class="btn btn-primary" onClick="{{ create }}" aria-disabled="{{ createDisabled }}" style="height: 40px; padding: 0 16px; border-radius: 8px; border: 0; background: #2F5BEA; color: #FFFFFF; font-weight: 600; white-space: nowrap; opacity: {{ createOpacity }}; cursor: {{ createCursor }};">Tạo 3 thẻ việc</button>
+            </div>
+          </sc-if>
+          <sc-if value="{{ created }}" hint-placeholder-val="{{ false }}">
+            <div role="status" style="display: flex; align-items: center; gap: 8px; color: #15803D; font-weight: 500; font-size: 13px;">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-10"></path></svg>
+              Đã tạo 3 thẻ việc trên Kanban Tuyển dụng. Mỗi thẻ giữ liên kết về câu nói nguồn.
+            </div>
+          </sc-if>
+        </div>
+      </section>
+
+      <svg aria-hidden="true" style="position: absolute; left: 0; top: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; z-index: 2;">
+        <sc-for list="{{ threads }}" as="t" hint-placeholder-count="0">
+          <path class="thread" d="{{ t.d }}" pathLength="1" style="stroke: {{ t.color }}; stroke-width: {{ t.width }}px; stroke-dasharray: {{ t.dash }}; stroke-dashoffset: {{ t.offset }}; opacity: {{ t.opacity }}; transition-delay: {{ t.delay }};"></path>
+          <circle class="thread-dot" cx="{{ t.x1 }}" cy="{{ t.y1 }}" r="3.5" style="fill: {{ t.color }}; opacity: {{ t.dotOpacity }};"></circle>
+          <circle class="thread-dot" cx="{{ t.x2 }}" cy="{{ t.y2 }}" r="3.5" style="fill: {{ t.color }}; opacity: {{ t.dotOpacity }};"></circle>
+        </sc-for>
+      </svg>
+    </div>
+  </main>
+</div>
+</x-dc>
+<script data-dc-script>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { geo: {}, drawn: false, settled: false, hover: null, picked: null, chaired: false, created: false };
+    this.timers = [];
+  }
+  componentDidMount() {
+    this.initThreads();
+    this.timers.push(setTimeout(() => this.setState({ drawn: true }), 400));
+    this.timers.push(setTimeout(() => this.setState({ settled: true }), 400 + 600 + 3 * 120));
+  }
+  componentDidUpdate() {
+    if (this.onLayout) this.onLayout();
+  }
+  componentWillUnmount() {
+    this.timers.forEach((t) => clearTimeout(t));
+    this.destroyThreads();
+  }
+  initThreads() {
+    this.onLayout = () => {
+      cancelAnimationFrame(this.layoutRaf);
+      this.layoutRaf = requestAnimationFrame(() => this.measureThreads());
+    };
+    if (window.ResizeObserver) {
+      this.ro = new ResizeObserver(this.onLayout);
+      document.querySelectorAll('[data-thread-root]').forEach((el) => this.ro.observe(el));
+    }
+    this.scrollers = Array.prototype.slice.call(document.querySelectorAll('[data-thread-scroll]'));
+    this.scrollers.forEach((el) => el.addEventListener('scroll', this.onLayout, { passive: true }));
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(this.onLayout);
+    this.onLayout();
+  }
+  destroyThreads() {
+    cancelAnimationFrame(this.layoutRaf);
+    if (this.ro) this.ro.disconnect();
+    (this.scrollers || []).forEach((el) => el.removeEventListener('scroll', this.onLayout));
+  }
+  measureThreads() {
+    const out = {};
+    document.querySelectorAll('[data-thread-root]').forEach((root) => {
+      const rr = root.getBoundingClientRect();
+      root.querySelectorAll('[data-src]').forEach((s) => {
+        const k = s.getAttribute('data-src');
+        const d = root.querySelector('[data-dst="' + k + '"]');
+        if (!d) return;
+        const a = s.getBoundingClientRect();
+        const b = d.getBoundingClientRect();
+        if (!a.width || !b.width) return;
+        const edge = s.closest('[data-thread-edge]');
+        const right = edge ? edge.getBoundingClientRect().right : a.right;
+        const x1 = Math.round(right - rr.left + 6);
+        const y1 = Math.round(a.top + a.height / 2 - rr.top);
+        const x2 = Math.round(b.left - rr.left - 6);
+        const y2 = Math.round(b.top + Math.min(b.height / 2, 24) - rr.top);
+        const bend = Math.max(32, Math.abs(x2 - x1) * 0.5);
+        out[k] = {
+          x1: x1, y1: y1, x2: x2, y2: y2, len: Math.hypot(x2 - x1, y2 - y1) * 1.15 + 1,
+          d: 'M' + x1 + ' ' + y1 + ' C' + (x1 + bend) + ' ' + y1 + ' ' + (x2 - bend) + ' ' + y2 + ' ' + x2 + ' ' + y2
+        };
+      });
+    });
+    if (JSON.stringify(out) !== JSON.stringify(this.state.geo || {})) this.setState({ geo: out });
+  }
+  thread(key, opt) {
+    const g = (this.state.geo || {})[key];
+    if (!g) return null;
+    const drawn = !!opt.drawn;
+    const warn = !!opt.warn;
+    const unit = (5 / g.len).toFixed(4);
+    return {
+      d: g.d, x1: g.x1, y1: g.y1, x2: g.x2, y2: g.y2,
+      color: warn ? opt.warnColor : opt.color,
+      width: opt.active ? '2.5' : '1.5',
+      dash: warn && drawn ? unit + ' ' + unit : '1 1',
+      offset: drawn ? '0' : '1',
+      opacity: opt.dim ? '0.25' : '1',
+      delay: drawn && !opt.settled ? ((opt.index || 0) * 120) + 'ms' : '0ms',
+      dotOpacity: drawn ? (opt.dim ? '0.25' : '1') : '0'
+    };
+  }
+  renderVals() {
+    const s = this.state;
+    const warnT2 = !s.picked;
+    const hl = (k) => {
+      if (!s.drawn) return 'transparent';
+      return k === 't2' && warnT2 ? '#FDF3E6' : '#EEF2FD';
+    };
+    const ring = (k) => (s.hover === k ? '0 0 0 2px ' + (k === 't2' && warnT2 ? '#B45309' : '#2F5BEA') : 'none');
+    const border = (k) => (s.hover === k ? '#848FA1' : '#E3E8EF');
+    const threads = ['t1', 't2', 't3'].map((k, i) => this.thread(k, {
+      drawn: s.drawn, settled: s.settled, index: i,
+      warn: k === 't2' && warnT2, color: '#2F5BEA', warnColor: '#B45309',
+      active: s.hover === k, dim: !!s.hover && s.hover !== k
+    })).filter(Boolean);
+    const owners = { hrbp: 'Lê Minh Phương, HRBP', acc: 'Nguyễn Thu Phương, Kế toán' };
+    const canCreate = !!s.picked && s.chaired && !s.created;
+    return {
+      threads: threads,
+      hlT1: hl('t1'), hlT2: hl('t2'), hlT3: hl('t3'),
+      ringT1: ring('t1'), ringT2: ring('t2'), ringT3: ring('t3'),
+      borderT1: border('t1'), borderT3: border('t3'),
+      borderT2: warnT2 ? '#FDF3E6' : border('t2'), bgT2: warnT2 ? '#FDF3E6' : '#FFFFFF',
+      ownerLabel: s.picked ? owners[s.picked] : 'Chưa xác định',
+      ownerColor: s.picked ? '#0F172A' : '#B45309',
+      needsPick: warnT2,
+      hoverT1: () => this.setState({ hover: 't1' }),
+      hoverT2: () => this.setState({ hover: 't2' }),
+      hoverT3: () => this.setState({ hover: 't3' }),
+      leave: () => this.setState({ hover: null }),
+      pickHrbp: () => this.setState({ picked: 'hrbp' }),
+      pickAcc: () => this.setState({ picked: 'acc' }),
+      chaired: s.chaired,
+      boxBorder: s.chaired ? '#2F5BEA' : '#848FA1', boxBg: s.chaired ? '#2F5BEA' : '#FFFFFF',
+      toggleChair: () => this.setState({ chaired: !this.state.chaired }),
+      helper: !s.picked ? 'Chọn người phụ trách cho việc thứ 2.' : (!s.chaired ? 'Chủ trì cần xác nhận đã kiểm tra biên bản.' : 'Sẵn sàng tạo thẻ việc.'),
+      createDisabled: canCreate ? 'false' : 'true',
+      createOpacity: canCreate ? '1' : '0.45',
+      createCursor: canCreate ? 'pointer' : 'not-allowed',
+      create: () => { if (canCreate) this.setState({ created: true }); },
+      created: s.created, notCreated: !s.created
+    };
+  }
+}
+</script>
+</body>
+</html>

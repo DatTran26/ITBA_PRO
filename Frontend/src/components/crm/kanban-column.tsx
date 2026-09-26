@@ -9,27 +9,22 @@ interface KanbanColumnProps {
   children: ReactNode;
 }
 
+/** Làn kanban theo ngôn ngữ HR: nền làn nhạt, vạch màu trạng thái trên đầu, đếm pill. */
 export default function KanbanColumn({ label, color, count, children }: KanbanColumnProps) {
   return (
-    <div className="flex flex-col min-w-[260px] max-w-[300px] bg-[#1B253B] border border-[#8B99B0]/10 rounded-lg">
-      {/* Column header */}
-      <div className="flex items-center gap-2 px-3 py-2.5 border-b border-[#8B99B0]/10">
-        <span
-          className="w-2 h-2 rounded-full shrink-0"
-          style={{ backgroundColor: color }}
-        />
-        <span className="text-sm font-medium text-[#ECF0F7] truncate">{label}</span>
-        <span className="ml-auto text-xs text-[#5A6882] bg-[#222C4A] rounded-full px-2 py-0.5">
+    <div className={`flex flex-col shrink-0 rounded-2xl border overflow-hidden ${count ? "w-[280px]" : "w-[200px]"}`}
+         style={{ backgroundColor: `color-mix(in srgb, ${color} 7%, var(--card))`, borderColor: `color-mix(in srgb, ${color} 22%, var(--card))` }}>
+      <span className="h-1" style={{ backgroundColor: color }} />
+      <div className="flex items-center gap-2 px-4 py-3">
+        <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: color }} />
+        <span className="text-sm font-extrabold text-foreground truncate">{label}</span>
+        <span className="ml-auto rounded-full bg-card px-2 py-0.5 text-xs font-bold tabular-nums text-muted-foreground">
           {count}
         </span>
       </div>
-
-      {/* Scrollable card list */}
-      <div className="flex-1 overflow-y-auto p-2 space-y-2 max-h-[60vh]">
+      <div className="flex-1 overflow-y-auto px-2.5 pb-2.5 space-y-2 max-h-[68vh]">
         {count === 0 ? (
-          <div className="flex items-center justify-center py-8">
-            <p className="text-xs text-[#5A6882]">No items</p>
-          </div>
+          <p className="py-6 text-center text-xs text-muted-foreground">Trống</p>
         ) : (
           children
         )}

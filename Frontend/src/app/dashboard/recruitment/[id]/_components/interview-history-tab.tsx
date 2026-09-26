@@ -7,15 +7,15 @@ const LOCATION_ICON = { online: Video, office: Building2, phone: Phone } as cons
 const LOCATION_LABEL = { online: "Online", office: "Văn phòng", phone: "Điện thoại" };
 
 const CONFIRM_CFG = {
-  confirmed: { label: "Đã xác nhận", cls: "text-[#36DDAB]" },
-  pending:   { label: "Chờ xác nhận", cls: "text-[#F59E0B]" },
-  declined:  { label: "Từ chối",       cls: "text-[#FF6B7A]" },
+  confirmed: { label: "Đã xác nhận", cls: "text-success" },
+  pending:   { label: "Chờ xác nhận", cls: "text-warning" },
+  declined:  { label: "Từ chối",       cls: "text-danger" },
 } as const;
 
 const STATUS_CFG = {
-  scheduled:  { label: "Đã lên lịch",  cls: "bg-[#7C8FFF]/10 text-[#7C8FFF] border-[#7C8FFF]/20" },
-  completed:  { label: "Đã hoàn thành", cls: "bg-[#36DDAB]/10 text-[#36DDAB] border-[#36DDAB]/20" },
-  cancelled:  { label: "Đã huỷ",        cls: "bg-[#FF6B7A]/10 text-[#FF6B7A] border-[#FF6B7A]/20" },
+  scheduled:  { label: "Đã lên lịch",  cls: "bg-primary/10 text-primary border-border/20" },
+  completed:  { label: "Đã hoàn thành", cls: "bg-success/10 text-success border-border/20" },
+  cancelled:  { label: "Đã huỷ",        cls: "bg-danger/10 text-danger border-border/20" },
 } as const;
 
 interface InterviewResult {
@@ -72,7 +72,7 @@ export default function InterviewHistoryTab({ applicationId }: Props) {
   if (loading) {
     return (
       <div className="flex justify-center py-10">
-        <Loader2 className="w-5 h-5 animate-spin text-[#7C8FFF]" />
+        <Loader2 className="w-5 h-5 animate-spin text-primary" />
       </div>
     );
   }
@@ -80,8 +80,8 @@ export default function InterviewHistoryTab({ applicationId }: Props) {
   if (records.length === 0) {
     return (
       <div className="text-center py-10">
-        <CalendarDays className="w-8 h-8 text-[#5A6882] mx-auto mb-2" />
-        <p className="text-sm text-[#5A6882]">Chưa có lịch sử phỏng vấn</p>
+        <CalendarDays className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
+        <p className="text-sm text-muted-foreground">Chưa có lịch sử phỏng vấn</p>
       </div>
     );
   }
@@ -95,11 +95,11 @@ export default function InterviewHistoryTab({ applicationId }: Props) {
         const result = rec.interview_results?.[0] ?? null;
 
         return (
-          <div key={rec.id} className="bg-[#0A1120] border border-[#8B99B0]/10 rounded-xl p-4 space-y-3">
+          <div key={rec.id} className="bg-background border border-border/10 rounded-xl p-4 space-y-3">
             {/* Header row */}
             <div className="flex items-center justify-between gap-3 flex-wrap">
               <div className="flex items-center gap-2">
-                <span className="px-2.5 py-0.5 rounded-lg text-xs font-bold bg-[#7C8FFF]/10 text-[#7C8FFF] border border-[#7C8FFF]/20">
+                <span className="px-2.5 py-0.5 rounded-lg text-xs font-bold bg-primary/10 text-primary border border-border/20">
                   {rec.interview_round}
                 </span>
                 <span className={`px-2 py-0.5 rounded-full text-xs border ${statusCfg.cls}`}>
@@ -107,7 +107,7 @@ export default function InterviewHistoryTab({ applicationId }: Props) {
                 </span>
               </div>
               {result && (
-                <div className={`flex items-center gap-1.5 text-xs font-bold ${result.result === "pass" ? "text-[#36DDAB]" : "text-[#FF6B7A]"}`}>
+                <div className={`flex items-center gap-1.5 text-xs font-bold ${result.result === "pass" ? "text-success" : "text-danger"}`}>
                   {result.result === "pass"
                     ? <CheckCircle2 className="w-4 h-4" />
                     : <XCircle className="w-4 h-4" />}
@@ -117,7 +117,7 @@ export default function InterviewHistoryTab({ applicationId }: Props) {
             </div>
 
             {/* Info row */}
-            <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs text-[#8B99B0]">
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs text-muted-foreground">
               <span className="flex items-center gap-1.5">
                 <CalendarDays className="w-3.5 h-3.5" />
                 {formatViDateTime(rec.scheduled_at)}
@@ -125,7 +125,7 @@ export default function InterviewHistoryTab({ applicationId }: Props) {
               <span className="flex items-center gap-1.5">
                 <LocationIcon className="w-3.5 h-3.5" />
                 {LOCATION_LABEL[rec.location_type]}
-                {rec.location_detail && <span className="text-[#5A6882]">· {rec.location_detail}</span>}
+                {rec.location_detail && <span className="text-muted-foreground">· {rec.location_detail}</span>}
               </span>
               <span className="flex items-center gap-1.5">
                 <Clock className="w-3.5 h-3.5" />
@@ -139,7 +139,7 @@ export default function InterviewHistoryTab({ applicationId }: Props) {
                 Ứng viên: {confirmCfg.label}
               </span>
               {rec.candidate_confirmed_at && rec.candidate_confirmation === "confirmed" && (
-                <span className="text-[#5A6882]">
+                <span className="text-muted-foreground">
                   lúc {new Date(rec.candidate_confirmed_at).toLocaleString("vi-VN")}
                 </span>
               )}
@@ -148,7 +148,7 @@ export default function InterviewHistoryTab({ applicationId }: Props) {
                   href={rec.test_link}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-[#7C8FFF] hover:underline"
+                  className="text-primary hover:underline"
                 >
                   Link test →
                 </a>
@@ -157,14 +157,14 @@ export default function InterviewHistoryTab({ applicationId }: Props) {
 
             {/* Result note */}
             {result?.note && (
-              <p className="text-xs text-[#8B99B0] bg-[#8B99B0]/5 rounded-lg px-3 py-2">
+              <p className="text-xs text-muted-foreground bg-muted-foreground/5 rounded-lg px-3 py-2">
                 {result.note}
               </p>
             )}
 
             {/* Recruiter note */}
             {rec.recruiter_note && (
-              <p className="text-xs text-[#5A6882] italic">
+              <p className="text-xs text-muted-foreground italic">
                 Ghi chú: {rec.recruiter_note}
               </p>
             )}

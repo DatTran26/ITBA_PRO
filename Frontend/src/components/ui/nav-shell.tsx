@@ -76,7 +76,7 @@ export default function NavShell({ user, layout, sidebarCollapsed, children }: N
 
             {/* Mobile drawer */}
             <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
-                <SheetContent side="left" className="p-0 w-[280px] bg-[#101828] border-[#8B99B0]/10">
+                <SheetContent side="left" className="p-0 w-[280px] bg-sidebar border-muted-foreground/10">
                     <AppSidebar
                         user={user}
                         collapsed={false}

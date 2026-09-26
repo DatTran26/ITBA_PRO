@@ -14,6 +14,12 @@ links:
 
 # Town Hown Design Guidelines
 
+> **Phạm vi chủ đề.** Tài liệu này mô tả chủ đề tối `.dark`, vẫn là mặc định của
+> toàn app. Bốn route demo (`/`, `/login`, `/dashboard`,
+> `/dashboard/recruitment`) đã chuyển sang chủ đề sáng `.tg`, xem
+> [design-tokens-topgo.md](design-tokens-topgo.md) và
+> [design-guidelines-topgo.md](design-guidelines-topgo.md).
+
 Tài liệu này là chuẩn thiết kế hiện hành cho giao diện sản phẩm Town Hown trong
 `Frontend/`. Nó kế thừa hướng thiết kế Deep Intelligence của ITBA.AI, đổi phạm
 vi sở hữu sang Town Hown và làm rõ phần nào thuộc contract, phần nào còn là nợ

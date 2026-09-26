@@ -12,21 +12,16 @@ import {
     DialogFooter, DialogHeader, DialogTitle,
 } from "@/components/ui/dialog";
 import DashboardHeader from "@/components/dashboard/dashboard-header";
-import KpiCards from "@/components/dashboard/kpi-cards";
-import MonthlyChart from "@/components/dashboard/monthly-chart";
-import PipelineOverview from "@/components/dashboard/pipeline-overview";
 import AssessmentGrid from "@/components/dashboard/assessment-grid";
-import CandidatesAttention from "@/components/dashboard/candidates-attention";
-import AiInsights from "@/components/dashboard/ai-insights";
+import RecruitmentOverview from "@/components/dashboard/recruitment-overview";
+import EmployeeOverview from "@/components/dashboard/employee-overview";
 import DashboardModeTabs from "@/components/dashboard/dashboard-mode-tabs";
-import EmployeeKpiCards from "@/components/dashboard/employee-kpi-cards";
-import SkillGapOverview from "@/components/dashboard/skill-gap-overview";
 import AdminKpiCards from "@/components/dashboard/admin-kpi-cards";
 import TokenUsageChart from "@/components/dashboard/token-usage-chart";
 import FeatureBreakdown from "@/components/dashboard/feature-breakdown";
 import ActiveRecruiters from "@/components/dashboard/active-recruiters";
 import AdminQuickLinks from "@/components/dashboard/admin-quick-links";
-import { ShieldAlert, Trash2, Power, AlertTriangle, CheckCircle2 } from "lucide-react";
+import { Trash2, Power, AlertTriangle } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import type { DashboardUser, DashboardTest, DashboardStats, PipelineStage, AttentionCandidate, MonthlyData, PendingAiResult, DashboardMode, EmployeeStats, SkillGapItem, AdminStats } from "./types";
 import HrDashboardClient from "./hr-dashboard-client";
@@ -99,7 +94,7 @@ export default function DashboardClient({
     }
 
     return (
-        <PageTransition className="min-h-screen bg-transparent text-[#ECF0F7] font-body selection:bg-[#5B6CF0]/30 selection:text-white pb-12">
+        <PageTransition className="min-h-screen bg-transparent text-foreground font-body selection:bg-primary/30 selection:text-white pb-12">
             {layout !== "sidebar" && <AppNavbar user={user} />}
 
             <PageContainer className="relative z-10">
@@ -126,27 +121,14 @@ export default function DashboardClient({
                     </>
                 ) : mode === "recruitment" ? (
                     <>
-                        {/* Analytics block: Chart + KPI side by side */}
-                        <div className="grid grid-cols-1 lg:grid-cols-4 gap-5 mb-8">
-                            <div className="lg:col-span-3">
-                                <MonthlyChart data={monthlyData} />
-                            </div>
-                            <div className="lg:col-span-1">
-                                <KpiCards stats={stats} />
-                            </div>
-                        </div>
-
-                        {/* Pipeline + AI Insights side by side */}
-                        <div className="grid grid-cols-1 lg:grid-cols-5 gap-5 mb-10">
-                            <div className="lg:col-span-3">
-                                <PipelineOverview stages={pipeline} />
-                            </div>
-                            <div className="lg:col-span-2">
-                                <AiInsights stats={stats} tests={localTests} pendingAiResults={pendingAiResults} />
-                            </div>
-                        </div>
-
-                        <CandidatesAttention candidates={attentionCandidates} />
+                        <RecruitmentOverview
+                            stats={stats}
+                            tests={localTests}
+                            monthlyData={monthlyData}
+                            attentionCandidates={attentionCandidates}
+                            pendingAiResults={pendingAiResults}
+                        />
+                        <div className="mt-8" />
                         <AssessmentGrid
                             tests={localTests}
                             onToggleStatus={setConfirmToggle}
@@ -155,26 +137,13 @@ export default function DashboardClient({
                     </>
                 ) : (
                     <>
-                        {/* Employee Analytics: Chart + Employee KPIs */}
-                        <div className="grid grid-cols-1 lg:grid-cols-4 gap-5 mb-8">
-                            <div className="lg:col-span-3">
-                                <MonthlyChart data={monthlyData} />
-                            </div>
-                            <div className="lg:col-span-1">
-                                <EmployeeKpiCards stats={employeeStats ?? null} />
-                            </div>
-                        </div>
-
-                        {/* Pipeline + Skill Gaps */}
-                        <div className="grid grid-cols-1 lg:grid-cols-5 gap-5 mb-10">
-                            <div className="lg:col-span-3">
-                                <PipelineOverview stages={pipeline} title="Evaluation Pipeline" />
-                            </div>
-                            <div className="lg:col-span-2">
-                                <SkillGapOverview gaps={skillGaps ?? []} />
-                            </div>
-                        </div>
-
+                        <EmployeeOverview
+                            stats={employeeStats ?? null}
+                            pipeline={pipeline}
+                            monthlyData={monthlyData}
+                            skillGaps={skillGaps ?? []}
+                        />
+                        <div className="mt-8" />
                         <AssessmentGrid
                             tests={localTests}
                             onToggleStatus={setConfirmToggle}
@@ -186,14 +155,14 @@ export default function DashboardClient({
 
             {/* Status Toggle Dialog - Pro VIP */}
             <Dialog open={!!confirmToggle} onOpenChange={(open) => !open && setConfirmToggle(null)}>
-                <DialogContent className="bg-[#0F172A]/95 border-[#8B99B0]/20 text-[#ECF0F7] sm:max-w-[440px] rounded-[2.5rem] p-8 shadow-2xl overflow-hidden">
-                    <div className="absolute -top-24 -right-24 w-48 h-48 bg-[#7C8FFF]/10 blur-[60px] rounded-full pointer-events-none" />
+                <DialogContent className="bg-background/95 border-muted-foreground/20 text-foreground sm:max-w-[440px] rounded-[2.5rem] p-8 shadow-2xl overflow-hidden">
+                    <div className="absolute -top-24 -right-24 w-48 h-48 bg-primary/10 blur-[60px] rounded-full pointer-events-none" />
                     <DialogHeader className="relative z-10 flex flex-col items-center">
                         <div className={`p-4 rounded-3xl mb-6 border ${confirmToggle?.status === "active" ? "bg-amber-400/10 border-amber-400/20 text-amber-400" : "bg-emerald-400/10 border-emerald-400/20 text-emerald-400"}`}>
                             <Power className="w-8 h-8" />
                         </div>
                         <DialogTitle className="text-2xl font-bold font-display text-center">Change Visibility?</DialogTitle>
-                        <DialogDescription className="text-[#8B99B0] text-center text-base mt-2 max-w-[300px]">
+                        <DialogDescription className="text-muted-foreground text-center text-base mt-2 max-w-[300px]">
                             {confirmToggle
                                 ? confirmToggle.status === "active"
                                     ? `This will hide ${confirmToggle.name} from current candidates.`
@@ -202,11 +171,11 @@ export default function DashboardClient({
                         </DialogDescription>
                     </DialogHeader>
                     <DialogFooter className="relative z-10 flex flex-col sm:flex-row gap-3 mt-8">
-                        <Button variant="ghost" onClick={() => setConfirmToggle(null)} disabled={isToggling} className="flex-1 text-[#8B99B0] hover:text-[#ECF0F7] hover:bg-[#1B253B] h-14 rounded-2xl font-bold cursor-pointer">Discard</Button>
+                        <Button variant="ghost" onClick={() => setConfirmToggle(null)} disabled={isToggling} className="flex-1 text-muted-foreground hover:text-foreground hover:bg-muted h-14 rounded-2xl font-bold cursor-pointer">Discard</Button>
                         <Button onClick={handleConfirmToggle} disabled={isToggling}
                             className={`flex-1 h-14 px-8 rounded-2xl font-bold shadow-xl transition-all hover:scale-105 active:scale-95 cursor-pointer ${
                                 confirmToggle?.status === "active"
-                                ? "bg-amber-500 hover:bg-amber-600 text-white"
+                                ? "bg-amber-500 hover:bg-amber-600 text-foreground"
                                 : "bg-emerald-500 hover:bg-emerald-600 text-black font-black"
                             }`}>
                             {isToggling ? "Updating..." : confirmToggle?.status === "active" ? "Deactivate" : "Reactivate"}
@@ -217,7 +186,7 @@ export default function DashboardClient({
 
             {/* Permanent Delete Dialog - Pro VIP */}
             <Dialog open={!!confirmDelete} onOpenChange={(open) => !open && setConfirmDelete(null)}>
-                <DialogContent className="bg-[#0F172A]/95 border-rose-500/30 text-[#ECF0F7] sm:max-w-[440px] rounded-[2.5rem] p-8 shadow-2xl overflow-hidden">
+                <DialogContent className="bg-background/95 border-rose-500/30 text-foreground sm:max-w-[440px] rounded-[2.5rem] p-8 shadow-2xl overflow-hidden">
                     <div className="absolute -top-24 -right-24 w-48 h-48 bg-rose-500/10 blur-[60px] rounded-full pointer-events-none" />
                     <DialogHeader className="relative z-10 flex flex-col items-center">
                         <div className="p-4 rounded-3xl mb-6 bg-rose-500/10 border border-rose-500/20 text-rose-400">
@@ -232,9 +201,9 @@ export default function DashboardClient({
                         </DialogDescription>
                     </DialogHeader>
                     <DialogFooter className="relative z-10 flex flex-col sm:flex-row gap-3 mt-8">
-                        <Button variant="ghost" onClick={() => setConfirmDelete(null)} disabled={isDeleting} className="flex-1 text-[#8B99B0] hover:text-[#ECF0F7] hover:bg-[#1B253B] h-14 rounded-2xl font-bold cursor-pointer">Keep It</Button>
+                        <Button variant="ghost" onClick={() => setConfirmDelete(null)} disabled={isDeleting} className="flex-1 text-muted-foreground hover:text-foreground hover:bg-muted h-14 rounded-2xl font-bold cursor-pointer">Keep It</Button>
                         <Button onClick={handleConfirmDelete} disabled={isDeleting}
-                            className="flex-1 h-14 px-8 rounded-2xl font-bold bg-rose-500 hover:bg-rose-600 text-white shadow-xl shadow-rose-900/20 transition-all hover:scale-105 active:scale-95 cursor-pointer">
+                            className="flex-1 h-14 px-8 rounded-2xl font-bold bg-rose-500 hover:bg-rose-600 text-foreground shadow-xl shadow-rose-900/20 transition-all hover:scale-105 active:scale-95 cursor-pointer">
                             {isDeleting ? "Deleting..." : "Confirm Delete"}
                         </Button>
                     </DialogFooter>

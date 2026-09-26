@@ -35,7 +35,7 @@ interface Props {
   initialSkillIds?: string[];
 }
 
-const fieldCls = "bg-black/30 border-white/5 h-10 rounded-xl text-white focus-visible:ring-[#7C8FFF]/30 text-sm";
+const fieldCls = "bg-background border-border h-10 rounded-xl text-foreground focus-visible:ring-primary/30 text-sm";
 
 // Free-text numeric field: lets the user type/clear freely, only normalizing
 // (digits-only + min/max clamp) on blur — avoids the spinner arrows and the
@@ -63,7 +63,7 @@ function NumField({
 
   return (
     <div className="space-y-1.5">
-      <Label className="text-[10px] text-[#5A6882] uppercase tracking-wide ml-1">{label}</Label>
+      <Label className="text-[10px] text-muted-foreground uppercase tracking-wide ml-1">{label}</Label>
       <Input
         type="text"
         inputMode="numeric"
@@ -185,28 +185,28 @@ export default function CreateTestFromSkills({ onBack, embedded = false, onCreat
   return (
     <div className={embedded ? "" : "max-w-3xl mx-auto"}>
       <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center gap-2 text-[#10B981]">
+        <div className="flex items-center gap-2 text-success">
           <Database className="w-5 h-5" />
           <h2 className="text-lg font-display text-white">Create Test from Skills</h2>
         </div>
         <Button
           variant="outline"
           onClick={onBack}
-          className="border-[#7C8FFF]/30 text-[#7C8FFF] hover:bg-[#7C8FFF]/10 rounded-xl h-9 gap-1.5"
+          className="border-border/30 text-primary hover:bg-primary/10 rounded-xl h-9 gap-1.5"
         >
           <ArrowLeft className="w-4 h-4" />
           Back
         </Button>
       </div>
 
-      <Card className="border-[#7C8FFF]/20 bg-[#1B253B]/40 rounded-2xl">
+      <Card className="border-border/20 bg-muted/40 rounded-2xl">
         <CardContent className="p-6 space-y-6">
           {step === "config" ? (
             <>
               <div>
-                <Label className="text-[#8B99B0] text-xs uppercase tracking-wider mb-2 block">Skills</Label>
+                <Label className="text-muted-foreground text-xs uppercase tracking-wider mb-2 block">Skills</Label>
                 {skills.length === 0 ? (
-                  <p className="text-sm text-[#5A6882]">No skills available.</p>
+                  <p className="text-sm text-muted-foreground">No skills available.</p>
                 ) : (
                   <div className="flex flex-wrap gap-2">
                     {skills.map((s) => {
@@ -218,8 +218,8 @@ export default function CreateTestFromSkills({ onBack, embedded = false, onCreat
                           onClick={() => toggleSkill(s.id)}
                           className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-colors ${
                             active
-                              ? "bg-[#10B981]/20 border-[#10B981]/40 text-[#10B981]"
-                              : "border-[#8B99B0]/20 text-[#8B99B0] hover:text-[#ECF0F7]"
+                              ? "bg-success/20 border-border/40 text-success"
+                              : "border-border/20 text-muted-foreground hover:text-foreground"
                           }`}
                         >
                           {s.name}
@@ -231,7 +231,7 @@ export default function CreateTestFromSkills({ onBack, embedded = false, onCreat
               </div>
 
               <div>
-                <Label className="text-[#8B99B0] text-xs uppercase tracking-wider mb-2 block">Level Distribution</Label>
+                <Label className="text-muted-foreground text-xs uppercase tracking-wider mb-2 block">Level Distribution</Label>
                 <div className="flex flex-wrap gap-2">
                   {DISTRIBUTIONS.map((d) => (
                     <button
@@ -240,8 +240,8 @@ export default function CreateTestFromSkills({ onBack, embedded = false, onCreat
                       onClick={() => setDistribution(d.key)}
                       className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors inline-flex items-center gap-1.5 ${
                         distribution === d.key
-                          ? "bg-[#7C8FFF]/20 border-[#7C8FFF]/40 text-[#9BABFF]"
-                          : "border-[#8B99B0]/20 text-[#8B99B0] hover:text-[#ECF0F7]"
+                          ? "bg-primary/20 border-border/40 text-primary"
+                          : "border-border/20 text-muted-foreground hover:text-foreground"
                       }`}
                     >
                       {d.key === "random" && <Shuffle className="w-3 h-3" />}
@@ -258,7 +258,7 @@ export default function CreateTestFromSkills({ onBack, embedded = false, onCreat
               </div>
 
               <div className="space-y-1.5">
-                <Label className="text-[10px] text-[#5A6882] uppercase tracking-wide ml-1">Title (optional)</Label>
+                <Label className="text-[10px] text-muted-foreground uppercase tracking-wide ml-1">Title (optional)</Label>
                 <Input
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
@@ -270,7 +270,7 @@ export default function CreateTestFromSkills({ onBack, embedded = false, onCreat
               <Button
                 onClick={() => handlePull()}
                 disabled={selected.size === 0 || isPulling}
-                className="w-full bg-[#10B981] hover:bg-[#0D9E6E] text-white border-0 h-11 rounded-xl"
+                className="w-full bg-success hover:bg-success text-white border-0 h-11 rounded-xl"
               >
                 {isPulling ? "Pulling..." : "Pull Questions"}
               </Button>
@@ -287,7 +287,7 @@ export default function CreateTestFromSkills({ onBack, embedded = false, onCreat
               />
             )
           )}
-          {isCreating && <p className="text-xs text-[#5A6882] text-center">Creating test...</p>}
+          {isCreating && <p className="text-xs text-muted-foreground text-center">Creating test...</p>}
         </CardContent>
       </Card>
     </div>

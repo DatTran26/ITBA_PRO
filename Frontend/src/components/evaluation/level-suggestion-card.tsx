@@ -65,12 +65,12 @@ export default function LevelSuggestionCard({ resultId, positionId, personId }: 
     }
 
     return (
-        <Card className="border-[#8B99B0]/10 bg-[#151D2E] mt-4">
+        <Card className="border-border/10 bg-card mt-4">
             <CardContent className="p-5">
                 <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center gap-2">
                         <Sparkles className="w-4 h-4 text-violet-400" />
-                        <h4 className="font-medium text-[#ECF0F7]">AI Level Suggestion</h4>
+                        <h4 className="font-medium text-foreground">AI Level Suggestion</h4>
                     </div>
                     <Button
                         size="sm"
@@ -84,7 +84,7 @@ export default function LevelSuggestionCard({ resultId, positionId, personId }: 
                 </div>
 
                 {isLoading && (
-                    <div className="flex items-center justify-center py-8 text-[#5A6882]">
+                    <div className="flex items-center justify-center py-8 text-muted-foreground">
                         <Loader2 className="w-5 h-5 animate-spin mr-2" />
                         <span className="text-sm">Analyzing evaluation data...</span>
                     </div>
@@ -97,24 +97,24 @@ export default function LevelSuggestionCard({ resultId, positionId, personId }: 
                             <Badge className="bg-violet-500/15 text-violet-400 border-violet-500/25 text-sm px-3 py-1">
                                 {suggestion.suggested_level}
                             </Badge>
-                            <span className="text-sm text-[#8B99B0]">
-                                Confidence: <span className="text-[#ECF0F7] font-medium">{suggestion.confidence}%</span>
+                            <span className="text-sm text-muted-foreground">
+                                Confidence: <span className="text-foreground font-medium">{suggestion.confidence}%</span>
                             </span>
                         </div>
 
                         {/* Reasoning */}
-                        <p className="text-sm text-[#8B99B0] leading-relaxed">{suggestion.reasoning}</p>
+                        <p className="text-sm text-muted-foreground leading-relaxed">{suggestion.reasoning}</p>
 
                         {/* Skill Gaps */}
                         {suggestion.skill_gaps.length > 0 && (
                             <div>
-                                <p className="text-xs font-semibold text-[#5A6882] uppercase tracking-wider mb-2">Skill Gaps</p>
+                                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Skill Gaps</p>
                                 <div className="space-y-1.5">
                                     {suggestion.skill_gaps.map((gap) => (
                                         <div key={gap.skill} className="flex items-center gap-2 text-sm">
-                                            <span className="text-[#8B99B0]">{gap.skill}:</span>
+                                            <span className="text-muted-foreground">{gap.skill}:</span>
                                             <span className="text-rose-400">{gap.current}</span>
-                                            <span className="text-[#5A6882]">/</span>
+                                            <span className="text-muted-foreground">/</span>
                                             <span className="text-emerald-400">{gap.required}</span>
                                         </div>
                                     ))}
@@ -136,7 +136,7 @@ export default function LevelSuggestionCard({ resultId, positionId, personId }: 
                                                 onChange={(e) => setSeniorConfirmed(e.target.checked)}
                                                 className="rounded border-amber-500/40 bg-transparent text-amber-500 focus:ring-amber-500/30"
                                             />
-                                            <span className="text-xs text-[#8B99B0]">I confirm this senior designation after review</span>
+                                            <span className="text-xs text-muted-foreground">I confirm this senior designation after review</span>
                                         </label>
                                     </div>
                                 </div>
@@ -159,7 +159,7 @@ export default function LevelSuggestionCard({ resultId, positionId, personId }: 
                 )}
 
                 {!suggestion && !isLoading && (
-                    <p className="text-sm text-[#5A6882] py-4 text-center">
+                    <p className="text-sm text-muted-foreground py-4 text-center">
                         Click &ldquo;Request&rdquo; to get an AI-powered level suggestion based on evaluation scores.
                     </p>
                 )}

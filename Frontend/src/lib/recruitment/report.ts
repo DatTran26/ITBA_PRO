@@ -20,7 +20,7 @@ export const PIPELINE_STATUSES = [
   "ONBOARDED",
 ] as const;
 
-const STATUS_LABELS: Record<string, string> = {
+export const STATUS_LABELS: Record<string, string> = {
   NEW: "Hồ sơ mới",
   SCREENED: "Đã sàng lọc",
   REJECTED: "Đã từ chối",

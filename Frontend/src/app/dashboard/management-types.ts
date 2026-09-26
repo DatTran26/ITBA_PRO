@@ -103,6 +103,8 @@ export interface GroupListItem {
   health_score?: number;
   position_count?: number;
   alert_count?: number;
+  /** Tên thành viên cho avatar stack (page.tsx join persons). */
+  member_names?: string[];
 }
 
 export interface GroupDetail extends GroupListItem {
@@ -128,6 +130,8 @@ export interface GroupMemberItem {
     email: string | null;
     type: string;
     department: string | null;
+    /** Chỉ có ở trang chi tiết nhóm (page.tsx join) — dùng cho heatmap. */
+    person_skills?: { current_level: number; skills: { name: string } | null }[];
   };
 }
 

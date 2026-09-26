@@ -1,5 +1,12 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Outfit, Plus_Jakarta_Sans } from "next/font/google";
+import {
+  Geist,
+  Geist_Mono,
+  Outfit,
+  Plus_Jakarta_Sans,
+  Josefin_Sans,
+  Dela_Gothic_One,
+} from "next/font/google";
 import "./globals.css";
 import { Toaster } from "sonner";
 import AppUpdateBanner from "@/components/ui/app-update-banner";
@@ -20,6 +27,22 @@ const plusJakarta = Plus_Jakarta_Sans({
   subsets: ["latin", "vietnamese"],
   weight: ["400", "500", "600", "700"],
   variable: "--font-plus-jakarta-sans",
+  display: "swap",
+});
+
+// TopGo theme fonts (chỉ dùng trong nhánh .tg — xem khối .tg trong globals.css).
+// Cả hai đều có subset "vietnamese" trên Google Fonts.
+// Cal Sans chưa có trong next/font/google nên tiêu đề phụ dùng Josefin Sans 600.
+const josefin = Josefin_Sans({
+  subsets: ["latin", "latin-ext", "vietnamese"],
+  weight: ["300", "400", "500", "600", "700"],
+  variable: "--font-josefin-sans",
+  display: "swap",
+});
+const delaGothic = Dela_Gothic_One({
+  subsets: ["latin", "latin-ext", "vietnamese"],
+  weight: ["400"],
+  variable: "--font-dela-gothic",
   display: "swap",
 });
 
@@ -62,7 +85,7 @@ export default function RootLayout({
   return (
     <html lang="vi" className="dark" suppressHydrationWarning>
       <body
-        className={`${geist.variable} ${geistMono.variable} ${outfit.variable} ${plusJakarta.variable} antialiased bg-background text-foreground font-body`}
+        className={`${geist.variable} ${geistMono.variable} ${outfit.variable} ${plusJakarta.variable} ${josefin.variable} ${delaGothic.variable} antialiased bg-background text-foreground font-body`}
         suppressHydrationWarning
       >
         <TooltipProvider>

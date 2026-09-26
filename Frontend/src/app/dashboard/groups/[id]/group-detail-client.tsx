@@ -7,27 +7,18 @@ import PageBreadcrumb from "@/components/ui/page-breadcrumb";
 import PageContainer from "@/components/ui/page-container";
 import { toast } from "sonner";
 import GroupHeader from "./group-header";
-import GroupOverviewTab from "./group-overview-tab";
+import GroupSkillHeatmap from "./group-skill-heatmap";
 import GroupMembersTab from "./group-members-tab";
-import GroupPositionsTab from "./group-positions-tab";
-import GroupSkillCoverageTab from "./group-skill-coverage-tab";
-import GroupAssessmentsTab from "./group-assessments-tab";
 import GroupNotesTab from "./group-notes-tab";
 import GroupFormDialog from "@/components/management/group-form-dialog";
 import MemberPickerDialog from "@/components/management/member-picker-dialog";
 import type { GroupListItem, GroupMemberItem, NoteItem, ActivityLogItem } from "@/app/dashboard/management-types";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
-const TABS = ["overview", "members", "positions", "skill-coverage", "assessments", "notes"] as const;
+const TABS = ["members", "notes"] as const;
 type Tab = typeof TABS[number];
 
-const TAB_LABELS: Record<Tab, string> = {
-  overview: "Overview",
-  members: "Members",
-  positions: "Positions",
-  "skill-coverage": "Skill Coverage",
-  assessments: "Assessments",
-  notes: "Notes",
-};
+const TAB_LABELS: Record<Tab, string> = { members: "Thành viên", notes: "Ghi chú" };
 
 interface Props {
   group: GroupListItem;
@@ -38,7 +29,7 @@ interface Props {
 
 export default function GroupDetailClient({ group, members: initialMembers, notes, activityLogs }: Props) {
   const router = useRouter();
-  const [tab, setTab] = useState<Tab>("overview");
+  const [tab, setTab] = useState<Tab>("members");
   const [editOpen, setEditOpen] = useState(false);
   const [pickerOpen, setPickerOpen] = useState(false);
   const [members, setMembers] = useState<GroupMemberItem[]>(initialMembers);
@@ -63,7 +54,7 @@ export default function GroupDetailClient({ group, members: initialMembers, note
   }
 
   return (
-    <div className="min-h-screen bg-[#121A2E]">
+    <div className="min-h-screen bg-transparent pb-12">
       <AppNavbar />
       <PageContainer>
         <PageBreadcrumb breadcrumbs={[
@@ -78,24 +69,18 @@ export default function GroupDetailClient({ group, members: initialMembers, note
           onAddMember={() => setPickerOpen(true)}
         />
 
-        {/* Tabs */}
-        <div className="flex gap-1 border-b border-[#8B99B0]/10 mb-4 overflow-x-auto">
-          {TABS.map((t) => (
-            <button
-              key={t}
-              onClick={() => setTab(t)}
-              className={`px-4 py-2.5 text-sm font-medium whitespace-nowrap transition-colors border-b-2 ${
-                tab === t
-                  ? "border-[#7C8FFF] text-[#ECF0F7]"
-                  : "border-transparent text-[#5A6882] hover:text-[#8B99B0]"
-              }`}
-            >
-              {TAB_LABELS[t]}
-            </button>
-          ))}
-        </div>
+        <GroupSkillHeatmap members={members} />
 
-        {tab === "overview" && <GroupOverviewTab group={group} memberCount={members.length} />}
+        <Tabs value={tab} onValueChange={(v) => setTab(v as Tab)}>
+          <TabsList className="mb-5 max-w-full overflow-x-auto justify-start [scrollbar-width:none]">
+            {TABS.map((t) => (
+              <TabsTrigger key={t} value={t}>
+                {TAB_LABELS[t]}{t === "members" ? ` (${members.length})` : ""}
+              </TabsTrigger>
+            ))}
+          </TabsList>
+        </Tabs>
+
         {tab === "members" && (
           <GroupMembersTab
             groupId={group.id}
@@ -105,9 +90,6 @@ export default function GroupDetailClient({ group, members: initialMembers, note
             removingId={removingId}
           />
         )}
-        {tab === "positions" && <GroupPositionsTab members={members} />}
-        {tab === "skill-coverage" && <GroupSkillCoverageTab members={members} />}
-        {tab === "assessments" && <GroupAssessmentsTab memberCount={members.length} />}
         {tab === "notes" && <GroupNotesTab entityId={group.id} activityLogs={activityLogs} />}
       </PageContainer>
 

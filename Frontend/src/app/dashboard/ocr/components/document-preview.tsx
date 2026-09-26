@@ -5,7 +5,6 @@ import {
     ZoomIn,
     ZoomOut,
     RotateCw,
-    Maximize2,
     RotateCcw,
     FileImage,
     Sparkles,
@@ -54,12 +53,12 @@ export default function DocumentPreview({ job, onSelectBlock }: DocumentPreviewP
 
     if (!job) {
         return (
-            <div className="flex h-full min-h-[420px] flex-col items-center justify-center rounded-2xl border border-white/[0.08] bg-[#1A233A]/40 p-8 text-center backdrop-blur-md">
-                <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/[0.04] border border-white/[0.06] text-[#64748B]">
+            <div className="flex h-full min-h-[420px] flex-col items-center justify-center rounded-2xl border border-border bg-card p-8 text-center">
+                <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-muted text-muted-foreground">
                     <FileImage className="h-8 w-8" />
                 </div>
-                <h4 className="mt-4 text-base font-medium text-[#ECF0F7]">Chưa chọn tài liệu</h4>
-                <p className="mt-1 text-sm text-[#94A3B8] max-w-xs">
+                <h4 className="mt-4 text-base font-medium text-foreground">Chưa chọn tài liệu</h4>
+                <p className="mt-1 text-sm text-muted-foreground max-w-xs">
                     Vui lòng chọn một ảnh trong hàng đợi để xem tài liệu gốc và kiểm tra kết quả OCR.
                 </p>
             </div>
@@ -94,23 +93,23 @@ export default function DocumentPreview({ job, onSelectBlock }: DocumentPreviewP
     };
 
     return (
-        <div className="flex h-full flex-col overflow-hidden rounded-2xl border border-white/[0.08] bg-[#1A233A]/70 backdrop-blur-md shadow-2xl">
+        <div className="flex h-full min-h-0 flex-col overflow-hidden rounded-2xl border border-border bg-card">
             {/* Header / Toolbar */}
-            <div className="flex flex-wrap items-center justify-between border-b border-white/[0.08] px-4 py-3 bg-[#121A2E]/50 gap-2">
+            <div className="flex flex-wrap items-center justify-between border-b border-border px-4 py-3 gap-2">
                 <div className="flex items-center gap-2 min-w-0">
-                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#5B6CF0]/10 border border-[#5B6CF0]/20 text-[#7C8FFF] shrink-0">
+                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary shrink-0">
                         <FileImage className="h-4 w-4" />
                     </div>
                     <div className="min-w-0">
-                        <p className="truncate text-xs font-semibold text-[#ECF0F7]" title={job.file.name}>
+                        <p className="truncate text-xs font-semibold text-foreground" title={job.file.name}>
                             {job.file.name}
                         </p>
                         <div className="flex items-center gap-2 mt-0.5">
-                            <span className="text-[11px] text-[#64748B]">
+                            <span className="text-[11px] text-muted-foreground">
                                 {formatFileSize(job.file.size)} • {job.file.type.replace("image/", "").toUpperCase()}
                             </span>
                             {hasBlocks && (
-                                <span className="inline-flex items-center gap-1 rounded-full bg-[#36DDAB]/15 px-2 py-0.2 border border-[#36DDAB]/30 text-[10px] font-semibold text-[#36DDAB]">
+                                <span className="inline-flex items-center gap-1 rounded-full bg-success/15 px-2 py-0.2 border border-success/30 text-[10px] font-semibold text-success">
                                     <Sparkles className="w-2.5 h-2.5" /> {blocks.length} vùng Grounding
                                 </span>
                             )}
@@ -125,48 +124,48 @@ export default function DocumentPreview({ job, onSelectBlock }: DocumentPreviewP
                             onClick={() => setShowBBoxes(!showBBoxes)}
                             className={`flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-medium border transition-colors ${
                                 showBBoxes
-                                    ? "bg-[#5B6CF0]/20 text-[#7C8FFF] border-[#5B6CF0]/40"
-                                    : "bg-white/[0.04] text-[#94A3B8] border-white/10 hover:text-white"
+                                    ? "bg-primary/20 text-primary border-primary/40"
+                                    : "bg-muted text-muted-foreground border-border hover:text-foreground"
                             }`}
                             title="Bật/Tắt khung viền văn bản"
                         >
-                            <span className={`w-1.5 h-1.5 rounded-full ${showBBoxes ? "bg-[#36DDAB]" : "bg-gray-500"}`} />
+                            <span className={`w-1.5 h-1.5 rounded-full ${showBBoxes ? "bg-success" : "bg-muted-foreground"}`} />
                             Khung BBox
                         </button>
                     )}
 
-                    <div className="flex items-center gap-1 rounded-xl bg-white/[0.05] p-1 border border-white/[0.08]">
+                    <div className="flex items-center gap-1 rounded-xl bg-muted p-1 border border-border">
                         <button
                             onClick={handleZoomOut}
                             disabled={zoom <= 0.5}
                             title="Thu nhỏ"
-                            className="flex h-7 w-7 items-center justify-center rounded-lg text-[#94A3B8] hover:bg-white/[0.08] hover:text-white disabled:opacity-40 transition-colors"
+                            className="flex h-7 w-7 items-center justify-center rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground disabled:opacity-40 transition-colors"
                         >
                             <ZoomOut className="h-3.5 w-3.5" />
                         </button>
-                        <span className="px-1.5 text-[11px] font-mono font-medium text-[#ECF0F7]">
+                        <span className="px-1.5 text-[11px] font-mono font-medium text-foreground">
                             {Math.round(zoom * 100)}%
                         </span>
                         <button
                             onClick={handleZoomIn}
                             disabled={zoom >= 4}
                             title="Phóng to"
-                            className="flex h-7 w-7 items-center justify-center rounded-lg text-[#94A3B8] hover:bg-white/[0.08] hover:text-white disabled:opacity-40 transition-colors"
+                            className="flex h-7 w-7 items-center justify-center rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground disabled:opacity-40 transition-colors"
                         >
                             <ZoomIn className="h-3.5 w-3.5" />
                         </button>
-                        <div className="h-3 w-[1px] bg-white/10 mx-0.5" />
+                        <div className="h-3 w-[1px] bg-muted mx-0.5" />
                         <button
                             onClick={handleRotate}
                             title="Xoay 90°"
-                            className="flex h-7 w-7 items-center justify-center rounded-lg text-[#94A3B8] hover:bg-white/[0.08] hover:text-white transition-colors"
+                            className="flex h-7 w-7 items-center justify-center rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
                         >
                             <RotateCw className="h-3.5 w-3.5" />
                         </button>
                         <button
                             onClick={handleReset}
                             title="Đặt lại góc & kích thước"
-                            className="flex h-7 w-7 items-center justify-center rounded-lg text-[#94A3B8] hover:bg-white/[0.08] hover:text-white transition-colors"
+                            className="flex h-7 w-7 items-center justify-center rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
                         >
                             <RotateCcw className="h-3.5 w-3.5" />
                         </button>
@@ -180,30 +179,30 @@ export default function DocumentPreview({ job, onSelectBlock }: DocumentPreviewP
                 onMouseMove={handleMouseMove}
                 onMouseUp={handleMouseUp}
                 onMouseLeave={handleMouseUp}
-                className={`relative flex flex-1 items-center justify-center overflow-hidden bg-[#0D1322] p-4 min-h-[380px] select-none ${
+                className={`relative flex flex-1 items-center justify-center overflow-hidden bg-muted/40 p-4 min-h-0 select-none ${
                     zoom > 1 ? "cursor-grab active:cursor-grabbing" : "cursor-default"
                 }`}
             >
                 {/* Background grid pattern */}
                 <div
-                    className="absolute inset-0 opacity-[0.03]"
+                    className="absolute inset-0 opacity-[0.12]"
                     style={{
-                        backgroundImage: `radial-gradient(#5B6CF0 1px, transparent 1px)`,
+                        backgroundImage: `radial-gradient(var(--primary) 1px, transparent 1px)`,
                         backgroundSize: "20px 20px",
                     }}
                 />
 
                 {/* Status Overlay while processing */}
                 {job.status === "processing" && (
-                    <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-[#121A2E]/70 backdrop-blur-sm">
+                    <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-card/80 backdrop-blur-sm">
                         <div className="relative">
-                            <div className="h-12 w-12 rounded-full border-2 border-[#5B6CF0]/20 border-t-[#5B6CF0] animate-spin" />
-                            <Sparkles className="absolute inset-0 m-auto h-5 w-5 text-[#7C8FFF] animate-pulse" />
+                            <div className="h-12 w-12 rounded-full border-2 border-primary/20 border-t-primary animate-spin" />
+                            <Sparkles className="absolute inset-0 m-auto h-5 w-5 text-primary animate-pulse" />
                         </div>
-                        <p className="mt-3 text-sm font-medium text-[#ECF0F7] animate-pulse">
+                        <p className="mt-3 text-sm font-medium text-foreground animate-pulse">
                             Đang quét OCR và tính toán tọa độ Bounding Box...
                         </p>
-                        <p className="text-xs text-[#94A3B8] mt-1">Hệ thống phân tích cấu trúc văn bản & vị trí trường dữ liệu</p>
+                        <p className="text-xs text-muted-foreground mt-1">Hệ thống phân tích cấu trúc văn bản & vị trí trường dữ liệu</p>
                     </div>
                 )}
 
@@ -215,24 +214,24 @@ export default function DocumentPreview({ job, onSelectBlock }: DocumentPreviewP
                     }}
                     className="relative max-h-full max-w-full origin-center flex items-center justify-center"
                 >
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
                     {job.previewUrl ? (
+                        /* eslint-disable-next-line @next/next/no-img-element */
                         <img
                             ref={imgRef}
                             src={job.previewUrl}
                             alt={job.file.name}
                             draggable={false}
                             onClick={handleImgClick}
-                            className="max-h-[600px] w-auto max-w-full rounded-lg object-contain shadow-2xl ring-1 ring-white/10"
+                            className="max-h-full w-auto max-w-full rounded-lg object-contain shadow-2xl ring-1 ring-border"
                             style={{ cursor: hasBlocks ? "crosshair" : "default" }}
                         />
                     ) : (
-                        <div className="flex flex-col items-center justify-center p-8 rounded-2xl border border-white/[0.08] bg-[#1A233A]/60 text-center max-w-sm">
-                            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[#36DDAB]/10 text-[#36DDAB] mb-3">
+                        <div className="flex max-w-sm flex-col items-center justify-center rounded-2xl border border-border bg-card p-8 text-center">
+                            <div className="mb-3 flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 text-primary">
                                 <FileImage className="h-7 w-7" />
                             </div>
-                            <h4 className="text-sm font-bold text-white">Văn bản tạo từ Mẫu NĐ 30</h4>
-                            <p className="text-xs text-[#94A3B8] mt-1">
+                            <h4 className="text-sm font-bold text-foreground">Văn bản tạo từ Mẫu NĐ 30</h4>
+                            <p className="mt-1 text-xs text-muted-foreground">
                                 Văn bản được tạo trực tiếp từ AI & Hồ sơ HR (không có ảnh scan gốc). Bạn có thể xem trước bản A4 và thẩm định thể thức ở Bàn làm việc bên phải.
                             </p>
                         </div>
@@ -260,8 +259,8 @@ export default function DocumentPreview({ job, onSelectBlock }: DocumentPreviewP
                                         height={h}
                                         className={`transition-all duration-150 cursor-pointer ${
                                             isActive
-                                                ? "fill-[#F59E0B]/25 stroke-[#F59E0B] stroke-[0.005] animate-pulse"
-                                                : "fill-[#36DDAB]/10 stroke-[#36DDAB]/60 stroke-[0.002] hover:fill-[#5B6CF0]/25 hover:stroke-[#5B6CF0] hover:stroke-[0.004]"
+                                                ? "fill-warning/25 stroke-warning stroke-[0.005] animate-pulse"
+                                                : "fill-success/10 stroke-success/60 stroke-[0.002] hover:fill-primary/25 hover:stroke-primary hover:stroke-[0.004]"
                                         }`}
                                         onClick={(e) => {
                                             e.stopPropagation();
@@ -278,16 +277,16 @@ export default function DocumentPreview({ job, onSelectBlock }: DocumentPreviewP
 
                 {/* Active Block HUD Badge */}
                 {activeBlock && (
-                    <div className="absolute bottom-4 left-4 z-20 max-w-md rounded-xl border border-[#F59E0B]/40 bg-[#121A2E]/90 p-3 shadow-xl backdrop-blur-md animate-in fade-in slide-in-from-bottom-2 duration-200">
-                        <div className="flex items-center justify-between gap-2 border-b border-white/10 pb-1.5 mb-1.5">
-                            <span className="text-[11px] font-semibold text-[#FBBF24] flex items-center gap-1">
+                    <div className="absolute bottom-4 left-4 z-20 max-w-md rounded-xl border border-warning/40 bg-card/90 p-3 shadow-xl backdrop-blur-md animate-in fade-in slide-in-from-bottom-2 duration-200">
+                        <div className="flex items-center justify-between gap-2 border-b border-border pb-1.5 mb-1.5">
+                            <span className="text-[11px] font-semibold text-warning flex items-center gap-1">
                                 <Sparkles className="w-3 h-3" /> Tọa độ được chọn
                             </span>
-                            <span className="text-[10px] font-mono text-[#94A3B8]">
+                            <span className="text-[10px] font-mono text-muted-foreground">
                                 Độ tin cậy: {Math.round(activeBlock.confidence * 100)}%
                             </span>
                         </div>
-                        <p className="text-xs text-[#ECF0F7] line-clamp-2 font-mono bg-white/[0.04] p-1.5 rounded">
+                        <p className="text-xs text-foreground line-clamp-2 font-mono bg-muted p-1.5 rounded">
                             {activeBlock.text}
                         </p>
                     </div>

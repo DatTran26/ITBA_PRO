@@ -6,8 +6,7 @@ import AppNavbar from "@/components/ui/app-navbar";
 import PageBreadcrumb from "@/components/ui/page-breadcrumb";
 import PageContainer from "@/components/ui/page-container";
 import { SharedDashboardButton, SharedDashboardPageHeader } from "@/components/shares";
-import { Plus, Users, AlertTriangle, UserCheck, UserX, Briefcase, FolderKanban, Trash2, Tag } from "lucide-react";
-import KpiCardGrid from "@/components/crm/kpi-card-grid";
+import { Plus, Users, Trash2, Tag } from "lucide-react";
 import FilterBar from "@/components/crm/filter-bar";
 import ViewSwitcher from "@/components/crm/view-switcher";
 import BulkActionBar from "@/components/crm/bulk-action-bar";
@@ -17,7 +16,7 @@ import PersonsKanbanView from "./persons-kanban-view";
 import PersonFormDialog from "@/components/management/person-form-dialog";
 import { PERSON_STATUSES } from "@/lib/crm/constants";
 import type { PersonListItem } from "@/app/dashboard/management-types";
-import type { KpiCardData, FilterOption } from "@/lib/crm/types";
+import type { FilterOption } from "@/lib/crm/types";
 
 interface Props { persons: PersonListItem[] }
 
@@ -25,7 +24,7 @@ type ViewMode = "table" | "card" | "kanban";
 
 export default function PersonsListClient({ persons }: Props) {
   const router = useRouter();
-  const [view, setView] = useState<ViewMode>("table");
+  const [view, setView] = useState<ViewMode>("kanban");
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
   const [typeFilter, setTypeFilter] = useState("");
@@ -43,19 +42,10 @@ export default function PersonsListClient({ persons }: Props) {
     });
   }, [persons, search, statusFilter, typeFilter]);
 
-  /* KPIs */
-  const kpis: KpiCardData[] = useMemo(() => [
-    { label: "Total Persons", value: persons.length, icon: Users },
-    { label: "Active", value: persons.filter((p) => p.status === "active").length, icon: UserCheck },
-    { label: "Skill Gaps", value: persons.filter((p) => p.status === "skill_gap").length, icon: AlertTriangle },
-    { label: "In Review", value: persons.filter((p) => p.status === "in_review").length, icon: Briefcase },
-    { label: "No Group", value: persons.filter((p) => !p.group_names?.length).length, icon: FolderKanban },
-    { label: "No Position", value: persons.filter((p) => !p.position_id).length, icon: UserX },
-  ], [persons]);
+  const countType = (t: string) => persons.filter((p) => !t || p.type === t).length;
 
   /* Filter options */
   const statusOptions: FilterOption[] = Object.entries(PERSON_STATUSES).map(([k, v]) => ({ value: k, label: v.label }));
-  const typeOptions: FilterOption[] = [{ value: "candidate", label: "Candidate" }, { value: "employee", label: "Employee" }];
 
   const clearAll = () => { setSearch(""); setStatusFilter(""); setTypeFilter(""); };
 
@@ -68,18 +58,19 @@ export default function PersonsListClient({ persons }: Props) {
   ];
 
   return (
-    <div className="bg-transparent text-[#ECF0F7] pb-12">
+    <div className="bg-transparent text-foreground pb-12">
       <AppNavbar />
       <PageContainer>
         <PageBreadcrumb breadcrumbs={[{ label: "Dashboard", href: "/dashboard" }, { label: "Persons" }]} />
         <SharedDashboardPageHeader
-          className="mb-10"
           title="People CRM"
-          description="Orchestrate your talent pipeline and employee growth"
+          icon={Users}
+          badge={{ label: `${countType("employee")} nhân viên · ${countType("candidate")} ứng viên` }}
+          description="Mỗi người đang ở đâu trong lộ trình: đang làm, cần đào tạo, thiếu kỹ năng hay sẵn sàng thăng tiến"
           actions={(
             <SharedDashboardButton
               onClick={() => setDialogOpen(true)}
-              className="bg-[#7C8FFF] hover:bg-[#5B6CF0] text-white h-12 px-8 rounded-xl shadow-lg shadow-[#7C8FFF]/20 transition-all font-semibold gap-2 border-0"
+              className="bg-primary hover:bg-primary text-white h-12 px-8 rounded-xl shadow-lg shadow-primary/20 transition-all font-semibold gap-2 border-0"
               leadingIcon={<Plus className="h-5 w-5" />}
             >
               Add New Entry
@@ -87,18 +78,24 @@ export default function PersonsListClient({ persons }: Props) {
           )}
         />
 
-        <KpiCardGrid items={kpis} />
-
-        <div className="flex items-center justify-between gap-3 mt-6 mb-4">
+        <div className="flex items-center gap-3 mb-6">
           <FilterBar
             search={search}
             onSearchChange={setSearch}
             filters={[
               { key: "status", label: "Status", options: statusOptions, value: statusFilter, onChange: setStatusFilter },
-              { key: "type", label: "Type", options: typeOptions, value: typeFilter, onChange: setTypeFilter },
             ]}
             onClearAll={clearAll}
           />
+          <div className="flex p-1 rounded-xl bg-card border border-border shrink-0">
+            {[["", "Tất cả"], ["employee", "Nhân viên"], ["candidate", "Ứng viên"]].map(([v, l]) => (
+              <button key={v} type="button" onClick={() => setTypeFilter(v)} aria-pressed={typeFilter === v}
+                      className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors cursor-pointer ${typeFilter === v ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"}`}>
+                {l}<span className="tabular-nums opacity-70">{countType(v)}</span>
+              </button>
+            ))}
+          </div>
+          <div className="flex-1" />
           <ViewSwitcher value={view} onChange={(v) => setView(v as ViewMode)} />
         </div>
 

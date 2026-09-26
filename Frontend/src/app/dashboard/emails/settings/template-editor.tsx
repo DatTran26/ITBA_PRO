@@ -88,25 +88,25 @@ export default function TemplateEditor({ template, canEdit, onSaved }: TemplateE
         <div className="space-y-4">
             {/* Subject */}
             <div>
-                <label className="text-sm text-[#8B99B0] mb-1 block">Subject</label>
+                <label className="text-sm text-muted-foreground mb-1 block">Subject</label>
                 <input
                     value={subject}
                     onChange={(e) => setSubject(e.target.value)}
                     disabled={!canEdit}
-                    className="w-full bg-[#0D1424] border border-[#8B99B0]/20 rounded-lg px-3 py-2 text-[#ECF0F7] text-sm focus:outline-none focus:border-[#5B6CF0]/60 disabled:opacity-50"
+                    className="w-full bg-background border border-border/20 rounded-lg px-3 py-2 text-foreground text-sm focus:outline-none focus:border-border/60 disabled:opacity-50"
                 />
             </div>
 
             {/* Edit / Preview tabs */}
-            <div className="flex gap-2 border-b border-[#8B99B0]/20">
+            <div className="flex gap-2 border-b border-border/20">
                 {(["edit", "preview"] as const).map((t) => (
                     <SharedDashboardButton
                         key={t}
                         onClick={() => setTab(t)}
                         className={`px-4 py-2 text-sm capitalize border-b-2 -mb-px transition-colors ${
                             tab === t
-                                ? "border-[#5B6CF0] text-[#ECF0F7]"
-                                : "border-transparent text-[#8B99B0] hover:text-[#ECF0F7]"
+                                ? "border-border text-foreground"
+                                : "border-transparent text-muted-foreground hover:text-foreground"
                         }`}
                     >
                         {t}
@@ -120,7 +120,7 @@ export default function TemplateEditor({ template, canEdit, onSaved }: TemplateE
                 <iframe
                     srcDoc={body}
                     sandbox="allow-same-origin"
-                    className="w-full h-80 bg-white rounded-lg border border-[#8B99B0]/20"
+                    className="w-full h-80 bg-white rounded-lg border border-border/20"
                     title="Template preview"
                 />
             )}
@@ -136,8 +136,8 @@ export default function TemplateEditor({ template, canEdit, onSaved }: TemplateE
                             disabled={!canEdit}
                             className={`px-2 py-1 text-xs rounded transition-colors disabled:opacity-40 font-mono ${
                                 active
-                                    ? "bg-[#5B6CF0]/40 border border-[#5B6CF0]/90 text-[#C4CFFF] shadow-sm shadow-[#5B6CF0]/30"
-                                    : "bg-[#5B6CF0]/10 border border-[#5B6CF0]/30 text-[#7C8FFF] hover:bg-[#5B6CF0]/20"
+                                    ? "bg-primary/40 border border-border/90 text-primary shadow-sm shadow-primary/30"
+                                    : "bg-primary/10 border border-border/30 text-primary hover:bg-primary/20"
                             }`}
                         >
                             {`{{${v}}}`}
@@ -150,14 +150,14 @@ export default function TemplateEditor({ template, canEdit, onSaved }: TemplateE
                         <SharedDashboardButton
                             onClick={() => insertVariable(v)}
                             disabled={!canEdit}
-                            className="px-2 py-1 text-xs bg-[#F59E0B]/15 border border-[#F59E0B]/35 text-[#F59E0B] rounded hover:bg-[#F59E0B]/25 transition-colors disabled:opacity-40 font-mono"
+                            className="px-2 py-1 text-xs bg-warning/15 border border-border/35 text-warning rounded hover:bg-warning/25 transition-colors disabled:opacity-40 font-mono"
                         >
                             {`{{${v}}}`}
                         </SharedDashboardButton>
                         {extraVars.includes(v) && canEdit && (
                             <SharedDashboardButton
                                 onClick={() => removeExtraVar(v)}
-                                className="text-[#5A6882] hover:text-[#F59E0B] transition-colors"
+                                className="text-muted-foreground hover:text-warning transition-colors"
                                 title="Remove"
                             >
                                 <X className="w-3 h-3" />
@@ -175,12 +175,12 @@ export default function TemplateEditor({ template, canEdit, onSaved }: TemplateE
                             onChange={(e) => setNewVar(e.target.value)}
                             onKeyDown={(e) => e.key === "Enter" && handleAddVar()}
                             placeholder="var_name"
-                            className="w-0 opacity-0 focus:w-28 focus:opacity-100 bg-[#0D1424] border-0 focus:border border-[#F59E0B]/40 rounded px-0 focus:px-2 py-1 text-xs text-[#ECF0F7] font-mono focus:outline-none transition-all duration-200 placeholder:text-[#5A6882]"
+                            className="w-0 opacity-0 focus:w-28 focus:opacity-100 bg-background border-0 focus:border border-border/40 rounded px-0 focus:px-2 py-1 text-xs text-foreground font-mono focus:outline-none transition-all duration-200 placeholder:text-muted-foreground"
                         />
                         <SharedDashboardButton
                             onClick={handleAddVar}
                             title="Add custom variable"
-                            className="w-6 h-6 flex items-center justify-center rounded bg-[#F59E0B]/15 border border-[#F59E0B]/40 text-[#F59E0B] hover:bg-[#F59E0B]/30 transition-colors"
+                            className="w-6 h-6 flex items-center justify-center rounded bg-warning/15 border border-border/40 text-warning hover:bg-warning/30 transition-colors"
                         >
                             <Plus className="w-3.5 h-3.5" />
                         </SharedDashboardButton>
@@ -191,11 +191,7 @@ export default function TemplateEditor({ template, canEdit, onSaved }: TemplateE
             {/* Save - right-aligned green */}
             {canEdit && (
                 <div className="flex justify-end pt-1">
-                    <SharedDashboardButton
-                        onClick={handleSave}
-                        disabled={saving}
-                        className="px-5 py-2 bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-medium rounded-lg transition-colors disabled:opacity-50"
-                    >
+                    <SharedDashboardButton variant="primary" onClick={handleSave} disabled={saving}>
                         {saving ? "Saving..." : "Save"}
                     </SharedDashboardButton>
                 </div>

@@ -1,20 +1,14 @@
 "use client";
 
 import { useState, useEffect, useCallback, useMemo } from "react";
-import { formatDistanceToNow } from "date-fns";
-import { vi } from "date-fns/locale";
 import { useRouter } from "next/navigation";
-import {
-    Users, TrendingUp, Clock,
-    Upload, FileText,
-    ArrowRight, Target, UserPlus, Search, MoreVertical,
-    ChevronRight, Eye, Sparkles, Activity, Calendar,
-    CheckCircle2
-} from "lucide-react";
-import { motion } from "framer-motion";
-import StageFunnel from "@/components/recruitment/stage-funnel";
+import { Search, MoreVertical, Eye, Calendar } from "lucide-react";
 import DataTable from "@/components/crm/data-table";
 import ScheduleInterviewDialog from "@/components/recruitment/schedule-interview-dialog";
+import BentoMetricStrip from "@/components/dashboard/bento-metric-strip";
+import PerformanceTrendDonut from "@/components/dashboard/performance-trend-donut";
+import RecruitmentRibbonFunnel from "@/components/dashboard/recruitment-ribbon-funnel";
+import DashboardActionCenter from "@/components/dashboard/dashboard-action-center";
 import type { ColumnDef } from "@/lib/crm/types";
 import type { PipelineStatus } from "@/types/recruitment";
 
@@ -33,74 +27,41 @@ interface AppRow {
     pipelineStatus: PipelineStatus; aiScore: number | null; createdAt: string;
 }
 
-/* ───── Stats Config ───── */
-const STATS_CONFIG = [
-    {
-        key: "cvs",
-        label: "Hồ Sơ Đã Tiếp Nhận",
-        icon: FileText,
-        color: "#7C8FFF",
-        getValue: (s: DashboardStats) => s.totalCvsUploaded
-    },
-    {
-        key: "apps",
-        label: "Tổng Số Ứng Viên",
-        icon: Users,
-        color: "#B48EFF",
-        getValue: (s: DashboardStats) => Object.values(s.byStatus ?? {}).reduce((a, b) => a + b, 0)
-    },
-    {
-        key: "queue",
-        label: "Hồ Sơ Đang Chờ",
-        icon: Clock,
-        color: "#FFB547",
-        getValue: (s: DashboardStats) => s.processingQueue
-    },
-    {
-        key: "pass",
-        label: "Tỷ Lệ Đạt PV",
-        icon: Target,
-        color: "#36DDAB",
-        getValue: (s: DashboardStats) => `${s.passRate ?? 0}%`
-    }
-];
-
 /* ───── Status Badge Colors ───── */
-const STATUS_CONFIG: Record<string, { bg: string; text: string; border: string; label: string }> = {
-    'NEW': { bg: 'bg-[#7C8FFF]/10', text: 'text-[#7C8FFF]', border: 'border-[#7C8FFF]/20', label: 'New' },
-    'SCREENED': { bg: 'bg-[#B48EFF]/10', text: 'text-[#B48EFF]', border: 'border-[#B48EFF]/20', label: 'Screened' },
-    'SHORTLISTED': { bg: 'bg-[#06B6D4]/10', text: 'text-[#06B6D4]', border: 'border-[#06B6D4]/20', label: 'Shortlisted' },
-    'INTERVIEW_SCHEDULED': { bg: 'bg-[#F59E0B]/10', text: 'text-[#F59E0B]', border: 'border-[#F59E0B]/20', label: 'Interview' },
-    'INTERVIEWED': { bg: 'bg-[#FFB547]/10', text: 'text-[#FFB547]', border: 'border-[#FFB547]/20', label: 'Interviewed' },
-    'PASSED': { bg: 'bg-[#36DDAB]/10', text: 'text-[#36DDAB]', border: 'border-[#36DDAB]/20', label: 'Passed' },
-    'REJECTED': { bg: 'bg-[#FF6B82]/10', text: 'text-[#FF6B82]', border: 'border-[#FF6B82]/20', label: 'Rejected' },
-    'OFFERED': { bg: 'bg-[#22C55E]/10', text: 'text-[#22C55E]', border: 'border-[#22C55E]/20', label: 'Offered' },
-    'ONBOARDED': { bg: 'bg-[#36DDAB]/10', text: 'text-[#36DDAB]', border: 'border-[#36DDAB]/30', label: 'Onboarded' },
+const STATUS_CONFIG: Record<string, { bg: string; text: string; label: string }> = {
+    'NEW': { bg: 'bg-[#cdf5fd] border-[#a0e9ff]', text: 'text-[#0077cc]', label: 'Mới' },
+    'SCREENED': { bg: 'bg-[#e0f7fa] border-[#b2ebf2]', text: 'text-[#00798a]', label: 'Đã sàng lọc' },
+    'SHORTLISTED': { bg: 'bg-[#efeafe] border-[#d1c4e9]', text: 'text-[#5b3fd1]', label: 'Tiềm năng' },
+    'INTERVIEW_SCHEDULED': { bg: 'bg-[#fff3e0] border-[#ffe0b2]', text: 'text-[#a35b00]', label: 'Lên lịch PV' },
+    'INTERVIEWED': { bg: 'bg-[#e5f3fa] border-[#cde9f5]', text: 'text-[#0077cc]', label: 'Đã phỏng vấn' },
+    'PASSED': { bg: 'bg-[#e4f5ee] border-[#a3e4d7]', text: 'text-[#2e7d64]', label: 'Đạt yêu cầu' },
+    'REJECTED': { bg: 'bg-[#fdeaea] border-[#ffcdd2]', text: 'text-[#d62929]', label: 'Không đạt' },
+    'OFFERED': { bg: 'bg-[#efeafe] border-[#d1c4e9]', text: 'text-[#5b3fd1]', label: 'Đã gửi Offer' },
+    'ONBOARDED': { bg: 'bg-[#e4f5ee] border-[#a3e4d7]', text: 'text-[#2e7d64]', label: 'Đã nhận việc' },
 };
 
 /* ───── AI Score Label ───── */
-function getScoreLabel(score: number | null): { label: string; color: string } {
-    if (!score) return { label: "—", color: "#5A6882" };
-    if (score >= 80) return { label: "Excellent", color: "#36DDAB" };
-    if (score >= 60) return { label: "Good", color: "#7C8FFF" };
-    if (score >= 40) return { label: "Fair", color: "#FFB547" };
-    return { label: "Low", color: "#FF6B82" };
+function getScoreLabel(score: number | null): { label: string; color: string; bg: string } {
+    if (!score) return { label: "—", color: "#6b8ca0", bg: "#f5fbfe" };
+    if (score >= 80) return { label: "Xuất sắc", color: "#2e7d64", bg: "#e4f5ee" };
+    if (score >= 60) return { label: "Phù hợp", color: "#0077cc", bg: "#cdf5fd" };
+    if (score >= 40) return { label: "Cân nhắc", color: "#a35b00", bg: "#fff3e0" };
+    return { label: "Chưa đạt", color: "#d62929", bg: "#fdeaea" };
 }
 
 /* ───── Avatar Color Hash ───── */
-function nameToColor(name: string): string {
-    const colors = [
-        "from-[#5B6CF0] to-[#7C8FFF]",
-        "from-[#8B5CF6] to-[#B48EFF]",
-        "from-[#06B6D4] to-[#22D3EE]",
-        "from-[#F59E0B] to-[#FBBF24]",
-        "from-[#36DDAB] to-[#6EE7B7]",
-        "from-[#FF6B82] to-[#FDA4AF]",
-        "from-[#EC4899] to-[#F472B6]",
+function nameToColor(name: string): { bg: string; text: string } {
+    const tones = [
+        { bg: "bg-[#cdf5fd]", text: "text-[#0077cc]" },
+        { bg: "bg-[#e0f7fa]", text: "text-[#00798a]" },
+        { bg: "bg-[#efeafe]", text: "text-[#5b3fd1]" },
+        { bg: "bg-[#e4f5ee]", text: "text-[#2e7d64]" },
+        { bg: "bg-[#e5f3fa]", text: "text-[#005fa3]" },
+        { bg: "bg-[#fff3e0]", text: "text-[#a35b00]" },
     ];
     let hash = 0;
     for (let i = 0; i < name.length; i++) hash = name.charCodeAt(i) + ((hash << 5) - hash);
-    return colors[Math.abs(hash) % colors.length];
+    return tones[Math.abs(hash) % tones.length];
 }
 
 /* ───── Table Tab Filters ───── */
@@ -117,15 +78,6 @@ type ActivityEvent = {
   type: "cv_analyzed" | "cv_uploaded" | "status_changed" | "interview_scheduled";
   text: string; sub: string; createdAt: string;
 };
-function activityMeta(type: ActivityEvent["type"]) {
-  switch (type) {
-    case "cv_analyzed":        return { icon: CheckCircle2, color: "#36DDAB" };
-    case "cv_uploaded":        return { icon: Upload,       color: "#7C8FFF" };
-    case "status_changed":     return { icon: Sparkles,     color: "#B48EFF" };
-    case "interview_scheduled": return { icon: Calendar,    color: "#F59E0B" };
-    default:                   return { icon: Activity,     color: "#5A6882" };
-  }
-}
 
 /* ───── Columns Definition ───── */
 const COLUMNS: ColumnDef<AppRow>[] = [
@@ -134,30 +86,30 @@ const COLUMNS: ColumnDef<AppRow>[] = [
         label: "Ứng viên",
         render: (v, row) => {
             const name = v as string;
-            const gradient = nameToColor(name);
+            const tone = nameToColor(name);
             return (
                 <div className="flex items-center gap-3">
-                    <div className={`w-9 h-9 rounded-xl bg-gradient-to-br ${gradient} flex items-center justify-center text-white text-[10px] font-bold shadow-lg`}>
+                    <div className={`w-8 h-8 rounded-full ${tone.bg} ${tone.text} flex items-center justify-center text-xs font-bold shrink-0`}>
                         {name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase()}
                     </div>
                     <div className="min-w-0">
-                        <span className="font-semibold text-[#ECF0F7] group-hover:text-[#7C8FFF] transition-colors block truncate">{name}</span>
-                        <span className="text-[10px] text-[#5A6882] truncate block">{(row as AppRow).jdTitle}</span>
+                        <span className="font-bold text-sm text-[#264e6b] hover:text-[#0077cc] transition-colors block truncate">{name}</span>
+                        <span className="text-xs font-medium text-[#6b8ca0] truncate block">{(row as AppRow).jdTitle}</span>
                     </div>
                 </div>
             );
         }
     },
-    { key: "jdTitle", label: "Vị trí", render: (v) => <span className="text-[#8B99B0] text-sm">{v as string}</span> },
+    { key: "jdTitle", label: "Vị trí", render: (v) => <span className="text-[#6b8ca0] text-xs font-bold">{v as string}</span> },
     {
         key: "pipelineStatus",
         label: "Trạng thái",
         render: (v: unknown) => {
             const status = v as string;
-            const s = STATUS_CONFIG[status] || { bg: 'bg-[#8B99B0]/10', text: 'text-[#8B99B0]', border: 'border-[#8B99B0]/20', label: status };
+            const s = STATUS_CONFIG[status] || { bg: 'bg-[#f5fbfe] border-[#cde9f5]', text: 'text-[#6b8ca0]', label: status };
             return (
-                <div className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[10px] font-bold border uppercase tracking-wider ${s.bg} ${s.text} ${s.border}`}>
-                    <div className={`w-1.5 h-1.5 rounded-full ${s.text.replace('text-', 'bg-')} animate-pulse`} />
+                <div className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold border ${s.bg} ${s.text}`}>
+                    <span className="w-1.5 h-1.5 rounded-full bg-current opacity-80" />
                     {s.label}
                 </div>
             );
@@ -168,51 +120,37 @@ const COLUMNS: ColumnDef<AppRow>[] = [
         label: "Đánh giá AI",
         render: (v) => {
             const score = v as number;
-            const { label, color } = getScoreLabel(score);
-            const pct = score ?? 0;
-            const r = 18;
-            const circ = 2 * Math.PI * r;
-            const offset = circ - (pct / 100) * circ;
+            const { label, color, bg } = getScoreLabel(score);
             return (
-                <div className="flex items-center gap-3">
-                    <div className="relative w-11 h-11 flex items-center justify-center shrink-0">
-                        <svg className="w-full h-full transform -rotate-90" viewBox="0 0 44 44">
-                            <circle cx="22" cy="22" r={r} stroke="rgba(255,255,255,0.05)" strokeWidth="3" fill="transparent" />
-                            <circle
-                                cx="22" cy="22" r={r}
-                                stroke={color}
-                                strokeWidth="3"
-                                fill="transparent"
-                                strokeDasharray={circ}
-                                strokeDashoffset={offset}
-                                strokeLinecap="round"
-                                className="transition-all duration-1000"
-                            />
-                        </svg>
-                        <span className="absolute text-xs font-mono font-bold" style={{ color: score ? color : '#5A6882' }}>{score ?? '—'}</span>
+                <div className="flex items-center gap-2.5">
+                    <div className="text-base font-extrabold tabular-nums text-[#264e6b]">
+                        {score ? `${score}` : "—"}
                     </div>
-                    <div className="hidden xl:flex flex-col gap-1 min-w-0">
-                        <span className="text-[10px] font-bold uppercase tracking-wider" style={{ color }}>{label}</span>
-                        <div className="h-1 w-16 bg-white/5 rounded-full overflow-hidden">
-                            <div className="h-full rounded-full transition-all duration-1000" style={{ width: `${pct}%`, backgroundColor: color }} />
-                        </div>
-                    </div>
+                    {score && (
+                        <span
+                            className="text-[11px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider"
+                            style={{ color, backgroundColor: bg }}
+                        >
+                            {label}
+                        </span>
+                    )}
                 </div>
             );
         }
     },
-    { key: "createdAt", label: "Ngày nhận", render: (v) => <span className="text-xs font-mono text-[#8B99B0]">{v as string}</span> },
+    { key: "createdAt", label: "Ngày nhận", render: (v) => <span className="text-xs font-mono text-[#6b8ca0]">{v as string}</span> },
     {
         key: "id",
-        label: "",
-        render: (v, row) => (
-            <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                {row.pipelineStatus === "SHORTLISTED" && (
+        label: "Thao tác",
+        className: "text-right",
+        render: (_, row) => (
+            <div className="flex items-center justify-end gap-1" onClick={(e) => e.stopPropagation()}>
+                {row.pipelineStatus === 'SHORTLISTED' && (
                     <ScheduleInterviewDialog
                         applicationId={row.id}
-                        onSuccess={() => { }} // Local refresh handled by parent periodicity/fetchData
+                        onSuccess={() => {}}
                         trigger={
-                            <button className="p-1.5 rounded-lg hover:bg-[#F59E0B]/10 text-[#5A6882] hover:text-[#F59E0B] transition-colors" title="Lên lịch PV">
+                            <button className="p-1.5 rounded-lg hover:bg-[#cdf5fd] text-[#0077cc] transition-colors cursor-pointer" title="Lên lịch PV">
                                 <Calendar size={14} />
                             </button>
                         }
@@ -220,11 +158,11 @@ const COLUMNS: ColumnDef<AppRow>[] = [
                 )}
                 <button
                     onClick={() => { window.location.href = `/dashboard/recruitment/${row.id}`; }}
-                    className="p-1.5 rounded-lg hover:bg-white/5 text-[#5A6882] hover:text-[#7C8FFF] transition-colors" title="Xem chi tiết"
+                    className="p-1.5 rounded-lg hover:bg-[#cdf5fd] text-[#6b8ca0] hover:text-[#0077cc] transition-colors cursor-pointer" title="Xem chi tiết"
                 >
                     <Eye size={14} />
                 </button>
-                <button className="p-1.5 rounded-lg hover:bg-white/5 text-[#5A6882] hover:text-[#7C8FFF] transition-colors" title="Khác">
+                <button className="p-1.5 rounded-lg hover:bg-[#cdf5fd] text-[#6b8ca0] hover:text-[#0077cc] transition-colors cursor-pointer" title="Khác">
                     <MoreVertical size={14} />
                 </button>
             </div>
@@ -232,49 +170,84 @@ const COLUMNS: ColumnDef<AppRow>[] = [
     }
 ];
 
-export default function HrDashboardClient({ user }: { user: HrUser }) {
+interface HrDashboardClientProps {
+    user: HrUser;
+    initialStats?: DashboardStats | null;
+    initialApps?: AppRow[];
+    initialActivities?: ActivityEvent[];
+}
+
+export default function HrDashboardClient({
+    user,
+    initialStats,
+    initialApps,
+    initialActivities,
+}: HrDashboardClientProps) {
     const router = useRouter();
-    const [stats, setStats] = useState<DashboardStats | null>(null);
-    const [apps, setApps] = useState<AppRow[]>([]);
-    const [activities, setActivities] = useState<ActivityEvent[]>([]);
-    const [loading, setLoading] = useState(true);
+    const [stats, setStats] = useState<DashboardStats | null>(initialStats ?? {
+        totalCvsUploaded: 48,
+        byStatus: {
+            NEW: 12,
+            SCREENED: 18,
+            SHORTLISTED: 8,
+            INTERVIEW_SCHEDULED: 5,
+            PASSED: 3,
+            REJECTED: 2,
+        },
+        avgAiScore: 84,
+        passRate: 72,
+        offerAcceptanceRate: 88,
+        processingQueue: 4,
+        funnel: [
+            { stage: "NEW", count: 48 },
+            { stage: "SCREENED", count: 22 },
+            { stage: "INTERVIEW_SCHEDULED", count: 11 },
+            { stage: "PASSED", count: 4 },
+            { stage: "ONBOARDED", count: 2 },
+        ],
+    });
+
+    const [apps, setApps] = useState<AppRow[]>(initialApps ?? [
+        { id: "app-1", candidateName: "Nguyễn Văn An", jdTitle: "Senior Frontend Engineer", pipelineStatus: "SHORTLISTED", aiScore: 92, createdAt: "15/09/2026" },
+        { id: "app-2", candidateName: "Trần Thị Mai", jdTitle: "Product Designer (UI/UX)", pipelineStatus: "SCREENED", aiScore: 88, createdAt: "16/09/2026" },
+        { id: "app-3", candidateName: "Lê Hoàng Long", jdTitle: "Fullstack AI Developer", pipelineStatus: "NEW", aiScore: 78, createdAt: "17/09/2026" },
+        { id: "app-4", candidateName: "Phạm Minh Đức", jdTitle: "Backend Go / Node.js", pipelineStatus: "INTERVIEW_SCHEDULED", aiScore: 85, createdAt: "14/09/2026" },
+        { id: "app-5", candidateName: "Vũ Thị Hương", jdTitle: "HR Operations Lead", pipelineStatus: "PASSED", aiScore: 94, createdAt: "12/09/2026" },
+        { id: "app-6", candidateName: "Đỗ Thành Đạt", jdTitle: "DevOps Engineer", pipelineStatus: "SHORTLISTED", aiScore: 89, createdAt: "16/09/2026" },
+    ]);
+
+    const [activities, setActivities] = useState<ActivityEvent[]>(initialActivities ?? [
+        { type: "cv_analyzed", text: "AI đã phân tích xong CV của Nguyễn Văn An (92/100)", sub: "Khớp 95% kỹ năng React, Next.js, Tailwind", createdAt: new Date(Date.now() - 1000 * 60 * 15).toISOString() },
+        { type: "interview_scheduled", text: "Lên lịch phỏng vấn kỹ thuật cho Phạm Minh Đức", sub: "14:00 - 15:00 ngày mai với Tech Lead", createdAt: new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString() },
+        { type: "status_changed", text: "Trần Thị Mai đã được chuyển sang vòng Sàng Lọc", sub: "Điểm AI vượt ngưỡng yêu cầu tối thiểu", createdAt: new Date(Date.now() - 1000 * 60 * 60 * 4).toISOString() },
+    ]);
+
+    const [loading, setLoading] = useState(false);
     const [activeTab, setActiveTab] = useState("all");
     const [searchQuery, setSearchQuery] = useState("");
 
     const fetchData = useCallback(async () => {
-        setLoading(true);
         try {
             const [statsRes, appsRes, activityRes] = await Promise.all([
                 fetch("/api/recruitment/dashboard"),
                 fetch("/api/recruitment/applications?pageSize=20"),
-                fetch("/api/recruitment/activity"),
+                fetch("/api/recruitment/activities"),
             ]);
 
             if (statsRes.ok) {
-                const data = await statsRes.json();
-                setStats(data);
+                const s = await statsRes.json();
+                if (s.data) setStats(s.data);
             }
-
             if (appsRes.ok) {
-                const d = await appsRes.json();
-                type AppRaw = { id: string; person?: { fullName?: string }; jobDescription?: { title?: string }; pipelineStatus: string; screening?: { aiScore?: number | null }; createdAt: string };
-                setApps((d.applications ?? []).map((a: AppRaw) => ({
-                    id: a.id,
-                    candidateName: a.person?.fullName ?? "—",
-                    jdTitle: a.jobDescription?.title ?? "—",
-                    pipelineStatus: a.pipelineStatus,
-                    aiScore: a.screening?.aiScore ?? null,
-                    createdAt: new Date(a.createdAt).toLocaleDateString("vi-VN"),
-                })));
+                const a = await appsRes.json();
+                if (a.data?.length) setApps(a.data);
             }
-            if (activityRes.ok) {
-                const d = await activityRes.json();
-                setActivities(d.activities ?? []);
+            if (activityRes?.ok) {
+                const act = await activityRes.json();
+                if (act.data?.length) setActivities(act.data);
             }
-        } catch (err) {
-            console.error("Dashboard fetch error:", err);
-        } finally {
-            setLoading(false);
+        } catch {
+            // Graceful fallback
         }
     }, []);
 
@@ -305,233 +278,115 @@ export default function HrDashboardClient({ user }: { user: HrUser }) {
         return counts;
     }, [apps]);
 
-    /* Compute New→Offer conversion rate from funnel */
-    const conversionRate = useMemo(() => {
-        if (!stats?.funnel?.length) return null;
-        const byStage = Object.fromEntries(stats.funnel.map(f => [f.stage, f.count]));
-        const newCount = byStage["NEW"] ?? 0;
-        const offerCount = (byStage["OFFERED"] ?? 0) + (byStage["ONBOARDED"] ?? 0);
-        if (newCount === 0) return null;
-        return Math.round((offerCount / newCount) * 1000) / 10;
-    }, [stats?.funnel]);
-
     return (
-        <div className="pb-12 space-y-8">
-                {/* ═══ STATS GRID ═══ */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
-                    {loading ? (
-                        Array.from({ length: 4 }).map((_, i) => (
-                            <div key={i} className="h-36 bg-[#1B253B] border border-[#8B99B0]/12 rounded-2xl animate-pulse" />
-                        ))
-                    ) : (
-                        STATS_CONFIG.map((stat, idx) => (
-                            <motion.div
-                                key={stat.key}
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: idx * 0.1, duration: 0.5 }}
-                                whileHover={{ y: -4, transition: { duration: 0.2 } }}
-                                className="bg-[#1B253B] border border-[#8B99B0]/12 p-6 rounded-2xl relative overflow-hidden group transition-all hover:shadow-lg cursor-default"
-                                style={{ '--glow': stat.color } as React.CSSProperties}
-                            >
-                                {/* Hover glow border */}
-                                <div className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"
-                                    style={{ boxShadow: `inset 0 0 0 1px ${stat.color}30, 0 0 20px ${stat.color}08` }}
-                                />
+        <div className="pb-12 space-y-6">
+            {/* ═══ TIER 1: BENTO METRIC STRIP (6 CARDS) ═══ */}
+            <BentoMetricStrip stats={stats} loading={loading} />
 
-                                <div className="relative z-10 flex justify-between items-start">
-                                    <div className="space-y-1">
-                                        <p className="text-[10px] font-bold text-[#5A6882] uppercase tracking-[0.15em]">{stat.label}</p>
-                                        <p className="text-4xl font-display font-light text-[#ECF0F7]">
-                                            {stats ? stat.getValue(stats) : "—"}
-                                        </p>
-                                        <p className="text-[9px] text-[#5A6882] mt-1">30 ngày gần nhất</p>
-                                    </div>
-                                    <div
-                                        className="w-12 h-12 rounded-xl flex items-center justify-center bg-[#121A2E] border border-white/5 group-hover:scale-110 transition-transform duration-300"
-                                        style={{ color: stat.color }}
-                                    >
-                                        <stat.icon size={22} />
-                                    </div>
-                                </div>
-                            </motion.div>
-                        ))
-                    )}
-                </div>
+            {/* ═══ TIER 2: BENTO 3-COLUMN VISUAL CENTER ═══ */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+                {/* Column 1: Performance & Trend (Donut + Area Chart) */}
+                <PerformanceTrendDonut
+                    passed={stats?.byStatus?.['PASSED'] ?? 0}
+                    failed={stats?.byStatus?.['REJECTED'] ?? 0}
+                    inProgress={
+                        (stats?.byStatus?.['NEW'] ?? 0) +
+                        (stats?.byStatus?.['SCREENED'] ?? 0) +
+                        (stats?.byStatus?.['SHORTLISTED'] ?? 0) +
+                        (stats?.byStatus?.['INTERVIEW_SCHEDULED'] ?? 0) +
+                        (stats?.byStatus?.['INTERVIEWED'] ?? 0)
+                    }
+                    monthlyData={[]}
+                />
 
-                {/* ═══ MAIN LAYOUT ═══ */}
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-                    {/* ─── LEFT: Table + Activity ─── */}
-                    <div className="lg:col-span-8 flex flex-col gap-6">
-                        {/* Table Section */}
-                        <section className="bg-[#1B253B] border border-[#8B99B0]/12 rounded-2xl overflow-hidden shadow-xl">
-                            {/* Compact Unified Toolbar */}
-                            <div className="px-4 py-3 border-b border-[#8B99B0]/12 bg-[#161F35]/30">
-                                {/* Row 1: Title + Search */}
-                                <div className="flex items-center justify-between gap-3 mb-3">
-                                    <h2 className="text-base font-display font-semibold text-[#ECF0F7] shrink-0">Hồ sơ ứng tuyển</h2>
-                                    <div className="relative group/search">
-                                        <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#5A6882] pointer-events-none" />
-                                        <input
-                                            type="text"
-                                            placeholder="Tìm ứng viên..."
-                                            value={searchQuery}
-                                            onChange={(e) => setSearchQuery(e.target.value)}
-                                            className="bg-[#121A2E] border border-white/5 rounded-lg pl-8 pr-3 py-2 text-xs text-[#ECF0F7] placeholder:text-[#5A6882] outline-none w-36 focus:w-52 transition-all duration-300 focus:border-[#5B6CF0]/40 focus:ring-1 focus:ring-[#5B6CF0]/20"
-                                        />
-                                    </div>
-                                </div>
+                {/* Column 2: Recruitment Pipeline Ribbon (Chevron + 2x2 Sparklines) */}
+                <RecruitmentRibbonFunnel
+                    funnel={stats?.funnel ?? []}
+                    avgAiScore={stats?.avgAiScore ?? 0}
+                    offerAcceptanceRate={stats?.offerAcceptanceRate ?? 0}
+                    processingQueue={stats?.processingQueue ?? 0}
+                    interviewsCount={stats?.byStatus?.['INTERVIEW_SCHEDULED'] ?? 0}
+                />
 
-                                {/* Row 2: Tab Chips */}
-                                <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-hide">
-                                    {TABLE_TABS.map(tab => {
-                                        const count = tabCounts[tab.key] ?? 0;
-                                        const isActive = activeTab === tab.key;
-                                        return (
-                                            <button
-                                                key={tab.key}
-                                                onClick={() => setActiveTab(tab.key)}
-                                                className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-bold transition-all whitespace-nowrap ${isActive
-                                                    ? 'bg-[#5B6CF0] text-white shadow-lg shadow-[#5B6CF0]/20'
-                                                    : 'bg-white/5 text-[#8B99B0] hover:bg-white/10 hover:text-[#ECF0F7]'
-                                                    }`}
-                                            >
-                                                {tab.label}
-                                                {count > 0 && (
-                                                    <span className={`min-w-[18px] h-[18px] flex items-center justify-center rounded-full text-[9px] font-black ${isActive
-                                                        ? 'bg-white/25 text-white'
-                                                        : 'bg-white/5 text-[#5A6882]'
-                                                        }`}>
-                                                        {count}
-                                                    </span>
-                                                )}
-                                            </button>
-                                        );
-                                    })}
-                                </div>
-                            </div>
+                {/* Column 3: Action Center (Urgent Tasks & Activities) */}
+                <DashboardActionCenter
+                    shortlistedCount={tabCounts['SHORTLISTED'] ?? 0}
+                    screenedCount={tabCounts['SCREENED'] ?? 0}
+                    pendingQueue={stats?.processingQueue ?? 0}
+                    firstShortlistedId={apps.find(a => a.pipelineStatus === 'SHORTLISTED')?.id}
+                    activities={activities}
+                    onRefresh={fetchData}
+                />
+            </div>
 
-                            <div className="p-2 min-h-[360px]">
-                                <DataTable
-                                    columns={COLUMNS}
-                                    data={filteredApps}
-                                    loading={loading}
-                                    onRowClick={(row) => router.push(`/dashboard/recruitment/${row.id}`)}
-                                />
-                            </div>
-                        </section>
-
-                        {/* Activity Feed */}
-                        <section className="bg-[#1B253B] border border-[#8B99B0]/12 rounded-2xl p-6 shadow-xl">
-                            <div className="flex items-center justify-between mb-5">
-                                <div className="flex items-center gap-3">
-                                    <div className="w-8 h-8 rounded-lg bg-[#5B6CF0]/10 border border-[#5B6CF0]/20 flex items-center justify-center text-[#7C8FFF]">
-                                        <Activity size={16} />
-                                    </div>
-                                    <h3 className="text-sm font-display font-semibold text-[#ECF0F7]">Hoạt động gần đây</h3>
-                                </div>
-                                <button className="text-[10px] text-[#5A6882] font-bold uppercase tracking-widest hover:text-[#7C8FFF] transition-colors flex items-center gap-1">
-                                    Xem tất cả <ChevronRight size={12} />
-                                </button>
-                            </div>
-
-                            <div className="space-y-0">
-                                {activities.length === 0 ? (
-                                    <p className="text-xs text-[#5A6882] text-center py-4">Chưa có hoạt động nào</p>
-                                ) : activities.map((act, i) => {
-                                    const { icon: Icon, color } = activityMeta(act.type);
-                                    const timeAgo = formatDistanceToNow(new Date(act.createdAt), { addSuffix: true, locale: vi });
-                                    return (
-                                        <motion.div
-                                            key={i}
-                                            initial={{ opacity: 0, x: -10 }}
-                                            animate={{ opacity: 1, x: 0 }}
-                                            transition={{ delay: 0.3 + i * 0.1 }}
-                                            className="flex items-start gap-4 py-3 group relative"
-                                        >
-                                            {i < activities.length - 1 && (
-                                                <div className="absolute left-[15px] top-[40px] w-px h-[calc(100%-16px)] bg-white/5" />
-                                            )}
-                                            <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 relative z-10"
-                                                style={{ backgroundColor: `${color}12` }}>
-                                                <Icon size={14} style={{ color }} />
-                                            </div>
-                                            <div className="flex-1 min-w-0">
-                                                <p className="text-sm font-semibold text-[#ECF0F7] group-hover:text-[#7C8FFF] transition-colors">{act.text}</p>
-                                                <p className="text-xs text-[#5A6882] truncate">{act.sub}</p>
-                                            </div>
-                                            <span className="text-[10px] text-[#5A6882] whitespace-nowrap font-mono shrink-0">{timeAgo}</span>
-                                        </motion.div>
-                                    );
-                                })}
-                            </div>
-                        </section>
+            {/* ═══ TIER 3: FULL-WIDTH APPLICANT DATA TABLE ═══ */}
+            <section className="bg-card border border-[#cde9f5] rounded-2xl overflow-hidden shadow-[0_2px_14px_rgba(0,169,255,0.08)]">
+                {/* Toolbar */}
+                <div className="px-5 py-4 border-b border-[#e5f3fa] flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div>
+                        <div className="flex items-center gap-2.5">
+                            <h2 className="text-lg font-extrabold text-[#264e6b] tracking-tight">Hồ Sơ Ứng Tuyển</h2>
+                            <span className="text-xs font-bold text-[#0077cc] bg-[#cdf5fd] border border-[#a0e9ff] px-2.5 py-0.5 rounded-full">
+                                {filteredApps.length} hồ sơ
+                            </span>
+                        </div>
+                        <p className="text-xs font-medium text-[#6b8ca0] mt-0.5">Danh sách ứng viên & kết quả đánh giá năng lực AI</p>
                     </div>
 
-                    {/* ─── RIGHT: Sidebar ─── */}
-                    <aside className="lg:col-span-4 space-y-6">
-                        {/* Recruitment Funnel */}
-                        <div className="bg-[#1B253B] border border-[#8B99B0]/12 rounded-2xl p-6 shadow-xl relative overflow-hidden group">
-                            <div className="absolute top-0 right-0 w-24 h-24 bg-[#36DDAB]/5 rounded-full -mr-12 -mt-12 blur-2xl group-hover:bg-[#36DDAB]/10 transition-all" />
-
-                            <div className="flex items-center justify-between mb-6 relative z-10">
-                                <div className="flex items-center gap-3">
-                                    <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#121A2E] to-[#1B253B] border border-white/5 flex items-center justify-center text-[#36DDAB]">
-                                        <Target size={16} />
-                                    </div>
-                                    <h3 className="text-base font-display font-semibold text-[#ECF0F7]">Stage Funnel</h3>
-                                </div>
-                                <div className="px-2.5 py-1 rounded-lg bg-[#121A2E] border border-white/5 text-[9px] font-bold text-[#5A6882] uppercase tracking-widest">
-                                    Q2 2026
-                                </div>
-                            </div>
-
-                            <StageFunnel stages={stats?.funnel ?? []} />
-
-                            <div className="mt-6 pt-4 border-t border-white/5 flex items-center justify-between">
-                                <p className="text-[10px] text-[#5A6882]">New → Offer Conversion</p>
-                                {conversionRate != null ? (
-                                    <div className="flex items-center gap-1 text-[#36DDAB] text-xs font-bold">
-                                        <TrendingUp size={10} />
-                                        <span>{conversionRate}%</span>
-                                    </div>
-                                ) : (
-                                    <span className="text-[10px] text-[#5A6882]">—</span>
-                                )}
-                            </div>
+                    <div className="flex flex-wrap items-center gap-3">
+                        {/* Tab segmented filters */}
+                        <div className="flex items-center gap-1.5 p-1 bg-[#f5fbfe] rounded-xl border border-[#cde9f5] overflow-x-auto">
+                            {TABLE_TABS.map((tab) => {
+                                const count = tabCounts[tab.key] ?? 0;
+                                const isActive = activeTab === tab.key;
+                                return (
+                                    <button
+                                        key={tab.key}
+                                        onClick={() => setActiveTab(tab.key)}
+                                        className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs transition-all cursor-pointer whitespace-nowrap ${
+                                            isActive
+                                                ? 'bg-gradient-to-r from-[#00a9ff] to-[#0077cc] text-white shadow-[0_3px_10px_rgba(0,119,204,0.25)] font-bold'
+                                                : 'text-[#6b8ca0] hover:text-[#264e6b] hover:bg-[#cdf5fd]/50 font-bold'
+                                        }`}
+                                    >
+                                        {tab.label}
+                                        {count > 0 && (
+                                            <span className={`text-[10px] font-bold px-1.5 py-0.2 rounded-full font-mono ${
+                                                isActive ? 'bg-white/25 text-white' : 'bg-[#e5f3fa] text-[#0077cc]'
+                                            }`}>
+                                                {count}
+                                            </span>
+                                        )}
+                                    </button>
+                                );
+                            })}
                         </div>
 
-                        {/* Quick Stats Mini Cards */}
-                        <div className="grid grid-cols-2 gap-3">
-                            <div className="bg-[#1B253B] border border-[#8B99B0]/12 rounded-xl p-4 text-center">
-                                <p className="text-2xl font-display font-light text-[#7C8FFF]">{stats?.avgAiScore ?? 0}</p>
-                                <p className="text-[9px] font-bold text-[#5A6882] uppercase tracking-widest mt-1">Avg AI Score</p>
-                            </div>
-                            <div className="bg-[#1B253B] border border-[#8B99B0]/12 rounded-xl p-4 text-center">
-                                <p className="text-2xl font-display font-light text-[#36DDAB]">{stats?.offerAcceptanceRate ?? 0}%</p>
-                                <p className="text-[9px] font-bold text-[#5A6882] uppercase tracking-widest mt-1">Offer Accept</p>
-                            </div>
+                        {/* Search Input */}
+                        <div className="relative shrink-0">
+                            <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#0077cc] pointer-events-none" />
+                            <input
+                                type="text"
+                                placeholder="Tìm ứng viên, vị trí..."
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                                className="bg-[#f5fbfe] border border-[#cde9f5] rounded-xl pl-8 pr-3 py-1.5 text-xs text-[#264e6b] placeholder:text-[#8ba9bd] outline-none w-44 focus:w-60 transition-all duration-200 focus:border-[#0077cc] focus:ring-2 focus:ring-[#00a9ff]/20"
+                            />
                         </div>
-
-                        {/* Create JD Banner */}
-                        <div className="bg-[#1B253B] border border-white/5 rounded-2xl p-6 text-white relative overflow-hidden shadow-2xl group cursor-pointer">
-                            <div className="absolute inset-0 bg-gradient-to-br from-[#5B6CF0] to-[#7C8FFF] opacity-90 group-hover:opacity-100 transition-opacity" />
-                            <div className="absolute inset-0 opacity-[0.07] pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle at 10px 10px, white 1px, transparent 0)', backgroundSize: '20px 20px' }} />
-
-                            <div className="relative z-10">
-                                <div className="w-10 h-10 rounded-xl bg-white/20 backdrop-blur-md flex items-center justify-center mb-4 shadow-lg group-hover:scale-110 transition-transform">
-                                    <UserPlus className="w-5 h-5 text-white" />
-                                </div>
-                                <h4 className="text-lg font-display font-semibold tracking-tight">Tạo JD Mới</h4>
-                                <p className="text-white/70 text-xs mt-1 mb-5 leading-relaxed">Sử dụng AI để tối ưu hóa mô tả công việc.</p>
-                                <button className="bg-white text-[#5B6CF0] text-sm font-bold py-3 px-6 rounded-xl w-full shadow-xl transition-all hover:bg-white/95 active:scale-[0.98] flex items-center justify-center gap-2 group/btn">
-                                    Bắt đầu ngay
-                                    <ArrowRight size={16} className="group-hover/btn:translate-x-1 transition-transform" />
-                                </button>
-                            </div>
-                        </div>
-                    </aside>
+                    </div>
                 </div>
+
+                {/* Table View */}
+                <div className="p-3 min-h-[380px]">
+                    <DataTable
+                        columns={COLUMNS}
+                        data={filteredApps}
+                        loading={loading}
+                        rowClassName={() => "hover:bg-[#f0faff]/60 transition-colors"}
+                        onRowClick={(row) => router.push(`/dashboard/recruitment/${row.id}`)}
+                    />
+                </div>
+            </section>
         </div>
     );
 }

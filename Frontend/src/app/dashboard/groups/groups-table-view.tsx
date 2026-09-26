@@ -13,10 +13,10 @@ import type { GroupListItem } from "@/app/dashboard/management-types";
 import type { ColumnDef } from "@/lib/crm/types";
 
 const TYPE_COLORS: Record<string, string> = {
-  department: "border-[#50FA7B]/30 text-[#50FA7B]",
-  batch:      "border-[#8BE9FD]/30 text-[#8BE9FD]",
-  campaign:   "border-[#FFB86C]/30 text-[#FFB86C]",
-  other:      "border-[#8B99B0]/30 text-[#8B99B0]",
+  department: "border-border/30 text-success",
+  batch:      "border-border/30 text-primary",
+  campaign:   "border-border/30 text-warning",
+  other:      "border-border/30 text-muted-foreground",
 };
 
 function getMemberCount(g: GroupListItem): number {
@@ -61,7 +61,7 @@ export default function GroupsTableView({ groups, onRowClick, onEdit }: Props) {
       key: "group_members",
       label: "Members",
       render: (_, row) => (
-        <span className="text-xs text-[#8B99B0]">{getMemberCount(row)}</span>
+        <span className="text-xs text-muted-foreground">{getMemberCount(row)}</span>
       ),
     },
     {
@@ -74,9 +74,9 @@ export default function GroupsTableView({ groups, onRowClick, onEdit }: Props) {
       label: "At Risk",
       render: (_, row) =>
         (row.alert_count ?? 0) > 0 ? (
-          <span className="text-xs text-[#EF4444]">{row.alert_count}</span>
+          <span className="text-xs text-danger">{row.alert_count}</span>
         ) : (
-          <span className="text-xs text-[#5A6882]">—</span>
+          <span className="text-xs text-muted-foreground">—</span>
         ),
     },
     {
@@ -87,7 +87,7 @@ export default function GroupsTableView({ groups, onRowClick, onEdit }: Props) {
           size="icon-sm"
           variant="ghost"
           onClick={(e) => { e.stopPropagation(); onEdit(row); }}
-          className="text-[#5A6882] hover:text-[#ECF0F7] hover:bg-[#222C4A]"
+          className="text-muted-foreground hover:text-foreground hover:bg-accent"
           aria-label="Edit group"
         >
           <Pencil className="w-3.5 h-3.5" />

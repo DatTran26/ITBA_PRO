@@ -25,8 +25,8 @@ export default function LevelConfigTypePicker({
 }: Props) {
   if (hideTypePicker) {
     return (
-      <div className="text-xs text-[#8B99B0] bg-[#1E2840]/50 border border-[#8B99B0]/15 rounded-lg px-3 py-2">
-        Question type counts are synced from <span className="text-[#7C8FFF]">Format Weights</span> on the right panel.
+      <div className="text-xs text-muted-foreground bg-muted/50 border border-border/15 rounded-lg px-3 py-2">
+        Question type counts are synced from <span className="text-primary">Format Weights</span> on the right panel.
       </div>
     );
   }
@@ -34,16 +34,16 @@ export default function LevelConfigTypePicker({
   return (
     <div>
       <div className="flex items-center justify-between mb-2">
-        <p className="text-xs text-[#8B99B0] font-medium uppercase tracking-wider">
+        <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">
           Question types (optional)
         </p>
         {availability && (
-          <span className="text-[11px] text-[#5A6882]">
+          <span className="text-[11px] text-muted-foreground">
             {loadingAvailability ? "Checking..." : `Bank: ${availability.total} available for current filter`}
           </span>
         )}
       </div>
-      <p className="text-xs text-[#5A6882] mb-3">
+      <p className="text-xs text-muted-foreground mb-3">
         Leave empty to let the bank fill any type. Numbers shown next to each input = how many are in the bank for your level + topic filter.
       </p>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-56 overflow-y-auto pr-1 custom-scrollbar">
@@ -57,12 +57,12 @@ export default function LevelConfigTypePicker({
               className={`flex items-center justify-between gap-3 rounded-lg border px-3 py-2 text-xs ${
                 isShort
                   ? "border-amber-500/30 bg-amber-500/5 text-amber-300"
-                  : "border-[#8B99B0]/10 bg-[#1E2840]/40 text-[#8B99B0]"
+                  : "border-border/10 bg-muted/40 text-muted-foreground"
               }`}
             >
               <span className="flex-1 truncate">{type.label}</span>
               {availability && (
-                <span className={`text-[10px] font-mono ${isShort ? "text-amber-400" : "text-[#5A6882]"}`}>
+                <span className={`text-[10px] font-mono ${isShort ? "text-amber-400" : "text-muted-foreground"}`}>
                   {requested}/{available}
                 </span>
               )}
@@ -75,7 +75,7 @@ export default function LevelConfigTypePicker({
                   ...prev,
                   [type.value]: Math.max(0, parseInt(event.target.value, 10) || 0),
                 }))}
-                className="w-16 h-7 px-2 text-xs rounded-md bg-[#0C1220]/80 border border-[#8B99B0]/20 text-[#ECF0F7] focus:outline-none focus:border-[#10B981]/40 text-center"
+                className="w-16 h-7 px-2 text-xs rounded-md bg-background/80 border border-border/20 text-foreground focus:outline-none focus:border-border/40 text-center"
               />
             </label>
           );

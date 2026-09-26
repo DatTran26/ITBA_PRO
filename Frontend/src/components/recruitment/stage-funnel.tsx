@@ -1,4 +1,5 @@
 "use client";
+import { alpha } from "@/lib/utils";
 
 import { motion } from "framer-motion";
 import {
@@ -10,14 +11,14 @@ interface FunnelStage { stage: string; count: number }
 interface StageFunnelProps { stages: FunnelStage[] }
 
 const STAGE_CONFIG: Record<string, { label: string; color: string; icon: typeof FileText }> = {
-  NEW: { label: "Hồ Sơ Mới", color: "#7C8FFF", icon: FileText },
-  SCREENED: { label: "Đã Sàng Lọc", color: "#B48EFF", icon: FilterIcon },
-  SHORTLISTED: { label: "Tiềm Năng", color: "#06B6D4", icon: Sparkles },
-  INTERVIEW_SCHEDULED: { label: "Lên Lịch PV", color: "#F59E0B", icon: Calendar },
-  INTERVIEWED: { label: "Đã Phỏng Vấn", color: "#FFB547", icon: CheckCircle2 },
-  PASSED: { label: "Vượt Qua PV", color: "#36DDAB", icon: CheckCircle2 },
-  OFFERED: { label: "Gửi Offer", color: "#FF6B82", icon: Handshake },
-  ONBOARDED: { label: "Đã Gia Nhập", color: "#22C55E", icon: Award },
+  NEW: { label: "Hồ Sơ Mới", color: "var(--primary)", icon: FileText },
+  SCREENED: { label: "Đã Sàng Lọc", color: "var(--ai)", icon: FilterIcon },
+  SHORTLISTED: { label: "Tiềm Năng", color: "var(--primary)", icon: Sparkles },
+  INTERVIEW_SCHEDULED: { label: "Lên Lịch PV", color: "var(--warning)", icon: Calendar },
+  INTERVIEWED: { label: "Đã Phỏng Vấn", color: "var(--warning)", icon: CheckCircle2 },
+  PASSED: { label: "Vượt Qua PV", color: "var(--success)", icon: CheckCircle2 },
+  OFFERED: { label: "Gửi Offer", color: "var(--danger)", icon: Handshake },
+  ONBOARDED: { label: "Đã Gia Nhập", color: "var(--success)", icon: Award },
 };
 
 export default function StageFunnel({ stages }: StageFunnelProps) {
@@ -28,7 +29,7 @@ export default function StageFunnel({ stages }: StageFunnelProps) {
       <div className="flex flex-col gap-4">
         {stages.map(({ stage, count }, idx) => {
           const pct = (count / maxCount) * 100;
-          const config = STAGE_CONFIG[stage] ?? { label: stage, color: "#8B99B0", icon: FileText };
+          const config = STAGE_CONFIG[stage] ?? { label: stage, color: "var(--muted-foreground)", icon: FileText };
           const Icon = config.icon;
 
           return (
@@ -47,22 +48,22 @@ export default function StageFunnel({ stages }: StageFunnelProps) {
                 <div className="flex items-center gap-2">
                   <div
                     className="w-5 h-5 rounded-md flex items-center justify-center transition-transform group-hover:scale-110"
-                    style={{ backgroundColor: `${config.color}15` }}
+                    style={{ backgroundColor: `${alpha(config.color, 8)}` }}
                   >
                     <Icon size={10} style={{ color: config.color }} />
                   </div>
-                  <span className="text-[10px] font-bold text-[#8B99B0] uppercase tracking-widest group-hover:text-[#ECF0F7] transition-colors">
+                  <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest group-hover:text-foreground transition-colors">
                     {config.label}
                   </span>
                 </div>
                 <span
-                  className="text-xs font-bold font-mono px-2 py-0.5 rounded-md border border-white/5 shadow-inner"
-                  style={{ color: config.color, backgroundColor: `${config.color}10` }}
+                  className="text-xs font-bold font-mono px-2 py-0.5 rounded-md border border-border shadow-inner"
+                  style={{ color: config.color, backgroundColor: `${alpha(config.color, 6)}` }}
                 >
                   {count}
                 </span>
               </div>
-              <div className="relative h-3.5 w-full bg-[#121A2E] rounded-full overflow-hidden border border-white/5 p-[1px]">
+              <div className="relative h-3.5 w-full bg-background rounded-full overflow-hidden border border-border p-[1px]">
                 <motion.div
                   initial={{ width: 0 }}
                   animate={{ width: `${pct}%` }}
@@ -80,7 +81,7 @@ export default function StageFunnel({ stages }: StageFunnelProps) {
 
       {maxCount === 0 || stages.every(s => s.count === 0) ? (
         <div className="flex flex-col items-center justify-center py-10 opacity-20">
-          <p className="text-[10px] font-bold uppercase tracking-widest text-[#8B99B0]">Chưa có dữ liệu vận hành</p>
+          <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Chưa có dữ liệu vận hành</p>
         </div>
       ) : null}
     </div>

@@ -4,7 +4,6 @@ import { useEffect, useRef, useState, KeyboardEvent } from "react";
 import { createPortal } from "react-dom";
 import { Search, UserRound, X } from "lucide-react";
 import { emailInputClass } from "./email-page-chrome";
-import { SharedDashboardButton } from "@/components/shares";
 
 interface Recipient {
     id: string;
@@ -23,16 +22,16 @@ interface Props {
 
 function RecipientChip({ recipient, onRemove }: { recipient: Recipient; onRemove: () => void }) {
     return (
-        <span className="inline-flex items-center gap-1.5 rounded-lg bg-cyan-300/15 px-2.5 py-1 text-xs font-medium text-cyan-200">
+        <span className="inline-flex items-center gap-1.5 rounded-lg bg-primary/10 px-2.5 py-1 text-xs font-medium text-primary">
             {recipient.name}
-            <SharedDashboardButton
+            <button
                 type="button"
                 onClick={onRemove}
-                className="rounded-sm text-cyan-300/60 transition hover:text-cyan-100"
+                className="rounded-sm text-primary/60 transition hover:text-primary"
                 aria-label={`Remove ${recipient.name}`}
             >
                 <X className="h-3 w-3" />
-            </SharedDashboardButton>
+            </button>
         </span>
     );
 }
@@ -139,24 +138,24 @@ export default function RecipientPicker({ value, onChange, type, gate, mode = "s
                 width: dropdownRect.width,
                 zIndex: 9999,
             }}
-            className="overflow-hidden rounded-2xl border border-white/10 bg-[#0B1220] p-1 shadow-2xl shadow-black/40"
+            className="overflow-hidden rounded-2xl border border-border bg-card p-1 shadow-lg"
         >
             {results.map((recipient) => (
                 <li key={recipient.id}>
-                    <SharedDashboardButton
+                    <button
                         type="button"
-                        className="flex w-full items-center gap-3 rounded-xl px-3 py-3 text-left transition hover:bg-white/[0.06]"
+                        className="flex w-full items-center gap-3 rounded-xl px-3 py-3 text-left transition hover:bg-muted"
                         onMouseDown={(e) => e.preventDefault()}
                         onClick={() => select(recipient)}
                     >
-                        <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-cyan-300/12 text-cyan-200">
+                        <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10 text-primary">
                             <UserRound className="h-4 w-4" />
                         </span>
                         <span className="min-w-0">
-                            <span className="block truncate text-sm font-medium text-[#F6F8FC]">{recipient.name}</span>
-                            <span className="block truncate text-xs text-slate-500">{recipient.email}</span>
+                            <span className="block truncate text-sm font-medium text-primary">{recipient.name}</span>
+                            <span className="block truncate text-xs text-muted-foreground">{recipient.email}</span>
                         </span>
-                    </SharedDashboardButton>
+                    </button>
                 </li>
             ))}
         </ul>,
@@ -173,7 +172,7 @@ export default function RecipientPicker({ value, onChange, type, gate, mode = "s
                 </div>
             )}
             <div ref={wrapperRef} className="relative">
-                <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-600" />
+                <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground/70" />
                 <input
                     ref={inputRef}
                     value={query}
@@ -182,7 +181,7 @@ export default function RecipientPicker({ value, onChange, type, gate, mode = "s
                     onFocus={() => setFocused(true)}
                     onBlur={() => { setFocused(false); setTimeout(() => setOpen(false), 150); }}
                     disabled={disabled}
-                    placeholder={disabled ? "Select a template type first..." : "Search by name or email..."}
+                    placeholder={disabled ? "Chọn mẫu trước..." : "Tìm theo tên hoặc email..."}
                     className={`${emailInputClass} pl-11`}
                 />
             </div>

@@ -22,6 +22,7 @@ interface FilterBarProps {
   onSearchChange: (v: string) => void;
   filters: ActiveFilter[];
   onClearAll?: () => void;
+  searchPlaceholder?: string;
 }
 
 export default function FilterBar({
@@ -29,18 +30,19 @@ export default function FilterBar({
   onSearchChange,
   filters,
   onClearAll,
+  searchPlaceholder = "Search by name, email...",
 }: FilterBarProps) {
   const hasActive = search.length > 0 || filters.some((f) => f.value !== "");
 
   return (
     <div className="flex flex-wrap items-center gap-3">
       <div className="relative flex-1 min-w-[220px] max-w-sm group">
-        <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#5A6882] group-focus-within:text-[#7C8FFF] transition-colors pointer-events-none" />
+        <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-primary transition-colors pointer-events-none" />
         <Input
           value={search}
           onChange={(e) => onSearchChange(e.target.value)}
-          placeholder="Search by name, email..."
-          className="pl-10 h-11 bg-[#1B253B]/40 border-white/5 rounded-xl text-[#ECF0F7] placeholder:text-[#5A6882]/60 focus-visible:ring-0 focus-visible:border-[#7C8FFF]/40 transition-all shadow-inner backdrop-blur-sm"
+          placeholder={searchPlaceholder}
+          className="pl-10 h-11 bg-muted/40 border-border rounded-xl text-foreground placeholder:text-muted-foreground/60 focus-visible:ring-0 focus-visible:border-border/40 transition-all shadow-inner backdrop-blur-sm"
         />
       </div>
 
@@ -52,15 +54,20 @@ export default function FilterBar({
           value={filter.value || "__all__"}
           onValueChange={(v) => filter.onChange(v === "__all__" ? "" : (v ?? ""))}
         >
-          <SelectTrigger className="h-11 min-w-[150px] bg-[#1B253B]/40 border-white/5 rounded-xl text-[#ECF0F7]/90 hover:bg-[#1B253B]/60 transition-all shadow-inner backdrop-blur-sm">
-            <SelectValue placeholder={filter.label} />
+          <SelectTrigger className="h-11 min-w-[150px] bg-muted/40 border-border rounded-xl text-foreground/90 hover:bg-muted/60 transition-all shadow-inner backdrop-blur-sm">
+            {/* Base UI in thẳng value ra trigger — map sentinel/value về label */}
+            <SelectValue>
+              {(v: string) => v === "__all__"
+                ? `All ${filter.label}`
+                : filter.options.find((o) => o.value === v)?.label ?? v}
+            </SelectValue>
           </SelectTrigger>
-          <SelectContent className="bg-[#1B253B] border-white/10 rounded-xl overflow-hidden backdrop-blur-xl shadow-2xl">
-            <SelectItem value="__all__" className="text-[#5A6882] focus:bg-white/5 hover:bg-white/5 transition-colors">
+          <SelectContent className="bg-muted border-border rounded-xl overflow-hidden backdrop-blur-xl shadow-2xl">
+            <SelectItem value="__all__" className="text-muted-foreground focus:bg-muted hover:bg-muted transition-colors">
               All {filter.label}
             </SelectItem>
             {filter.options.map((opt) => (
-              <SelectItem key={opt.value} value={opt.value} className="text-[#ECF0F7] focus:bg-[#7C8FFF]/10 focus:text-[#7C8FFF] transition-colors cursor-pointer">
+              <SelectItem key={opt.value} value={opt.value} className="text-foreground focus:bg-primary/10 focus:text-primary transition-colors cursor-pointer">
                 {opt.label}
               </SelectItem>
             ))}
@@ -73,7 +80,7 @@ export default function FilterBar({
           size="sm"
           variant="ghost"
           onClick={onClearAll}
-          className="h-11 px-4 text-[#5A6882] hover:text-[#ECF0F7] hover:bg-white/5 rounded-xl transition-all gap-2 border border-transparent hover:border-white/5"
+          className="h-11 px-4 text-muted-foreground hover:text-foreground hover:bg-muted rounded-xl transition-all gap-2 border border-transparent hover:border-border"
         >
           <X className="w-4 h-4" />
           <span className="text-xs font-semibold uppercase tracking-wider">Reset Filters</span>

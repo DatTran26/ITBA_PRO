@@ -39,6 +39,8 @@ import {
     User,
     MessageSquare,
 } from "lucide-react";
+import ResultScoreMap from "./result-score-map";
+import { toneFor } from "@/lib/ui/tones";
 import SkillEvaluationPanel from "@/components/evaluation/skill-evaluation-panel";
 import type { SkillRequirementRow, SkillEvaluationRow } from "./evaluation-types";
 
@@ -124,41 +126,41 @@ const CATEGORY_CONFIG = {
     strength_validation: {
         label: "Strength Validation",
         icon: Shield,
-        color: "text-emerald-400",
+        color: "text-success",
         bg: "bg-emerald-500/10 border-emerald-500/20",
-        badgeBg: "bg-emerald-500/15 text-emerald-400 border-emerald-500/25",
+        badgeBg: "bg-emerald-500/15 text-success border-emerald-500/25",
         border: "border-l-emerald-500",
     },
     weakness_probe: {
         label: "Weakness Probe",
         icon: AlertTriangle,
-        color: "text-amber-400",
+        color: "text-warning",
         bg: "bg-amber-500/10 border-amber-500/20",
-        badgeBg: "bg-amber-500/15 text-amber-400 border-amber-500/25",
+        badgeBg: "bg-amber-500/15 text-warning border-amber-500/25",
         border: "border-l-amber-500",
     },
     hidden_gap: {
         label: "Hidden Gap",
         icon: Search,
-        color: "text-rose-400",
+        color: "text-danger",
         bg: "bg-rose-500/10 border-rose-500/20",
-        badgeBg: "bg-rose-500/15 text-rose-400 border-rose-500/25",
+        badgeBg: "bg-rose-500/15 text-danger border-rose-500/25",
         border: "border-l-rose-500",
     },
     depth_check: {
         label: "Depth Check",
         icon: Layers,
-        color: "text-violet-400",
+        color: "text-violet-600",
         bg: "bg-violet-500/10 border-violet-500/20",
-        badgeBg: "bg-violet-500/15 text-violet-400 border-violet-500/25",
+        badgeBg: "bg-violet-500/15 text-violet-600 border-violet-500/25",
         border: "border-l-violet-500",
     },
 };
 
 const PRIORITY_CONFIG = {
-    high: "bg-rose-500/15 text-rose-400 border-rose-500/25",
-    medium: "bg-amber-500/15 text-amber-400 border-amber-500/25",
-    low: "bg-slate-500/15 text-slate-400 border-slate-500/25",
+    high: "bg-rose-500/15 text-danger border-rose-500/25",
+    medium: "bg-amber-500/15 text-warning border-amber-500/25",
+    low: "bg-muted text-muted-foreground border-border",
 };
 
 export default function ResultDetailClient({
@@ -258,41 +260,41 @@ export default function ResultDetailClient({
     }, [result.id, gradeValues, gradeNotes]);
 
     const scoreColor =
-        percentage >= 80 ? "text-emerald-400" : percentage >= 50 ? "text-amber-400" : "text-rose-400";
+        percentage >= 80 ? "text-success" : percentage >= 50 ? "text-warning" : "text-danger";
     const scoreRingColor =
-        percentage >= 80 ? "#10b981" : percentage >= 50 ? "#f59e0b" : "#ef4444";
+        percentage >= 80 ? "var(--success)" : percentage >= 50 ? "var(--warning)" : "var(--danger)";
     const scoreGradient =
         percentage >= 80
-            ? ["#10b981", "#059669"]
+            ? ["var(--success)", "var(--success)"]
             : percentage >= 50
-              ? ["#f59e0b", "#d97706"]
-              : ["#ef4444", "#dc2626"];
+              ? ["var(--warning)", "var(--warning)"]
+              : ["var(--danger)", "var(--danger)"];
 
     const passFail =
         percentage >= 80
-            ? { label: "Strong Pass", cls: "bg-emerald-500/15 text-emerald-400 border-emerald-500/30" }
+            ? { label: "Strong Pass", cls: "bg-emerald-500/15 text-success border-emerald-500/30" }
             : percentage >= 50
-              ? { label: "Pass", cls: "bg-amber-500/15 text-amber-400 border-amber-500/30" }
-              : { label: "Did Not Pass", cls: "bg-rose-500/15 text-rose-400 border-rose-500/30" };
+              ? { label: "Pass", cls: "bg-amber-500/15 text-warning border-amber-500/30" }
+              : { label: "Did Not Pass", cls: "bg-rose-500/15 text-danger border-rose-500/30" };
 
     const recBadge = (rec: string) => {
-        if (["Recommend", "Đề nghị", "Khuyến nghị", "TIỀM NĂNG", "Khuyên dùng", "ĐỀ XUẤT", "KHUYÊN DÙNG"].includes(rec) || (rec.toUpperCase().includes("KHUYẾN NGHỊ") && !rec.toUpperCase().includes("KHÔNG"))) return "bg-emerald-500/15 text-emerald-300 border-emerald-500/30";
-        if (["Consider", "Cân nhắc", "CÂN NHẮC"].includes(rec) || rec.toUpperCase().includes("CÂN NHẮC")) return "bg-amber-500/15 text-amber-300 border-amber-500/30";
-        return "bg-rose-500/15 text-rose-300 border-rose-500/30";
+        if (["Recommend", "Đề nghị", "Khuyến nghị", "TIỀM NĂNG", "Khuyên dùng", "ĐỀ XUẤT", "KHUYÊN DÙNG"].includes(rec) || (rec.toUpperCase().includes("KHUYẾN NGHỊ") && !rec.toUpperCase().includes("KHÔNG"))) return "bg-emerald-500/15 text-success border-emerald-500/30";
+        if (["Consider", "Cân nhắc", "CÂN NHẮC"].includes(rec) || rec.toUpperCase().includes("CÂN NHẮC")) return "bg-amber-500/15 text-warning border-amber-500/30";
+        return "bg-rose-500/15 text-danger border-rose-500/30";
     };
 
     const recDot = (rec: string) => {
-        if (["Recommend", "Đề nghị", "Khuyến nghị", "TIỀM NĂNG", "Khuyên dùng", "ĐỀ XUẤT", "KHUYÊN DÙNG"].includes(rec) || (rec.toUpperCase().includes("KHUYẾN NGHỊ") && !rec.toUpperCase().includes("KHÔNG"))) return "bg-emerald-400";
-        if (["Consider", "Cân nhắc", "CÂN NHẮC"].includes(rec) || rec.toUpperCase().includes("CÂN NHẮC")) return "bg-amber-400";
-        return "bg-rose-400";
+        if (["Recommend", "Đề nghị", "Khuyến nghị", "TIỀM NĂNG", "Khuyên dùng", "ĐỀ XUẤT", "KHUYÊN DÙNG"].includes(rec) || (rec.toUpperCase().includes("KHUYẾN NGHỊ") && !rec.toUpperCase().includes("KHÔNG"))) return "bg-success";
+        if (["Consider", "Cân nhắc", "CÂN NHẮC"].includes(rec) || rec.toUpperCase().includes("CÂN NHẮC")) return "bg-warning";
+        return "bg-danger";
     };
 
     const levelBadge =
         test.level === "Junior"
-            ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
+            ? "bg-emerald-500/10 text-success border-emerald-500/20"
             : test.level === "Mid"
-              ? "bg-amber-500/10 text-amber-400 border-amber-500/20"
-              : "bg-rose-500/10 text-rose-400 border-rose-500/20";
+              ? "bg-amber-500/10 text-warning border-amber-500/20"
+              : "bg-rose-500/10 text-danger border-rose-500/20";
 
     /* ── AI analysis state ── */
     const [aiAnalysis, setAiAnalysis] = useState<Analysis | null>(result.ai_analysis);
@@ -593,7 +595,7 @@ export default function ResultDetailClient({
     /* ────────────────────── render ────────────────────── */
 
     return (
-        <div className="min-h-screen bg-[#121A2E] text-white">
+        <div className="min-h-screen bg-background text-foreground">
             <AppNavbar />
 
             <PageContainer>
@@ -604,17 +606,16 @@ export default function ResultDetailClient({
                 ]} />
                 {/* ═══════ SECTION 1: Candidate Header + Score ═══════ */}
                 <div className="mb-8">
-                    <Card className="border-[#7C8FFF]/20 bg-[#1B253B]/40 backdrop-blur-xl overflow-hidden rounded-3xl shadow-2xl relative">
-                        {/* Background Mesh Decor */}
-                        <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-[#7C8FFF]/5 to-transparent pointer-events-none" />
+                    <Card className="border-border bg-card overflow-hidden rounded-2xl shadow-[0_2px_14px_color-mix(in_srgb,var(--primary)_8%,transparent)] relative">
+                        <div className="h-1.5" style={{ background: `linear-gradient(90deg, ${toneFor(result.candidate_name).mark}, ${scoreRingColor})` }} />
 
                         <CardContent className="p-0">
                             <div className="flex flex-col sm:flex-row items-stretch">
                                 {/* Score block */}
-                                <div className="flex flex-col items-center justify-center gap-4 px-10 py-8 border-b sm:border-b-0 sm:border-r border-white/5 shrink-0 bg-white/[0.02] relative z-10">
+                                <div className="flex flex-col items-center justify-center gap-4 px-10 py-8 border-b sm:border-b-0 sm:border-r border-border shrink-0 relative z-10" style={{ backgroundColor: `color-mix(in srgb, ${scoreRingColor} 8%, var(--card))` }}>
                                     <div className="relative w-28 h-28">
-                                        <svg className="w-28 h-28 -rotate-90 drop-shadow-[0_0_15px_rgba(124,143,255,0.1)]" viewBox="0 0 96 96">
-                                            <circle cx="48" cy="48" r="42" fill="none" stroke="currentColor" strokeWidth="6" className="text-white/[0.03]" />
+                                        <svg className="w-28 h-28 -rotate-90 drop-shadow-[0_0_15px_color-mix(in_srgb,var(--primary)_10%,transparent)]" viewBox="0 0 96 96">
+                                            <circle cx="48" cy="48" r="42" fill="none" stroke="currentColor" strokeWidth="6" className="text-foreground/[0.03]" />
                                             <circle
                                                 cx="48" cy="48" r="42" fill="none"
                                                 stroke="url(#scoreGradTop)" strokeWidth="7"
@@ -630,8 +631,8 @@ export default function ResultDetailClient({
                                             </defs>
                                         </svg>
                                         <div className="absolute inset-0 flex flex-col items-center justify-center">
-                                            <span className={`text-4xl font-extralight tracking-tighter leading-none ${scoreColor}`}>{percentage}%</span>
-                                            <span className="text-[10px] text-[#8B99B0] mt-1 font-mono">{score}/{result.total_questions}</span>
+                                            <span className={`text-4xl font-black tracking-tighter leading-none ${scoreColor}`}>{percentage}%</span>
+                                            <span className="text-[10px] text-muted-foreground mt-1 font-mono">{score}/{result.total_questions}</span>
                                         </div>
                                     </div>
                                     <Badge className={`border text-[10px] uppercase tracking-widest px-4 py-1 rounded-full font-semibold shadow-sm ${passFail.cls}`}>
@@ -644,25 +645,25 @@ export default function ResultDetailClient({
                                     <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-6">
                                         {/* Name + meta */}
                                         <div className="space-y-1">
-                                            <h1 className="text-3xl font-extralight font-display text-white tracking-tight leading-tight">{result.candidate_name}</h1>
-                                            <p className="text-[#8B99B0] font-light text-base">{result.candidate_email}</p>
+                                            <h1 className="font-display text-2xl md:text-3xl font-black leading-tight tracking-tight text-foreground">{result.candidate_name}</h1>
+                                            <p className="text-muted-foreground font-light text-base">{result.candidate_email}</p>
                                             <div className="flex flex-wrap items-center gap-3 mt-4">
-                                                <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white/5 border border-white/5 text-[11px] text-[#8B99B0] font-light">
+                                                <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-muted border border-border text-[11px] text-muted-foreground font-light">
                                                     {new Date(result.submitted_at).toLocaleString("vi-VN")}
                                                 </div>
                                                 {result.time_taken ? (
-                                                    <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white/5 border border-white/5 text-[11px] text-[#8B99B0] font-light">
+                                                    <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-muted border border-border text-[11px] text-muted-foreground font-light">
                                                         · {Math.round(result.time_taken / 60)} min
                                                     </div>
                                                 ) : null}
-                                                <Badge className={`border border-white/10 bg-[#1B253B] text-[#ECF0F7] text-[11px] font-medium px-3 py-1 rounded-lg ${levelBadge}`}>
+                                                <Badge className={`border border-border bg-muted text-foreground text-[11px] font-medium px-3 py-1 rounded-lg ${levelBadge}`}>
                                                     {test.title ? `${test.title} · ${test.level}` : `${test.job_role} · ${test.level}`}
                                                 </Badge>
                                                 {hasManualQuestions && (
                                                     <Badge className={`border text-[11px] font-medium px-3 py-1 rounded-lg ${
                                                         gradingStatus === 'pending_grading'
-                                                            ? "bg-amber-500/10 text-amber-400 border-amber-500/20 animate-pulse"
-                                                            : "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
+                                                            ? "bg-amber-500/10 text-warning border-amber-500/20 animate-pulse"
+                                                            : "bg-emerald-500/10 text-success border-emerald-500/20"
                                                     }`}>
                                                         {gradingStatus === 'pending_grading' ? "Cần chấm điểm" : "Đã chấm điểm"}
                                                     </Badge>
@@ -676,22 +677,22 @@ export default function ResultDetailClient({
                                                 onClick={handleExportPdf}
                                                 disabled={isExporting}
                                                 title="Export PDF Report"
-                                                className="w-11 h-11 flex items-center justify-center rounded-xl border bg-white/5 border-white/10 text-[#8B99B0] hover:bg-[#7C8FFF]/10 hover:text-[#7C8FFF] hover:border-[#7C8FFF]/40 transition-all cursor-pointer shadow-lg"
+                                                className="w-11 h-11 flex items-center justify-center rounded-xl border bg-muted border-border text-muted-foreground hover:bg-primary/10 hover:text-primary hover:border-border/40 transition-all cursor-pointer shadow-lg"
                                             >
                                                 {isExporting ? <Loader2 className="w-5 h-5 animate-spin" /> : <FileDown className="w-5 h-5" />}
                                             </button>
-                                            <div className="flex items-center bg-[#121A2E]/60 p-1 rounded-2xl border border-white/5 shadow-inner backdrop-blur-sm">
+                                            <div className="flex items-center bg-background/60 p-1 rounded-2xl border border-border shadow-inner ">
                                                 <button
                                                     onClick={() => handleSetStatus("pass")}
                                                     disabled={isSavingStatus}
-                                                    className={`px-6 py-2 rounded-xl text-sm font-semibold transition-all duration-300 cursor-pointer ${candidateStatus === "pass" ? "bg-emerald-500 text-white shadow-[0_0_20px_rgba(16,185,129,0.4)]" : "text-[#5A6882] hover:text-emerald-400"}`}
+                                                    className={`px-6 py-2 rounded-xl text-sm font-semibold transition-all duration-300 cursor-pointer ${candidateStatus === "pass" ? "bg-emerald-500 text-white shadow-[0_0_20px_color-mix(in_srgb,var(--success)_40%,transparent)]" : "text-muted-foreground hover:text-success"}`}
                                                 >
                                                     {isSavingStatus && candidateStatus !== "pass" ? <Loader2 className="w-4 h-4 animate-spin" /> : "Pass"}
                                                 </button>
                                                 <button
                                                     onClick={() => handleSetStatus("fail")}
                                                     disabled={isSavingStatus}
-                                                    className={`px-6 py-2 rounded-xl text-sm font-semibold transition-all duration-300 cursor-pointer ${candidateStatus === "fail" ? "bg-rose-500 text-white shadow-[0_0_20px_rgba(239,68,68,0.4)]" : "text-[#5A6882] hover:text-rose-400"}`}
+                                                    className={`px-6 py-2 rounded-xl text-sm font-semibold transition-all duration-300 cursor-pointer ${candidateStatus === "fail" ? "bg-rose-500 text-white shadow-[0_0_20px_color-mix(in_srgb,var(--danger)_40%,transparent)]" : "text-muted-foreground hover:text-danger"}`}
                                                 >
                                                     {isSavingStatus && candidateStatus !== "fail" ? <Loader2 className="w-4 h-4 animate-spin" /> : "Fail"}
                                                 </button>
@@ -700,19 +701,19 @@ export default function ResultDetailClient({
 
                                         {/* AI Recommendation — BIG */}
                                         {isAnalyzing ? (
-                                            <div className="flex items-center gap-3 px-6 py-4 rounded-2xl bg-white/5 border border-white/5 shrink-0 backdrop-blur-md">
-                                                <Loader2 className="w-5 h-5 animate-spin text-[#7C8FFF]" />
+                                            <div className="flex items-center gap-3 px-6 py-4 rounded-2xl bg-muted border border-border shrink-0 ">
+                                                <Loader2 className="w-5 h-5 animate-spin text-primary" />
                                                 <div className="space-y-0.5">
-                                                    <p className="text-[10px] text-[#8B99B0] uppercase tracking-widest leading-none">Status</p>
-                                                    <p className="text-sm font-medium text-white/80">Synthesizing Insight…</p>
+                                                    <p className="text-[10px] text-muted-foreground uppercase tracking-widest leading-none">Status</p>
+                                                    <p className="text-sm font-medium text-muted-foreground">Synthesizing Insight…</p>
                                                 </div>
                                             </div>
                                         ) : aiAnalysis?.recommendation ? (
-                                            <div className={`flex items-center gap-4 px-6 py-4 rounded-2xl border shrink-0 backdrop-blur-xl shadow-lg relative overflow-hidden group ${recBadge(aiAnalysis.recommendation)}`}>
+                                            <div className={`flex items-center gap-4 px-6 py-4 rounded-2xl border shrink-0 shadow-lg relative overflow-hidden group ${recBadge(aiAnalysis.recommendation)}`}>
                                                 <div className={`absolute top-0 left-0 w-1 h-full ${recDot(aiAnalysis.recommendation)} opacity-60`} />
                                                 <div className={`w-3 h-3 rounded-full flex-shrink-0 animate-pulse ${recDot(aiAnalysis.recommendation)}`} />
                                                 <div>
-                                                    <p className="text-[10px] text-white/40 uppercase tracking-widest leading-none mb-1 font-semibold">AI Prediction</p>
+                                                    <p className="text-[10px] text-muted-foreground uppercase tracking-widest leading-none mb-1 font-semibold">AI Prediction</p>
                                                     <p className="text-xl font-bold tracking-tight">{aiAnalysis.recommendation}</p>
                                                 </div>
                                             </div>
@@ -724,33 +725,35 @@ export default function ResultDetailClient({
                     </Card>
                 </div>
 
+                {(test.questions?.length ?? 0) > 0 && <ResultScoreMap questions={test.questions ?? []} answers={result.answers ?? []} grades={answerGrades} />}
+
                 {/* ═══════ SECTION 2: AI Assessment Panel ═══════ */}
                 {(isAnalyzing || aiAnalysis) && (
                     <div className="mb-10">
-                        <Card className="border-[#7C8FFF]/10 bg-[#1B253B]/40 backdrop-blur-xl rounded-3xl shadow-xl overflow-hidden">
-                            <CardHeader className="pb-4 pt-6 px-8 border-b border-white/5">
+                        <Card className="border-border/10 bg-muted/40 rounded-3xl shadow-xl overflow-hidden">
+                            <CardHeader className="pb-4 pt-6 px-8 border-b border-border">
                                 <div className="flex items-center gap-3">
-                                    <div className="w-10 h-10 rounded-xl bg-[#7C8FFF]/10 flex items-center justify-center text-[#7C8FFF] shadow-[0_0_15px_rgba(124,143,255,0.1)]">
+                                    <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary shadow-[0_0_15px_color-mix(in_srgb,var(--primary)_10%,transparent)]">
                                         <Sparkles className="w-5 h-5" />
                                     </div>
                                     <div>
-                                        <CardTitle className="text-base font-medium text-white tracking-wide">
+                                        <CardTitle className="text-base font-medium text-foreground tracking-wide">
                                             Intelligent Assessment
                                         </CardTitle>
-                                        <p className="text-[11px] text-[#8B99B0] font-light">Deep analysis of candidate cognitive performance</p>
+                                        <p className="text-[11px] text-muted-foreground font-light">Deep analysis of candidate cognitive performance</p>
                                     </div>
-                                    {isAnalyzing && <Loader2 className="w-4 h-4 animate-spin text-[#7C8FFF] ml-auto" />}
+                                    {isAnalyzing && <Loader2 className="w-4 h-4 animate-spin text-primary ml-auto" />}
                                     {!isAnalyzing && aiAnalysis && !isEditingAnalysis && (
-                                        <button onClick={handleStartEditAnalysis} className="ml-auto flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-medium text-[#7C8FFF] bg-[#7C8FFF]/5 border border-[#7C8FFF]/10 hover:bg-[#7C8FFF]/10 transition-all">
+                                        <button onClick={handleStartEditAnalysis} className="ml-auto flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-medium text-primary bg-primary/5 border border-border/10 hover:bg-primary/10 transition-all">
                                             <Pencil className="w-3.5 h-3.5" /> Edit Analysis
                                         </button>
                                     )}
                                     {isEditingAnalysis && (
                                         <div className="ml-auto flex items-center gap-2">
-                                            <Button variant="ghost" size="sm" onClick={handleCancelEditAnalysis} className="text-[#8B99B0] hover:text-white h-9 px-4 rounded-xl">
+                                            <Button variant="ghost" size="sm" onClick={handleCancelEditAnalysis} className="text-muted-foreground hover:text-foreground h-9 px-4 rounded-xl">
                                                 <X className="w-4 h-4 mr-2" /> Cancel
                                             </Button>
-                                            <Button size="sm" onClick={handleSaveAnalysis} disabled={isSavingAnalysis} className="bg-gradient-to-r from-indigo-500 to-[#5B6CF0] hover:from-indigo-600 hover:to-[#5B6CF0] text-white h-9 px-5 rounded-xl shadow-lg shadow-indigo-500/20">
+                                            <Button size="sm" onClick={handleSaveAnalysis} disabled={isSavingAnalysis} className="bg-gradient-to-r from-indigo-500 to-primary hover:from-indigo-600 hover:to-primary text-white h-9 px-5 rounded-xl shadow-lg shadow-indigo-500/20">
                                                 {isSavingAnalysis ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />} Save Insights
                                             </Button>
                                         </div>
@@ -760,21 +763,21 @@ export default function ResultDetailClient({
                             <CardContent className="px-8 py-8 space-y-8">
                                 {isAnalyzing ? (
                                     <div className="flex flex-col items-center justify-center py-12 space-y-4">
-                                        <div className="w-12 h-12 rounded-full border-2 border-[#7C8FFF]/20 border-t-[#7C8FFF] animate-spin" />
-                                        <p className="text-sm text-[#8B99B0] animate-pulse">Decompressing test vectors and generating cognitive summary…</p>
+                                        <div className="w-12 h-12 rounded-full border-2 border-border/20 border-t-border animate-spin" />
+                                        <p className="text-sm text-muted-foreground animate-pulse">Decompressing test vectors and generating cognitive summary…</p>
                                     </div>
                                 ) : isEditingAnalysis && editedAnalysis ? (
                                     <div className="space-y-8">
                                         {/* Editable overall assessment */}
                                         <div className="space-y-3">
-                                            <label className="text-[10px] text-[#8B99B0] uppercase tracking-widest font-semibold flex items-center gap-2">
+                                            <label className="text-[10px] text-muted-foreground uppercase tracking-widest font-semibold flex items-center gap-2">
                                                 <div className="w-1 h-3 bg-indigo-500 rounded-full" />
                                                 Synthesis Report
                                             </label>
                                             <Textarea
                                                 value={editedAnalysis.overall_assessment || ""}
                                                 onChange={(e) => handleEditAnalysisField("overall_assessment", e.target.value)}
-                                                className="bg-[#121A2E]/60 border-white/5 text-base text-[#ECF0F7] min-h-[140px] focus:border-[#7C8FFF]/40 rounded-2xl resize-none leading-relaxed transition-all p-5 shadow-inner"
+                                                className="bg-background/60 border-border text-base text-foreground min-h-[140px] focus:border-border/40 rounded-2xl resize-none leading-relaxed transition-all p-5 shadow-inner"
                                             />
                                         </div>
 
@@ -782,7 +785,7 @@ export default function ResultDetailClient({
                                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                                             {/* Strengths editor */}
                                             <div className="rounded-2xl bg-emerald-500/[0.03] border border-emerald-500/10 p-5">
-                                                <p className="text-[11px] text-emerald-400/80 uppercase tracking-widest font-semibold mb-4 flex items-center gap-1.5">
+                                                <p className="text-[11px] text-success/80 uppercase tracking-widest font-semibold mb-4 flex items-center gap-1.5">
                                                     <CheckCircle2 className="w-4 h-4 text-emerald-500" />
                                                     Strengths
                                                 </p>
@@ -792,20 +795,20 @@ export default function ResultDetailClient({
                                                             <input
                                                                 value={s}
                                                                 onChange={(e) => handleEditListItem("strengths", i, e.target.value)}
-                                                                className="flex-1 bg-[#121A2E]/40 border border-white/5 rounded-xl px-3 py-2 text-sm text-emerald-300/80 focus:outline-none focus:border-emerald-500/40 transition-all"
+                                                                className="flex-1 bg-background/40 border border-border rounded-xl px-3 py-2 text-sm text-success/80 focus:outline-none focus:border-emerald-500/40 transition-all"
                                                             />
-                                                            <button onClick={() => handleRemoveListItem("strengths", i)} className="text-white/10 hover:text-rose-400 p-1 transition-colors">
+                                                            <button onClick={() => handleRemoveListItem("strengths", i)} className="text-muted-foreground hover:text-danger p-1 transition-colors">
                                                                 <X className="w-4 h-4" />
                                                             </button>
                                                         </div>
                                                     ))}
-                                                    <button onClick={() => handleAddListItem("strengths")} className="text-[11px] text-emerald-500/60 hover:text-emerald-400 flex items-center gap-1 mt-2 ml-1 transition-colors">+ Add Strength</button>
+                                                    <button onClick={() => handleAddListItem("strengths")} className="text-[11px] text-emerald-500/60 hover:text-success flex items-center gap-1 mt-2 ml-1 transition-colors">+ Add Strength</button>
                                                 </div>
                                             </div>
 
                                             {/* Weaknesses editor */}
                                             <div className="rounded-2xl bg-rose-500/[0.03] border border-rose-500/10 p-5">
-                                                <p className="text-[11px] text-rose-400/80 uppercase tracking-widest font-semibold mb-4 flex items-center gap-1.5">
+                                                <p className="text-[11px] text-danger/80 uppercase tracking-widest font-semibold mb-4 flex items-center gap-1.5">
                                                     <AlertTriangle className="w-4 h-4 text-rose-500" />
                                                     Areas for Improvement
                                                 </p>
@@ -815,29 +818,29 @@ export default function ResultDetailClient({
                                                             <input
                                                                 value={w}
                                                                 onChange={(e) => handleEditListItem("weaknesses", i, e.target.value)}
-                                                                className="flex-1 bg-[#121A2E]/40 border border-white/5 rounded-xl px-3 py-2 text-sm text-rose-300/80 focus:outline-none focus:border-rose-500/40 transition-all"
+                                                                className="flex-1 bg-background/40 border border-border rounded-xl px-3 py-2 text-sm text-danger/80 focus:outline-none focus:border-rose-500/40 transition-all"
                                                             />
-                                                            <button onClick={() => handleRemoveListItem("weaknesses", i)} className="text-white/10 hover:text-rose-400 p-1 transition-colors">
+                                                            <button onClick={() => handleRemoveListItem("weaknesses", i)} className="text-muted-foreground hover:text-danger p-1 transition-colors">
                                                                 <X className="w-4 h-4" />
                                                             </button>
                                                         </div>
                                                     ))}
-                                                    <button onClick={() => handleAddListItem("weaknesses")} className="text-[11px] text-rose-500/60 hover:text-rose-400 flex items-center gap-1 mt-2 ml-1 transition-colors">+ Add Area</button>
+                                                    <button onClick={() => handleAddListItem("weaknesses")} className="text-[11px] text-rose-500/60 hover:text-danger flex items-center gap-1 mt-2 ml-1 transition-colors">+ Add Area</button>
                                                 </div>
                                             </div>
                                         </div>
 
                                         {/* Editable recommendation */}
-                                        <div className="pt-4 border-t border-white/5">
-                                            <label className="text-[10px] text-[#8B99B0] uppercase tracking-widest font-semibold mb-4 block">Candidate Verdict</label>
+                                        <div className="pt-4 border-t border-border">
+                                            <label className="text-[10px] text-muted-foreground uppercase tracking-widest font-semibold mb-4 block">Candidate Verdict</label>
                                             <div className="flex flex-wrap gap-3">
                                                 {(["Recommend", "Consider", "Not Recommend"] as const).map((rec) => (
                                                     <button
                                                         key={rec}
                                                         onClick={() => handleEditAnalysisField("recommendation", rec)}
                                                         className={`px-6 py-2.5 rounded-xl text-sm font-semibold transition-all duration-300 ${editedAnalysis.recommendation === rec
-                                                            ? rec === "Recommend" ? "bg-emerald-500 text-white shadow-lg shadow-emerald-500/20" : rec === "Consider" ? "bg-amber-500 text-white shadow-lg shadow-amber-500/20" : "bg-rose-500 text-white shadow-lg shadow-rose-500/20"
-                                                            : "bg-white/5 text-[#8B99B0] hover:bg-white/10 border border-white/5"
+                                                            ? rec === "Recommend" ? "bg-emerald-500 text-foreground shadow-lg shadow-emerald-500/20" : rec === "Consider" ? "bg-amber-500 text-foreground shadow-lg shadow-amber-500/20" : "bg-rose-500 text-foreground shadow-lg shadow-rose-500/20"
+                                                            : "bg-muted text-muted-foreground hover:bg-muted border border-border"
                                                         }`}
                                                     >
                                                         {rec}
@@ -851,8 +854,8 @@ export default function ResultDetailClient({
                                         {/* Overall assessment */}
                                         {aiAnalysis.overall_assessment && (
                                             <div className="relative pl-8">
-                                                <div className="absolute top-0 left-0 w-1.5 h-full bg-[#7C8FFF]/30 rounded-full" />
-                                                <p className="text-lg text-[#ECF0F7] leading-relaxed font-light">
+                                                <div className="absolute top-0 left-0 w-1.5 h-full bg-primary/30 rounded-full" />
+                                                <p className="text-lg text-foreground leading-relaxed font-light">
                                                     {aiAnalysis.overall_assessment}
                                                 </p>
                                             </div>
@@ -862,16 +865,16 @@ export default function ResultDetailClient({
                                         {(aiAnalysis.strengths?.length > 0 || aiAnalysis.weaknesses?.length > 0) && (
                                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
                                                 {aiAnalysis.strengths?.length > 0 && (
-                                                    <div className="space-y-4">
+                                                    <div className="space-y-4 rounded-2xl p-5" style={{ backgroundColor: "color-mix(in srgb, var(--success) 7%, var(--card))" }}>
                                                         <div className="flex items-center gap-2 mb-2">
-                                                            <div className="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400">
+                                                            <div className="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center text-success">
                                                                 <CheckCircle2 className="w-4 h-4" />
                                                             </div>
-                                                            <h4 className="text-[10px] text-emerald-400/80 uppercase tracking-widest font-bold">Key Strengths</h4>
+                                                            <h4 className="text-[10px] text-success/80 uppercase tracking-widest font-bold">Key Strengths</h4>
                                                         </div>
                                                         <ul className="space-y-3">
                                                             {aiAnalysis.strengths.map((s, i) => (
-                                                                <li key={i} className="text-[#8B99B0] text-sm flex items-start gap-3 group">
+                                                                <li key={i} className="text-muted-foreground text-sm flex items-start gap-3 group">
                                                                     <span className="w-1.5 h-1.5 rounded-full bg-emerald-500/40 mt-1.5 shrink-0 group-hover:scale-125 transition-transform" />
                                                                     {s}
                                                                 </li>
@@ -880,16 +883,16 @@ export default function ResultDetailClient({
                                                     </div>
                                                 )}
                                                 {aiAnalysis.weaknesses?.length > 0 && (
-                                                    <div className="space-y-4">
+                                                    <div className="space-y-4 rounded-2xl p-5" style={{ backgroundColor: "color-mix(in srgb, var(--danger) 7%, var(--card))" }}>
                                                         <div className="flex items-center gap-2 mb-2">
-                                                            <div className="w-8 h-8 rounded-lg bg-rose-500/10 flex items-center justify-center text-rose-400">
+                                                            <div className="w-8 h-8 rounded-lg bg-rose-500/10 flex items-center justify-center text-danger">
                                                                 <AlertTriangle className="w-4 h-4" />
                                                             </div>
-                                                            <h4 className="text-[10px] text-rose-400/80 uppercase tracking-widest font-bold">Improvement Areas</h4>
+                                                            <h4 className="text-[10px] text-danger/80 uppercase tracking-widest font-bold">Improvement Areas</h4>
                                                         </div>
                                                         <ul className="space-y-3">
                                                             {aiAnalysis.weaknesses.map((w, i) => (
-                                                                <li key={i} className="text-[#8B99B0] text-sm flex items-start gap-3 group">
+                                                                <li key={i} className="text-muted-foreground text-sm flex items-start gap-3 group">
                                                                     <span className="w-1.5 h-1.5 rounded-full bg-rose-500/40 mt-1.5 shrink-0 group-hover:scale-125 transition-transform" />
                                                                     {w}
                                                                 </li>
@@ -908,7 +911,7 @@ export default function ResultDetailClient({
 
                 {/* ═══════ Generate Follow-up ═══════ */}
                 {aiAnalysis && !isAnalyzing && (
-                    <div className="flex justify-center mb-16 -translate-y-6">
+                    <div className="flex justify-center mb-10">
                         <Button
                             onClick={
                                 followUpSession && !showFollowUp
@@ -916,7 +919,7 @@ export default function ResultDetailClient({
                                     : handleGenerateFollowUp
                             }
                             disabled={isGeneratingFollowUp}
-                            className="bg-white text-black hover:bg-[#F2F4F7] rounded-full h-16 px-12 text-base font-bold shadow-[0_15px_45px_-10px_rgba(255,255,255,0.25)] hover:shadow-[0_20px_55px_-5px_rgba(255,255,255,0.4)] transition-all duration-500 gap-3 group border-0"
+                            className="bg-primary text-white hover:bg-primary/90 rounded-full h-14 px-10 text-base font-bold shadow-[0_10px_30px_-8px_color-mix(in_srgb,var(--primary)_50%,transparent)] transition-all duration-300 gap-3 group border-0"
                         >
                             {isGeneratingFollowUp ? (
                                 <><Loader2 className="w-6 h-6 animate-spin" /> Synthesizing Question Vectors…</>
@@ -933,32 +936,32 @@ export default function ResultDetailClient({
                 {result.suggested_questions && result.suggested_questions.length > 0 && (
                     <div className="mb-10">
                         <div className="flex items-center gap-3 mb-6 pl-2">
-                            <div className="w-9 h-9 rounded-xl bg-[#7C8FFF]/10 flex items-center justify-center">
-                                <Lightbulb className="w-5 h-5 text-[#7C8FFF]" />
+                            <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center">
+                                <Lightbulb className="w-5 h-5 text-primary" />
                             </div>
                             <div>
-                                <h3 className="text-base font-medium text-white tracking-wide">Cognitive Interview Hints</h3>
-                                <p className="text-[11px] text-[#8B99B0] font-light">Suggested questions to explore depth of knowledge</p>
+                                <h3 className="text-base font-bold text-foreground tracking-wide">Cognitive Interview Hints</h3>
+                                <p className="text-[11px] text-muted-foreground font-light">Suggested questions to explore depth of knowledge</p>
                             </div>
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             {result.suggested_questions.map((sq, i) => (
-                                <div key={i} className="group relative rounded-2xl border border-white/5 bg-[#1B253B]/20 hover:bg-[#1B253B]/40 hover:border-[#7C8FFF]/20 backdrop-blur-md transition-all duration-300 overflow-hidden">
+                                <div key={i} className="group relative rounded-2xl border border-border bg-muted/20 hover:bg-muted/40 hover:border-border/20 transition-all duration-300 overflow-hidden">
                                     <div className="p-6">
                                         <div className="flex items-start gap-4 mb-4">
-                                            <span className="w-6 h-6 rounded-lg bg-[#7C8FFF]/10 flex items-center justify-center text-[10px] font-bold text-[#7C8FFF] shrink-0 border border-[#7C8FFF]/10">{i + 1}</span>
-                                            <p className="text-base font-light text-[#ECF0F7] leading-relaxed italic">&ldquo;{sq.question}&rdquo;</p>
+                                            <span className="w-6 h-6 rounded-lg bg-primary/10 flex items-center justify-center text-[10px] font-bold text-primary shrink-0 border border-border/10">{i + 1}</span>
+                                            <p className="text-base font-light text-foreground leading-relaxed italic">&ldquo;{sq.question}&rdquo;</p>
                                         </div>
                                         <div className="flex items-center justify-between gap-4 pl-10">
-                                            <p className="text-xs text-[#8B99B0] leading-relaxed flex-1 opacity-80 group-hover:opacity-100 transition-opacity">
-                                                <span className="text-[10px] uppercase tracking-widest text-[#7C8FFF]/60 font-semibold block mb-1">Target Dimension</span>
+                                            <p className="text-xs text-muted-foreground leading-relaxed flex-1 opacity-80 group-hover:opacity-100 transition-opacity">
+                                                <span className="text-[10px] uppercase tracking-widest text-primary/60 font-semibold block mb-1">Target Dimension</span>
                                                 {sq.purpose}
                                             </p>
                                             <button
                                                 onClick={() => handleCopyHint(sq.question, i)}
-                                                className="shrink-0 w-10 h-10 flex items-center justify-center rounded-xl bg-white/5 text-[#8B99B0] hover:text-white hover:bg-[#7C8FFF]/20 transition-all cursor-pointer opacity-0 group-hover:opacity-100"
+                                                className="shrink-0 w-10 h-10 flex items-center justify-center rounded-xl bg-muted text-muted-foreground hover:text-foreground hover:bg-primary/20 transition-all cursor-pointer opacity-0 group-hover:opacity-100"
                                             >
-                                                {copiedHintIdx === i ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4" />}
+                                                {copiedHintIdx === i ? <Check className="w-4 h-4 text-success" /> : <Copy className="w-4 h-4" />}
                                             </button>
                                         </div>
                                     </div>
@@ -970,21 +973,21 @@ export default function ResultDetailClient({
 
                 {/* ═══════ SECTION 4: Interviewer Note ═══════ */}
                 <div className="mb-12">
-                    <Card className="border-white/5 bg-[#1B253B]/20 backdrop-blur-xl rounded-3xl overflow-hidden group">
-                        <div className="flex items-center justify-between px-8 py-5 border-b border-white/5 bg-white/[0.02]">
+                    <Card className="border-border bg-muted/20 rounded-3xl overflow-hidden group">
+                        <div className="flex items-center justify-between px-8 py-5 border-b border-border bg-muted/40">
                             <div className="flex items-center gap-3">
-                                <StickyNote className="w-5 h-5 text-amber-400" />
-                                <span className="text-sm font-semibold text-white tracking-widest uppercase">Executive Summary Notes</span>
+                                <StickyNote className="w-5 h-5 text-warning" />
+                                <span className="text-sm font-semibold text-foreground tracking-widest uppercase">Executive Summary Notes</span>
                             </div>
-                            <Badge className={`text-[10px] px-3 py-1 rounded-lg ${noteHasChanges ? "bg-amber-500/20 text-amber-400 border-amber-500/20" : lastSavedNote ? "bg-emerald-500/10 text-emerald-400/60 border-emerald-500/10" : "bg-white/5 text-white/20 border-white/5"}`}>
+                            <Badge className={`text-[10px] px-3 py-1 rounded-lg ${noteHasChanges ? "bg-amber-500/20 text-warning border-amber-500/20" : lastSavedNote ? "bg-emerald-500/10 text-success border-emerald-500/10" : "bg-muted text-muted-foreground border-border"}`}>
                                 {!noteHasChanges && lastSavedNote ? "All Changes Synchronized" : noteHasChanges ? "Local Changes Unsaved" : "Internal Workspace Only"}
                             </Badge>
                         </div>
                         <div className="p-8 space-y-6">
-                            <div className="space-y-4 rounded-2xl p-6 bg-[#121A2E]/60 border border-white/5 focus-within:border-[#7C8FFF]/30 transition-all shadow-inner">
+                            <div className="space-y-4 rounded-2xl p-6 bg-background/60 border border-border focus-within:border-border/30 transition-all shadow-inner">
                                 {noteBullets.map((bullet, idx) => (
                                     <div key={idx} className="flex items-center gap-4 group/item">
-                                        <div className="w-1.5 h-1.5 rounded-full bg-[#7C8FFF]/40 shrink-0 mt-0.5 group-focus-within/item:bg-[#7C8FFF]" />
+                                        <div className="w-1.5 h-1.5 rounded-full bg-primary/40 shrink-0 mt-0.5 group-focus-within/item:bg-primary" />
                                         <input
                                             data-bullet={idx}
                                             type="text"
@@ -992,13 +995,13 @@ export default function ResultDetailClient({
                                             onChange={(e) => handleBulletChange(idx, e.target.value)}
                                             onKeyDown={(e) => handleBulletKeyDown(idx, e)}
                                             placeholder={idx === 0 ? "Synthesize your observations here…" : "Add more insight…"}
-                                            className="flex-1 bg-transparent text-base text-[#ECF0F7] placeholder:text-[#5A6882] outline-none border-none py-1 transition-all font-light"
+                                            className="flex-1 bg-transparent text-base text-foreground placeholder:text-muted-foreground outline-none border-none py-1 transition-all font-light"
                                         />
                                     </div>
                                 ))}
                                 <button
                                     onClick={() => setNoteBullets((prev) => [...prev, ""])}
-                                    className="text-xs text-[#7C8FFF]/50 hover:text-[#7C8FFF] transition-all ml-5.5 flex items-center gap-2 mt-2 px-3 py-1.5 rounded-lg bg-[#7C8FFF]/5 border border-[#7C8FFF]/5 hover:border-[#7C8FFF]/20"
+                                    className="text-xs text-primary/50 hover:text-primary transition-all ml-5.5 flex items-center gap-2 mt-2 px-3 py-1.5 rounded-lg bg-primary/5 border border-border/5 hover:border-border/20"
                                 >
                                     <Plus className="w-3.5 h-3.5" /> Append Observation
                                 </button>
@@ -1007,7 +1010,7 @@ export default function ResultDetailClient({
                                 <Button
                                     onClick={handleSaveNote}
                                     disabled={isSavingNote || !noteHasChanges}
-                                    className="bg-[#7C8FFF] hover:bg-[#6B7DE0] text-white h-11 px-8 rounded-xl shadow-lg shadow-[#7C8FFF]/20 transition-all font-semibold gap-2"
+                                    className="bg-primary hover:bg-primary text-white h-11 px-8 rounded-xl shadow-lg shadow-primary/20 transition-all font-semibold gap-2"
                                 >
                                     {isSavingNote ? (
                                         <><Loader2 className="w-4 h-4 animate-spin" /> Persisting…</>
@@ -1023,15 +1026,15 @@ export default function ResultDetailClient({
                 {/* ═══════ SECTION 5: Tabbed content ═══════ */}
                 <div className="mb-12">
                     {/* Tab bar — Slate Pro Max Pill Style */}
-                    <div className="flex items-center justify-center p-1.5 bg-[#1B253B]/60 border border-white/5 rounded-2xl w-fit mx-auto mb-10 backdrop-blur-md shadow-inner">
+                    <div className="flex items-center justify-center p-1.5 bg-muted/60 border border-border rounded-2xl w-fit mx-auto mb-10 shadow-inner">
                         <button
                             onClick={() => setActiveTab("breakdown")}
                             className={`px-8 py-3 text-sm font-medium transition-all duration-300 rounded-xl relative ${
-                                activeTab === "breakdown" ? "bg-white text-black shadow-lg" : "text-[#8B99B0] hover:text-white"
+                                activeTab === "breakdown" ? "bg-card text-foreground shadow-md" : "text-muted-foreground hover:text-foreground"
                             }`}
                         >
                             Question Breakdown
-                            <span className={`ml-2 text-xs font-mono tabular-nums ${activeTab === "breakdown" ? "text-black/50" : "text-[#5A6882]"}`}>
+                            <span className={`ml-2 text-xs font-mono tabular-nums ${activeTab === "breakdown" ? "text-muted-foreground" : "text-muted-foreground"}`}>
                                 {test.questions?.length || 0}
                             </span>
                         </button>
@@ -1039,12 +1042,12 @@ export default function ResultDetailClient({
                             <button
                                 onClick={() => setActiveTab("followup")}
                                 className={`px-8 py-3 text-sm font-medium transition-all duration-300 rounded-xl relative flex items-center gap-2 ${
-                                    activeTab === "followup" ? "bg-amber-500 text-white shadow-lg" : "text-[#8B99B0] hover:text-white"
+                                    activeTab === "followup" ? "bg-amber-500 text-white shadow-lg" : "text-muted-foreground hover:text-foreground"
                                 }`}
                             >
                                 <Sparkles className={`w-4 h-4 ${activeTab === "followup" ? "text-white" : "text-amber-500"}`} />
                                 Follow-up Insight
-                                <span className={`ml-1 text-xs font-mono tabular-nums ${activeTab === "followup" ? "text-white/70" : "text-[#5A6882]"}`}>
+                                <span className={`ml-1 text-xs font-mono tabular-nums ${activeTab === "followup" ? "text-muted-foreground" : "text-muted-foreground"}`}>
                                     {displayQuestions.length}
                                 </span>
                             </button>
@@ -1068,10 +1071,10 @@ export default function ResultDetailClient({
                                       : "border-l-amber-500/60";
 
                                 const iconClass = isCorrect === true
-                                    ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/20"
+                                    ? "bg-emerald-500/20 text-success border border-emerald-500/20"
                                     : isCorrect === false
-                                      ? "bg-rose-500/20 text-rose-400 border border-rose-500/20"
-                                      : "bg-amber-500/20 text-amber-400 border border-amber-500/20 animate-pulse";
+                                      ? "bg-rose-500/20 text-danger border border-rose-500/20"
+                                      : "bg-amber-500/20 text-warning border border-amber-500/20 animate-pulse";
 
                                 const IconComponent = isCorrect === true
                                     ? Check
@@ -1088,7 +1091,8 @@ export default function ResultDetailClient({
                                 return (
                                     <Card
                                         key={q.id}
-                                        className={`border-l-4 ${cardBorderClass} border-white/5 bg-[#1B253B]/30 backdrop-blur-sm rounded-2xl overflow-hidden transition-all hover:bg-[#1B253B]/50`}
+                                        id={`q-${q.id}`}
+                                        className={`border-l-4 ${cardBorderClass} border-border bg-muted/30 rounded-2xl overflow-hidden transition-all hover:bg-muted/50`}
                                     >
                                         <CardHeader className="pb-3 px-6 pt-6">
                                             <div className="flex items-center justify-between mb-4">
@@ -1096,14 +1100,14 @@ export default function ResultDetailClient({
                                                     <div className={`w-8 h-8 rounded-xl flex items-center justify-center shadow-lg ${iconClass}`}>
                                                         <IconComponent className="w-4 h-4" />
                                                     </div>
-                                                    <Badge variant="outline" className="bg-[#121A2E] border-white/10 text-[#8B99B0] px-3 py-1 font-mono text-[10px] tracking-wider uppercase">{q.topic}</Badge>
+                                                    <Badge variant="outline" className="bg-background border-border text-muted-foreground px-3 py-1 font-mono text-[10px] tracking-wider uppercase">{q.topic}</Badge>
                                                     {isManual && (
-                                                        <Badge className="bg-[#7C8FFF]/10 text-[#7C8FFF] border border-[#7C8FFF]/20 text-[10px] uppercase font-semibold">Tự luận / Subjective</Badge>
+                                                        <Badge className="bg-primary/10 text-primary border border-border/20 text-[10px] uppercase font-semibold">Tự luận / Subjective</Badge>
                                                     )}
                                                 </div>
-                                                <span className="text-[11px] font-mono text-[#5A6882]">Vector Q{idx + 1}</span>
+                                                <span className="text-[11px] font-mono text-muted-foreground">Vector Q{idx + 1}</span>
                                             </div>
-                                            <div className="text-base text-white/90 leading-relaxed font-light [&>p]:mb-3 [&>pre]:bg-[#121A2E] [&>pre]:p-4 [&>pre]:rounded-xl [&>pre]:border [&>pre]:border-white/5 [&>pre]:overflow-x-auto [&_code]:text-[#7C8FFF] [&_code]:bg-[#7C8FFF]/10 [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:rounded-md [&_code]:font-mono">
+                                            <div className="text-base text-muted-foreground leading-relaxed font-light [&>p]:mb-3 [&>pre]:bg-background [&>pre]:p-4 [&>pre]:rounded-xl [&>pre]:border [&>pre]:border-border [&>pre]:overflow-x-auto [&_code]:text-primary [&_code]:bg-primary/10 [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:rounded-md [&_code]:font-mono">
                                                 <ReactMarkdown remarkPlugins={[remarkGfm]}>{q.question_text}</ReactMarkdown>
                                             </div>
                                         </CardHeader>
@@ -1113,47 +1117,47 @@ export default function ResultDetailClient({
                                                     {/* Candidate Response block */}
                                                     <div className="space-y-3">
                                                         <div className="flex items-center justify-between">
-                                                            <span className="text-xs uppercase tracking-widest text-[#7C8FFF]/80 font-semibold flex items-center gap-2">
-                                                                <StickyNote className="w-4 h-4 text-[#7C8FFF]" />
+                                                            <span className="text-xs uppercase tracking-widest text-primary/80 font-semibold flex items-center gap-2">
+                                                                <StickyNote className="w-4 h-4 text-primary" />
                                                                 Candidate Response
                                                             </span>
-                                                            <span className="text-[10px] font-mono text-[#5A6882] bg-white/5 px-2.5 py-1 rounded-md border border-white/5">
+                                                            <span className="text-[10px] font-mono text-muted-foreground bg-muted px-2.5 py-1 rounded-md border border-border">
                                                                 {responseText.length} characters
                                                             </span>
                                                         </div>
 
-                                                        <div className="bg-[#121A2E]/80 border border-[#7C8FFF]/15 rounded-2xl p-6 shadow-inner relative overflow-hidden group/resp">
-                                                            <div className="absolute top-0 left-0 w-1.5 h-full bg-[#7C8FFF]/30 rounded-full" />
-                                                            <div className="font-mono text-sm leading-relaxed text-[#ECF0F7] whitespace-pre-wrap selection:bg-[#7C8FFF]/30">
-                                                                {responseText || <span className="text-white/20 italic">No response submitted.</span>}
+                                                        <div className="bg-background/80 border border-border/15 rounded-2xl p-6 shadow-inner relative overflow-hidden group/resp">
+                                                            <div className="absolute top-0 left-0 w-1.5 h-full bg-primary/30 rounded-full" />
+                                                            <div className="font-mono text-sm leading-relaxed text-foreground whitespace-pre-wrap selection:bg-primary/30">
+                                                                {responseText || <span className="text-muted-foreground italic">No response submitted.</span>}
                                                             </div>
                                                         </div>
                                                     </div>
 
                                                     {/* Evaluation Panel */}
-                                                    <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-6 space-y-6 relative overflow-hidden">
+                                                    <div className="bg-muted/40 border border-border rounded-2xl p-6 space-y-6 relative overflow-hidden">
                                                         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                                                             <div className="space-y-1">
-                                                                <h4 className="text-sm font-semibold text-white flex items-center gap-2">
-                                                                    <Award className="w-4 h-4 text-amber-400" />
+                                                                <h4 className="text-sm font-semibold text-foreground flex items-center gap-2">
+                                                                    <Award className="w-4 h-4 text-warning" />
                                                                     Manual Evaluation & Score Override
                                                                 </h4>
-                                                                <p className="text-xs text-[#8B99B0] font-light">Subjective grading must be evaluated by an interviewer</p>
+                                                                <p className="text-xs text-muted-foreground font-light">Subjective grading must be evaluated by an interviewer</p>
                                                             </div>
 
                                                             <div className="flex items-center gap-2">
                                                                 {currentGrade === true ? (
-                                                                    <Badge className="bg-emerald-500/10 text-emerald-400 border border-emerald-500/25 px-3.5 py-1.5 rounded-xl font-medium tracking-wide flex items-center gap-1.5 shadow-[0_0_15px_rgba(16,185,129,0.1)]">
+                                                                    <Badge className="bg-emerald-500/10 text-success border border-emerald-500/25 px-3.5 py-1.5 rounded-xl font-medium tracking-wide flex items-center gap-1.5 shadow-[0_0_15px_color-mix(in_srgb,var(--success)_10%,transparent)]">
                                                                         <CheckCircle2 className="w-3.5 h-3.5" />
                                                                         ĐẠT (PASS)
                                                                     </Badge>
                                                                 ) : currentGrade === false ? (
-                                                                    <Badge className="bg-rose-500/10 text-rose-400 border border-rose-500/25 px-3.5 py-1.5 rounded-xl font-medium tracking-wide flex items-center gap-1.5 shadow-[0_0_15px_rgba(239,68,68,0.1)]">
+                                                                    <Badge className="bg-rose-500/10 text-danger border border-rose-500/25 px-3.5 py-1.5 rounded-xl font-medium tracking-wide flex items-center gap-1.5 shadow-[0_0_15px_color-mix(in_srgb,var(--danger)_10%,transparent)]">
                                                                         <XCircle className="w-3.5 h-3.5" />
                                                                         KHÔNG ĐẠT (FAIL)
                                                                     </Badge>
                                                                 ) : (
-                                                                    <Badge className="bg-amber-500/10 text-amber-400 border border-amber-500/25 px-3.5 py-1.5 rounded-xl font-medium tracking-wide flex items-center gap-1.5 animate-pulse">
+                                                                    <Badge className="bg-amber-500/10 text-warning border border-amber-500/25 px-3.5 py-1.5 rounded-xl font-medium tracking-wide flex items-center gap-1.5 animate-pulse">
                                                                         <AlertCircle className="w-3.5 h-3.5" />
                                                                         CHƯA CHẤM (PENDING)
                                                                     </Badge>
@@ -1161,22 +1165,22 @@ export default function ResultDetailClient({
                                                             </div>
                                                         </div>
 
-                                                        <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-start pt-4 border-t border-white/5">
+                                                        <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-start pt-4 border-t border-border">
                                                             {/* Select Grade buttons */}
                                                             <div className="md:col-span-4 space-y-3">
-                                                                <label className="text-[10px] uppercase tracking-widest text-[#8B99B0] font-semibold block">Select Grade</label>
+                                                                <label className="text-[10px] uppercase tracking-widest text-muted-foreground font-semibold block">Select Grade</label>
                                                                 <div className="flex flex-col gap-2.5">
                                                                     <button
                                                                         type="button"
                                                                         onClick={() => setGradeValues(prev => ({ ...prev, [q.id]: true }))}
                                                                         className={`flex items-center justify-between px-5 py-3.5 rounded-xl text-sm font-semibold transition-all duration-300 border cursor-pointer ${
                                                                             currentGrade === true
-                                                                                ? "bg-emerald-500/15 text-emerald-300 border-emerald-500/40 shadow-[0_0_20px_rgba(16,185,129,0.15)]"
-                                                                                : "bg-white/[0.01] text-[#8B99B0] border-white/5 hover:bg-white/5 hover:text-white"
+                                                                                ? "bg-emerald-500/15 text-success border-emerald-500/40 shadow-[0_0_20px_color-mix(in_srgb,var(--success)_15%,transparent)]"
+                                                                                : "bg-muted/40 text-muted-foreground border-border hover:bg-muted hover:text-foreground"
                                                                         }`}
                                                                     >
                                                                         <span className="flex items-center gap-2">
-                                                                            <CheckCircle2 className={`w-4 h-4 ${currentGrade === true ? "text-emerald-400" : "text-[#5A6882]"}`} />
+                                                                            <CheckCircle2 className={`w-4 h-4 ${currentGrade === true ? "text-success" : "text-muted-foreground"}`} />
                                                                             Đạt (Pass)
                                                                         </span>
                                                                         <span className="text-[10px] font-mono opacity-50">+1 Điểm</span>
@@ -1187,12 +1191,12 @@ export default function ResultDetailClient({
                                                                         onClick={() => setGradeValues(prev => ({ ...prev, [q.id]: false }))}
                                                                         className={`flex items-center justify-between px-5 py-3.5 rounded-xl text-sm font-semibold transition-all duration-300 border cursor-pointer ${
                                                                             currentGrade === false
-                                                                                ? "bg-rose-500/15 text-rose-300 border-rose-500/40 shadow-[0_0_20px_rgba(239,68,68,0.15)]"
-                                                                                : "bg-white/[0.01] text-[#8B99B0] border-white/5 hover:bg-white/5 hover:text-white"
+                                                                                ? "bg-rose-500/15 text-danger border-rose-500/40 shadow-[0_0_20px_color-mix(in_srgb,var(--danger)_15%,transparent)]"
+                                                                                : "bg-muted/40 text-muted-foreground border-border hover:bg-muted hover:text-foreground"
                                                                         }`}
                                                                     >
                                                                         <span className="flex items-center gap-2">
-                                                                            <XCircle className={`w-4 h-4 ${currentGrade === false ? "text-rose-400" : "text-[#5A6882]"}`} />
+                                                                            <XCircle className={`w-4 h-4 ${currentGrade === false ? "text-danger" : "text-muted-foreground"}`} />
                                                                             Không đạt (Fail)
                                                                         </span>
                                                                         <span className="text-[10px] font-mono opacity-50">+0 Điểm</span>
@@ -1204,11 +1208,11 @@ export default function ResultDetailClient({
                                                             <div className="md:col-span-8 space-y-4">
                                                                 <div className="space-y-2">
                                                                     <div className="flex items-center justify-between">
-                                                                        <label className="text-[10px] uppercase tracking-widest text-[#8B99B0] font-semibold flex items-center gap-1.5">
+                                                                        <label className="text-[10px] uppercase tracking-widest text-muted-foreground font-semibold flex items-center gap-1.5">
                                                                             <MessageSquare className="w-3.5 h-3.5" />
                                                                             Evaluator Feedback / Rubric Notes
                                                                         </label>
-                                                                        <span className="text-[10px] font-mono text-[#5A6882]">
+                                                                        <span className="text-[10px] font-mono text-muted-foreground">
                                                                             {currentNote.length}/{MAX_NOTE_LENGTH}
                                                                         </span>
                                                                     </div>
@@ -1216,12 +1220,12 @@ export default function ResultDetailClient({
                                                                         value={currentNote}
                                                                         onChange={(e) => setGradeNotes(prev => ({ ...prev, [q.id]: e.target.value }))}
                                                                         placeholder="Provide details on code structure, algorithmic correctness, efficiency, design pattern compliance, or reasoning explanation..."
-                                                                        className="w-full bg-[#121A2E]/60 border-white/10 rounded-xl p-4 text-sm text-white font-light focus:border-[#7C8FFF]/30 transition-all min-h-[96px] resize-none leading-relaxed shadow-inner"
+                                                                        className="w-full bg-background/60 border-border rounded-xl p-4 text-sm text-foreground font-light focus:border-border/30 transition-all min-h-[96px] resize-none leading-relaxed shadow-inner"
                                                                     />
                                                                 </div>
 
                                                                 <div className="flex items-center justify-between gap-4 pt-2">
-                                                                    <div className="text-[11px] text-[#5A6882] font-light flex flex-wrap items-center gap-x-2.5 gap-y-1">
+                                                                    <div className="text-[11px] text-muted-foreground font-light flex flex-wrap items-center gap-x-2.5 gap-y-1">
                                                                         {grade?.graded_at ? (
                                                                             <>
                                                                                 <span className="flex items-center gap-1">
@@ -1240,7 +1244,7 @@ export default function ResultDetailClient({
                                                                     <Button
                                                                         onClick={() => handleSaveGrade(q.id)}
                                                                         disabled={isSavingThis || currentGrade === null || (currentGrade === grade?.is_correct && currentNote === (grade?.note || ""))}
-                                                                        className="bg-[#7C8FFF] hover:bg-[#6B7DE0] text-white h-10 px-6 rounded-xl shadow-md shadow-[#7C8FFF]/10 transition-all font-semibold gap-2 border-none shrink-0"
+                                                                        className="bg-primary hover:bg-primary text-white h-10 px-6 rounded-xl shadow-md shadow-primary/10 transition-all font-semibold gap-2 border-none shrink-0"
                                                                     >
                                                                         {isSavingThis ? (
                                                                             <><Loader2 className="w-3.5 h-3.5 animate-spin" /> Lưu điểm...</>
@@ -1261,13 +1265,13 @@ export default function ResultDetailClient({
                                                                 key={oIdx}
                                                                 className={`text-sm px-4 py-3 rounded-xl flex items-start gap-4 transition-all duration-300 ${
                                                                     oIdx === q.correct_answer
-                                                                        ? "bg-emerald-500/10 text-emerald-300 border border-emerald-500/30 shadow-[0_0_15px_rgba(16,185,129,0.1)]"
+                                                                        ? "bg-emerald-500/10 text-success border border-emerald-500/30 shadow-[0_0_15px_color-mix(in_srgb,var(--success)_10%,transparent)]"
                                                                         : oIdx === selectedAnswer && !isCorrect
-                                                                          ? "bg-rose-500/10 text-rose-300 border border-rose-500/30"
-                                                                          : "text-[#8B99B0] bg-[#121A2E]/40 border border-white/5"
+                                                                          ? "bg-rose-500/10 text-danger border border-rose-500/30"
+                                                                          : "text-muted-foreground bg-background/40 border border-border"
                                                                 }`}
                                                             >
-                                                                <span className={`text-xs font-bold w-6 h-6 rounded-lg flex items-center justify-center shrink-0 mt-minus-0.5 ${oIdx === q.correct_answer ? "bg-emerald-500 text-white" : oIdx === selectedAnswer ? "bg-rose-500 text-white" : "bg-white/5"}`}>
+                                                                <span className={`text-xs font-bold w-6 h-6 rounded-lg flex items-center justify-center shrink-0 mt-minus-0.5 ${oIdx === q.correct_answer ? "bg-emerald-500 text-foreground" : oIdx === selectedAnswer ? "bg-rose-500 text-foreground" : "bg-muted"}`}>
                                                                     {String.fromCharCode(65 + oIdx)}
                                                                 </span>
                                                                 <span className="leading-relaxed flex-1">{opt}</span>
@@ -1279,7 +1283,7 @@ export default function ResultDetailClient({
                                                             <div className="shrink-0 w-6 h-6 rounded-full bg-indigo-500/10 flex items-center justify-center text-indigo-400">
                                                                 <Search className="w-3.5 h-3.5" />
                                                             </div>
-                                                            <p className="text-[12px] text-[#8B99B0] italic leading-relaxed">{q.explanation}</p>
+                                                            <p className="text-[12px] text-muted-foreground italic leading-relaxed">{q.explanation}</p>
                                                         </div>
                                                     )}
                                                 </>
@@ -1295,28 +1299,28 @@ export default function ResultDetailClient({
                     {activeTab === "followup" && showFollowUp && followUpSession && (
                         <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
                             {/* Premium Header/Toolbar */}
-                            <div className="p-8 rounded-3xl bg-[#1B253B]/60 border border-white/5 backdrop-blur-xl relative overflow-hidden group shadow-2xl">
-                                <div className="absolute top-0 right-0 w-64 h-64 bg-[#7C8FFF]/5 rounded-full blur-[100px] -mr-32 -mt-32 pointer-events-none group-hover:bg-[#7C8FFF]/10 transition-colors duration-1000" />
+                            <div className="p-8 rounded-3xl bg-muted/60 border border-border relative overflow-hidden group shadow-2xl">
+                                <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-[100px] -mr-32 -mt-32 pointer-events-none group-hover:bg-primary/10 transition-colors duration-1000" />
                                 <div className="relative z-10">
                                     <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-8">
                                         <div className="space-y-2">
                                             <div className="flex items-center gap-3">
-                                                <div className="w-10 h-10 rounded-xl bg-amber-500/10 flex items-center justify-center text-amber-500 shadow-[0_0_20px_rgba(245,158,11,0.15)]">
+                                                <div className="w-10 h-10 rounded-xl bg-amber-500/10 flex items-center justify-center text-amber-500 shadow-[0_0_20px_color-mix(in_srgb,var(--warning)_15%,transparent)]">
                                                     <Sparkles className="w-5 h-5" />
                                                 </div>
-                                                <h2 className="text-2xl font-extralight tracking-tight text-white font-display">Deep Vector Analysis</h2>
+                                                <h2 className="text-2xl font-extralight tracking-tight text-foreground font-display">Deep Vector Analysis</h2>
                                             </div>
-                                            <p className="text-[#8B99B0] text-sm font-light max-w-2xl leading-relaxed">
+                                            <p className="text-muted-foreground text-sm font-light max-w-2xl leading-relaxed">
                                                 Our AI engine synthesized {displayQuestions.length} precision-targeted cognitive vectors based on candidates patterns.
                                             </p>
                                         </div>
 
                                         <div className="flex flex-wrap items-center gap-4">
                                             {/* Advanced Category Filter */}
-                                            <div className="flex items-center gap-2 p-1.5 bg-[#121A2E]/80 rounded-2xl border border-white/5 shadow-inner backdrop-blur-md">
+                                            <div className="flex items-center gap-2 p-1.5 bg-background/80 rounded-2xl border border-border shadow-inner ">
                                                 <button
                                                     onClick={() => setCategoryFilter("all")}
-                                                    className={`px-5 py-2 rounded-xl text-xs font-semibold transition-all duration-300 ${categoryFilter === "all" ? "bg-white text-black shadow-xl" : "text-[#5A6882] hover:text-[#ECF0F7] hover:bg-white/5"}`}
+                                                    className={`px-5 py-2 rounded-xl text-xs font-semibold transition-all duration-300 ${categoryFilter === "all" ? "bg-white text-black shadow-xl" : "text-muted-foreground hover:text-foreground hover:bg-muted"}`}
                                                 >
                                                     Full Spectrum
                                                 </button>
@@ -1329,7 +1333,7 @@ export default function ResultDetailClient({
                                                         <button
                                                             key={cat}
                                                             onClick={() => setCategoryFilter(categoryFilter === cat ? "all" : cat)}
-                                                            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold transition-all duration-300 ${categoryFilter === cat ? `${cfg.bg} ${cfg.color} border border-white/10 shadow-lg` : "text-[#5A6882] hover:text-[#ECF0F7] hover:bg-white/5"}`}
+                                                            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold transition-all duration-300 ${categoryFilter === cat ? `${cfg.bg} ${cfg.color} border border-border shadow-lg` : "text-muted-foreground hover:text-foreground hover:bg-muted"}`}
                                                         >
                                                             <Icon className="w-3.5 h-3.5" />
                                                             <span className="hidden sm:inline">{cfg.label.split(" ")[0]}</span>
@@ -1343,19 +1347,19 @@ export default function ResultDetailClient({
                                             <div className="flex items-center gap-3">
                                                 {editingQuestions ? (
                                                     <>
-                                                        <Button variant="ghost" onClick={handleCancelEdit} className="text-[#8B99B0] hover:text-white h-11 px-5 rounded-xl border border-white/5 hover:bg-white/5">
+                                                        <Button variant="ghost" onClick={handleCancelEdit} className="text-muted-foreground hover:text-foreground h-11 px-5 rounded-xl border border-border hover:bg-muted">
                                                             <X className="w-4 h-4 mr-2" /> Discard
                                                         </Button>
-                                                        <Button onClick={handleSaveEdit} disabled={isSaving} className="bg-emerald-500 hover:bg-emerald-600 text-white h-11 px-6 rounded-xl shadow-lg shadow-emerald-500/20 font-semibold border-0">
+                                                        <Button onClick={handleSaveEdit} disabled={isSaving} className="bg-emerald-500 hover:bg-emerald-600 text-foreground h-11 px-6 rounded-xl shadow-lg shadow-emerald-500/20 font-semibold border-0">
                                                             {isSaving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />} Persist Changes
                                                         </Button>
                                                     </>
                                                 ) : (
                                                     <>
-                                                        <Button variant="ghost" onClick={handleStartEdit} className="text-[#7C8FFF] hover:text-[#7C8FFF] hover:bg-[#7C8FFF]/10 h-11 px-5 rounded-xl border border-[#7C8FFF]/20 backdrop-blur-sm">
+                                                        <Button variant="ghost" onClick={handleStartEdit} className="text-primary hover:text-primary hover:bg-primary/10 h-11 px-5 rounded-xl border border-border/20 ">
                                                             <Pencil className="w-4 h-4 mr-2" /> Modify Vectors
                                                         </Button>
-                                                        <Button variant="ghost" onClick={handleDeleteSession} className="text-rose-400 hover:text-rose-400 hover:bg-rose-500/10 h-11 w-11 px-0 rounded-xl border border-rose-500/20 backdrop-blur-sm">
+                                                        <Button variant="ghost" onClick={handleDeleteSession} className="text-danger hover:text-danger hover:bg-rose-500/10 h-11 w-11 px-0 rounded-xl border border-rose-500/20 ">
                                                             <Trash2 className="w-4 h-4" />
                                                         </Button>
                                                     </>
@@ -1376,7 +1380,7 @@ export default function ResultDetailClient({
                                     return (
                                         <div
                                             key={idx}
-                                            className={`group relative bg-[#1B253B]/20 hover:bg-[#1B253B]/40 border-l-4 ${catCfg.border} border-y border-r border-white/5 rounded-3xl transition-all duration-500 overflow-hidden backdrop-blur-sm shadow-xl`}
+                                            className={`group relative bg-muted/20 hover:bg-muted/40 border-l-4 ${catCfg.border} border-y border-r border-border rounded-3xl transition-all duration-500 overflow-hidden shadow-xl`}
                                         >
                                             <div className="p-8">
                                                 <div className="flex flex-col lg:flex-row gap-8">
@@ -1388,22 +1392,22 @@ export default function ResultDetailClient({
                                                                     <CatIcon className="w-5 h-5" />
                                                                 </div>
                                                                 <div className="space-y-0.5">
-                                                                    <p className="text-[10px] uppercase tracking-widest font-bold opacity-40 text-white">ID Vector_{idx + 1}</p>
+                                                                    <p className="text-[10px] uppercase tracking-widest font-bold opacity-40 text-foreground">ID Vector_{idx + 1}</p>
                                                                     <p className={`text-xs font-bold uppercase tracking-wider ${catCfg.color}`}>{catCfg.label}</p>
                                                                 </div>
                                                             </div>
                                                             <div className="flex items-center gap-2">
                                                                 {editingQuestions && (
-                                                                    <button onClick={() => handleDeleteQuestion(originalIdx)} className="w-9 h-9 flex items-center justify-center rounded-xl bg-rose-500/10 text-rose-400 hover:bg-rose-500/20 transition-all">
+                                                                    <button onClick={() => handleDeleteQuestion(originalIdx)} className="w-9 h-9 flex items-center justify-center rounded-xl bg-rose-500/10 text-danger hover:bg-rose-500/20 transition-all">
                                                                         <Trash2 className="w-4 h-4" />
                                                                     </button>
                                                                 )}
                                                                 {!editingQuestions && (
                                                                     <button
                                                                         onClick={() => handleCopyQuestion(fq.question_text, originalIdx)}
-                                                                        className="w-9 h-9 flex items-center justify-center rounded-xl bg-white/5 text-[#8B99B0] hover:text-[#7C8FFF] hover:bg-[#7C8FFF]/10 transition-all opacity-0 group-hover:opacity-100"
+                                                                        className="w-9 h-9 flex items-center justify-center rounded-xl bg-muted text-muted-foreground hover:text-primary hover:bg-primary/10 transition-all opacity-0 group-hover:opacity-100"
                                                                     >
-                                                                        {copiedIdx === originalIdx ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4" />}
+                                                                        {copiedIdx === originalIdx ? <Check className="w-4 h-4 text-success" /> : <Copy className="w-4 h-4" />}
                                                                     </button>
                                                                 )}
                                                             </div>
@@ -1413,11 +1417,11 @@ export default function ResultDetailClient({
                                                             <Textarea
                                                                 value={fq.question_text}
                                                                 onChange={(e) => handleEditField(originalIdx, "question_text", e.target.value)}
-                                                                className="w-full bg-[#121A2E]/60 border-white/10 rounded-2xl p-6 text-lg text-white font-light focus:border-[#7C8FFF]/40 transition-all min-h-[120px] shadow-inner"
+                                                                className="w-full bg-background/60 border-border rounded-2xl p-6 text-lg text-foreground font-light focus:border-border/40 transition-all min-h-[120px] shadow-inner"
                                                                 placeholder="Refine this probe question…"
                                                             />
                                                         ) : (
-                                                            <h3 className="text-2xl font-extralight text-[#ECF0F7] leading-relaxed italic pr-6 group-hover:text-white transition-colors duration-300">
+                                                            <h3 className="text-2xl font-extralight text-foreground leading-relaxed italic pr-6 group-hover:text-foreground transition-colors duration-300">
                                                                 &ldquo;{fq.question_text}&rdquo;
                                                             </h3>
                                                         )}
@@ -1428,38 +1432,38 @@ export default function ResultDetailClient({
                                                             </Badge>
                                                             <div className="flex items-center gap-1.5">
                                                                 {fq.related_topics?.map((tag, tIdx) => (
-                                                                    <span key={tIdx} className="px-2.5 py-0.5 rounded-lg bg-[#121A2E]/60 border border-white/5 text-[9px] text-[#5A6882] font-mono uppercase tracking-tighter">#{tag}</span>
+                                                                    <span key={tIdx} className="px-2.5 py-0.5 rounded-lg bg-background/60 border border-border text-[9px] text-muted-foreground font-mono uppercase tracking-tighter">#{tag}</span>
                                                                 ))}
                                                             </div>
                                                         </div>
                                                     </div>
 
                                                     {/* RIGHT: Objective & Protocols */}
-                                                    <div className="lg:w-[400px] space-y-8 p-8 rounded-2xl bg-white/[0.02] border border-white/5 shadow-inner">
+                                                    <div className="lg:w-[400px] space-y-8 p-8 rounded-2xl bg-muted/40 border border-border shadow-inner">
                                                         <div className="space-y-4">
-                                                            <h4 className="text-[10px] uppercase tracking-widest text-[#7C8FFF] font-bold flex items-center gap-2">
-                                                                <div className="w-1.5 h-1.5 rounded-full bg-[#7C8FFF] animate-pulse" /> Strategic Objective
+                                                            <h4 className="text-[10px] uppercase tracking-widest text-primary font-bold flex items-center gap-2">
+                                                                <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" /> Strategic Objective
                                                             </h4>
                                                             {editingQuestions ? (
                                                                 <Textarea
                                                                     value={fq.purpose}
                                                                     onChange={(e) => handleEditField(originalIdx, "purpose", e.target.value)}
-                                                                    className="w-full bg-[#121A2E]/40 border-white/5 rounded-xl px-4 py-3 text-sm text-[#8B99B0] focus:border-[#7C8FFF]/40 transition-all min-h-[80px]"
+                                                                    className="w-full bg-background/40 border-border rounded-xl px-4 py-3 text-sm text-muted-foreground focus:border-border/40 transition-all min-h-[80px]"
                                                                 />
                                                             ) : (
-                                                                <p className="text-sm text-[#8B99B0] font-light leading-relaxed italic">&ldquo;{fq.purpose}&rdquo;</p>
+                                                                <p className="text-sm text-muted-foreground font-light leading-relaxed italic">&ldquo;{fq.purpose}&rdquo;</p>
                                                             )}
                                                         </div>
 
-                                                        <div className="space-y-4 pt-6 border-t border-white/5">
-                                                            <h4 className="text-[10px] uppercase tracking-widest text-amber-400 font-bold flex items-center gap-2">
-                                                                <div className="w-1.5 h-1.5 rounded-full bg-amber-400 opacity-60" /> Cognitive Probes
+                                                        <div className="space-y-4 pt-6 border-t border-border">
+                                                            <h4 className="text-[10px] uppercase tracking-widest text-warning font-bold flex items-center gap-2">
+                                                                <div className="w-1.5 h-1.5 rounded-full bg-warning opacity-60" /> Cognitive Probes
                                                             </h4>
                                                             <div className="space-y-3">
                                                                 {fq.suggested_follow_up_points?.map((point, pi) => (
                                                                     <div key={pi} className="flex gap-3 items-start group/point">
-                                                                        <MoveRight className="w-3.5 h-3.5 text-[#5B6CF0] mt-0.5 shrink-0 opacity-40 group-hover/point:opacity-100 group-hover/point:translate-x-1 transition-all" />
-                                                                        <p className="text-xs text-[#8B99B0] font-light leading-relaxed group-hover/point:text-[#ECF0F7] transition-colors">{point}</p>
+                                                                        <MoveRight className="w-3.5 h-3.5 text-primary mt-0.5 shrink-0 opacity-40 group-hover/point:opacity-100 group-hover/point:translate-x-1 transition-all" />
+                                                                        <p className="text-xs text-muted-foreground font-light leading-relaxed group-hover/point:text-foreground transition-colors">{point}</p>
                                                                     </div>
                                                                 ))}
                                                             </div>

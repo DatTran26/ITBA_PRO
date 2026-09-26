@@ -81,43 +81,43 @@ export default function TagPickerPopover({
       <PopoverTrigger render={<span />}>{children}</PopoverTrigger>
       <PopoverContent
         align="start"
-        className="w-56 bg-[#1B253B] border-[#8B99B0]/10 p-2"
+        className="w-56 bg-muted border-border/10 p-2"
       >
         <div className="space-y-2">
           <div className="max-h-40 overflow-y-auto space-y-0.5">
             {allTags.length === 0 && (
-              <p className="text-xs text-[#5A6882] text-center py-2">No tags yet</p>
+              <p className="text-xs text-muted-foreground text-center py-2">No tags yet</p>
             )}
             {allTags.map((tag) => (
               <button
                 key={tag.id}
                 onClick={() => handleToggle(tag)}
-                className="flex items-center gap-2 w-full px-2 py-1.5 rounded text-xs hover:bg-[#222C4A] transition-colors"
+                className="flex items-center gap-2 w-full px-2 py-1.5 rounded text-xs hover:bg-accent transition-colors"
               >
                 <span
                   className="w-2 h-2 rounded-full shrink-0"
                   style={{ backgroundColor: tag.color }}
                 />
-                <span className="flex-1 text-left text-[#ECF0F7] truncate">{tag.name}</span>
-                {activeIds.has(tag.id) && <Check className="w-3 h-3 text-[#7C8FFF] shrink-0" />}
+                <span className="flex-1 text-left text-foreground truncate">{tag.name}</span>
+                {activeIds.has(tag.id) && <Check className="w-3 h-3 text-primary shrink-0" />}
               </button>
             ))}
           </div>
 
-          <div className="border-t border-[#8B99B0]/10 pt-2 flex gap-1">
+          <div className="border-t border-border/10 pt-2 flex gap-1">
             <Input
               value={newName}
               onChange={(e) => setNewName(e.target.value)}
               placeholder="New tag..."
               maxLength={30}
               onKeyDown={(e) => e.key === "Enter" && handleCreate()}
-              className="h-7 text-xs bg-[#222C4A] border-[#8B99B0]/10 text-[#ECF0F7] placeholder:text-[#5A6882]"
+              className="h-7 text-xs bg-accent border-border/10 text-foreground placeholder:text-muted-foreground"
             />
             <Button
               size="sm"
               onClick={handleCreate}
               disabled={!newName.trim() || creating}
-              className="h-7 w-7 p-0 bg-[#7C8FFF] hover:bg-[#5B6CF0]"
+              className="h-7 w-7 p-0 bg-primary hover:bg-primary"
             >
               <Plus className="w-3.5 h-3.5" />
             </Button>

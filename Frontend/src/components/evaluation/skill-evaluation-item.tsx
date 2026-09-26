@@ -24,7 +24,7 @@ export default function SkillEvaluationItem({ item, onChange }: SkillEvaluationI
     return (
         <div className={`p-4 rounded-xl border transition-all ${item.is_mandatory
             ? "border-amber-500/30 bg-amber-500/[0.03]"
-            : "border-[#8B99B0]/10 bg-[#151D2E]"
+            : "border-border/10 bg-card"
         }`}>
             {/* Header */}
             <div className="flex items-center justify-between mb-3">
@@ -32,12 +32,12 @@ export default function SkillEvaluationItem({ item, onChange }: SkillEvaluationI
                     {item.is_mandatory && (
                         <Badge className="bg-amber-500/15 text-amber-400 border-amber-500/25 text-[10px]">Required</Badge>
                     )}
-                    <span className="font-medium text-[#ECF0F7]">{item.skill_name}</span>
+                    <span className="font-medium text-foreground">{item.skill_name}</span>
                     {item.skill_category && (
-                        <Badge variant="outline" className="text-[10px] text-[#8B99B0] border-[#8B99B0]/20">{item.skill_category}</Badge>
+                        <Badge variant="outline" className="text-[10px] text-muted-foreground border-border/20">{item.skill_category}</Badge>
                     )}
                 </div>
-                <span className="text-xs text-[#5A6882]">
+                <span className="text-xs text-muted-foreground">
                     Required: {item.required_level}/5
                 </span>
             </div>
@@ -45,7 +45,7 @@ export default function SkillEvaluationItem({ item, onChange }: SkillEvaluationI
             {/* Score buttons + Status */}
             <div className="flex items-center gap-4 mb-3">
                 <div className="flex items-center gap-1.5">
-                    <span className="text-xs text-[#5A6882] mr-1">Score:</span>
+                    <span className="text-xs text-muted-foreground mr-1">Score:</span>
                     {SCORE_BUTTONS.map((s) => (
                         <button
                             key={s}
@@ -55,7 +55,7 @@ export default function SkillEvaluationItem({ item, onChange }: SkillEvaluationI
                                 ? s >= item.required_level
                                     ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/40"
                                     : "bg-rose-500/20 text-rose-400 border border-rose-500/40"
-                                : "bg-[#1E2840] text-[#5A6882] border border-[#8B99B0]/10 hover:border-[#8B99B0]/30"
+                                : "bg-muted text-muted-foreground border border-border/10 hover:border-border/30"
                             }`}
                         >
                             {s}
@@ -69,7 +69,7 @@ export default function SkillEvaluationItem({ item, onChange }: SkillEvaluationI
                         onClick={() => handleStatusToggle("pass")}
                         className={`px-3 h-8 rounded-lg text-xs font-medium transition-all cursor-pointer ${item.status === "pass"
                             ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/40"
-                            : "bg-[#1E2840] text-[#5A6882] border border-[#8B99B0]/10 hover:border-[#8B99B0]/30"
+                            : "bg-muted text-muted-foreground border border-border/10 hover:border-border/30"
                         }`}
                     >
                         Pass
@@ -79,7 +79,7 @@ export default function SkillEvaluationItem({ item, onChange }: SkillEvaluationI
                         onClick={() => handleStatusToggle("fail")}
                         className={`px-3 h-8 rounded-lg text-xs font-medium transition-all cursor-pointer ${item.status === "fail"
                             ? "bg-rose-500/20 text-rose-400 border border-rose-500/40"
-                            : "bg-[#1E2840] text-[#5A6882] border border-[#8B99B0]/10 hover:border-[#8B99B0]/30"
+                            : "bg-muted text-muted-foreground border border-border/10 hover:border-border/30"
                         }`}
                     >
                         Fail
@@ -92,7 +92,7 @@ export default function SkillEvaluationItem({ item, onChange }: SkillEvaluationI
                 placeholder="Reviewer comment..."
                 value={item.reviewer_comment}
                 onChange={(e) => onChange({ reviewer_comment: e.target.value, isDirty: true })}
-                className="bg-[#0C1220] border-[#8B99B0]/10 text-[#ECF0F7] placeholder:text-[#5A6882] min-h-[60px] text-sm resize-none"
+                className="bg-background border-border/10 text-foreground placeholder:text-muted-foreground min-h-[60px] text-sm resize-none"
             />
 
             {/* AI Insight */}

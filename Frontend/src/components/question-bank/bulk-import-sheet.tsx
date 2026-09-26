@@ -12,9 +12,9 @@ interface Props {
 export default function BulkImportSheet({ open, onOpenChange }: Props) {
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side="right" className="w-full sm:max-w-xl bg-[#131929] border-[#8B99B0]/10 overflow-y-auto">
+      <SheetContent side="right" className="w-full sm:max-w-xl bg-background border-border/10 overflow-y-auto">
         <SheetHeader className="mb-6">
-          <SheetTitle className="text-[#ECF0F7] text-lg font-light">Bulk Import Questions</SheetTitle>
+          <SheetTitle className="text-foreground text-lg font-light">Bulk Import Questions</SheetTitle>
         </SheetHeader>
         <QuestionBankBulkImportTab />
       </SheetContent>

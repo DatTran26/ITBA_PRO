@@ -22,10 +22,10 @@ function getReqCount(pos: PositionListItem): number {
 const columns: ColumnDef<PositionListItem>[] = [
   { key: "title", label: "Title", sortable: true },
   { key: "department", label: "Department", sortable: true, className: "hidden md:table-cell", render: (v) => (
-    <span className="text-[#8B99B0]">{v ? String(v) : "—"}</span>
+    <span className="text-muted-foreground">{v ? String(v) : "—"}</span>
   )},
   { key: "target_level", label: "Level", sortable: true, render: (v) => (
-    v ? <span className="text-[#B48EFF] text-xs">{String(v)}</span> : <span className="text-[#5A6882] text-xs">—</span>
+    v ? <span className="text-ai text-xs">{String(v)}</span> : <span className="text-muted-foreground text-xs">—</span>
   )},
   { key: "position_skill_requirements", label: "Skill Reqs", render: (_, row) => (
     <span className="text-xs">{getReqCount(row)}</span>

@@ -66,21 +66,21 @@ export default function AIDraftingCopilot({
             id: "add_legal_bases",
             label: "Bổ sung Căn cứ Luật",
             icon: BookOpen,
-            color: "text-indigo-400 border-indigo-500/30 bg-indigo-500/10 hover:bg-indigo-500/20",
+            color: "text-primary border-primary/30 bg-primary/10 hover:bg-primary/20",
             tooltip: "Bổ sung các văn bản luật, nghị định, thông tư hiện hành làm căn cứ pháp lý"
         },
         {
             id: "rewrite_professional",
             label: "Trau chuốt Văn phong Pháp chế",
             icon: Sparkles,
-            color: "text-pink-400 border-pink-500/30 bg-pink-500/10 hover:bg-pink-500/20",
+            color: "text-primary border-primary/30 bg-primary/10 hover:bg-primary/20",
             tooltip: "Viết lại câu chữ trang trọng, gãy gọn, chuẩn ngôn ngữ hành chính"
         },
         {
             id: "shorten_summary",
             label: "Rút gọn Công văn",
             icon: FileCheck2,
-            color: "text-sky-400 border-sky-500/30 bg-sky-500/10 hover:bg-sky-500/20",
+            color: "text-primary border-primary/30 bg-primary/10 hover:bg-primary/20",
             tooltip: "Cô đọng thành bản tóm tắt cho lãnh đạo phê duyệt"
         }
     ];
@@ -140,24 +140,24 @@ export default function AIDraftingCopilot({
     if (!isOpen) return null;
 
     return (
-        <div className="rounded-2xl border border-indigo-500/30 bg-gradient-to-b from-[#111827] via-[#0F172A] to-[#0A0E1A] p-4 shadow-xl shadow-indigo-500/10 animate-in slide-in-from-bottom-3 duration-200 mb-4">
+        <div className="rounded-2xl border border-primary/30 bg-gradient-to-b from-card via-card to-card p-4 shadow-xl shadow-primary/10 animate-in slide-in-from-bottom-3 duration-200 mb-4">
 
             {/* Header */}
-            <div className="flex items-center justify-between border-b border-white/[0.08] pb-3 mb-3">
+            <div className="flex items-center justify-between border-b border-border pb-3 mb-3">
                 <div className="flex items-center gap-2.5">
-                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-tr from-indigo-600 to-pink-500 text-white shadow-md shadow-indigo-500/25">
+                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-tr from-primary to-primary text-white shadow-md shadow-primary/25">
                         <Bot className="h-4 w-4" />
                     </div>
                     <div>
                         <div className="flex items-center gap-2">
-                            <h4 className="text-xs font-bold text-white tracking-wide uppercase">
+                            <h4 className="text-xs font-bold text-foreground tracking-wide uppercase">
                                 AI Drafting Copilot • Trợ Lý Soạn Thảo & Hiệu Chỉnh
                             </h4>
-                            <span className="rounded-full bg-indigo-500/20 px-2 py-0.2 text-[9px] font-bold text-indigo-300 border border-indigo-500/30">
+                            <span className="rounded-full bg-primary/20 px-2 py-0.2 text-[9px] font-bold text-primary border border-primary/30">
                                 Gemini 3.6
                             </span>
                         </div>
-                        <p className="text-[11px] text-[#94A3B8]">
+                        <p className="text-[11px] text-muted-foreground">
                             Ra lệnh bằng lời để AI viết thêm điều khoản, chuẩn hóa NĐ 30, hoặc chỉnh sửa văn phong tức thì.
                         </p>
                     </div>
@@ -176,13 +176,13 @@ export default function AIDraftingCopilot({
                     )}
                     <button
                         onClick={() => setIsExpanded(!isExpanded)}
-                        className="rounded-lg p-1 text-[#94A3B8] hover:bg-white/10 hover:text-white transition-colors"
+                        className="rounded-lg p-1 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
                     >
                         {isExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
                     </button>
                     <button
                         onClick={onClose}
-                        className="rounded-lg p-1 text-[#94A3B8] hover:bg-white/10 hover:text-white transition-colors"
+                        className="rounded-lg p-1 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
                     >
                         <X className="h-4 w-4" />
                     </button>
@@ -223,13 +223,13 @@ export default function AIDraftingCopilot({
                                         handleExecuteCopilot("custom", instruction);
                                     }
                                 }}
-                                className="w-full rounded-xl bg-white/[0.04] border border-white/10 px-3.5 py-2 text-xs text-white placeholder-[#64748B] focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 transition-all"
+                                className="w-full rounded-xl bg-muted border border-border px-3.5 py-2 text-xs text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary transition-all"
                             />
                         </div>
                         <button
                             onClick={() => handleExecuteCopilot("custom", instruction)}
                             disabled={loading || !instruction.trim()}
-                            className="flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-indigo-600 to-pink-600 px-4 py-2 text-xs font-bold text-white shadow-md shadow-indigo-500/20 hover:opacity-90 disabled:opacity-40 transition-opacity"
+                            className="flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-primary to-primary px-4 py-2 text-xs font-bold text-white shadow-md shadow-primary/20 hover:opacity-90 disabled:opacity-40 transition-opacity"
                         >
                             {loading ? (
                                 <div className="h-3.5 w-3.5 rounded-full border-2 border-white border-t-transparent animate-spin" />
@@ -250,7 +250,7 @@ export default function AIDraftingCopilot({
                                 </div>
                                 <button
                                     onClick={handleApply}
-                                    className="flex items-center gap-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 px-3 py-1 text-xs font-bold text-white shadow-md transition-colors"
+                                    className="flex items-center gap-1.5 rounded-lg bg-success hover:bg-success/90 px-3 py-1 text-xs font-bold text-white shadow-md transition-colors"
                                 >
                                     <Check className="h-3.5 w-3.5" />
                                     <span>Áp dụng vào Văn bản</span>
@@ -258,7 +258,7 @@ export default function AIDraftingCopilot({
                             </div>
 
                             {result.summary_of_changes && (
-                                <p className="text-xs text-[#CBD5E1] leading-relaxed">
+                                <p className="text-xs text-foreground leading-relaxed">
                                     {result.summary_of_changes}
                                 </p>
                             )}
@@ -274,7 +274,7 @@ export default function AIDraftingCopilot({
                             )}
 
                             {result.recommendations && result.recommendations.length > 0 && (
-                                <div className="text-[11px] text-[#94A3B8] italic flex items-center gap-1.5 pt-1 border-t border-white/[0.06]">
+                                <div className="text-[11px] text-muted-foreground italic flex items-center gap-1.5 pt-1 border-t border-border">
                                     <Lightbulb className="h-3 w-3 text-amber-400 shrink-0" />
                                     <span>Lưu ý: {result.recommendations[0]}</span>
                                 </div>

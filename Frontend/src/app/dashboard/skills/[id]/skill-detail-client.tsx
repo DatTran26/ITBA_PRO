@@ -6,16 +6,15 @@ import AppNavbar from "@/components/ui/app-navbar";
 import PageBreadcrumb from "@/components/ui/page-breadcrumb";
 import PageContainer from "@/components/ui/page-container";
 import SkillHeader from "./skill-header";
-import SkillOverviewTab from "./skill-overview-tab";
-import SkillPositionsTab from "./skill-positions-tab";
+import SkillDistribution from "./skill-distribution";
 import SkillPersonsTab from "./skill-persons-tab";
-import SkillAnalyticsTab from "./skill-analytics-tab";
 import SkillKnowledgeTab from "./skill-knowledge-tab";
 import SkillQuestionsTab from "./skill-questions-tab";
 import SkillFormDialog from "@/components/management/skill-form-dialog";
 import CreateTestFromSkills from "@/components/tests/create-test-from-skills";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import type { SkillDetail, SkillListItem } from "@/app/dashboard/management-types";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface Props {
   skill: SkillDetail;
@@ -23,21 +22,14 @@ interface Props {
   canEdit: boolean;
 }
 
-const TABS = ["overview", "positions", "persons", "knowledge", "questions", "analytics"] as const;
+const TABS = ["questions", "knowledge", "persons"] as const;
 type Tab = typeof TABS[number];
 
-const TAB_LABELS: Record<Tab, string> = {
-  overview: "Overview",
-  positions: "Positions",
-  persons: "Persons",
-  knowledge: "Knowledge",
-  questions: "Questions",
-  analytics: "Analytics",
-};
+const TAB_LABELS: Record<Tab, string> = { questions: "Câu hỏi", knowledge: "Tri thức AI", persons: "Danh sách nhân sự" };
 
 export default function SkillDetailClient({ skill, isAdmin, canEdit }: Props) {
   const router = useRouter();
-  const [tab, setTab] = useState<Tab>("overview");
+  const [tab, setTab] = useState<Tab>("questions");
   const [editOpen, setEditOpen] = useState(false);
   const [createTestOpen, setCreateTestOpen] = useState(false);
   // Bumped after a generation run approves questions, to refresh the Questions tab list.
@@ -57,7 +49,7 @@ export default function SkillDetailClient({ skill, isAdmin, canEdit }: Props) {
   };
 
   return (
-    <div className="min-h-screen bg-[#121A2E]">
+    <div className="min-h-screen bg-transparent pb-12">
       <AppNavbar />
       <PageContainer>
         <PageBreadcrumb breadcrumbs={[
@@ -72,30 +64,19 @@ export default function SkillDetailClient({ skill, isAdmin, canEdit }: Props) {
           onCreateTest={() => setCreateTestOpen(true)}
         />
 
-        <div className="flex gap-1 border-b border-[#8B99B0]/10 mb-4 overflow-x-auto">
-          {TABS.map((t) => (
-            <button
-              key={t}
-              onClick={() => setTab(t)}
-              className={`px-4 py-2.5 text-sm font-medium whitespace-nowrap transition-colors border-b-2 ${
-                tab === t
-                  ? "border-[#7C8FFF] text-[#ECF0F7]"
-                  : "border-transparent text-[#5A6882] hover:text-[#8B99B0]"
-              }`}
-            >
-              {TAB_LABELS[t]}
-              {t === "positions" && (
-                <span className="ml-1.5 text-xs text-[#5A6882]">({skill.position_requirements.length})</span>
-              )}
-              {t === "persons" && (
-                <span className="ml-1.5 text-xs text-[#5A6882]">({skill.person_skills.length})</span>
-              )}
-            </button>
-          ))}
-        </div>
+        <SkillDistribution skill={skill} />
 
-        {tab === "overview" && <SkillOverviewTab skill={skill} />}
-        {tab === "positions" && <SkillPositionsTab requirements={skill.position_requirements} />}
+        <Tabs value={tab} onValueChange={(v) => setTab(v as Tab)}>
+          <TabsList className="mb-5 max-w-full overflow-x-auto justify-start [scrollbar-width:none]">
+            {TABS.map((t) => (
+              <TabsTrigger key={t} value={t}>
+                {TAB_LABELS[t]}
+                {t === "persons" && ` (${skill.person_skills.length})`}
+              </TabsTrigger>
+            ))}
+          </TabsList>
+        </Tabs>
+
         {tab === "persons" && <SkillPersonsTab personSkills={skill.person_skills} />}
         {tab === "knowledge" && (
           <SkillKnowledgeTab
@@ -111,12 +92,6 @@ export default function SkillDetailClient({ skill, isAdmin, canEdit }: Props) {
             onRequestMore={() => setTab("knowledge")}
           />
         )}
-        {tab === "analytics" && (
-          <SkillAnalyticsTab
-            positionCount={skill.position_requirements.length}
-            personCount={skill.person_skills.length}
-          />
-        )}
       </PageContainer>
 
       <SkillFormDialog
@@ -129,7 +104,7 @@ export default function SkillDetailClient({ skill, isAdmin, canEdit }: Props) {
       <Dialog open={createTestOpen} onOpenChange={setCreateTestOpen}>
         <DialogContent
           showCloseButton={false}
-          className="max-w-3xl w-[calc(100%-2rem)] max-h-[90vh] overflow-y-auto bg-[#101828] ring-[#7C8FFF]/15"
+          className="max-w-3xl w-[calc(100%-2rem)] max-h-[90vh] overflow-y-auto bg-background ring-primary/15"
         >
           <DialogTitle className="sr-only">Create test from {skill.name}</DialogTitle>
           <CreateTestFromSkills

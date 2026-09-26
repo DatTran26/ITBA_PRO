@@ -7,17 +7,14 @@ import PageBreadcrumb from "@/components/ui/page-breadcrumb";
 import PageContainer from "@/components/ui/page-container";
 import { toast } from "sonner";
 import PositionHeader from "./position-header";
-import PositionOverviewTab from "./position-overview-tab";
+import PositionBlueprint from "./position-blueprint";
 import PositionSkillsTab from "./position-skills-tab";
 import PositionPersonsTab from "./position-persons-tab";
-import PositionGapAnalysisTab from "./position-gap-analysis-tab";
-import PositionAssessmentsTab from "./position-assessments-tab";
 import PositionNotesTab from "./position-notes-tab";
 import PositionFormDialog from "@/components/management/position-form-dialog";
-import { SharedDashboardButton } from "@/components/shares";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type {
   PositionDetail,
-  SkillRequirement,
   TagItem,
   ActivityLogItem,
   EntityTagItem,
@@ -43,20 +40,13 @@ interface Props {
   activityLogs: ActivityLogItem[];
 }
 
-const TABS = ["overview", "skills", "persons", "gap-analysis", "assessments", "notes"] as const;
+const TABS = ["skills", "persons", "notes"] as const;
 type Tab = typeof TABS[number];
-const TAB_LABELS: Record<Tab, string> = {
-  overview: "Overview",
-  skills: "Skills",
-  persons: "Persons",
-  "gap-analysis": "Gap Analysis",
-  assessments: "Assessments",
-  notes: "Notes",
-};
+const TAB_LABELS: Record<Tab, string> = { skills: "Chỉnh yêu cầu", persons: "Nhân sự", notes: "Ghi chú" };
 
 export default function PositionDetailClient({ position, availableSkills, assignedPersons, entityTags, activityLogs }: Props) {
   const router = useRouter();
-  const [tab, setTab] = useState<Tab>("overview");
+  const [tab, setTab] = useState<Tab>("skills");
   const [editOpen, setEditOpen] = useState(false);
   const [tags, setTags] = useState<TagItem[]>(
     entityTags.map((et) => et.tags).filter(Boolean)
@@ -89,7 +79,7 @@ export default function PositionDetailClient({ position, availableSkills, assign
   }, [position, router]);
 
   return (
-    <div className="min-h-screen bg-[#121A2E]">
+    <div className="min-h-screen bg-transparent pb-12">
       <AppNavbar />
       <PageContainer>
         <PageBreadcrumb breadcrumbs={[
@@ -108,28 +98,20 @@ export default function PositionDetailClient({ position, availableSkills, assign
           onAddTag={() => {}}
         />
 
-        {/* Tabs */}
-        <div className="flex gap-1 border-b border-[#8B99B0]/10 mb-4 overflow-x-auto">
-          {TABS.map((t) => (
-            <SharedDashboardButton
-              key={t}
-              onClick={() => setTab(t)}
-              className={`px-4 py-2.5 text-sm font-medium whitespace-nowrap transition-colors border-b-2 ${
-                tab === t
-                  ? "border-[#7C8FFF] text-[#ECF0F7]"
-                  : "border-transparent text-[#5A6882] hover:text-[#8B99B0]"
-              }`}
-            >
-              {TAB_LABELS[t]}
-            </SharedDashboardButton>
-          ))}
-        </div>
+        <div className="mb-6"><PositionBlueprint persons={assignedPersons} requirements={requirements} /></div>
 
-        {tab === "overview" && <PositionOverviewTab position={position} assignedCount={assignedPersons.length} reqCount={requirements.length} tags={tags} />}
+        <Tabs value={tab} onValueChange={(v) => setTab(v as Tab)}>
+          <TabsList className="mb-5 max-w-full overflow-x-auto justify-start [scrollbar-width:none]">
+            {TABS.map((t) => (
+              <TabsTrigger key={t} value={t}>
+                {TAB_LABELS[t]}{t === "skills" ? ` (${requirements.length})` : t === "persons" ? ` (${assignedPersons.length})` : ""}
+              </TabsTrigger>
+            ))}
+          </TabsList>
+        </Tabs>
+
         {tab === "skills" && <PositionSkillsTab position={position} requirements={requirements} availableSkills={availableSkills} />}
         {tab === "persons" && <PositionPersonsTab persons={assignedPersons} requirements={requirements} />}
-        {tab === "gap-analysis" && <PositionGapAnalysisTab persons={assignedPersons} requirements={requirements} />}
-        {tab === "assessments" && <PositionAssessmentsTab positionTitle={position.title} />}
         {tab === "notes" && <PositionNotesTab entityId={position.id} activityLogs={activityLogs} />}
       </PageContainer>
 

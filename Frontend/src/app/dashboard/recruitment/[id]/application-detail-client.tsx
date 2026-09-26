@@ -45,6 +45,8 @@ import {
 } from "@/components/ui/dialog";
 import ScoreCard from "@/components/recruitment/score-card";
 import StatusTimeline from "@/components/recruitment/status-timeline";
+import PipelineStepper from "./_components/pipeline-stepper";
+import { toneFor } from "@/lib/ui/tones";
 import OverrideScoreDialog from "@/components/recruitment/override-score-dialog";
 import OfferActions from "@/components/recruitment/offer-actions";
 import NotesPanel from "@/components/crm/notes-panel";
@@ -62,31 +64,31 @@ function InsightTimelineItem({ text, type, isLast }: InsightTimelineItemProps) {
     const configs = {
         highlight: {
             icon: Sparkles,
-            iconColor: "text-[#F59E0B]",
-            bg: "bg-[#151D2E]",
-            border: "border-[#F59E0B]/50 hover:border-[#F59E0B]",
-            line: "bg-gradient-to-b from-[#F59E0B]/50",
+            iconColor: "text-warning",
+            bg: "bg-muted",
+            border: "border-warning/50 hover:border-warning",
+            line: "bg-gradient-to-b from-warning/50",
         },
         strength: {
             icon: CheckCircle2,
-            iconColor: "text-[#22C55E]",
-            bg: "bg-[#151D2E]",
-            border: "border-[#22C55E]/50 hover:border-[#22C55E]",
-            line: "bg-gradient-to-b from-[#22C55E]/50",
+            iconColor: "text-success",
+            bg: "bg-muted",
+            border: "border-success/50 hover:border-success",
+            line: "bg-gradient-to-b from-success/50",
         },
         missing: {
             icon: AlertCircle,
-            iconColor: "text-[#F97316]",
-            bg: "bg-[#151D2E]",
-            border: "border-[#F97316]/50 hover:border-[#F97316]",
-            line: "bg-gradient-to-b from-[#F97316]/50",
+            iconColor: "text-warning",
+            bg: "bg-muted",
+            border: "border-warning/50 hover:border-warning",
+            line: "bg-gradient-to-b from-warning/50",
         },
         weakness: {
             icon: XCircle,
-            iconColor: "text-[#EF4444]",
-            bg: "bg-[#151D2E]",
-            border: "border-[#EF4444]/50 hover:border-[#EF4444]",
-            line: "bg-gradient-to-b from-[#EF4444]/50",
+            iconColor: "text-danger",
+            bg: "bg-muted",
+            border: "border-danger/50 hover:border-danger",
+            line: "bg-gradient-to-b from-danger/50",
         },
     };
     const c = configs[type];
@@ -105,7 +107,7 @@ function InsightTimelineItem({ text, type, isLast }: InsightTimelineItemProps) {
                 <Icon className={`w-3.5 h-3.5 ${c.iconColor}`} />
             </div>
             <div className="pt-1 flex-1 pb-6">
-                <p className="text-[14px] text-[#C8D0E0] leading-relaxed group-hover:text-white transition-colors">
+                <p className="text-[14px] text-foreground leading-relaxed group-hover:text-foreground transition-colors">
                     {text}
                 </p>
             </div>
@@ -115,18 +117,18 @@ function InsightTimelineItem({ text, type, isLast }: InsightTimelineItemProps) {
 
 const PIPELINE_STATUS_CONFIG: Record<string, { label: string; color: string }> =
     {
-        NEW: { label: "New", color: "#3B82F6" },
-        SCREENED: { label: "Screened", color: "#8B5CF6" },
-        SHORTLISTED: { label: "Pass", color: "#22C55E" },
-        INTERVIEW_SCHEDULED: { label: "Interview Scheduled", color: "#F59E0B" },
-        INTERVIEWED: { label: "Interviewed", color: "#F97316" },
-        PASSED: { label: "Passed", color: "#22C55E" },
-        FAILED: { label: "Failed", color: "#EF4444" },
-        REJECTED: { label: "Fail", color: "#EF4444" },
-        OFFERED: { label: "Offered", color: "#06B6D4" },
-        ACCEPTED: { label: "Accepted", color: "#10B981" },
-        OFFER_REJECTED: { label: "Offer Rejected", color: "#EF4444" },
-        ONBOARDED: { label: "Onboarded", color: "#22C55E" },
+        NEW: { label: "New", color: "var(--primary)" },
+        SCREENED: { label: "Screened", color: "var(--ai)" },
+        SHORTLISTED: { label: "Pass", color: "var(--success)" },
+        INTERVIEW_SCHEDULED: { label: "Interview Scheduled", color: "var(--warning)" },
+        INTERVIEWED: { label: "Interviewed", color: "var(--warning)" },
+        PASSED: { label: "Passed", color: "var(--success)" },
+        FAILED: { label: "Failed", color: "var(--danger)" },
+        REJECTED: { label: "Fail", color: "var(--danger)" },
+        OFFERED: { label: "Offered", color: "var(--primary)" },
+        ACCEPTED: { label: "Accepted", color: "var(--success)" },
+        OFFER_REJECTED: { label: "Offer Rejected", color: "var(--danger)" },
+        ONBOARDED: { label: "Onboarded", color: "var(--success)" },
     };
 
 interface ApplicationData {
@@ -194,12 +196,12 @@ interface Props {
 function Skeleton() {
     return (
         <div className="space-y-6 animate-pulse">
-            <div className="h-16 bg-[#222C4A] rounded-xl" />
+            <div className="h-16 bg-accent rounded-xl" />
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="h-48 bg-[#222C4A] rounded-xl" />
-                <div className="h-48 bg-[#222C4A] rounded-xl" />
+                <div className="h-48 bg-accent rounded-xl" />
+                <div className="h-48 bg-accent rounded-xl" />
             </div>
-            <div className="h-32 bg-[#222C4A] rounded-xl" />
+            <div className="h-32 bg-accent rounded-xl" />
         </div>
     );
 }
@@ -413,10 +415,10 @@ export default function ApplicationDetailClient({ id, userRole }: Props) {
     if (error) {
         return (
             <div className="flex flex-col items-center py-20 gap-4">
-                <p className="text-[#EF4444] text-sm">{error}</p>
+                <p className="text-danger text-sm">{error}</p>
                 <button
                     onClick={() => fetchData()}
-                    className="px-4 py-2 rounded-lg bg-[#7C8FFF]/15 text-[#7C8FFF] text-sm hover:bg-[#7C8FFF]/25 transition-colors"
+                    className="px-4 py-2 rounded-lg bg-primary/15 text-primary text-sm hover:bg-primary/25 transition-colors"
                 >
                     Retry
                 </button>
@@ -448,23 +450,26 @@ export default function ApplicationDetailClient({ id, userRole }: Props) {
     return (
         <div className="space-y-6 pb-12">
             {/* Unified Candidate Profile Header */}
-            <div className="glass-card p-6 flex flex-col gap-6 relative overflow-hidden">
-                {/* Glow effect */}
-                <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-[#7C8FFF]/10 via-transparent to-transparent pointer-events-none" />
+            <div className="rounded-2xl border border-border bg-card p-6 flex flex-col gap-6 relative overflow-hidden shadow-[0_2px_14px_color-mix(in_srgb,var(--primary)_8%,transparent)]">
+                <span aria-hidden className="absolute inset-x-0 top-0 h-1.5" style={{ background: `linear-gradient(90deg, ${toneFor(person.fullName).mark}, color-mix(in srgb, ${toneFor(person.fullName).mark} 25%, var(--card)))` }} />
 
                 {/* Top row: Basics + Actions */}
                 <div className="flex flex-col xl:flex-row xl:items-start justify-between gap-6 relative z-10">
                     <div className="flex items-start gap-4">
                         <button
                             onClick={() => router.back()}
-                            className="mt-1 p-2 rounded-xl text-[#8B99B0] bg-[#1A233A]/80 hover:text-[#ECF0F7] hover:bg-[#222C4A] transition-all shrink-0 border border-[#8B99B0]/20 hover:border-[#8B99B0]/50 hover:shadow-[0_0_15px_rgba(124,143,255,0.15)]"
+                            className="mt-1 p-2 rounded-xl text-muted-foreground bg-card/80 hover:text-foreground hover:bg-accent transition-all shrink-0 border border-muted-foreground/20 hover:border-muted-foreground/50 hover:shadow-[0_0_15px_color-mix(in_srgb,var(--primary)_15%,transparent)]"
                             aria-label="Go back"
                         >
                             <ArrowLeft className="w-5 h-5" />
                         </button>
+                        <span className="w-14 h-14 shrink-0 rounded-2xl grid place-items-center text-xl font-black"
+                              style={{ color: toneFor(person.fullName).ink, backgroundColor: toneFor(person.fullName).bg }}>
+                            {person.fullName.trim().split(/\s+/).map((w) => w[0]).slice(-2).join("").toUpperCase()}
+                        </span>
                         <div className="flex flex-col gap-1.5 mt-0.5">
                             <div className="flex items-center gap-4">
-                                <h1 className="text-2xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-white to-[#C8D0E0] tracking-tight">
+                                <h1 className="font-display text-2xl md:text-3xl font-black leading-tight tracking-tight text-foreground">
                                     {person.fullName}
                                 </h1>
 
@@ -472,7 +477,7 @@ export default function ApplicationDetailClient({ id, userRole }: Props) {
                                 {(isPassed ||
                                     isFailed ||
                                     pipelineStatus === "SCREENED") && (
-                                    <div className="flex items-center bg-[#121A2F]/80 rounded-full border border-white/5 p-1 h-9 shadow-[inset_0_2px_10px_rgba(0,0,0,0.3)]">
+                                    <div className="flex items-center bg-background/80 rounded-full border border-border p-1 h-9 shadow-[inset_0_2px_10px_rgba(0,0,0,0.3)]">
                                         <button
                                             onClick={() =>
                                                 !isPassed &&
@@ -487,8 +492,8 @@ export default function ApplicationDetailClient({ id, userRole }: Props) {
                                             }
                                             className={`relative w-[70px] h-full rounded-full text-[13px] font-bold transition-all duration-300 flex items-center justify-center ${
                                                 isPassed
-                                                    ? "bg-[#22C55E] text-white shadow-[0_0_15px_rgba(34,197,94,0.4)]"
-                                                    : "text-[#5A6882] hover:text-[#C8D0E0] bg-transparent"
+                                                    ? "bg-success text-white shadow-[0_0_15px_color-mix(in_srgb,var(--success)_40%,transparent)]"
+                                                    : "text-muted-foreground hover:text-foreground bg-transparent"
                                             }`}
                                         >
                                             Pass
@@ -505,8 +510,8 @@ export default function ApplicationDetailClient({ id, userRole }: Props) {
                                             }
                                             className={`relative w-[70px] h-full rounded-full text-[13px] font-bold transition-all duration-300 flex items-center justify-center ${
                                                 isFailed
-                                                    ? "bg-[#F43F5E] text-white shadow-[0_0_15px_rgba(244,63,94,0.4)]"
-                                                    : "text-[#5A6882] hover:text-[#C8D0E0] bg-transparent"
+                                                    ? "bg-danger text-white shadow-[0_0_15px_color-mix(in_srgb,var(--danger)_40%,transparent)]"
+                                                    : "text-muted-foreground hover:text-foreground bg-transparent"
                                             }`}
                                         >
                                             Fail
@@ -515,15 +520,15 @@ export default function ApplicationDetailClient({ id, userRole }: Props) {
                                 )}
                             </div>
                             <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-[13px]">
-                                <span className="flex items-center gap-1.5 text-[#8B99B0] font-medium">
+                                <span className="flex items-center gap-1.5 text-muted-foreground font-medium">
                                     <Mail className="w-3.5 h-3.5" />
                                     {person.email}
                                 </span>
                                 {jobDescription && (
-                                    <span className="flex items-center gap-1.5 text-[#10B981] font-bold bg-gradient-to-r from-[#10B981]/10 to-[#10B981]/5 px-3 py-1 rounded-full border border-[#10B981]/30 shadow-[0_0_10px_rgba(16,185,129,0.1)]">
+                                    <span className="flex items-center gap-1.5 text-success font-bold bg-gradient-to-r from-success/10 to-success/5 px-3 py-1 rounded-full border border-success/30 shadow-[0_0_10px_color-mix(in_srgb,var(--success)_10%,transparent)]">
                                         <Award className="w-4 h-4" />
                                         Ứng tuyển:{" "}
-                                        <span className="text-[#ECF0F7]">
+                                        <span className="text-foreground">
                                             {jobDescription.title}
                                         </span>
                                         {jobDescription.department
@@ -539,7 +544,7 @@ export default function ApplicationDetailClient({ id, userRole }: Props) {
                             <button
                                 onClick={handleCvPreview}
                                 disabled={cvLoading}
-                                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm bg-[#222C4A] border border-[#8B99B0]/10 text-[#8B99B0] hover:text-[#ECF0F7] hover:border-[#8B99B0]/30 transition-colors disabled:opacity-50"
+                                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm bg-accent border border-muted-foreground/10 text-muted-foreground hover:text-foreground hover:border-muted-foreground/30 transition-colors disabled:opacity-50"
                             >
                                 {cvLoading ? (
                                     <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -560,8 +565,8 @@ export default function ApplicationDetailClient({ id, userRole }: Props) {
                                 }
                                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
                                     pipelineStatus !== "SHORTLISTED"
-                                        ? "bg-[#8B99B0]/10 border border-[#8B99B0]/20 text-[#5A6882] cursor-not-allowed opacity-50"
-                                        : "bg-[#F59E0B]/15 border border-[#F59E0B]/30 text-[#F59E0B] hover:bg-[#F59E0B]/25 hover:border-[#F59E0B]/50 cursor-pointer shadow-[0_0_15px_rgba(245,158,11,0.05)]"
+                                        ? "bg-muted-foreground/10 border border-muted-foreground/20 text-muted-foreground cursor-not-allowed opacity-50"
+                                        : "bg-warning/15 border border-warning/30 text-warning hover:bg-warning/25 hover:border-warning/50 cursor-pointer shadow-[0_0_15px_color-mix(in_srgb,var(--warning)_5%,transparent)]"
                                 }`}
                             >
                                 <Calendar className="w-3.5 h-3.5" />
@@ -579,16 +584,16 @@ export default function ApplicationDetailClient({ id, userRole }: Props) {
                         )}
 
                         <DropdownMenu>
-                            <DropdownMenuTrigger className="p-2 rounded-lg text-[#8B99B0] bg-[#222C4A]/50 hover:text-[#ECF0F7] hover:bg-[#222C4A] border border-[#8B99B0]/10 transition-colors flex items-center justify-center cursor-pointer">
+                            <DropdownMenuTrigger className="p-2 rounded-lg text-muted-foreground bg-accent/50 hover:text-foreground hover:bg-accent border border-muted-foreground/10 transition-colors flex items-center justify-center cursor-pointer">
                                 <MoreVertical className="w-4 h-4" />
                             </DropdownMenuTrigger>
                             <DropdownMenuContent
                                 align="end"
-                                className="w-48 bg-[#121A2F] border-[#1E2840] shadow-xl"
+                                className="w-48 bg-background border-muted shadow-xl"
                             >
                                 <DropdownMenuItem
                                     onClick={() => setIsHistoryOpen(true)}
-                                    className="text-[#C8D0E0] hover:text-white hover:bg-[#1E2840]/80 cursor-pointer focus:bg-[#1E2840]/80 focus:text-white"
+                                    className="text-foreground hover:text-foreground hover:bg-muted/80 cursor-pointer focus:bg-muted/80 focus:text-foreground"
                                 >
                                     <History className="w-4 h-4 mr-2" />
                                     Lịch sử phiên bản
@@ -600,10 +605,10 @@ export default function ApplicationDetailClient({ id, userRole }: Props) {
                             open={isHistoryOpen}
                             onOpenChange={setIsHistoryOpen}
                         >
-                            <DialogContent className="max-w-xl bg-gradient-to-b from-[#121A2F] to-[#0A0F1A] border-[#1E2840] shadow-2xl p-0 overflow-hidden">
-                                <DialogHeader className="p-5 pb-3 border-b border-white/5 relative bg-[#1E2840]/30">
-                                    <DialogTitle className="text-lg font-bold text-[#ECF0F7] flex items-center gap-2">
-                                        <History className="w-5 h-5 text-[#8B99B0]" />{" "}
+                            <DialogContent className="max-w-xl bg-gradient-to-b from-background to-background border-muted shadow-2xl p-0 overflow-hidden">
+                                <DialogHeader className="p-5 pb-3 border-b border-border relative bg-muted/30">
+                                    <DialogTitle className="text-lg font-bold text-foreground flex items-center gap-2">
+                                        <History className="w-5 h-5 text-muted-foreground" />{" "}
                                         Lịch sử trạng thái CV
                                     </DialogTitle>
                                 </DialogHeader>
@@ -615,19 +620,23 @@ export default function ApplicationDetailClient({ id, userRole }: Props) {
                     </div>
                 </div>
 
+                <div className="relative z-10 border-t border-border pt-5">
+                    <PipelineStepper status={pipelineStatus} />
+                </div>
+
                 {/* Extracted Info Grid (Prioritized: Experience & Education) */}
                 {screening?.parsedCvJson &&
                     Object.keys(screening.parsedCvJson).length > 0 && (
-                        <div className="flex flex-col gap-5 relative z-10 pt-4 border-t border-[#8B99B0]/10">
+                        <div className="flex flex-col gap-5 relative z-10 pt-4 border-t border-muted-foreground/10">
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
                                 {screening.parsedCvJson
                                     .total_years_experience != null && (
-                                    <div className="bg-gradient-to-br from-[#1E2840]/60 to-[#121A2F]/60 backdrop-blur-md rounded-2xl p-4 border border-white/5 hover:border-[#7C8FFF]/30 transition-colors shadow-[0_4px_20px_rgba(0,0,0,0.2)]">
-                                        <p className="text-[11px] font-bold uppercase tracking-widest text-[#7C8FFF] mb-2 flex items-center gap-1.5">
+                                    <div className="bg-gradient-to-br from-muted/60 to-background/60 backdrop-blur-md rounded-2xl p-4 border border-border hover:border-muted/30 transition-colors shadow-[0_4px_20px_rgba(0,0,0,0.2)]">
+                                        <p className="text-[11px] font-bold uppercase tracking-widest text-primary mb-2 flex items-center gap-1.5">
                                             <Clock className="w-3.5 h-3.5" />{" "}
                                             Kinh nghiệm
                                         </p>
-                                        <p className="text-xl font-black text-transparent bg-clip-text bg-gradient-to-r from-white to-[#C8D0E0]">
+                                        <p className="text-xl font-black text-transparent bg-clip-text bg-gradient-to-r from-white to-foreground">
                                             {String(
                                                 screening.parsedCvJson
                                                     .total_years_experience,
@@ -642,12 +651,12 @@ export default function ApplicationDetailClient({ id, userRole }: Props) {
                                 ) &&
                                     screening.parsedCvJson.education.length >
                                         0 && (
-                                        <div className="bg-gradient-to-br from-[#1E2840]/60 to-[#121A2F]/60 backdrop-blur-md rounded-2xl p-4 border border-white/5 hover:border-[#7C8FFF]/30 transition-colors shadow-[0_4px_20px_rgba(0,0,0,0.2)]">
-                                            <p className="text-[11px] font-bold uppercase tracking-widest text-[#A855F7] mb-2 flex items-center gap-1.5">
+                                        <div className="bg-gradient-to-br from-muted/60 to-background/60 backdrop-blur-md rounded-2xl p-4 border border-border hover:border-muted/30 transition-colors shadow-[0_4px_20px_rgba(0,0,0,0.2)]">
+                                            <p className="text-[11px] font-bold uppercase tracking-widest text-ai mb-2 flex items-center gap-1.5">
                                                 <GraduationCap className="w-3.5 h-3.5" />{" "}
                                                 Học vấn nổi bật
                                             </p>
-                                            <p className="text-[14px] font-bold text-[#ECF0F7] truncate leading-tight">
+                                            <p className="text-[14px] font-bold text-foreground truncate leading-tight">
                                                 {
                                                     (
                                                         screening.parsedCvJson
@@ -666,9 +675,9 @@ export default function ApplicationDetailClient({ id, userRole }: Props) {
                                                 >
                                             ).school && (
                                                 <div className="flex items-center gap-1.5 mt-2.5">
-                                                    <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-white/5 border border-white/10 shadow-sm w-fit max-w-full">
-                                                        <Building className="w-3 h-3 text-[#8B99B0] shrink-0" />
-                                                        <span className="text-[11.5px] font-medium text-[#C8D0E0] truncate">
+                                                    <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-muted border border-border shadow-sm w-fit max-w-full">
+                                                        <Building className="w-3 h-3 text-muted-foreground shrink-0" />
+                                                        <span className="text-[11.5px] font-medium text-foreground truncate">
                                                             {
                                                                 (
                                                                     screening
@@ -686,11 +695,11 @@ export default function ApplicationDetailClient({ id, userRole }: Props) {
                                         </div>
                                     )}
                                 {/* Permanent Contact Info (Phone & Location) taking up the 4th column to prevent empty holes */}
-                                <div className="bg-gradient-to-br from-[#1E2840]/60 to-[#121A2F]/60 backdrop-blur-md rounded-2xl p-4 border border-white/5 hover:border-[#7C8FFF]/30 transition-colors shadow-[0_4px_20px_rgba(0,0,0,0.2)]">
-                                    <p className="text-[11px] font-bold uppercase tracking-widest text-[#F59E0B] mb-2 flex items-center gap-1.5">
+                                <div className="bg-gradient-to-br from-muted/60 to-background/60 backdrop-blur-md rounded-2xl p-4 border border-border hover:border-muted/30 transition-colors shadow-[0_4px_20px_rgba(0,0,0,0.2)]">
+                                    <p className="text-[11px] font-bold uppercase tracking-widest text-warning mb-2 flex items-center gap-1.5">
                                         <User className="w-3.5 h-3.5" /> Cá nhân
                                     </p>
-                                    <p className="text-[14px] font-bold text-[#ECF0F7] truncate leading-tight">
+                                    <p className="text-[14px] font-bold text-foreground truncate leading-tight">
                                         {(person as Record<string, string>)
                                             .phone ||
                                             (screening.parsedCvJson.phone
@@ -701,9 +710,9 @@ export default function ApplicationDetailClient({ id, userRole }: Props) {
                                                 : "Không có SĐT")}
                                     </p>
                                     <div className="flex items-center gap-1.5 mt-2.5">
-                                        <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-white/5 border border-white/10 shadow-sm w-fit max-w-full">
-                                            <Globe className="w-3 h-3 text-[#8B99B0] shrink-0" />
-                                            <span className="text-[11.5px] font-medium text-[#C8D0E0] truncate">
+                                        <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-muted border border-border shadow-sm w-fit max-w-full">
+                                            <Globe className="w-3 h-3 text-muted-foreground shrink-0" />
+                                            <span className="text-[11.5px] font-medium text-foreground truncate">
                                                 {screening.parsedCvJson.location
                                                     ? String(
                                                           screening.parsedCvJson
@@ -719,12 +728,12 @@ export default function ApplicationDetailClient({ id, userRole }: Props) {
                                     Boolean(
                                         screening.parsedCvJson.current_title,
                                     ) && (
-                                        <div className="bg-gradient-to-br from-[#1E2840]/60 to-[#121A2F]/60 backdrop-blur-md rounded-2xl p-4 border border-white/5 hover:border-[#7C8FFF]/30 transition-colors shadow-[0_4px_20px_rgba(0,0,0,0.2)] animate-in fade-in slide-in-from-top-2 duration-300">
-                                            <p className="text-[11px] font-bold uppercase tracking-widest text-[#10B981] mb-2 flex items-center gap-1.5">
+                                        <div className="bg-gradient-to-br from-muted/60 to-background/60 backdrop-blur-md rounded-2xl p-4 border border-border hover:border-muted/30 transition-colors shadow-[0_4px_20px_rgba(0,0,0,0.2)] animate-in fade-in slide-in-from-top-2 duration-300">
+                                            <p className="text-[11px] font-bold uppercase tracking-widest text-success mb-2 flex items-center gap-1.5">
                                                 <Briefcase className="w-3.5 h-3.5" />{" "}
                                                 Công việc gần nhất
                                             </p>
-                                            <p className="text-[14px] font-bold text-[#ECF0F7] truncate leading-tight">
+                                            <p className="text-[14px] font-bold text-foreground truncate leading-tight">
                                                 {String(
                                                     screening.parsedCvJson
                                                         .current_title,
@@ -735,9 +744,9 @@ export default function ApplicationDetailClient({ id, userRole }: Props) {
                                                     .current_company,
                                             ) && (
                                                 <div className="flex items-center gap-1.5 mt-2.5">
-                                                    <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-white/5 border border-white/10 shadow-sm w-fit max-w-full">
-                                                        <Building2 className="w-3 h-3 text-[#8B99B0] shrink-0" />
-                                                        <span className="text-[11.5px] font-medium text-[#C8D0E0] truncate">
+                                                    <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-muted border border-border shadow-sm w-fit max-w-full">
+                                                        <Building2 className="w-3 h-3 text-muted-foreground shrink-0" />
+                                                        <span className="text-[11.5px] font-medium text-foreground truncate">
                                                             {String(
                                                                 screening
                                                                     .parsedCvJson
@@ -756,7 +765,7 @@ export default function ApplicationDetailClient({ id, userRole }: Props) {
                                 Array.isArray(screening.parsedCvJson.skills) &&
                                 screening.parsedCvJson.skills.length > 0 && (
                                     <div className="flex flex-col gap-2 mt-2 animate-in fade-in slide-in-from-bottom-2 duration-300">
-                                        <p className="text-[11px] font-bold uppercase tracking-widest text-[#F97316] flex items-center gap-1.5 ml-1">
+                                        <p className="text-[11px] font-bold uppercase tracking-widest text-warning flex items-center gap-1.5 ml-1">
                                             <Sparkles className="w-3.5 h-3.5" />{" "}
                                             Bộ kỹ năng
                                         </p>
@@ -767,7 +776,7 @@ export default function ApplicationDetailClient({ id, userRole }: Props) {
                                             ).map((skill, i) => (
                                                 <span
                                                     key={i}
-                                                    className="px-3 py-1.5 rounded-xl bg-gradient-to-r from-[#7C8FFF]/10 to-[#A855F7]/10 border border-[#7C8FFF]/30 text-[#ECF0F7] text-[12px] font-medium shadow-[0_0_10px_rgba(124,143,255,0.05)] hover:border-[#A855F7]/60 hover:shadow-[0_0_15px_rgba(168,85,247,0.2)] transition-all cursor-default"
+                                                    className="px-3 py-1.5 rounded-xl bg-gradient-to-r from-primary/10 to-ai/10 border border-primary/30 text-foreground text-[12px] font-medium shadow-[0_0_10px_color-mix(in_srgb,var(--primary)_5%,transparent)] hover:border-ai/60 hover:shadow-[0_0_15px_color-mix(in_srgb,var(--ai)_20%,transparent)] transition-all cursor-default"
                                                 >
                                                     {String(skill)}
                                                 </span>
@@ -782,7 +791,7 @@ export default function ApplicationDetailClient({ id, userRole }: Props) {
                                         0)) && (
                                 <div className="relative flex items-center justify-center mt-4">
                                     <div className="absolute inset-0 flex items-center">
-                                        <div className="w-full border-t border-[#8B99B0]/20 border-dashed"></div>
+                                        <div className="w-full border-t border-muted-foreground/20 border-dashed"></div>
                                     </div>
                                     <button
                                         onClick={() =>
@@ -790,7 +799,7 @@ export default function ApplicationDetailClient({ id, userRole }: Props) {
                                                 !isHeaderExpanded,
                                             )
                                         }
-                                        className="relative flex items-center gap-2 px-5 py-1.5 rounded-full bg-[#1A233A] hover:bg-[#222C4A] text-[#8B99B0] hover:text-[#7C8FFF] text-[12px] font-bold tracking-wide transition-all border border-[#8B99B0]/30 hover:border-[#7C8FFF]/50 shadow-[0_0_15px_rgba(0,0,0,0.5)]"
+                                        className="relative flex items-center gap-2 px-5 py-1.5 rounded-full bg-card hover:bg-accent text-muted-foreground hover:text-muted text-[12px] font-bold tracking-wide transition-all border border-muted-foreground/30 hover:border-primary/50 shadow-[0_0_15px_rgba(0,0,0,0.5)]"
                                     >
                                         {isHeaderExpanded ? (
                                             <>
@@ -845,20 +854,20 @@ export default function ApplicationDetailClient({ id, userRole }: Props) {
                         (screening.weaknessesJson?.length ?? 0) > 0) && (
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-2">
                             {/* PROS COLUMN */}
-                            <div className="relative overflow-hidden rounded-3xl bg-[#121A2F]/60 border border-[#22C55E]/10 p-6 sm:p-8 flex flex-col h-full shadow-[inset_0_1px_1px_rgba(255,255,255,0.05)]">
+                            <div className="relative overflow-hidden rounded-3xl bg-background/60 border border-success/10 p-6 sm:p-8 flex flex-col h-full shadow-[inset_0_1px_1px_rgba(255,255,255,0.05)]">
                                 {/* Ambient glow */}
-                                <div className="absolute top-0 left-0 right-0 h-64 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-[#22C55E]/10 via-transparent to-transparent pointer-events-none" />
+                                <div className="absolute top-0 left-0 right-0 h-64 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-success/10 via-transparent to-transparent pointer-events-none" />
 
                                 <div className="flex flex-col gap-8 relative z-10">
                                     <div className="flex items-center gap-4">
-                                        <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#22C55E]/20 to-[#10B981]/10 border border-[#22C55E]/30 flex items-center justify-center shrink-0 shadow-[0_0_25px_rgba(34,197,94,0.15)] backdrop-blur-xl">
-                                            <Sparkles className="w-6 h-6 text-[#22C55E]" />
+                                        <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-success/20 to-success/10 border border-success/30 flex items-center justify-center shrink-0 shadow-[0_0_25px_color-mix(in_srgb,var(--success)_15%,transparent)] backdrop-blur-xl">
+                                            <Sparkles className="w-6 h-6 text-success" />
                                         </div>
                                         <div>
-                                            <h3 className="text-lg font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-[#22C55E] to-[#10B981] uppercase tracking-widest drop-shadow-sm">
+                                            <h3 className="text-lg font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-success to-success uppercase tracking-widest drop-shadow-sm">
                                                 Sự Phù Hợp & Thế Mạnh
                                             </h3>
-                                            <p className="text-[13px] text-[#8B99B0] mt-1">
+                                            <p className="text-[13px] text-muted-foreground mt-1">
                                                 Những điểm sáng nổi bật nhất từ
                                                 ứng viên
                                             </p>
@@ -899,20 +908,20 @@ export default function ApplicationDetailClient({ id, userRole }: Props) {
                             </div>
 
                             {/* CONS COLUMN */}
-                            <div className="relative overflow-hidden rounded-3xl bg-[#121A2F]/60 border border-[#EF4444]/10 p-6 sm:p-8 flex flex-col h-full shadow-[inset_0_1px_1px_rgba(255,255,255,0.05)]">
+                            <div className="relative overflow-hidden rounded-3xl bg-background/60 border border-danger/10 p-6 sm:p-8 flex flex-col h-full shadow-[inset_0_1px_1px_rgba(255,255,255,0.05)]">
                                 {/* Ambient glow */}
-                                <div className="absolute top-0 left-0 right-0 h-64 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-[#EF4444]/10 via-transparent to-transparent pointer-events-none" />
+                                <div className="absolute top-0 left-0 right-0 h-64 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-danger/10 via-transparent to-transparent pointer-events-none" />
 
                                 <div className="flex flex-col gap-8 relative z-10">
                                     <div className="flex items-center gap-4">
-                                        <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#EF4444]/20 to-[#F97316]/10 border border-[#EF4444]/30 flex items-center justify-center shrink-0 shadow-[0_0_25px_rgba(239,68,68,0.15)] backdrop-blur-xl">
-                                            <AlertTriangle className="w-6 h-6 text-[#EF4444]" />
+                                        <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-danger/20 to-warning/10 border border-danger/30 flex items-center justify-center shrink-0 shadow-[0_0_25px_color-mix(in_srgb,var(--danger)_15%,transparent)] backdrop-blur-xl">
+                                            <AlertTriangle className="w-6 h-6 text-danger" />
                                         </div>
                                         <div>
-                                            <h3 className="text-lg font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-[#EF4444] to-[#F97316] uppercase tracking-widest drop-shadow-sm">
+                                            <h3 className="text-lg font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-danger to-warning uppercase tracking-widest drop-shadow-sm">
                                                 Hạn Chế & Rủi Ro
                                             </h3>
-                                            <p className="text-[13px] text-[#8B99B0] mt-1">
+                                            <p className="text-[13px] text-muted-foreground mt-1">
                                                 Yêu cầu còn thiếu cần cân nhắc
                                             </p>
                                         </div>
@@ -958,25 +967,25 @@ export default function ApplicationDetailClient({ id, userRole }: Props) {
                     {cv?.parseStatus === "PENDING" ||
                     cv?.parseStatus === "PROCESSING" ? (
                         <div className="flex flex-col items-center gap-3 py-4 text-center">
-                            <Loader2 className="w-8 h-8 text-[#7C8FFF] animate-spin" />
-                            <p className="text-sm font-medium text-[#C8D0E0]">
+                            <Loader2 className="w-8 h-8 text-primary animate-spin" />
+                            <p className="text-sm font-medium text-foreground">
                                 Đang chạy CV Analysis...
                             </p>
-                            <p className="text-xs text-[#5A6882]">
+                            <p className="text-xs text-muted-foreground">
                                 Hệ thống đang phân tích CV bằng AI. Trang sẽ tự
                                 động cập nhật khi hoàn tất.
                             </p>
                         </div>
                     ) : cv?.parseStatus === "FAILED" ? (
                         <div className="flex flex-col items-center gap-3 py-4 text-center">
-                            <div className="w-10 h-10 rounded-xl bg-[#EF4444]/10 border border-[#EF4444]/20 flex items-center justify-center">
-                                <AlertTriangle className="w-5 h-5 text-[#EF4444]" />
+                            <div className="w-10 h-10 rounded-xl bg-danger/10 border border-danger/20 flex items-center justify-center">
+                                <AlertTriangle className="w-5 h-5 text-danger" />
                             </div>
                             <div>
-                                <p className="text-sm font-medium text-[#C8D0E0]">
+                                <p className="text-sm font-medium text-foreground">
                                     CV Analysis thất bại
                                 </p>
-                                <p className="text-xs text-[#5A6882] mt-1">
+                                <p className="text-xs text-muted-foreground mt-1">
                                     Có lỗi xảy ra khi AI xử lý CV. Bạn có thể
                                     thử lại.
                                 </p>
@@ -984,7 +993,7 @@ export default function ApplicationDetailClient({ id, userRole }: Props) {
                             <button
                                 onClick={handleRetry}
                                 disabled={isRetrying}
-                                className="flex items-center gap-2 px-4 py-2 rounded-xl bg-[#7C8FFF]/15 hover:bg-[#7C8FFF]/25 text-[#7C8FFF] text-sm font-medium transition-colors disabled:opacity-50 cursor-pointer"
+                                className="flex items-center gap-2 px-4 py-2 rounded-xl bg-primary/15 hover:bg-primary/25 text-primary text-sm font-medium transition-colors disabled:opacity-50 cursor-pointer"
                             >
                                 <RefreshCw
                                     className={`w-3.5 h-3.5 ${isRetrying ? "animate-spin" : ""}`}
@@ -996,11 +1005,11 @@ export default function ApplicationDetailClient({ id, userRole }: Props) {
                         </div>
                     ) : (
                         <div className="flex flex-col items-center gap-3 py-4 text-center">
-                            <p className="text-sm text-[#5A6882]">
+                            <p className="text-sm text-muted-foreground">
                                 Chưa có kết quả sàng lọc.
                             </p>
                             {!jobDescription && (
-                                <p className="text-xs text-[#F59E0B]">
+                                <p className="text-xs text-warning">
                                     ⚠ Cần gán Job Description trước khi chạy CV
                                     Analysis.
                                 </p>
@@ -1014,7 +1023,7 @@ export default function ApplicationDetailClient({ id, userRole }: Props) {
                                 <button
                                     onClick={handleRetry}
                                     disabled={isRetrying || !jobDescription}
-                                    className="flex items-center gap-2 px-4 py-2 rounded-xl bg-[#7C8FFF]/15 hover:bg-[#7C8FFF]/25 text-[#7C8FFF] text-sm font-medium transition-colors disabled:opacity-50 cursor-pointer"
+                                    className="flex items-center gap-2 px-4 py-2 rounded-xl bg-primary/15 hover:bg-primary/25 text-primary text-sm font-medium transition-colors disabled:opacity-50 cursor-pointer"
                                 >
                                     <RefreshCw
                                         className={`w-3.5 h-3.5 ${isRetrying ? "animate-spin" : ""}`}
@@ -1033,15 +1042,15 @@ export default function ApplicationDetailClient({ id, userRole }: Props) {
 
             {/* Notes + Interview history tabbed panel */}
             <div className="glass-card p-5">
-                <div className="flex items-center gap-1 mb-4 bg-[#0C1422] border border-[#8B99B0]/12 rounded-lg p-1 w-fit">
+                <div className="flex items-center gap-1 mb-4 bg-background border border-muted-foreground/12 rounded-lg p-1 w-fit">
                     {(["notes", "interviews"] as const).map((t) => (
                         <button
                             key={t}
                             onClick={() => setActiveTab(t)}
                             className={`px-4 py-1.5 rounded-md text-xs font-medium transition-colors cursor-pointer ${
                                 activeTab === t
-                                    ? "bg-[#7C8FFF] text-white"
-                                    : "text-[#8B99B0] hover:text-[#ECF0F7]"
+                                    ? "bg-primary text-white"
+                                    : "text-muted-foreground hover:text-foreground"
                             }`}
                         >
                             {t === "notes" ? "Ghi chú" : "Lịch sử PV"}
@@ -1051,7 +1060,7 @@ export default function ApplicationDetailClient({ id, userRole }: Props) {
                 {activeTab === "notes" ? (
                     <NotesPanel entityType="job_application" entityId={id} />
                 ) : (
-                    <Suspense fallback={<div className="flex justify-center py-6"><Loader2 className="w-5 h-5 animate-spin text-[#7C8FFF]" /></div>}>
+                    <Suspense fallback={<div className="flex justify-center py-6"><Loader2 className="w-5 h-5 animate-spin text-primary" /></div>}>
                         <InterviewHistoryTab applicationId={id} />
                     </Suspense>
                 )}

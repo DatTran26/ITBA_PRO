@@ -44,7 +44,7 @@ export default function TemplatesTab({ canEdit }: { canEdit: boolean }) {
         return (
             <div className="space-y-3">
                 {[1, 2, 3, 4].map((i) => (
-                    <div key={i} className="h-[60px] rounded-xl bg-[#0C1422] border border-[#8B99B0]/10 animate-pulse" />
+                    <div key={i} className="h-[60px] rounded-xl bg-background border border-border/10 animate-pulse" />
                 ))}
             </div>
         );
@@ -61,31 +61,33 @@ export default function TemplatesTab({ canEdit }: { canEdit: boolean }) {
                 return (
                     <div
                         key={type}
-                        className="rounded-xl border border-[#8B99B0]/10 bg-[#0C1422] overflow-hidden"
+                        className="rounded-xl border border-border/10 bg-background overflow-hidden"
                     >
                         {/* Accordion header */}
-                        <SharedDashboardButton
-                            className="w-full flex items-center justify-between px-5 py-4 text-left hover:bg-[#1A2236]/60 transition-colors cursor-pointer"
+                        <button
+                            type="button"
+                            aria-expanded={isOpen}
+                            className="w-full flex items-center justify-between gap-4 px-5 py-4 text-left hover:bg-muted/50 transition-colors cursor-pointer"
                             onClick={() => setActiveType(isOpen ? null : type)}
                         >
                             <div>
-                                <p className="text-sm font-medium text-[#ECF0F7]">
+                                <p className="text-sm font-medium text-foreground">
                                     {TYPE_LABELS[type] ?? type}
                                 </p>
-                                <p className="text-xs text-[#5A6882] mt-0.5">
+                                <p className="text-xs text-muted-foreground mt-0.5">
                                     {typeTemplates.length} locale{typeTemplates.length !== 1 ? "s" : ""} &middot; VI / EN
                                 </p>
                             </div>
                             <ChevronDown
-                                className={`w-4 h-4 text-[#5A6882] shrink-0 transition-transform duration-200 ${
+                                className={`w-4 h-4 text-muted-foreground shrink-0 transition-transform duration-200 ${
                                     isOpen ? "rotate-180" : ""
                                 }`}
                             />
-                        </SharedDashboardButton>
+                        </button>
 
                         {/* Accordion body */}
                         {isOpen && (
-                            <div className="px-5 pb-5 border-t border-[#8B99B0]/8">
+                            <div className="px-5 pb-5 border-t border-border/8">
                                 {/* Locale switcher */}
                                 <div className="flex gap-1.5 mt-4 mb-4">
                                     {["vi", "en"].map((loc) => (
@@ -96,8 +98,8 @@ export default function TemplatesTab({ canEdit }: { canEdit: boolean }) {
                                             }
                                             className={`px-3 py-1 text-xs font-medium rounded-lg border transition-colors cursor-pointer ${
                                                 locale === loc
-                                                    ? "bg-[#5B6CF0]/15 border-[#5B6CF0]/40 text-[#8B99FF]"
-                                                    : "border-[#8B99B0]/15 text-[#5A6882] hover:text-[#8B99B0] hover:border-[#8B99B0]/30"
+                                                    ? "bg-primary/15 border-border/40 text-primary"
+                                                    : "border-border/15 text-muted-foreground hover:text-muted-foreground hover:border-border/30"
                                             }`}
                                         >
                                             {loc.toUpperCase()}
@@ -113,7 +115,7 @@ export default function TemplatesTab({ canEdit }: { canEdit: boolean }) {
                                         onSaved={fetchTemplates}
                                     />
                                 ) : (
-                                    <p className="text-sm text-[#5A6882]">
+                                    <p className="text-sm text-muted-foreground">
                                         No template found for locale &ldquo;{locale}&rdquo;
                                     </p>
                                 )}

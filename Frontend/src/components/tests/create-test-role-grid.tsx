@@ -2,7 +2,13 @@
 
 import { CheckCircle2, Briefcase, LineChart, Cpu, Compass, Code2, PenTool, ClipboardList, Smartphone, FileText, Database, Layers } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { FadeIn, StaggerContainer, StaggerItem } from "@/components/ui/motion-wrapper";
+import { cn } from "@/lib/utils";
+import { toneByName } from "@/lib/ui/tones";
+
+/** Chính = blue (primary), phụ = orange, AI tìm thêm = teal. */
+const MAIN = toneByName("blue");
+const SLIDE = toneByName("orange");
+const EXTRA = toneByName("teal");
 
 const JOB_ROLES = [
     { name: "Backend Developer", icon: Database },
@@ -34,93 +40,66 @@ interface Props {
 export default function CreateTestRoleGrid({ selectedRole, setSelectedRole, slideRoles, customSlideRoles, customRole, setCustomRole }: Props) {
     return (
         <div>
-            <FadeIn delay={0.2}>
-                <div className="flex items-center gap-3 mb-6">
-                    <div className="w-10 h-10 rounded-xl bg-[#1B253B] border border-white/5 flex items-center justify-center text-xs font-mono text-[#7C8FFF] shadow-lg">01</div>
-                    <h2 className="text-xl font-medium font-display text-white">Designate Role</h2>
-                </div>
-            </FadeIn>
-
-            <StaggerContainer className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-2">
                 {JOB_ROLES.map((role) => {
                     const isMainRole = selectedRole === role.name;
-                    const isSlideRole = slideRoles.includes(role.name);
-
-                    let btnClass = "border-white/5 bg-[#1B253B]/40 text-[#8B99B0] hover:border-[#7C8FFF]/30 hover:bg-[#1B253B]/60 hover:text-white backdrop-blur-sm";
-                    let iconClass = "text-[#5A6882] group-hover:text-[#8B99B0]";
-                    let indicator = null;
-
-                    if (isMainRole) {
-                        btnClass = "!border-red-500/50 !bg-red-500/10 !text-red-400 shadow-[0_0_20px_-5px_rgba(239,68,68,0.2)]";
-                        iconClass = "!text-red-400";
-                        indicator = (
-                            <div className="absolute -right-1 -top-1 w-3.5 h-3.5 rounded-full bg-red-500 flex items-center justify-center shadow-[0_0_10px_rgba(239,68,68,0.5)]">
-                                <CheckCircle2 className="w-2.5 h-2.5 text-white" />
-                            </div>
-                        );
-                    } else if (isSlideRole) {
-                        btnClass = "!border-yellow-500/50 !bg-yellow-500/10 !text-yellow-400 shadow-[0_0_20px_-5px_rgba(234,179,8,0.2)]";
-                        iconClass = "!text-yellow-400";
-                    }
-
+                    const isSlideRole = !isMainRole && slideRoles.includes(role.name);
+                    const tone = isMainRole ? MAIN : isSlideRole ? SLIDE : null;
                     return (
-                        <StaggerItem key={role.name}>
-                            <button
-                                onClick={() => setSelectedRole(role.name)}
-                                className={`group relative flex items-center gap-2 pl-3 pr-4 py-2.5 rounded-xl border text-sm font-medium transition-all duration-300 ${btnClass}`}
-                            >
-                                <role.icon className={`w-4 h-4 transition-colors ${iconClass}`} />
-                                {role.name}
-                                {indicator}
-                            </button>
-                        </StaggerItem>
+                        <button
+                            key={role.name}
+                            type="button"
+                            aria-pressed={isMainRole}
+                            onClick={() => setSelectedRole(role.name)}
+                            className={cn(
+                                "relative flex items-center gap-2 rounded-xl border py-2 pl-3 pr-3.5 text-sm font-semibold transition",
+                                tone ? "" : "border-border bg-card text-muted-foreground hover:border-primary/40 hover:text-foreground",
+                            )}
+                            style={tone ? { borderColor: tone.mark, backgroundColor: tone.bg, color: tone.ink } : undefined}
+                        >
+                            <role.icon className="h-4 w-4" />
+                            {role.name === "Other" ? "Khác" : role.name}
+                            {isMainRole && <CheckCircle2 className="h-3.5 w-3.5" />}
+                        </button>
                     );
                 })}
-            </StaggerContainer>
+            </div>
 
-            <FadeIn delay={0.2} className="mt-4 flex flex-wrap items-center gap-4 text-xs font-mono">
-                <div className="flex items-center gap-1.5 text-red-400">
-                    <div className="w-2 h-2 rounded-full bg-red-500" />
-                    <span>Main Role</span>
-                </div>
-                <div className="flex items-center gap-1.5 text-yellow-400">
-                    <div className="w-2 h-2 rounded-full bg-yellow-500" />
-                    <span>Slide Role</span>
-                </div>
-                <div className="flex items-center gap-1.5 text-sky-400">
-                    <div className="w-2 h-2 rounded-full bg-sky-500" />
-                    <span>Custom / Additional</span>
-                </div>
-            </FadeIn>
+            <div className="mt-4 flex flex-wrap items-center gap-4 text-[11px] text-muted-foreground">
+                {[{ t: MAIN, l: "Vai trò chính" }, { t: SLIDE, l: "Vai trò phụ (AI gợi ý)" }, { t: EXTRA, l: "Vai trò AI tìm thêm" }].map(({ t, l }) => (
+                    <span key={l} className="inline-flex items-center gap-1.5">
+                        <span className="h-2 w-2 rounded-full" style={{ backgroundColor: t.mark }} /> {l}
+                    </span>
+                ))}
+            </div>
 
-            {/* Additional Custom Roles */}
             {customSlideRoles.length > 0 && (
-                <FadeIn delay={0.3} className="mt-4">
-                    <div className="text-xs font-mono text-[#8B99B0] mb-2 uppercase tracking-wider">Additional Discovered Roles</div>
+                <div className="mt-4">
+                    <div className="mb-2 text-xs font-semibold text-muted-foreground">Vai trò AI tìm thêm từ JD</div>
                     <div className="flex flex-wrap gap-2">
                         {customSlideRoles.map((cRole, idx) => (
-                            <div
+                            <span
                                 key={idx}
-                                className="group relative flex items-center gap-2 pl-3 pr-4 py-2 rounded-xl border text-sm font-medium transition-all duration-300 border-sky-500 bg-sky-500/10 text-sky-300 shadow-[0_0_20px_-5px_rgba(14,165,233,0.3)]"
+                                className="inline-flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-sm font-semibold"
+                                style={{ backgroundColor: EXTRA.bg, color: EXTRA.ink }}
                             >
-                                <FileText className="w-3.5 h-3.5 text-sky-400" />
+                                <FileText className="h-3.5 w-3.5" />
                                 {cRole}
-                            </div>
+                            </span>
                         ))}
                     </div>
-                </FadeIn>
+                </div>
             )}
 
             {selectedRole === "Other" && (
-                <FadeIn delay={0.1} className="mt-4">
-                    <Input
-                        type="text"
-                        placeholder="E.g., Blockchain Engineer"
-                        value={customRole}
-                        onChange={(e) => setCustomRole(e.target.value)}
-                        className="bg-red-500/5 border-red-500/50 text-red-400 placeholder:text-red-400/50 h-12 rounded-xl focus-visible:ring-red-500/30 font-mono text-sm"
-                    />
-                </FadeIn>
+                <Input
+                    type="text"
+                    placeholder="VD: Blockchain Engineer"
+                    value={customRole}
+                    onChange={(e) => setCustomRole(e.target.value)}
+                    className="mt-4 h-11 rounded-xl"
+                    autoFocus
+                />
             )}
         </div>
     );

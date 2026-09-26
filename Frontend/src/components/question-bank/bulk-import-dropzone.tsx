@@ -50,7 +50,7 @@ export default function BulkImportDropzone({ onResult }: Props) {
       onDrop={handleDrop}
       onClick={() => !loading && inputRef.current?.click()}
       className={`relative flex flex-col items-center justify-center gap-4 border-2 border-dashed rounded-xl py-14 px-6 cursor-pointer transition-colors select-none
-        ${dragging ? "border-[#10B981] bg-[#10B981]/5" : "border-[#8B99B0]/20 hover:border-[#8B99B0]/40 bg-[#1E2840]/40"}`}
+        ${dragging ? "border-border bg-success/5" : "border-border/20 hover:border-border/40 bg-muted/40"}`}
     >
       <input
         ref={inputRef}
@@ -59,25 +59,25 @@ export default function BulkImportDropzone({ onResult }: Props) {
         className="hidden"
         onChange={(e) => { const f = e.target.files?.[0]; if (f) upload(f); e.target.value = ""; }}
       />
-      <div className={`w-14 h-14 rounded-2xl flex items-center justify-center ${dragging ? "bg-[#10B981]/20" : "bg-[#8B99B0]/10"}`}>
+      <div className={`w-14 h-14 rounded-2xl flex items-center justify-center ${dragging ? "bg-success/20" : "bg-muted-foreground/10"}`}>
         {loading ? (
-          <Upload className="w-7 h-7 text-[#10B981] animate-bounce" />
+          <Upload className="w-7 h-7 text-success animate-bounce" />
         ) : (
-          <FileSpreadsheet className={`w-7 h-7 ${dragging ? "text-[#10B981]" : "text-[#8B99B0]"}`} />
+          <FileSpreadsheet className={`w-7 h-7 ${dragging ? "text-success" : "text-muted-foreground"}`} />
         )}
       </div>
       <div className="text-center">
-        <p className="text-sm font-medium text-[#ECF0F7]">
+        <p className="text-sm font-medium text-foreground">
           {loading ? "Importing..." : dragging ? "Drop to import" : "Drag & drop your spreadsheet here"}
         </p>
-        <p className="text-xs text-[#5A6882] mt-1">Supports .xlsx, .xls, .csv · Max 2 MB · 500 rows</p>
+        <p className="text-xs text-muted-foreground mt-1">Supports .xlsx, .xls, .csv · Max 2 MB · 500 rows</p>
       </div>
       {!loading && (
         <Button
           type="button"
           variant="outline"
           size="sm"
-          className="border-[#8B99B0]/20 text-[#8B99B0] hover:text-[#ECF0F7] pointer-events-none"
+          className="border-border/20 text-muted-foreground hover:text-foreground pointer-events-none"
         >
           Browse Files
         </Button>

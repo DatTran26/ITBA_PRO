@@ -45,7 +45,7 @@ export default function LevelConfigSelectors({
     <>
       {/* Mode toggle */}
       <div>
-        <p className="text-xs text-[#8B99B0] font-medium mb-2 uppercase tracking-wider">Level mode</p>
+        <p className="text-xs text-muted-foreground font-medium mb-2 uppercase tracking-wider">Level mode</p>
         <div className="flex gap-2">
           {(["single", "mixed"] as const).map((m) => (
             <button
@@ -53,8 +53,8 @@ export default function LevelConfigSelectors({
               onClick={() => setMode(m)}
               className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all border ${
                 mode === m
-                  ? "bg-[#10B981]/15 border-[#10B981]/40 text-[#10B981]"
-                  : "border-[#8B99B0]/15 text-[#8B99B0] hover:text-[#ECF0F7] bg-transparent"
+                  ? "bg-success/15 border-border/40 text-success"
+                  : "border-border/15 text-muted-foreground hover:text-foreground bg-transparent"
               }`}
             >
               <Layers className="w-3.5 h-3.5" />
@@ -66,7 +66,7 @@ export default function LevelConfigSelectors({
 
       {!hideTotal && (
       <div>
-        <label className="block text-xs text-[#8B99B0] font-medium mb-2 uppercase tracking-wider">
+        <label className="block text-xs text-muted-foreground font-medium mb-2 uppercase tracking-wider">
           Total questions
         </label>
         <input
@@ -76,7 +76,7 @@ export default function LevelConfigSelectors({
           value={total}
           disabled={lockTotal}
           onChange={(e) => setTotal(parseInt(e.target.value, 10) || 1)}
-          className="w-32 h-9 px-3 text-sm rounded-lg bg-[#1E2840]/80 border border-[#8B99B0]/20 text-[#ECF0F7] focus:outline-none focus:border-[#10B981]/40 disabled:opacity-70 disabled:cursor-not-allowed"
+          className="w-32 h-9 px-3 text-sm rounded-lg bg-muted/80 border border-border/20 text-foreground focus:outline-none focus:border-border/40 disabled:opacity-70 disabled:cursor-not-allowed"
         />
       </div>
       )}
@@ -84,7 +84,7 @@ export default function LevelConfigSelectors({
       {/* Single level selector */}
       {mode === "single" && (
         <div>
-          <p className="text-xs text-[#8B99B0] font-medium mb-2 uppercase tracking-wider">Level</p>
+          <p className="text-xs text-muted-foreground font-medium mb-2 uppercase tracking-wider">Level</p>
           <div className="flex gap-2">
             {LEVEL_OPTIONS.map((opt) => (
               <button
@@ -93,7 +93,7 @@ export default function LevelConfigSelectors({
                 className={`px-4 py-2 rounded-lg text-sm font-medium transition-all border ${
                   level === opt.value
                     ? `${opt.color} border-current/30`
-                    : "border-[#8B99B0]/15 text-[#8B99B0] hover:text-[#ECF0F7]"
+                    : "border-border/15 text-muted-foreground hover:text-foreground"
                 }`}
               >
                 {opt.label}
@@ -106,7 +106,7 @@ export default function LevelConfigSelectors({
       {/* Mixed ratios */}
       {mode === "mixed" && (
         <div>
-          <p className="text-xs text-[#8B99B0] font-medium mb-2 uppercase tracking-wider">
+          <p className="text-xs text-muted-foreground font-medium mb-2 uppercase tracking-wider">
             Level ratio
           </p>
           <LevelRatio value={ratios} onChange={setRatios} />

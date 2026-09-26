@@ -44,14 +44,14 @@ export function DocumentSourceSelector({ onSuccess, skillId }: Props) {
 
   return (
     <div className="space-y-4">
-      <div className="flex w-fit gap-1 rounded-lg bg-[#1C2333]/60 p-1">
+      <div className="flex w-fit gap-1 rounded-lg bg-card/60 p-1">
         {(["upload", "library"] as Tab[]).map((item) => (
           <SharedDashboardButton
             key={item}
             onClick={() => setTab(item)}
             variant="ghost"
             className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${
-              tab === item ? "bg-[#7C8FFF]/20 text-[#7C8FFF]" : "text-[#5A6882] hover:text-[#E2E8F0]"
+              tab === item ? "bg-primary/20 text-primary" : "text-muted-foreground hover:text-primary"
             }`}
           >
             {item === "upload" ? <Upload className="h-3.5 w-3.5" /> : <Library className="h-3.5 w-3.5" />}

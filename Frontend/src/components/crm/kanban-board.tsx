@@ -23,14 +23,14 @@ export default function KanbanBoard<T extends { id: string }>({
 }: KanbanBoardProps<T>) {
   if (!columns.length) {
     return (
-      <div className="flex items-center justify-center py-16 border border-[#8B99B0]/10 rounded-lg">
-        <p className="text-sm text-[#5A6882]">{emptyMessage}</p>
+      <div className="flex items-center justify-center py-16 border border-border/10 rounded-lg">
+        <p className="text-sm text-muted-foreground">{emptyMessage}</p>
       </div>
     );
   }
 
   return (
-    <div className="flex gap-3 overflow-x-auto pb-2">
+    <div className="flex items-start gap-3 overflow-x-auto pb-2">
       {columns.map((col) => (
         <KanbanColumn key={col.key} label={col.label} color={col.color} count={col.items.length}>
           {col.items.map((item) => (

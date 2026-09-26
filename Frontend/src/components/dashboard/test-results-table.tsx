@@ -53,17 +53,17 @@ export function TestResultsTable({ results, hasManualQuestions }: TestResultsTab
     const columns: DataTableColumn<Result>[] = [
         {
             key: "candidate",
-            header: <span className="text-[10px] uppercase tracking-wider font-black text-[#5A6882]">Ứng viên</span>,
+            header: <span className="text-[10px] uppercase tracking-wider font-black text-muted-foreground">Ứng viên</span>,
             cell: (row) => (
                 <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-xl bg-[#222C4A] border border-[#8B99B0]/15 flex items-center justify-center text-sm font-bold text-[#8B99B0] font-display shrink-0">
+                    <div className="w-9 h-9 rounded-xl bg-accent border border-muted-foreground/15 flex items-center justify-center text-sm font-bold text-muted-foreground font-display shrink-0">
                         {row.candidate_name.charAt(0).toUpperCase()}
                     </div>
                     <div className="flex flex-col min-w-0">
-                        <span className="text-sm font-medium text-[#ECF0F7] font-display truncate">
+                        <span className="text-sm font-medium text-foreground font-display truncate">
                             {row.candidate_name}
                         </span>
-                        <span className="text-[11px] text-[#5A6882] truncate">
+                        <span className="text-[11px] text-muted-foreground truncate">
                             {row.candidate_email}
                         </span>
                     </div>
@@ -72,15 +72,15 @@ export function TestResultsTable({ results, hasManualQuestions }: TestResultsTab
         },
         {
             key: "submitted_at",
-            header: <span className="text-[10px] uppercase tracking-wider font-black text-[#5A6882]">Nộp bài</span>,
+            header: <span className="text-[10px] uppercase tracking-wider font-black text-muted-foreground">Nộp bài</span>,
             cell: (row) => {
                 const date = new Date(row.submitted_at);
                 return (
                     <div className="flex flex-col">
-                        <span className="text-xs text-[#ECF0F7]/90 font-medium">
+                        <span className="text-xs text-foreground/90 font-medium">
                             {formatDistanceToNow(date, { addSuffix: true, locale: vi })}
                         </span>
-                        <span className="text-[10px] text-[#5A6882] font-mono">
+                        <span className="text-[10px] text-muted-foreground font-mono">
                             {date.toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" })}
                         </span>
                     </div>
@@ -89,12 +89,12 @@ export function TestResultsTable({ results, hasManualQuestions }: TestResultsTab
         },
         {
             key: "duration",
-            header: <span className="text-[10px] uppercase tracking-wider font-black text-[#5A6882]">Thời gian</span>,
+            header: <span className="text-[10px] uppercase tracking-wider font-black text-muted-foreground">Thời gian</span>,
             cell: (row) => {
                 const mins = Math.floor(row.time_taken / 60);
                 const secs = row.time_taken % 60;
                 return (
-                    <span className="text-xs font-mono text-[#8B99B0]">
+                    <span className="text-xs font-mono text-muted-foreground">
                         {mins > 0 ? `${mins}m ${secs}s` : `${secs}s`}
                     </span>
                 );
@@ -102,7 +102,7 @@ export function TestResultsTable({ results, hasManualQuestions }: TestResultsTab
         },
         {
             key: "score",
-            header: <span className="text-[10px] uppercase tracking-wider font-black text-[#5A6882]">Điểm số</span>,
+            header: <span className="text-[10px] uppercase tracking-wider font-black text-muted-foreground">Điểm số</span>,
             cell: (row) => {
                 const pct = row.total_questions > 0 ? Math.round((row.score / row.total_questions) * 100) : 0;
                 const isPending = hasManualQuestions && row.grading_status === "pending_grading";
@@ -111,7 +111,7 @@ export function TestResultsTable({ results, hasManualQuestions }: TestResultsTab
                         <ScoreBar value={pct} max={100} showValue={false} trackWidth={50} />
                         <div className="flex flex-col">
                             <div className="flex items-baseline gap-0.5">
-                                <span className="text-sm font-bold text-[#ECF0F7] font-mono">
+                                <span className="text-sm font-bold text-foreground font-mono">
                                     {pct}%
                                 </span>
                                 {isPending && (
@@ -120,7 +120,7 @@ export function TestResultsTable({ results, hasManualQuestions }: TestResultsTab
                                     </span>
                                 )}
                             </div>
-                            <span className="text-[9px] text-[#5A6882] font-mono">
+                            <span className="text-[9px] text-muted-foreground font-mono">
                                 {row.score}/{row.total_questions} đúng
                             </span>
                         </div>
@@ -132,7 +132,7 @@ export function TestResultsTable({ results, hasManualQuestions }: TestResultsTab
             ? [
                   {
                       key: "grading_status",
-                      header: <span className="text-[10px] uppercase tracking-wider font-black text-[#5A6882]">Trạng thái chấm</span>,
+                      header: <span className="text-[10px] uppercase tracking-wider font-black text-muted-foreground">Trạng thái chấm</span>,
                       cell: (row: Result) => {
                           const status = row.grading_status || "graded";
                           return status === "pending_grading" ? (
@@ -146,9 +146,9 @@ export function TestResultsTable({ results, hasManualQuestions }: TestResultsTab
             : []),
         {
             key: "status",
-            header: <span className="text-[10px] uppercase tracking-wider font-black text-[#5A6882]">Kết quả</span>,
+            header: <span className="text-[10px] uppercase tracking-wider font-black text-muted-foreground">Kết quả</span>,
             cell: (row) => {
-                if (!row.status) return <span className="text-xs text-[#5A6882]">-</span>;
+                if (!row.status) return <span className="text-xs text-muted-foreground">-</span>;
                 return row.status === "pass" ? (
                     <StatusChip tone="success" label="ĐẠT" />
                 ) : (
@@ -161,10 +161,10 @@ export function TestResultsTable({ results, hasManualQuestions }: TestResultsTab
     return (
         <div className="space-y-6">
             {hasManualQuestions && (
-                <div className="flex items-center justify-between bg-[#111827]/20 border border-[#8B99B0]/10 p-4 rounded-2xl backdrop-blur-xl">
+                <div className="flex items-center justify-between bg-card/20 border border-muted-foreground/10 p-4 rounded-2xl backdrop-blur-xl">
                     <div className="flex items-center gap-2">
-                        <Filter className="w-4 h-4 text-[#5A6882]" />
-                        <span className="text-xs font-semibold uppercase tracking-wider text-[#8B99B0]">
+                        <Filter className="w-4 h-4 text-muted-foreground" />
+                        <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                             Bộ lọc tự luận
                         </span>
                     </div>
@@ -177,7 +177,7 @@ export function TestResultsTable({ results, hasManualQuestions }: TestResultsTab
                 </div>
             )}
 
-            <div className="bg-[#111827]/40 border border-[#8B99B0]/10 rounded-2xl overflow-hidden shadow-2xl backdrop-blur-xl">
+            <div className="bg-card/40 border border-muted-foreground/10 rounded-2xl overflow-hidden shadow-2xl backdrop-blur-xl">
                 <DataTable
                     columns={columns}
                     rows={filteredResults}
@@ -186,13 +186,13 @@ export function TestResultsTable({ results, hasManualQuestions }: TestResultsTab
                     className="border-none"
                     empty={
                         <div className="p-16 flex flex-col items-center justify-center text-center">
-                            <div className="w-12 h-12 rounded-xl bg-white/[0.02] border border-white/5 flex items-center justify-center mb-4">
-                                <User className="w-5 h-5 text-[#5A6882]" />
+                            <div className="w-12 h-12 rounded-xl bg-muted/50 border border-border flex items-center justify-center mb-4">
+                                <User className="w-5 h-5 text-muted-foreground" />
                             </div>
-                            <h3 className="text-sm font-bold text-[#ECF0F7] mb-1 font-display">
+                            <h3 className="text-sm font-bold text-foreground mb-1 font-display">
                                 Không có kết quả nào
                             </h3>
-                            <p className="text-xs text-[#5A6882]">
+                            <p className="text-xs text-muted-foreground">
                                 {filter === "all"
                                     ? "Chưa có ứng viên nào tham gia bài kiểm tra này."
                                     : "Không tìm thấy kết quả nào khớp với bộ lọc."}

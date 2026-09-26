@@ -64,24 +64,24 @@ export default function JobStatusPoller({ documentId, onDone, onFailed }: Props)
   return (
     <div className="flex flex-col items-center justify-center gap-5 py-16">
       <div className={`w-16 h-16 rounded-2xl flex items-center justify-center ${
-        isDone ? "bg-[#10B981]/20" : isFailed ? "bg-red-500/20" : "bg-[#8B99B0]/10"
+        isDone ? "bg-success/20" : isFailed ? "bg-red-500/20" : "bg-muted-foreground/10"
       }`}>
-        {isProcessing && <Loader2 className="w-8 h-8 text-[#10B981] animate-spin" />}
-        {isDone && <CheckCircle2 className="w-8 h-8 text-[#10B981]" />}
+        {isProcessing && <Loader2 className="w-8 h-8 text-success animate-spin" />}
+        {isDone && <CheckCircle2 className="w-8 h-8 text-success" />}
         {isFailed && <XCircle className="w-8 h-8 text-red-400" />}
       </div>
 
       <div className="text-center space-y-1">
         {isProcessing && (
           <>
-            <p className="text-base font-medium text-[#ECF0F7]">
+            <p className="text-base font-medium text-foreground">
               {status === "pending" ? "Queued" : "Generating questions"}{dots}
             </p>
-            <p className="text-sm text-[#5A6882]">This may take up to a minute depending on document size</p>
+            <p className="text-sm text-muted-foreground">This may take up to a minute depending on document size</p>
           </>
         )}
         {isDone && (
-          <p className="text-base font-medium text-[#10B981]">Questions ready - loading review...</p>
+          <p className="text-base font-medium text-success">Questions ready - loading review...</p>
         )}
         {isFailed && (
           <p className="text-base font-medium text-red-400">Processing failed</p>
@@ -89,7 +89,7 @@ export default function JobStatusPoller({ documentId, onDone, onFailed }: Props)
       </div>
 
       {isProcessing && (
-        <div className="flex items-center gap-2 text-xs text-[#5A6882] bg-[#1E2840]/60 border border-[#8B99B0]/10 rounded-lg px-4 py-2">
+        <div className="flex items-center gap-2 text-xs text-muted-foreground bg-muted/60 border border-border/10 rounded-lg px-4 py-2">
           <Clock className="w-3.5 h-3.5" />
           Checking every {POLL_INTERVAL_MS / 1000}s
         </div>

@@ -1,4 +1,5 @@
 "use client";
+import { alpha } from "@/lib/utils";
 
 import { X, Plus } from "lucide-react";
 import type { TagItem } from "@/app/dashboard/management-types";
@@ -15,8 +16,8 @@ export default function TagChips({ tags, onRemove, onAdd }: TagChipsProps) {
       {tags.map((tag) => (
         <span
           key={tag.id}
-          className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium border border-[#8B99B0]/10"
-          style={{ backgroundColor: `${tag.color}20`, color: tag.color }}
+          className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium border border-border/10"
+          style={{ backgroundColor: `${alpha(tag.color, 13)}`, color: tag.color }}
         >
           <span
             className="w-1.5 h-1.5 rounded-full shrink-0"
@@ -37,7 +38,7 @@ export default function TagChips({ tags, onRemove, onAdd }: TagChipsProps) {
       {onAdd && (
         <button
           onClick={onAdd}
-          className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium border border-dashed border-[#8B99B0]/30 text-[#5A6882] hover:border-[#7C8FFF] hover:text-[#7C8FFF] transition-colors"
+          className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium border border-dashed border-border/30 text-muted-foreground hover:border-border hover:text-primary transition-colors"
           aria-label="Add tag"
         >
           <Plus className="w-3 h-3" />

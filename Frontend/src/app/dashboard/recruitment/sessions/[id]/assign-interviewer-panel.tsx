@@ -80,29 +80,29 @@ export default function AssignInterviewerPanel({ sessionId, currentInterviewers 
 
   return (
     <div className="space-y-3">
-      <p className="text-xs text-[#8B99B0]">
+      <p className="text-xs text-muted-foreground">
         Chọn một hoặc nhiều interviewer. Ứng viên chỉ được thêm sau khi ít nhất một interviewer accepted.
       </p>
 
       <div className="relative">
-        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#5A6882]" />
+        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
         <input
           type="text"
           value={query}
           onChange={(event) => setQuery(event.target.value)}
           placeholder="Tìm interviewer theo tên hoặc email..."
-          className="w-full rounded-lg border border-[#8B99B0]/15 bg-[#0C1422] py-2 pl-9 pr-3 text-sm text-[#ECF0F7] focus:border-[#7C8FFF]/50 focus:outline-none"
+          className="w-full rounded-lg border border-border/15 bg-background py-2 pl-9 pr-3 text-sm text-foreground focus:border-border/50 focus:outline-none"
         />
       </div>
 
       {loading ? (
         <div className="flex justify-center py-4">
-          <Loader2 className="w-5 h-5 animate-spin text-[#7C8FFF]" />
+          <Loader2 className="w-5 h-5 animate-spin text-primary" />
         </div>
       ) : (
         <div className="space-y-2">
           {filteredInterviewers.length === 0 ? (
-            <p className="rounded-lg border border-[#8B99B0]/12 bg-[#0A1120] px-3 py-5 text-center text-sm text-[#8B99B0]">
+            <p className="rounded-lg border border-border/12 bg-background px-3 py-5 text-center text-sm text-muted-foreground">
               Không tìm thấy interviewer phù hợp
             </p>
           ) : (
@@ -111,17 +111,17 @@ export default function AssignInterviewerPanel({ sessionId, currentInterviewers 
               const checked = selected.includes(interviewer.id);
               const existingStatus = currentInterviewers.find((item) => item.interviewer_id === interviewer.id)?.status;
               return (
-                <label key={interviewer.id} className={`flex items-start gap-3 rounded-lg border p-3 cursor-pointer transition-colors ${checked ? "border-[#7C8FFF]/50 bg-[#7C8FFF]/10" : "border-[#8B99B0]/15 bg-[#0A1120]"}`}>
+                <label key={interviewer.id} className={`flex items-start gap-3 rounded-lg border p-3 cursor-pointer transition-colors ${checked ? "border-border/50 bg-background/10" : "border-border/15 bg-primary"}`}>
                   <input
                     type="checkbox"
                     checked={checked}
                     onChange={() => toggleInterviewer(interviewer.id)}
-                    className="mt-1 accent-[#7C8FFF]"
+                    className="mt-1 accent-primary"
                   />
                   <span className="min-w-0">
-                    <span className="block text-sm font-medium text-[#ECF0F7] truncate">{interviewer.name}</span>
-                    <span className="block text-xs text-[#8B99B0] truncate">{interviewer.email}</span>
-                    {existingStatus && <span className="mt-1 inline-flex text-[10px] uppercase tracking-wide text-[#36DDAB]">{existingStatus}</span>}
+                    <span className="block text-sm font-medium text-foreground truncate">{interviewer.name}</span>
+                    <span className="block text-xs text-muted-foreground truncate">{interviewer.email}</span>
+                    {existingStatus && <span className="mt-1 inline-flex text-[10px] uppercase tracking-wide text-success">{existingStatus}</span>}
                   </span>
                 </label>
               );
@@ -132,7 +132,7 @@ export default function AssignInterviewerPanel({ sessionId, currentInterviewers 
           <button
             onClick={handleAssign}
             disabled={submitting}
-            className="w-full flex items-center justify-center gap-2 py-2.5 rounded-lg bg-[#7C8FFF] hover:bg-[#6B7FEE] text-white text-sm font-medium transition-colors disabled:opacity-50"
+            className="w-full flex items-center justify-center gap-2 py-2.5 rounded-lg bg-primary hover:bg-primary text-white text-sm font-medium transition-colors disabled:opacity-50"
           >
             {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <UserCheck className="w-4 h-4" />}
             {submitting ? "Đang lưu..." : "Lưu phân công"}

@@ -154,14 +154,14 @@ export function TopicReviewPanel({
       </div>
 
       {/* Global Generation Configuration */}
-      <div className="rounded-xl border border-[#1E293B] bg-[#0F172A]/40 p-5 space-y-6 backdrop-blur-sm">
-        <h3 className="text-sm font-semibold text-[#F1F5F9] border-b border-[#1E293B] pb-2">
+      <div className="rounded-xl border border-border bg-background/40 p-5 space-y-6 backdrop-blur-sm">
+        <h3 className="text-sm font-semibold text-muted border-b border-border pb-2">
           Global Generation Configuration
         </h3>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-3">
-            <label className="text-xs font-semibold text-[#94A3B8] uppercase tracking-wider">
+            <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
               Question Types
             </label>
             <QuestionTypePicker
@@ -171,10 +171,10 @@ export function TopicReviewPanel({
           </div>
 
           <div className="space-y-3">
-            <label className="text-xs font-semibold text-[#94A3B8] uppercase tracking-wider">
+            <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
               Difficulty Ratios (Sum: 100%)
             </label>
-            <div className="bg-[#0B0F19]/60 p-4 rounded-lg border border-[#1E293B]/50">
+            <div className="bg-background/60 p-4 rounded-lg border border-border/50">
               <LevelRatio
                 value={ratios}
                 onChange={setRatios}
@@ -184,32 +184,32 @@ export function TopicReviewPanel({
         </div>
 
         {/* Live Generation Summary */}
-        <div className="bg-[#1E293B]/20 border border-[#334155]/30 rounded-lg p-4 space-y-3">
-          <h4 className="text-xs font-semibold text-[#94A3B8] uppercase tracking-wider">
+        <div className="bg-muted/20 border border-border/30 rounded-lg p-4 space-y-3">
+          <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
             Generation Summary
           </h4>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-            <div className="bg-[#0B0F19]/40 p-3 rounded border border-[#1E293B]/30 text-center">
+            <div className="bg-background/40 p-3 rounded border border-border/30 text-center">
               <div className="text-xs text-muted-foreground">Total Questions</div>
-              <div className={`text-lg font-bold ${totalQuestions > 100 ? "text-amber-500" : "text-[#38BDF8]"}`}>
+              <div className={`text-lg font-bold ${totalQuestions > 100 ? "text-amber-500" : "text-primary"}`}>
                 {totalQuestions}
               </div>
             </div>
-            <div className="bg-[#0B0F19]/40 p-3 rounded border border-[#1E293B]/30 text-center">
-              <div className="text-xs text-[#34D399]">Junior ({ratios.junior}%)</div>
-              <div className="text-lg font-bold text-[#F1F5F9]">
+            <div className="bg-background/40 p-3 rounded border border-border/30 text-center">
+              <div className="text-xs text-success">Junior ({ratios.junior}%)</div>
+              <div className="text-lg font-bold text-primary">
                 {Math.round(totalQuestions * ratios.junior / 100)}
               </div>
             </div>
-            <div className="bg-[#0B0F19]/40 p-3 rounded border border-[#1E293B]/30 text-center">
-              <div className="text-xs text-[#FBBF24]">Middle ({ratios.middle}%)</div>
-              <div className="text-lg font-bold text-[#F1F5F9]">
+            <div className="bg-background/40 p-3 rounded border border-border/30 text-center">
+              <div className="text-xs text-warning">Middle ({ratios.middle}%)</div>
+              <div className="text-lg font-bold text-primary">
                 {Math.round(totalQuestions * ratios.middle / 100)}
               </div>
             </div>
-            <div className="bg-[#0B0F19]/40 p-3 rounded border border-[#1E293B]/30 text-center">
-              <div className="text-xs text-[#A78BFA]">Senior ({ratios.senior}%)</div>
-              <div className="text-lg font-bold text-[#F1F5F9]">
+            <div className="bg-background/40 p-3 rounded border border-border/30 text-center">
+              <div className="text-xs text-primary">Senior ({ratios.senior}%)</div>
+              <div className="text-lg font-bold text-primary">
                 {Math.round(totalQuestions * ratios.senior / 100)}
               </div>
             </div>

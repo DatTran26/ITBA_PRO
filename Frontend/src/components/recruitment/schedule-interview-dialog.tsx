@@ -135,8 +135,8 @@ export default function ScheduleInterviewDialog({
           <button
             disabled={disabled}
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${disabled
-              ? "bg-[#8B99B0]/10 border border-[#8B99B0]/20 text-[#5A6882] cursor-not-allowed"
-              : "bg-[#F59E0B]/15 border border-[#F59E0B]/30 text-[#F59E0B] hover:bg-[#F59E0B]/25"
+              ? "bg-muted-foreground/10 border border-muted-foreground/20 text-muted-foreground cursor-not-allowed"
+              : "bg-warning/15 border border-warning/30 text-warning hover:bg-warning/25"
               }`}
           >
             <Calendar className="w-3.5 h-3.5" />
@@ -152,21 +152,21 @@ export default function ScheduleInterviewDialog({
             onClick={handleClose}
           />
 
-          <div className="relative bg-[#1B253B] border border-white/10 w-full max-w-xl rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh] animate-in zoom-in-95 fade-in duration-300">
+          <div className="relative bg-muted border border-border w-full max-w-xl rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh] animate-in zoom-in-95 fade-in duration-300">
             {/* Header */}
-            <div className="px-6 py-5 border-b border-white/5 bg-[#161F35]/50 flex items-center justify-between">
+            <div className="px-6 py-5 border-b border-border bg-card/50 flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-[#F59E0B]/20 flex items-center justify-center border border-[#F59E0B]/30">
-                  <Calendar className="w-5 h-5 text-[#F59E0B]" />
+                <div className="w-10 h-10 rounded-xl bg-warning/20 flex items-center justify-center border border-warning/30">
+                  <Calendar className="w-5 h-5 text-warning" />
                 </div>
                 <div>
-                  <h2 className="text-lg font-bold text-[#ECF0F7] tracking-tight">Lên lịch phỏng vấn</h2>
-                  <p className="text-[11px] text-[#8B99B0] uppercase font-bold tracking-widest mt-0.5">Scheduling Coordination</p>
+                  <h2 className="text-lg font-bold text-foreground tracking-tight">Lên lịch phỏng vấn</h2>
+                  <p className="text-[11px] text-muted-foreground uppercase font-bold tracking-widest mt-0.5">Scheduling Coordination</p>
                 </div>
               </div>
               <button
                 onClick={handleClose}
-                className="w-8 h-8 rounded-full flex items-center justify-center text-[#5A6882] hover:text-[#ECF0F7] hover:bg-white/5 transition-all"
+                className="w-8 h-8 rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-all"
               >
                 <X size={20} />
               </button>
@@ -176,26 +176,26 @@ export default function ScheduleInterviewDialog({
               {/* Candidate Selection (Global Mode) */}
               {!initialApplicationId && (
                 <div className="space-y-3">
-                  <label className="text-xs font-bold text-[#8B99B0] uppercase tracking-wider flex items-center gap-2">
-                    <User size={14} className="text-[#7C8FFF]" />
-                    Chọn ứng viên <span className="text-[#EF4444]">*</span>
+                  <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-2">
+                    <User size={14} className="text-primary" />
+                    Chọn ứng viên <span className="text-danger">*</span>
                   </label>
 
                   <div className="relative group/search mb-2">
-                    <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#5A6882]" />
+                    <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
                     <input
                       type="text"
                       placeholder="Tìm ứng viên trong Pipeline..."
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      className="w-full bg-[#121A2E] border border-white/5 rounded-xl pl-9 pr-3 py-2 text-sm text-[#ECF0F7] focus:border-[#7C8FFF]/50 outline-none transition-all"
+                      className="w-full bg-background border border-border rounded-xl pl-9 pr-3 py-2 text-sm text-foreground focus:border-primary/50 outline-none transition-all"
                     />
                   </div>
 
                   <div className="grid grid-cols-1 gap-2 max-h-48 overflow-y-auto custom-scrollbar pr-1">
                     {fetchingData ? (
                       <div className="flex items-center justify-center py-8">
-                        <Loader2 className="w-6 h-6 text-[#7C8FFF] animate-spin" />
+                        <Loader2 className="w-6 h-6 text-primary animate-spin" />
                       </div>
                     ) : filteredCandidates.length > 0 ? (
                       filteredCandidates.map(app => (
@@ -204,21 +204,21 @@ export default function ScheduleInterviewDialog({
                           type="button"
                           onClick={() => setSelectedAppId(app.id)}
                           className={`flex items-center justify-between p-3 rounded-xl border transition-all text-left group ${selectedAppId === app.id
-                            ? 'bg-[#7C8FFF]/10 border-[#7C8FFF]/50 ring-1 ring-[#7C8FFF]/30'
-                            : 'bg-[#121A2E] border-white/5 hover:border-white/10'
+                            ? 'bg-primary/10 border-primary/50 ring-1 ring-primary/30'
+                            : 'bg-background border-border hover:border-border'
                             }`}
                         >
                           <div>
-                            <p className={`text-sm font-bold ${selectedAppId === app.id ? 'text-[#7C8FFF]' : 'text-[#ECF0F7]'}`}>
+                            <p className={`text-sm font-bold ${selectedAppId === app.id ? 'text-primary' : 'text-foreground'}`}>
                               {app.candidateName}
                             </p>
-                            <p className="text-[11px] text-[#5A6882] mt-0.5">{app.jdTitle}</p>
+                            <p className="text-[11px] text-muted-foreground mt-0.5">{app.jdTitle}</p>
                           </div>
-                          {selectedAppId === app.id && <CheckCircle2 size={16} className="text-[#7C8FFF]" />}
+                          {selectedAppId === app.id && <CheckCircle2 size={16} className="text-primary" />}
                         </button>
                       ))
                     ) : (
-                      <p className="text-center py-6 text-sm text-[#5A6882]">Không tìm thấy ứng viên phù hợp.</p>
+                      <p className="text-center py-6 text-sm text-muted-foreground">Không tìm thấy ứng viên phù hợp.</p>
                     )}
                   </div>
                 </div>
@@ -226,23 +226,23 @@ export default function ScheduleInterviewDialog({
 
               {/* Time Selection */}
               <div className="space-y-3">
-                <label className="text-xs font-bold text-[#8B99B0] uppercase tracking-wider flex items-center gap-2">
-                  <Clock size={14} className="text-[#7C8FFF]" />
-                  Interview Time <span className="text-[#EF4444]">*</span>
+                <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-2">
+                  <Clock size={14} className="text-primary" />
+                  Interview Time <span className="text-danger">*</span>
                 </label>
                 <input
                   type="datetime-local"
                   value={scheduledAt}
                   onChange={(e) => setScheduledAt(e.target.value)}
                   disabled={loading}
-                  className="w-full h-11 px-4 rounded-xl bg-[#121A2E] border border-white/5 text-[#ECF0F7] text-sm focus:border-[#7C8FFF]/50 outline-none disabled:opacity-50 [color-scheme:dark]"
+                  className="w-full h-11 px-4 rounded-xl bg-background border border-border text-foreground text-sm focus:border-primary/50 outline-none disabled:opacity-50"
                 />
               </div>
 
               {/* Notes */}
               <div className="space-y-3">
-                <label className="text-xs font-bold text-[#8B99B0] uppercase tracking-wider flex items-center gap-2">
-                  <MessageSquare size={14} className="text-[#B48EFF]" />
+                <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-2">
+                  <MessageSquare size={14} className="text-ai" />
                   Ghi chú nội bộ
                 </label>
                 <textarea
@@ -251,33 +251,33 @@ export default function ScheduleInterviewDialog({
                   onChange={(e) => setRecruiterNote(e.target.value)}
                   placeholder="Ghi chú cho người phỏng vấn về ứng viên này..."
                   disabled={loading}
-                  className="w-full p-4 rounded-2xl bg-[#121A2E] border border-white/5 text-[#ECF0F7] text-sm placeholder-[#5A6882] focus:border-[#7C8FFF]/50 outline-none resize-none disabled:opacity-50"
+                  className="w-full p-4 rounded-2xl bg-background border border-border text-foreground text-sm placeholder-muted-foreground focus:border-primary/50 outline-none resize-none disabled:opacity-50"
                 />
               </div>
 
               {error && (
-                <div className="p-4 rounded-2xl bg-[#EF4444]/10 border border-[#EF4444]/20 flex items-start gap-3 animate-in slide-in-from-top-2">
-                  <X className="w-5 h-5 text-[#EF4444] shrink-0 mt-0.5" />
-                  <p className="text-sm text-[#EF4444] font-medium">{error}</p>
+                <div className="p-4 rounded-2xl bg-danger/10 border border-danger/20 flex items-start gap-3 animate-in slide-in-from-top-2">
+                  <X className="w-5 h-5 text-danger shrink-0 mt-0.5" />
+                  <p className="text-sm text-danger font-medium">{error}</p>
                 </div>
               )}
             </form>
 
             {/* Footer */}
-            <div className="px-6 py-5 border-t border-white/5 bg-[#161F35]/50 flex gap-3 justify-end">
+            <div className="px-6 py-5 border-t border-border bg-card/50 flex gap-3 justify-end">
               <Button
                 type="button"
                 variant="ghost"
                 onClick={handleClose}
                 disabled={loading}
-                className="rounded-xl px-6 text-[#8B99B0] hover:text-[#ECF0F7] hover:bg-white/5"
+                className="rounded-xl px-6 text-muted-foreground hover:text-foreground hover:bg-muted"
               >
                 Hủy
               </Button>
               <Button
                 onClick={handleSubmit}
                 disabled={loading || fetchingData}
-                className="rounded-xl px-8 bg-[#F59E0B] hover:bg-[#D97706] text-white font-bold shadow-lg shadow-[#F59E0B]/20 transition-all active:scale-[0.98]"
+                className="rounded-xl px-8 bg-warning hover:bg-warning text-white font-bold shadow-lg shadow-warning/20 transition-all active:scale-[0.98]"
               >
                 {loading ? (
                   <div className="flex items-center gap-2">

@@ -62,7 +62,7 @@ function MultipleChoiceView({ q, editing, onChange }: { q: AiQuestion; editing: 
 
   return (
     <div className="space-y-2">
-      <p className="text-[10px] uppercase tracking-wider text-[#5A6882]">Multi-correct — select all that apply</p>
+      <p className="text-[10px] uppercase tracking-wider text-muted-foreground">Multi-correct — select all that apply</p>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
         {(["a", "b", "c", "d"] as const).map((opt) => (
           <OptionRow
@@ -97,8 +97,8 @@ function TrueFalseView({ q, editing, onChange }: { q: AiQuestion; editing: boole
             onClick={() => onChange({ correct_answer: opt })}
             className={`text-xs px-3 py-2 rounded-lg border text-left transition-colors ${
               isCorrect
-                ? "border-[#10B981]/40 bg-[#10B981]/10 text-[#10B981]"
-                : "border-[#8B99B0]/10 bg-[#0C1220]/60 text-[#8B99B0] hover:border-[#10B981]/30"
+                ? "border-border/40 bg-success/10 text-success"
+                : "border-border/10 bg-background/60 text-muted-foreground hover:border-border/30"
             } ${editing ? "cursor-pointer" : "cursor-default"}`}
           >
             <span className="font-mono font-bold uppercase mr-2">{opt}.</span>
@@ -117,9 +117,9 @@ function PairsView({ pairs }: { pairs: Array<{ left: string; right: string }> })
     <div className="space-y-1.5">
       {pairs.map((p, i) => (
         <div key={i} className="grid grid-cols-[1fr_auto_1fr] items-center gap-2 text-xs">
-          <div className="px-3 py-2 rounded-lg bg-[#0C1220]/60 border border-[#8B99B0]/10 text-[#ECF0F7]">{p.left}</div>
-          <span className="text-[#7C8FFF] font-mono">→</span>
-          <div className="px-3 py-2 rounded-lg bg-[#10B981]/10 border border-[#10B981]/30 text-[#10B981]">{p.right}</div>
+          <div className="px-3 py-2 rounded-lg bg-background/60 border border-border/10 text-foreground">{p.left}</div>
+          <span className="text-primary font-mono">→</span>
+          <div className="px-3 py-2 rounded-lg bg-success/10 border border-border/30 text-success">{p.right}</div>
         </div>
       ))}
     </div>
@@ -132,8 +132,8 @@ function SequenceView({ sequence }: { sequence: string[] }) {
   return (
     <ol className="space-y-1.5">
       {sequence.map((step, i) => (
-        <li key={i} className="flex items-center gap-2 text-xs px-3 py-2 rounded-lg bg-[#0C1220]/60 border border-[#8B99B0]/10 text-[#ECF0F7]">
-          <span className="font-mono font-bold text-[#7C8FFF] w-5">{i + 1}.</span>
+        <li key={i} className="flex items-center gap-2 text-xs px-3 py-2 rounded-lg bg-background/60 border border-border/10 text-foreground">
+          <span className="font-mono font-bold text-primary w-5">{i + 1}.</span>
           <span>{step}</span>
         </li>
       ))}
@@ -147,8 +147,8 @@ function BlanksView({ blanks }: { blanks: string[] }) {
   return (
     <div className="space-y-1.5">
       {blanks.map((answer, i) => (
-        <div key={i} className="flex items-center gap-2 text-xs px-3 py-2 rounded-lg bg-[#10B981]/10 border border-[#10B981]/30 text-[#10B981]">
-          <span className="font-mono text-[#5A6882]">Blank {i + 1}:</span>
+        <div key={i} className="flex items-center gap-2 text-xs px-3 py-2 rounded-lg bg-success/10 border border-border/30 text-success">
+          <span className="font-mono text-muted-foreground">Blank {i + 1}:</span>
           <span className="font-medium">{answer}</span>
         </div>
       ))}
@@ -172,11 +172,11 @@ function ManualGradingView({
 
   return (
     <div className="space-y-2 text-xs">
-      <div className="px-3 py-2 rounded-lg bg-[#7C8FFF]/5 border border-[#7C8FFF]/15 text-[#94A3B8]">
+      <div className="px-3 py-2 rounded-lg bg-primary/5 border border-border/15 text-muted-foreground">
         Manual grading — reviewer scores against the rubric/expected answer below.
       </div>
       <div className="space-y-1">
-        <label className="text-[10px] uppercase tracking-wider text-[#5A6882]">Expected answer</label>
+        <label className="text-[10px] uppercase tracking-wider text-muted-foreground">Expected answer</label>
         {editing ? (
           <Textarea
             value={expected}
@@ -184,20 +184,20 @@ function ManualGradingView({
               onChange({ answer_payload: { ...payload, expected_answer: e.target.value } })
             }
             rows={2}
-            className="text-xs bg-[#0C1220]/60 border-[#8B99B0]/20"
+            className="text-xs bg-background/60 border-border/20"
           />
         ) : (
-          <div className="px-3 py-2 rounded-lg bg-[#10B981]/5 border border-[#10B981]/20 text-[#ECF0F7] whitespace-pre-wrap">
-            {expected || <span className="text-[#5A6882] italic">No expected answer set</span>}
+          <div className="px-3 py-2 rounded-lg bg-success/5 border border-border/20 text-foreground whitespace-pre-wrap">
+            {expected || <span className="text-muted-foreground italic">No expected answer set</span>}
           </div>
         )}
       </div>
       {rubricItems.length > 0 && (
         <div className="space-y-1">
-          <label className="text-[10px] uppercase tracking-wider text-[#5A6882]">Rubric</label>
+          <label className="text-[10px] uppercase tracking-wider text-muted-foreground">Rubric</label>
           <ul className="space-y-1">
             {rubricItems.map((item, i) => (
-              <li key={i} className="px-3 py-1.5 rounded-lg bg-[#0C1220]/60 border border-[#8B99B0]/10 text-[#ECF0F7]">
+              <li key={i} className="px-3 py-1.5 rounded-lg bg-background/60 border border-border/10 text-foreground">
                 · {item}
               </li>
             ))}
@@ -230,8 +230,8 @@ function OptionRow({
     <div
       className={`text-xs px-3 py-2 rounded-lg border transition-colors ${
         isCorrect
-          ? "border-[#10B981]/40 bg-[#10B981]/10 text-[#10B981]"
-          : "border-[#8B99B0]/10 bg-[#0C1220]/60 text-[#8B99B0]"
+          ? "border-border/40 bg-success/10 text-success"
+          : "border-border/10 bg-background/60 text-muted-foreground"
       }`}
     >
       <div className="flex items-center gap-2">
@@ -239,7 +239,7 @@ function OptionRow({
           type="button"
           onClick={onSelectCorrect}
           className={`font-mono font-bold uppercase ${
-            isCorrect ? "text-[#10B981]" : "text-[#5A6882] hover:text-[#10B981]"
+            isCorrect ? "text-success" : "text-muted-foreground hover:text-success"
           }`}
           title={multi ? "Toggle as correct" : "Mark as correct"}
         >
@@ -250,7 +250,7 @@ function OptionRow({
           <Input
             value={value}
             onChange={(e) => onTextChange(e.target.value)}
-            className="h-7 text-xs bg-transparent border-[#8B99B0]/20"
+            className="h-7 text-xs bg-transparent border-border/20"
           />
         ) : (
           <span className="flex-1">{value}</span>
@@ -262,7 +262,7 @@ function OptionRow({
 
 function EmptyOptionsHint() {
   return (
-    <div className="text-xs text-[#8B99B0] bg-[#0C1220]/60 border border-[#8B99B0]/10 rounded-lg px-3 py-2">
+    <div className="text-xs text-muted-foreground bg-background/60 border border-border/10 rounded-lg px-3 py-2">
       No options provided for this question.
     </div>
   );
@@ -270,7 +270,7 @@ function EmptyOptionsHint() {
 
 function EmptyPayloadHint({ label }: { label: string }) {
   return (
-    <div className="text-xs text-[#8B99B0] bg-[#0C1220]/60 border border-[#8B99B0]/10 rounded-lg px-3 py-2">
+    <div className="text-xs text-muted-foreground bg-background/60 border border-border/10 rounded-lg px-3 py-2">
       AI did not return {label} in answer_payload. Edit the question manually to add them.
     </div>
   );

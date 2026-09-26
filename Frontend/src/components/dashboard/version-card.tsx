@@ -12,8 +12,8 @@ export const STATUS_CONFIG: Record<Status, {
 }> = {
     draft: {
         label: "Draft",
-        icon: () => <span className="w-3 h-3 rounded-full bg-slate-400 inline-block" />,
-        bg: "bg-slate-500/10", text: "text-slate-400", border: "border-slate-500/25", dot: "bg-slate-400",
+        icon: () => <span className="w-3 h-3 rounded-full bg-muted-foreground inline-block" />,
+        bg: "bg-muted", text: "text-muted-foreground", border: "border-border", dot: "bg-muted-foreground",
     },
     pending: {
         label: "Chờ duyệt",
@@ -73,16 +73,16 @@ export default function VersionCard({ v, isAdmin, isExpanded, isProcessing, note
         new Date(iso).toLocaleDateString("vi-VN", { day: "2-digit", month: "2-digit", year: "numeric" });
 
     return (
-        <div className={`bg-[#1B253B] border rounded-2xl overflow-hidden transition-colors ${v.status === "pending" ? "border-amber-500/25" : "border-[#8B99B0]/10"}`}>
-            <button className="w-full flex items-center justify-between px-6 py-4 text-left hover:bg-[#222C4A]/40 transition-colors" onClick={onToggle}>
+        <div className={`bg-muted border rounded-2xl overflow-hidden transition-colors ${v.status === "pending" ? "border-amber-500/25" : "border-muted-foreground/10"}`}>
+            <button className="w-full flex items-center justify-between px-6 py-4 text-left hover:bg-accent/40 transition-colors" onClick={onToggle}>
                 <div className="flex items-center gap-4">
                     <div className={`w-2 h-2 rounded-full ${cfg.dot} shrink-0`} />
-                    <span className="font-mono text-sm font-bold text-[#7C8FFF] bg-[#7C8FFF]/10 px-2.5 py-1 rounded-lg">v{v.version_number}</span>
+                    <span className="font-mono text-sm font-bold text-primary bg-primary/10 px-2.5 py-1 rounded-lg">v{v.version_number}</span>
                     <div className="flex flex-col items-start">
                         <div className="flex items-center gap-2">
-                            <span className="text-[15px] font-medium text-[#ECF0F7]">{v.title}</span>
+                            <span className="text-[15px] font-medium text-foreground">{v.title}</span>
                             {v.category && (
-                                <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full border capitalize ${CATEGORY_BADGE[v.category] ?? "bg-[#8B99B0]/10 text-[#8B99B0] border-[#8B99B0]/20"}`}>
+                                <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full border capitalize ${CATEGORY_BADGE[v.category] ?? "bg-muted-foreground/10 text-muted-foreground border-muted-foreground/20"}`}>
                                     {v.category}
                                 </span>
                             )}
@@ -92,34 +92,34 @@ export default function VersionCard({ v, isAdmin, isExpanded, isProcessing, note
                                 <Icon className="w-3 h-3" />
                                 {cfg.label}
                             </span>
-                            <span className="flex items-center gap-1 text-[11px] text-[#5A6882]">
+                            <span className="flex items-center gap-1 text-[11px] text-muted-foreground">
                                 <Calendar className="w-3 h-3" />{formatDate(v.created_at)}
                             </span>
-                            {features.length > 0 && <span className="text-[11px] text-[#5A6882]">{features.length} tính năng</span>}
+                            {features.length > 0 && <span className="text-[11px] text-muted-foreground">{features.length} tính năng</span>}
                         </div>
                     </div>
                 </div>
-                {isExpanded ? <ChevronUp className="w-4 h-4 text-[#5A6882] shrink-0" /> : <ChevronDown className="w-4 h-4 text-[#5A6882] shrink-0" />}
+                {isExpanded ? <ChevronUp className="w-4 h-4 text-muted-foreground shrink-0" /> : <ChevronDown className="w-4 h-4 text-muted-foreground shrink-0" />}
             </button>
 
             {isExpanded && (
-                <div className="px-6 pb-6 border-t border-[#8B99B0]/8 pt-5 space-y-5">
+                <div className="px-6 pb-6 border-t border-muted-foreground/8 pt-5 space-y-5">
                     {v.description && (
-                        <div className="flex items-start gap-3 text-sm text-[#8B99B0] leading-relaxed">
-                            <FileText className="w-4 h-4 shrink-0 mt-0.5 text-[#5A6882]" />
+                        <div className="flex items-start gap-3 text-sm text-muted-foreground leading-relaxed">
+                            <FileText className="w-4 h-4 shrink-0 mt-0.5 text-muted-foreground" />
                             <p>{v.description}</p>
                         </div>
                     )}
 
                     {features.length > 0 && (
                         <div>
-                            <p className="text-xs uppercase tracking-wider font-semibold text-[#5A6882] mb-3 flex items-center gap-1.5">
+                            <p className="text-xs uppercase tracking-wider font-semibold text-muted-foreground mb-3 flex items-center gap-1.5">
                                 <Sparkles className="w-3 h-3" /> Tính năng trong version này
                             </p>
                             <ul className="space-y-2">
                                 {features.map((feat, i) => (
-                                    <li key={i} className="flex items-start gap-2.5 text-sm text-[#ECF0F7]/80">
-                                        <div className="w-1.5 h-1.5 rounded-full bg-[#7C8FFF] mt-1.5 shrink-0" />
+                                    <li key={i} className="flex items-start gap-2.5 text-sm text-foreground/80">
+                                        <div className="w-1.5 h-1.5 rounded-full bg-primary mt-1.5 shrink-0" />
                                         {feat}
                                     </li>
                                 ))}
@@ -128,8 +128,8 @@ export default function VersionCard({ v, isAdmin, isExpanded, isProcessing, note
                     )}
 
                     {v.notes && v.status !== "pending" && (
-                        <div className="bg-[#1B253B]/60 border border-[#8B99B0]/10 rounded-xl px-4 py-3 text-sm text-[#8B99B0]">
-                            <span className="text-xs uppercase tracking-wider font-semibold text-[#5A6882] block mb-1">Ghi chú</span>
+                        <div className="bg-muted/60 border border-muted-foreground/10 rounded-xl px-4 py-3 text-sm text-muted-foreground">
+                            <span className="text-xs uppercase tracking-wider font-semibold text-muted-foreground block mb-1">Ghi chú</span>
                             {v.notes}
                         </div>
                     )}
@@ -137,18 +137,18 @@ export default function VersionCard({ v, isAdmin, isExpanded, isProcessing, note
                     {isAdmin && v.status === "pending" && (
                         <div className="space-y-3 pt-2">
                             <div>
-                                <label className="text-xs font-semibold text-[#5A6882] uppercase tracking-wider block mb-1.5">Ghi chú khi duyệt (tuỳ chọn)</label>
+                                <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block mb-1.5">Ghi chú khi duyệt (tuỳ chọn)</label>
                                 <textarea
                                     rows={2}
                                     value={noteInput}
                                     onChange={e => onNoteChange(e.target.value)}
                                     placeholder="Nhập ghi chú hoặc phản hồi..."
-                                    className="w-full bg-[#1B253B]/60 border border-[#8B99B0]/15 rounded-xl px-4 py-2.5 text-sm text-[#ECF0F7] placeholder-[#5A6882]/50 resize-none focus:outline-none focus:border-[#7C8FFF]/40 focus:ring-1 focus:ring-[#7C8FFF]/20 transition-all"
+                                    className="w-full bg-muted/60 border border-muted-foreground/15 rounded-xl px-4 py-2.5 text-sm text-foreground placeholder-muted-foreground/50 resize-none focus:outline-none focus:border-primary/40 focus:ring-1 focus:ring-primary/20 transition-all"
                                 />
                             </div>
                             <div className="flex items-center gap-3">
                                 <button onClick={() => onStatusChange(v.id, "approved")} disabled={isProcessing}
-                                    className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-emerald-500 text-black text-sm font-semibold hover:bg-emerald-400 transition-all disabled:opacity-60 disabled:cursor-not-allowed shadow-[0_0_20px_-5px_rgba(16,185,129,0.4)]">
+                                    className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-emerald-500 text-black text-sm font-semibold hover:bg-emerald-400 transition-all disabled:opacity-60 disabled:cursor-not-allowed shadow-[0_0_20px_-5px_color-mix(in_srgb,var(--success)_40%,transparent)]">
                                     {isProcessing ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
                                     Duyệt version này
                                 </button>
@@ -172,7 +172,7 @@ export default function VersionCard({ v, isAdmin, isExpanded, isProcessing, note
                     )}
 
                     {v.approved_at && (
-                        <p className="text-xs text-[#5A6882]/60">Duyệt lúc: {new Date(v.approved_at).toLocaleString("vi-VN")}</p>
+                        <p className="text-xs text-muted-foreground/60">Duyệt lúc: {new Date(v.approved_at).toLocaleString("vi-VN")}</p>
                     )}
                 </div>
             )}

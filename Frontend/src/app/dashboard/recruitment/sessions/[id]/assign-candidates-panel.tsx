@@ -120,22 +120,22 @@ export default function AssignCandidatesPanel({
   return (
     <div className="space-y-3">
       <div className="relative">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#5A6882]" />
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
         <input
           type="text"
           value={query}
           onChange={(event) => setQuery(event.target.value)}
           placeholder="Tìm ứng viên SHORTLISTED..."
-          className="w-full rounded-lg border border-[#8B99B0]/15 bg-[#0C1422] py-2 pl-9 pr-3 text-sm text-[#ECF0F7] focus:border-[#7C8FFF]/50 focus:outline-none"
+          className="w-full rounded-lg border border-border/15 bg-background py-2 pl-9 pr-3 text-sm text-foreground focus:border-border/50 focus:outline-none"
         />
       </div>
 
       {loading ? (
         <div className="flex justify-center py-6">
-          <Loader2 className="h-5 w-5 animate-spin text-[#7C8FFF]" />
+          <Loader2 className="h-5 w-5 animate-spin text-primary" />
         </div>
       ) : filtered.length === 0 ? (
-        <p className="py-6 text-center text-sm text-[#5A6882]">Không tìm thấy ứng viên đủ điều kiện</p>
+        <p className="py-6 text-center text-sm text-muted-foreground">Không tìm thấy ứng viên đủ điều kiện</p>
       ) : (
         <div className="max-h-72 space-y-1.5 overflow-y-auto pr-1">
           {filtered.map((candidate) => {
@@ -148,24 +148,24 @@ export default function AssignCandidatesPanel({
                 onClick={() => toggle(candidate.id)}
                 className={`w-full cursor-pointer rounded-lg border p-3 text-left transition-colors ${
                   isSelected
-                    ? "border-[#7C8FFF]/40 bg-[#7C8FFF]/10"
-                    : "border-[#8B99B0]/12 bg-[#0C1422] hover:border-[#8B99B0]/25"
+                    ? "border-border/40 bg-primary/10"
+                    : "border-border/12 bg-background hover:border-border/25"
                 }`}
               >
                 <div className="flex items-center gap-3">
                   <div
                     className={`flex h-5 w-5 shrink-0 items-center justify-center rounded border-2 text-[10px] font-bold ${
-                      isSelected ? "border-[#7C8FFF] bg-[#7C8FFF] text-white" : "border-[#8B99B0]/40"
+                      isSelected ? "border-border bg-primary text-white" : "border-border/40"
                     }`}
                   >
                     {isSelected ? "✓" : ""}
                   </div>
                   <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-medium text-[#ECF0F7]">{candidate.fullName}</p>
-                    <p className="truncate text-xs text-[#5A6882]">{candidate.email} · {candidate.jdTitle}</p>
+                    <p className="truncate text-sm font-medium text-foreground">{candidate.fullName}</p>
+                    <p className="truncate text-xs text-muted-foreground">{candidate.email} · {candidate.jdTitle}</p>
                   </div>
                   {value !== null && (
-                    <span className="shrink-0 rounded-full bg-[#7C8FFF]/10 px-2 py-0.5 text-xs font-bold text-[#B6C2FF]">
+                    <span className="shrink-0 rounded-full bg-primary/10 px-2 py-0.5 text-xs font-bold text-primary">
                       {Math.round(value)}
                     </span>
                   )}
@@ -179,14 +179,14 @@ export default function AssignCandidatesPanel({
       <button
         onClick={handleAssign}
         disabled={disabled || submitting || selected.size === 0}
-        className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-lg bg-[#7C8FFF] py-2.5 text-sm font-medium text-white transition-colors hover:bg-[#6B7FEE] disabled:opacity-50"
+        className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-lg bg-primary py-2.5 text-sm font-medium text-white transition-colors hover:bg-primary disabled:opacity-50"
       >
         {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <UserPlus className="h-4 w-4" />}
         {submitting ? "Đang thêm..." : `Thêm ${selected.size > 0 ? selected.size : ""} ứng viên`}
       </button>
 
       {disabled && (
-        <p className="text-xs text-[#F8C56B]">{disabledReason ?? "Cần interviewer accepted trước khi thêm candidate."}</p>
+        <p className="text-xs text-warning">{disabledReason ?? "Cần interviewer accepted trước khi thêm candidate."}</p>
       )}
     </div>
   );
