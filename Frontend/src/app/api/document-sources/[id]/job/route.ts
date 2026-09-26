@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getAuthContext, isAuthError } from "@/lib/api/auth-helpers";
+import { createAdminClient } from "@/lib/supabase/admin";
 
 export const runtime = "nodejs";
 
@@ -9,10 +10,11 @@ export async function GET(_request: Request, { params }: RouteParams) {
   const { id } = await params;
   const ctx = await getAuthContext();
   if (isAuthError(ctx)) return ctx;
-  const { supabase, userId, isAdmin, isLeader } = ctx;
+  const { userId, isAdmin, isLeader } = ctx;
   if (!isLeader && !isAdmin) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
-  const { data: doc } = await supabase
+  const admin = createAdminClient();
+  const { data: doc } = await admin
     .from("document_sources")
     .select("id, created_by")
     .eq("id", id)
@@ -23,14 +25,17 @@ export async function GET(_request: Request, { params }: RouteParams) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
-  const { data: job, error } = await supabase
+  const { data: job, error } = await admin
     .from("document_jobs")
-    .select("id, status, result_json, error_message, created_at, updated_at")
+    .select("id, status, result, error_message, created_at, updated_at")
     .eq("document_source_id", id)
     .order("created_at", { ascending: false })
     .limit(1)
     .single();
 
   if (error || !job) return NextResponse.json({ error: "Job not found" }, { status: 404 });
-  return NextResponse.json(job);
+  return NextResponse.json({
+    ...job,
+    result_json: job.result,
+  });
 }

@@ -200,38 +200,58 @@ class DocumentDeepRAGService:
             "compliance_score": max(20, 100 - len(gaps) * 14)
         }
 
+    def detect_document_type(self, ocr_text: str) -> str:
+        """Nhận diện loại văn bản từ nội dung."""
+        text_lower = ocr_text.lower()
+        if any(k in text_lower for k in ["giấy nghỉ phép", "nghỉ phép", "xin nghỉ", "giấy phép nghỉ"]):
+            return "GIẤY NGHỈ PHÉP"
+        elif any(k in text_lower for k in ["giấy đề nghị", "đề nghị", "kiến nghị"]):
+            return "GIẤY ĐỀ NGHị"
+        elif any(k in text_lower for k in ["biên bản", "biên bản hỏp", "biên bản bàn giao"]):
+            return "BIÊN BẢN"
+        elif any(k in text_lower for k in ["báo cáo", "báo cáo tiến độ", "báo cáo công việc"]):
+            return "BÁO CÁO"
+        elif any(k in text_lower for k in ["tờ trình", "khần trình", "xin phê duyệt"]):
+            return "Tờ TRÌNH"
+        elif any(k in text_lower for k in ["công văn", "v/v"]):
+            return "CÔNG VĂN"
+        elif any(k in text_lower for k in ["thông báo"]):
+            return "THÔNG BÁO"
+        elif any(k in text_lower for k in ["hợp đồng", "hĐlĐ", "bên a", "bên b"]):
+            return "HỢP ĐỒNG"
+        elif any(k in text_lower for k in ["quyết định"]):
+            return "QUYẾT ĐỊNH"
+        elif any(k in text_lower for k in ["thông tư"]):
+            return "THÔNG TƯ"
+        return "VĂN BẢN HÀNH CHÍNH"
+
     def generate_search_queries(self, ocr_text: str) -> List[str]:
         """Tự động tạo các cụm từ tìm kiếm Web thông minh."""
         text_lower = ocr_text.lower()
         queries = []
 
-        # Nhận diện loại văn bản
-        doc_type = "văn bản hành chính"
-        if "quyết định" in text_lower:
-            doc_type = "quyết định"
-        elif "thông báo" in text_lower:
-            doc_type = "thông báo"
-        elif "hợp đồng" in text_lower:
-            doc_type = "hợp đồng"
-        elif "tờ trình" in text_lower:
-            doc_type = "tờ trình"
-        elif "công văn" in text_lower:
-            doc_type = "công văn"
+        doc_type_label = self.detect_document_type(ocr_text).lower()
 
         # Nhận diện chủ đề
         if any(k in text_lower for k in ["bổ nhiệm", "tiếp nhận", "nhân sự", "thử việc", "lao động", "chấm dứt"]):
-            queries.append(f"mẫu {doc_type} nhân sự bổ nhiệm chuẩn Nghị định 30")
+            queries.append(f"mẫu {doc_type_label} nhân sự chuẩn Nghị định 30")
             queries.append("Bộ luật Lao động 2019 căn cứ pháp lý quyết định nhân sự")
+        elif any(k in text_lower for k in ["nghỉ phép", "nghỉ việc", "xin nghỉ"]):
+            queries.append(f"mẫu {doc_type_label} chuẩn thể thức Nghị định 30 2020")
+            queries.append("căn cứ pháp lý giấy nghỉ phép Bộ luật Lao động 2019")
         elif any(k in text_lower for k in ["xử phạt", "vi phạm", "thanh tra", "kỷ luật"]):
-            queries.append(f"mẫu {doc_type} kỷ luật cán bộ căn cứ pháp lý")
+            queries.append(f"mẫu {doc_type_label} kỷ luật cán bộ căn cứ pháp lý")
             queries.append("Nghị định 30/2020/NĐ-CP thể thức quyết định kỷ luật")
         elif any(k in text_lower for k in ["mua bán", "dịch vụ", "thầu", "thanh toán", "nghiệm thu"]):
-            queries.append(f"mẫu {doc_type} mua bán dịch vụ chuẩn pháp lý")
+            queries.append(f"mẫu {doc_type_label} mua bán dịch vụ chuẩn pháp lý")
             queries.append("Luật Thương mại Luật Đấu thầu căn cứ pháp lý")
         elif any(k in text_lower for k in ["tạm ứng", "kinh phí", "ngân sách", "tài chính"]):
-            queries.append(f"mẫu {doc_type} phê duyệt kinh phí tài chính")
+            queries.append(f"mẫu {doc_type_label} phê duyệt kinh phí tài chính")
+        elif any(k in text_lower for k in ["báo cáo", "tiến độ", "tổng kết"]):
+            queries.append(f"mẫu {doc_type_label} chuẩn Nghị định 30 2020")
+            queries.append("thể thức báo cáo hành chính")
         else:
-            queries.append(f"mẫu {doc_type} chuẩn Nghị định 30 2020 NĐ CP")
+            queries.append(f"mẫu {doc_type_label} chuẩn Nghị định 30 2020 NĐ CP")
             queries.append("thể thức văn bản hành chính Nghị định 30")
 
         return queries
@@ -245,6 +265,9 @@ class DocumentDeepRAGService:
         """
         now = datetime.datetime.now()
         current_date_str = f"Hà Nội, ngày {now.day:02d} tháng {now.month:02d} năm {now.year}"
+
+        # 0. Nhận diện loại văn bản trước khi phân tích
+        detected_doc_type = self.detect_document_type(ocr_text)
 
         # 1. RAG Gap Analysis
         rag_audit = self.analyze_compliance_gaps(ocr_text)
@@ -273,28 +296,33 @@ class DocumentDeepRAGService:
 
                 prompt = f"""
 Bạn là Trợ lý AI Pháp chế & Chuyên gia Văn thư Hành chính Nhà nước cấp cao (Senior Legal & Document Engineer).
-Nhiệm vụ của bạn là xem xét bản quét OCR dưới đây, giải quyết câu hỏi của người dùng:
-"Văn bản này là gì? RAG/Pháp luật quy định gì? Cần bổ sung gì? Và tra cứu thông tin trên mạng để đưa ra kết quả hoàn thiện và chuẩn xác nhất."
+Nhiệm vụ: xem xét nội dung văn bản dưới đây và phân tích, bổ sung, hoàn thiện ĐÚNG THEO LOẠI VĂN BẢN GỐC ({detected_doc_type}) — TUYỆT ĐỐI KHÔNG thay thế bằng loại văn bản khác.
 
 DỮ LIỆU ĐẦU VÀO:
-1. Nội dung văn bản OCR trích xuất từ ảnh:
+1. Loại văn bản đã xác định: **{detected_doc_type}**
+2. Nội dung văn bản gốc:
 \"\"\"
 {ocr_text[:3500]}
 \"\"\"
 
-2. Kết quả kiểm toán RAG theo Nghị định 30/2020/NĐ-CP (những điểm còn thiếu hoặc yếu):
+3. Kết quả kiểm toán RAG theo Nghị định 30/2020/NĐ-CP (những điểm còn thiếu hoặc yếu):
 {gaps_summary_str if gaps_summary_str else "Đã có tương đối đủ các thành phần cơ bản."}
 
-3. Dữ liệu tra cứu Web thời gian thực (Grounding):
+4. Dữ liệu tra cứu Web thời gian thực (Grounding):
 {web_context_str}
 
-4. Yêu cầu của người dùng: "{custom_instruction}"
+5. Yêu cầu của người dùng: "{custom_instruction}"
 
-HÃY PHÂN TÍCH VÀ XUẤT RA DUY NHẤT 1 ĐỐI TƯỢNG JSON VỚI CẤU TRÚC CHUẨN XÁC SAU (không dùng markdown giải thích thừa bên ngoài):
+QUY TẮC BẮT BUỘC:
+- Trường "doc_type" trong perfected_document PHẢI là "{detected_doc_type}" — không được thay đổi thành loại khác.
+- Nội dung các điều khoản (articles) phải phù hợp đúng với loại văn bản "{detected_doc_type}", không dùng cấu trúc Điều 1/Điều 2 nếu đây là Giấy nội bộ hay Báo cáo.
+- Nếu văn bản là Giấy nghỉ phép / Đề nghị / Báo cáo, articles có thể chỉ có 1 mục nội dung chính, không cần cấu trúc quyết định nhiều điều.
+
+HÃY XUẤT RA DUY NHẤT 1 ĐỐI TƯỢNG JSON VỚI CẤU TRÚC SAU (không dùng markdown giải thích thừa):
 {{
   "document_identity": {{
     "what_is_this": "Giải thích ngắn gọn văn bản này là gì, thuộc thể loại nào, do ai ban hành và mục đích pháp lý",
-    "document_type": "QUYẾT ĐỊNH / CÔNG VĂN / TỜ TRÌNH / HỢP ĐỒNG...",
+    "document_type": "{detected_doc_type}",
     "category_field": "Nhân sự / Hành chính / Pháp chế / Tài chính...",
     "confidence_rating": "95%"
   }},
@@ -318,32 +346,26 @@ HÃY PHÂN TÍCH VÀ XUẤT RA DUY NHẤT 1 ĐỐI TƯỢNG JSON VỚI CẤU TR�
     }}
   ],
   "perfected_document": {{
-    "doc_type": "QUYẾT ĐỊNH",
+    "doc_type": "{detected_doc_type}",
     "company_name": "TÊN CƠ QUAN / DOANH NGHIỆP BAN HÀNH",
     "department": "TÊN PHÒNG BAN THAM MƯU",
-    "doc_number": "Số hiệu chuẩn (ví dụ: 12/QĐ-CTY)",
+    "doc_number": "Số hiệu chuẩn (nếu có, ví dụ: .../GNP-CTY hoặc để trống nếu không cần)",
     "location_date": "{current_date_str}",
-    "subject": "Về việc...",
+    "subject": "Về việc... (điền đúng nội dung {detected_doc_type})",
     "bases": [
       "Căn cứ Nghị định số 30/2020/NĐ-CP ngày 05 tháng 3 năm 2020 của Chính phủ về công tác văn thư;",
-      "Căn cứ Bộ luật Lao động số 45/2019/QH14 ngày 20 tháng 11 năm 2019;",
-      "Căn cứ Điều lệ và Quy chế hoạt động của..."
+      "Căn cứ Bộ luật Lao động số 45/2019/QH14 ngày 20 tháng 11 năm 2019;"
     ],
     "articles": [
       {{
-        "title": "Điều 1",
-        "content": "Nội dung hoàn chỉnh, rõ ràng, gãy gọn, đúng thuật ngữ pháp lý..."
-      }},
-      {{
-        "title": "Điều 2",
-        "content": "Điều khoản thi hành, hiệu lực và trách nhiệm của các đơn vị..."
+        "title": "Nội dung chính",
+        "content": "Điền nội dung phù hợp với {detected_doc_type} — không áp dụng cấu trúc Quyết định nếu không phải loại đó."
       }}
     ],
     "signatory_title": "CHỨC DANH NGƯỜI KÝ (IN HOA ĐẬM)",
     "signatory_name": "Họ và tên người ký",
     "recipients": [
-      "Như Điều 2;",
-      "Hội đồng Quản trị / Ban Giám đốc (để b/c);",
+      "Người nhận liên quan;",
       "Lưu: VT, HS."
     ],
     "has_seal": true,

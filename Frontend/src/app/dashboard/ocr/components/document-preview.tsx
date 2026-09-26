@@ -214,16 +214,28 @@ export default function DocumentPreview({ job, onSelectBlock }: DocumentPreviewP
                     }}
                     className="relative max-h-full max-w-full origin-center flex items-center justify-center"
                 >
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                        ref={imgRef}
-                        src={job.previewUrl}
-                        alt={job.file.name}
-                        draggable={false}
-                        onClick={handleImgClick}
-                        className="max-h-full w-auto max-w-full rounded-lg object-contain shadow-2xl ring-1 ring-border"
-                        style={{ cursor: hasBlocks ? "crosshair" : "default" }}
-                    />
+                    {job.previewUrl ? (
+                        /* eslint-disable-next-line @next/next/no-img-element */
+                        <img
+                            ref={imgRef}
+                            src={job.previewUrl}
+                            alt={job.file.name}
+                            draggable={false}
+                            onClick={handleImgClick}
+                            className="max-h-full w-auto max-w-full rounded-lg object-contain shadow-2xl ring-1 ring-border"
+                            style={{ cursor: hasBlocks ? "crosshair" : "default" }}
+                        />
+                    ) : (
+                        <div className="flex max-w-sm flex-col items-center justify-center rounded-2xl border border-border bg-card p-8 text-center">
+                            <div className="mb-3 flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+                                <FileImage className="h-7 w-7" />
+                            </div>
+                            <h4 className="text-sm font-bold text-foreground">Văn bản tạo từ Mẫu NĐ 30</h4>
+                            <p className="mt-1 text-xs text-muted-foreground">
+                                Văn bản được tạo trực tiếp từ AI & Hồ sơ HR (không có ảnh scan gốc). Bạn có thể xem trước bản A4 và thẩm định thể thức ở Bàn làm việc bên phải.
+                            </p>
+                        </div>
+                    )}
 
                     {/* SVG Bounding-Box Overlay */}
                     {hasBlocks && showBBoxes && (

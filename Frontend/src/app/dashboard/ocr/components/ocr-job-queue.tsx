@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { AlertCircle, CheckCircle2, Clock, Loader2, RotateCcw, Sparkles, Trash2 } from "lucide-react";
+import { AlertCircle, CheckCircle2, Clock, FileText, Loader2, RotateCcw, Sparkles, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { flowAt } from "@/lib/ui/tones";
 import type { OCRJob, OCRJobStatus } from "../types";
@@ -89,8 +89,14 @@ export default function OCRJobQueue({
                                 )}
                             >
                                 <div className="relative h-24 bg-muted">
-                                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                                    <img src={job.previewUrl} alt={job.file.name} className="h-full w-full object-cover" />
+                                    {job.previewUrl ? (
+                                        /* eslint-disable-next-line @next/next/no-img-element */
+                                        <img src={job.previewUrl} alt={job.file.name} className="h-full w-full object-cover" />
+                                    ) : (
+                                        <div className="flex h-full w-full items-center justify-center bg-primary/10 text-primary">
+                                            <FileText className="h-6 w-6" />
+                                        </div>
+                                    )}
                                     <span className="absolute left-1.5 top-1.5 rounded-md bg-card/90 px-1.5 text-[10px] font-bold text-foreground">#{idx + 1}</span>
                                     <span className="absolute right-1.5 top-1.5 flex gap-1 opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100">
                                         {job.status === "error" && (

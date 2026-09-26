@@ -37,8 +37,7 @@ async function runOcrJob(args: {
       admin.from("document_jobs").update({ status: "processing", error_message: null }).eq("id", args.jobId),
     ]);
 
-    const baseUrl = process.env.VISION_OCR_URL?.replace(/\/+$/, "");
-    if (!baseUrl) throw new Error("VISION_OCR_URL is not configured");
+    const baseUrl = process.env.VISION_OCR_URL?.replace(/\/+$/, "") || "http://localhost:8000";
 
     const body = new FormData();
     body.append("file", new Blob([args.imageBytes], { type: args.mimeType }), args.fileName);
@@ -71,7 +70,7 @@ async function runOcrJob(args: {
     await Promise.all([
       admin
         .from("document_jobs")
-        .update({ status: "done", result_json: resultJson, error_message: null })
+        .update({ status: "done", result: resultJson, error_message: null })
         .eq("id", args.jobId),
       admin
         .from("document_sources")
@@ -115,7 +114,8 @@ export async function POST(request: Request) {
   const safeName = file.name.replace(/[^\w.\-]+/g, "_") || `ocr.${format}`;
   const storagePath = `${userId}/ocr/${Date.now()}_${randomUUID()}_${safeName}`;
 
-  const { error: uploadError } = await supabase.storage
+  const admin = createAdminClient();
+  const { error: uploadError } = await admin.storage
     .from("document-sources")
     .upload(storagePath, imageBytes, { contentType: file.type });
 
@@ -123,12 +123,15 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Storage upload failed", detail: uploadError.message }, { status: 500 });
   }
 
-  const { data: documentSource, error: documentError } = await supabase
+  const { data: documentSource, error: documentError } = await admin
     .from("document_sources")
     .insert({
+      title: file.name,
       file_name: file.name,
-      file_url: storagePath,
-      format,
+      storage_path: storagePath,
+      file_size: file.size,
+      mime_type: file.type,
+      source_type: "file",
       status: "pending",
       created_by: userId,
     })
@@ -136,11 +139,11 @@ export async function POST(request: Request) {
     .single();
 
   if (documentError || !documentSource) {
-    await supabase.storage.from("document-sources").remove([storagePath]).catch(() => null);
+    await admin.storage.from("document-sources").remove([storagePath]).catch(() => null);
     return NextResponse.json({ error: documentError?.message ?? "Document source insert failed" }, { status: 500 });
   }
 
-  const { data: job, error: jobError } = await supabase
+  const { data: job, error: jobError } = await admin
     .from("document_jobs")
     .insert({
       document_source_id: documentSource.id,
@@ -151,7 +154,7 @@ export async function POST(request: Request) {
     .single();
 
   if (jobError || !job) {
-    await supabase.from("document_sources").update({ status: "failed" }).eq("id", documentSource.id);
+    await admin.from("document_sources").update({ status: "failed" }).eq("id", documentSource.id);
     return NextResponse.json({ error: jobError?.message ?? "Document job insert failed" }, { status: 500 });
   }
 
